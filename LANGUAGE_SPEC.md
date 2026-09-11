@@ -1,5 +1,7 @@
 # CAIE 9618 编辑器语言规范
 
+当前项目状态统一以 [`PROJECT_STATE.md`](PROJECT_STATE.md) 为准。本规范只定义语言契约；文中的实施顺序和实施状态用于说明规范上下文，不是当前状态的权威来源。
+
 版本：0.1  
 状态：阶段 4 已实现  
 依赖：`CAIE_RULES.md`、`runtime-conventions.md`

@@ -75,27 +75,27 @@ export const chapter05: Chapter = {
           options: [
             {
               key: "A",
+              label: "3 遍",
+              correct: false,
+              explanation: "3 是起点，它决定从哪儿开始数，不决定数多少个。"
+            },
+            {
+              key: "B",
               label: "5 遍",
               correct: true,
               explanation: "对。`I` 依次取 3、4、5、6、7，两端都包含，所以是「终点减起点再加一」。"
             },
             {
-              key: "B",
+              key: "C",
               label: "4 遍",
               correct: false,
               explanation: "起点和终点都算在内，别忘了加一：7 减 3 是 4，但 3、4、5、6、7 一共是五个数。"
             },
             {
-              key: "C",
+              key: "D",
               label: "7 遍",
               correct: false,
               explanation: "7 是终点，不是次数。起点不是 1 的时候，次数和终点不是一回事。"
-            },
-            {
-              key: "D",
-              label: "3 遍",
-              correct: false,
-              explanation: "3 是起点，它决定从哪儿开始数，不决定数多少个。"
             }
           ]
         },
@@ -221,27 +221,27 @@ export const chapter05: Chapter = {
           options: [
             {
               key: "A",
-              label: "0 遍",
-              correct: true,
-              explanation: "对。默认增量是 1，`I` 一开始就是 10，已经超过终点 1，循环体一遍都不执行。要倒着数得写 `STEP -1`。"
-            },
-            {
-              key: "B",
               label: "10 遍",
               correct: false,
               explanation: "10 是起点不是次数，而且这个循环的方向本身就不对。"
             },
             {
-              key: "C",
+              key: "B",
               label: "1 遍",
               correct: false,
               explanation: "没有「至少跑一遍」这回事。`FOR` 在每一遍开始前都先检查，第一次检查就没通过。"
             },
             {
-              key: "D",
+              key: "C",
               label: "编辑器会拦下来",
               correct: false,
               explanation: "这段代码合法，只是什么也没做。被拦的是 `STEP 0`，不是方向写反。"
+            },
+            {
+              key: "D",
+              label: "0 遍",
+              correct: true,
+              explanation: "对。默认增量是 1，`I` 一开始就是 10，已经超过终点 1，循环体一遍都不执行。要倒着数得写 `STEP -1`。"
             }
           ]
         }
@@ -385,27 +385,27 @@ export const chapter05: Chapter = {
           options: [
             {
               key: "A",
-              label: "显示一次 10，然后结束",
-              correct: true,
-              explanation: "对。循环体先执行一遍显示 `10`，然后判断 `10 > 5` 成立，于是结束。条件在后面，所以至少跑一遍。"
-            },
-            {
-              key: "B",
-              label: "什么都不显示，因为 10 已经大于 5",
-              correct: false,
-              explanation: "那是 `WHILE` 的行为。`REPEAT` 把条件放在后面，先跑完一遍才轮到判断。"
-            },
-            {
-              key: "C",
               label: "一直显示 10",
               correct: false,
               explanation: "一直跑下去要求条件一直不成立。`10 > 5` 第一次判断就成立了。"
             },
             {
-              key: "D",
+              key: "B",
               label: "编辑器会拦下来",
               correct: false,
               explanation: "这段代码合法。`Count` 在循环里没变，但条件第一次就成立，不会出问题。"
+            },
+            {
+              key: "C",
+              label: "显示一次 10，然后结束",
+              correct: true,
+              explanation: "对。循环体先执行一遍显示 `10`，然后判断 `10 > 5` 成立，于是结束。条件在后面，所以至少跑一遍。"
+            },
+            {
+              key: "D",
+              label: "什么都不显示，因为 10 已经大于 5",
+              correct: false,
+              explanation: "那是 `WHILE` 的行为。`REPEAT` 把条件放在后面，先跑完一遍才轮到判断。"
             }
           ]
         },
@@ -546,27 +546,27 @@ export const chapter05: Chapter = {
           options: [
             {
               key: "A",
-              label: "反复要求用户输入密码，直到输对为止",
-              correct: true,
-              explanation: "对。不问一次就没有密码可以检查。用 `WHILE` 也做得到，但必须在循环前先问一次，那一段会重复写两遍。"
-            },
-            {
-              key: "B",
-              label: "只要还有钱就继续买东西",
-              correct: false,
-              explanation: "一分钱都没有时应该一次都不买。「可能 0 次」正是 `WHILE` 的场合。"
-            },
-            {
-              key: "C",
               label: "把一串数字从头到尾走一遍",
               correct: false,
               explanation: "次数事先就知道，这种情况连 `WHILE` 都不是首选，`FOR` 才是。"
             },
             {
-              key: "D",
+              key: "B",
               label: "显示 1 到 10",
               correct: false,
               explanation: "次数已知，用 `FOR` 最直接：起点终点写在一行里。"
+            },
+            {
+              key: "C",
+              label: "反复要求用户输入密码，直到输对为止",
+              correct: true,
+              explanation: "对。不问一次就没有密码可以检查。用 `WHILE` 也做得到，但必须在循环前先问一次，那一段会重复写两遍。"
+            },
+            {
+              key: "D",
+              label: "只要还有钱就继续买东西",
+              correct: false,
+              explanation: "一分钱都没有时应该一次都不买。「可能 0 次」正是 `WHILE` 的场合。"
             }
           ]
         }

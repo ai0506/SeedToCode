@@ -60,6 +60,7 @@
 | `token.chinesePunctuation`（ID-001） | 代码里出现 `，。；：（）「」` 等全角标点 | 检测到中文标点 `，`。请切换到英文输入法，并使用英文半角符号 |
 | `typo.keywordSuggestion`（TYPO-001） | 标识符与关键字 / 类型名 / 内置函数名相差一次编辑或一次相邻字母调换 | 这里的 `outpit` 可能是拼写错误。你想写 `OUTPUT` 吗 |
 | `parser.output.requiresComma`（IO-002） | `OUTPUT` 后面还剩着能开启新表达式的东西 | `OUTPUT` 的多个值之间要用逗号分隔；要显示的文字要放进双引号里 |
+| `parser.bindingName.cannotBeKeyword`（ID-002） | 在声明名称、`FOR` 控制变量或 `NEXT` 变量位置使用已有关键字 / 类型名 | `CLASS` 是关键字，不能作为 identifier。请换一个名称，例如 `ClassNo` |
 
 ### 3.1.1 不改的那几条
 

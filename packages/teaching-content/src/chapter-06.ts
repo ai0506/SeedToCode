@@ -89,27 +89,27 @@ export const chapter06: Chapter = {
           options: [
             {
               key: "A",
+              label: "三种都一样，随便挑",
+              correct: false,
+              explanation: "三种确实都写得出来，但代价不一样：`FOR` 写不出，`WHILE` 要重复两行。挑的就是代价最小的那个。"
+            },
+            {
+              key: "B",
               label: "`REPEAT`",
               correct: true,
               explanation: "对。不问一次就没有值可以检查，所以「至少跑一遍」是这件事的本来面目，条件放在后面正合适。"
             },
             {
-              key: "B",
+              key: "C",
               label: "`FOR`",
               correct: false,
               explanation: "用户可能一次就输对，也可能输错十次。次数事先不知道，`FOR` 的起点终点没法写。"
             },
             {
-              key: "C",
+              key: "D",
               label: "`WHILE`",
               correct: false,
               explanation: "能写，但别扭：判断条件时手里得先有个值，所以必须在循环前面先问一次，那两行就得写两遍。"
-            },
-            {
-              key: "D",
-              label: "三种都一样，随便挑",
-              correct: false,
-              explanation: "三种确实都写得出来，但代价不一样：`FOR` 写不出，`WHILE` 要重复两行。挑的就是代价最小的那个。"
             }
           ]
         }
@@ -183,27 +183,27 @@ export const chapter06: Chapter = {
           options: [
             {
               key: "A",
-              label: "没有区别，两个都是买 2 件、剩 5 元",
-              correct: true,
-              explanation: "对。25 元时循环体本来就该跑，「先做再判断」和「先判断再做」得到的是同一串动作。区别只在循环体一遍都不该跑的时候才出现。"
-            },
-            {
-              key: "B",
               label: "有，`REPEAT` 版会多买一件",
               correct: false,
               explanation: "25 元足够买第一件，两个版本在这里的行为完全一样：买、再判断。"
             },
             {
-              key: "C",
+              key: "B",
               label: "有，`WHILE` 版会少买一件",
               correct: false,
               explanation: "`WHILE` 不会少跑：只要条件成立它就继续，25 到 15 到 5，正好两遍。"
             },
             {
-              key: "D",
+              key: "C",
               label: "`REPEAT` 版会报错",
               correct: false,
               explanation: "两个版本都合法、都跑得完。这正是这类错误麻烦的地方——没有任何提示。"
+            },
+            {
+              key: "D",
+              label: "没有区别，两个都是买 2 件、剩 5 元",
+              correct: true,
+              explanation: "对。25 元时循环体本来就该跑，「先做再判断」和「先判断再做」得到的是同一串动作。区别只在循环体一遍都不该跑的时候才出现。"
             }
           ]
         }
@@ -333,27 +333,27 @@ export const chapter06: Chapter = {
           options: [
             {
               key: "A",
-              label: "一共显示 2 行",
-              correct: true,
-              explanation: "对。挪到 `NEXT J` 后面它就归外层管了——外层跑几遍就显示几遍，不再是每一列各一行。"
-            },
-            {
-              key: "B",
-              label: "还是 6 行，只是顺序变了",
-              correct: false,
-              explanation: "显示几行取决于这一句被执行几次。离开内层之后，它一轮只执行一次。"
-            },
-            {
-              key: "C",
               label: "一共显示 3 行",
               correct: false,
               explanation: "3 是内层的遍数。这一句现在归外层管，和内层跑几遍没关系了。"
             },
             {
-              key: "D",
+              key: "B",
               label: "编辑器会拦下来",
               correct: false,
               explanation: "两个位置都合法。这正是要小心的地方：位置放错不会报错，只会算错。"
+            },
+            {
+              key: "C",
+              label: "一共显示 2 行",
+              correct: true,
+              explanation: "对。挪到 `NEXT J` 后面它就归外层管了——外层跑几遍就显示几遍，不再是每一列各一行。"
+            },
+            {
+              key: "D",
+              label: "还是 6 行，只是顺序变了",
+              correct: false,
+              explanation: "显示几行取决于这一句被执行几次。离开内层之后，它一轮只执行一次。"
             }
           ]
         },

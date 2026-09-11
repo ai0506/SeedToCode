@@ -18,7 +18,7 @@
    用途：
      · 审版式：所有内容块一次看全，包括实际章节里暂时没用到的块（如填空题）
      · 试新块：先在这里加占位数据，看形态定了再写进内容规格
-   「元素标注」默认打开：每个块右上角浮出它在规格里的类型名。
+   「内容类型」默认打开：每个块右上角显示内容类型。
 -->
 
 <header class="topbar">
@@ -41,11 +41,11 @@
    </div>
 
    <div class="topbar-right">
-      <div class="switch-field" data-tip="在每个内容块右上角标出它在规格里的类型名">
-         <button class="switch-ctl" id="elLabelToggle" role="switch" aria-checked="true" aria-label="元素标注">
+      <div class="switch-field" data-tip="在每个内容块右上角显示内容类型">
+         <button class="switch-ctl" id="elLabelToggle" role="switch" aria-checked="true" aria-label="显示内容类型">
             <span class="switch-track"><span class="switch-thumb"></span></span>
          </button>
-         <span class="switch-label">元素标注</span>
+         <span class="switch-label">内容类型</span>
       </div>
       <div class="progress-slot" data-tip="本章完成度">
          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
@@ -102,9 +102,9 @@
 <script src="js/lang.js?v=11"></script>
 <script src="js/language-engine.js?v=11"></script>
 <script src="js/language-adapter.js?v=9"></script>
-<script src="js/runtime-engine.js?v=9"></script>
+<script src="js/runtime-engine.js?v=10"></script>
 <script src="js/runtime-messages.js?v=3"></script>
-<script src="js/exercise-engine.js?v=11"></script>
+<script src="js/exercise-engine.js?v=14"></script>
 <script>
 /* 占位数据。结构与 packages/teaching-content 完全一致，只是内容是【占位】。
    这里刻意把所有块类型都摆一遍，包括 Chapter 1 没用到的填空题。 */
@@ -300,7 +300,7 @@ window.CAIETeaching = {
    }
 };
 </script>
-<script src="js/teaching-task.js?v=3"></script>
-<script src="js/teaching-app.js?v=17"></script>
+<script src="js/teaching-task.js?v=6"></script>
+<script src="js/teaching-app.js?v=21"></script>
 </body>
 </html>

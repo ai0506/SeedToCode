@@ -110,14 +110,14 @@
       var stepId = found.isChapterTask ? "chapterTask" : found.section.id;
       var kicker = found.isChapterTask ? "章末大题" : "伪代码题";
 
-      document.title = task.title + " · CAIE 9618 伪代码";
+      document.title = T.plainText(task.title) + " · CAIE 9618 伪代码";
       $("#paneKicker").textContent = kicker;
       $("#paneSource").textContent = found.isChapterTask
          ? "Chapter " + chapter.id + " 全章"
-         : found.section.id + "　" + found.section.title;
-      $("#taskTitle").textContent = task.title;
-      $("#ltCh").textContent = "Chapter " + chapter.id + " · " + chapter.title;
-      $("#ltSec").textContent = kicker + "　" + task.title;
+         : found.section.id + "　" + T.plainText(found.section.title);
+      $("#taskTitle").textContent = T.plainText(task.title);
+      $("#ltCh").textContent = "Chapter " + chapter.id + " · " + T.plainText(chapter.title);
+      $("#ltSec").textContent = kicker + "　" + T.plainText(task.title);
       $("#statusLevel").textContent = chapter.level === "AS" ? "AS Level" : "A Level";
       $("#statusSection").textContent = found.isChapterTask
          ? "Chapter " + chapter.id + " 章末大题"
@@ -162,7 +162,7 @@
          '<a class="btn" href="' + lessonHref(chapter, stepId) + '">回到这一节</a>' +
          (next
             ? '<a class="btn btn-primary" href="' + lessonHref(chapter, next) + '">下一节：' +
-              T.esc(labelOf(chapter, next)) + " ›</a>"
+              T.inline(labelOf(chapter, next)) + " ›</a>"
             : '<a class="btn btn-primary" href="teaching.html">回到课程主页 ›</a>');
       slot.hidden = false;
       slot.scrollIntoView({ behavior: "smooth", block: "nearest" });

@@ -67,3 +67,45 @@ describe("行数不对时优先说行数", () => {
       .toBe("literal");
   });
 });
+
+describe("算出来的数字不对时，方向要指向数据而不是文字", () => {
+  it("文字一样、只有数字不同 → data", () => {
+    // 「每进一个班要清零」写漏了会得到这种输出：文字一个字没错，数字全串了
+    const result = compareOutputs(
+      ["Class 2: count 0 total 0"],
+      ["Class 2: count 2 total 150"],
+      {},
+      ["80", "70", "-1", "-1", "90", "-1"]
+    );
+    expect(result.matches).toBe(false);
+    expect(result.diffKind).toBe("data");
+  });
+
+  it("数字一样、文字不同仍然是 literal", () => {
+    const result = compareOutputs(["Total: 360"], ["Total:360"], {}, ["120", "3"]);
+    expect(result.diffKind).toBe("literal");
+  });
+
+  it("纯文字的差别不受影响", () => {
+    const result = compareOutputs(["Even"], ["Odd"], {}, ["12"]);
+    expect(result.diffKind).toBe("literal");
+  });
+});
+
+describe("负数与「数字恰好等于某个输入」", () => {
+  it("最大值算错成 0，而正确答案是负数 → data", () => {
+    // 求最大值时把起点写成 0，整周都在零度以下就会露馅
+    const result = compareOutputs(
+      ["Highest: -1"],
+      ["Highest: 0"],
+      {},
+      ["-5", "-3", "-8", "-1", "-6", "-2", "-4"]
+    );
+    expect(result.diffKind).toBe("data");
+  });
+
+  it("文字错了仍然是 literal，不受负号影响", () => {
+    const result = compareOutputs(["Highest: -1"], ["Lowest: -1"], {}, ["-1"]);
+    expect(result.diffKind).toBe("literal");
+  });
+});

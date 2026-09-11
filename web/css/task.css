@@ -69,6 +69,16 @@
 }
 .task-state-slot[data-state="done"] { background: var(--ok-soft); color: var(--ok); }
 
+/* ---------- 返回按钮 ---------- */
+/* 通用 .btn-ghost 边框透明、字色偏淡，放在做题页顶栏里太不起眼——
+   这是这个页面唯一的退出路径，得让人一眼看到。 */
+#backToLesson.btn-ghost {
+   border-color: var(--border-strong);
+   background: var(--bg-panel);
+   color: var(--text);
+}
+#backToLesson.btn-ghost:hover { background: var(--bg-sunken); border-color: var(--accent); color: var(--accent); }
+
 /* ---------- 作答区 ---------- */
 /* 这里是页面的主角，编辑区按可用高度撑开，不再是课文里那个 168px 的小格子 */
 .task-pane-right .mini-editor { display: flex; flex-direction: column; }

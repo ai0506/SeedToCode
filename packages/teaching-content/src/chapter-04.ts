@@ -78,27 +78,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
+              label: "只有 Passed",
+              correct: false,
+              explanation: "正好反了：条件不成立时跳过的恰恰是 `Passed` 那一行。"
+            },
+            {
+              key: "B",
               label: "只有 Done",
               correct: true,
               explanation: "对。`40 >= 50` 算出 `FALSE`，`THEN` 和 `ENDIF` 之间那一行被整个跳过；`OUTPUT \"Done\"` 不在 `IF` 的范围里，照常执行。"
             },
             {
-              key: "B",
+              key: "C",
               label: "Passed 和 Done",
               correct: false,
               explanation: "`Passed` 只在条件成立时才显示。40 不到 50，条件算出来是 `FALSE`。"
             },
             {
-              key: "C",
+              key: "D",
               label: "什么都没有",
               correct: false,
               explanation: "跳过的只是 `IF` 管着的那一行。`OUTPUT \"Done\"` 没有缩进，不归它管。"
-            },
-            {
-              key: "D",
-              label: "只有 Passed",
-              correct: false,
-              explanation: "正好反了：条件不成立时跳过的恰恰是 `Passed` 那一行。"
             }
           ]
         }
@@ -182,27 +182,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
-              label: "Small",
-              correct: true,
-              explanation: "对。`10 > 10` 算出 `FALSE`——`>` 要求严格大于，相等不算。条件不成立，走 `ELSE`。"
-            },
-            {
-              key: "B",
               label: "Big",
               correct: false,
               explanation: "要显示 `Big`，`A` 得比 10 大。正好等于 10 时 `>` 给出的是 `FALSE`。"
             },
             {
-              key: "C",
+              key: "B",
               label: "两个都显示",
               correct: false,
               explanation: "`ELSE` 的两条分支恰好走一条。走了上面那条就不会再走下面那条。"
             },
             {
-              key: "D",
+              key: "C",
               label: "什么都不显示",
               correct: false,
               explanation: "有 `ELSE` 时不存在「两条都不走」：条件的结果不是 `TRUE` 就是 `FALSE`，总有一条要走。"
+            },
+            {
+              key: "D",
+              label: "Small",
+              correct: true,
+              explanation: "对。`10 > 10` 算出 `FALSE`——`>` 要求严格大于，相等不算。条件不成立，走 `ELSE`。"
             }
           ]
         },
@@ -246,8 +246,7 @@ export const chapter04: Chapter = {
             { id: "t1", kind: "normal", inputs: ["7"], caseHint: "一个普通的奇数。" },
             { id: "t2", kind: "normal", inputs: ["12"], caseHint: "一个普通的偶数。" },
             { id: "t3", kind: "boundary", inputs: ["0"], caseHint: "零——它能被整除吗。" },
-            { id: "t4", kind: "boundary", inputs: ["-3"], caseHint: "一个负的奇数。" },
-            { id: "t5", kind: "extreme", inputs: ["1000001"], caseHint: "一个很大的数。" }
+            { id: "t4", kind: "extreme", inputs: ["1000001"], caseHint: "一个很大的数。" }
           ]
         }
       ]
@@ -383,27 +382,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
-              label: "只显示 Checked",
-              correct: true,
-              explanation: "对。一条标签都没对上，这个 `CASE` 什么也不做，程序从 `ENDCASE` 后面接着走。"
-            },
-            {
-              key: "B",
-              label: "程序停下来报错",
-              correct: false,
-              explanation: "没有匹配不是错误。要让「其它情况」也有着落，得自己写 `OTHERWISE`。"
-            },
-            {
-              key: "C",
               label: "显示 Monday",
               correct: false,
               explanation: "没有「对不上就用第一条」这种规则。标签必须真的对上才会执行。"
             },
             {
-              key: "D",
+              key: "B",
               label: "三条分支都执行",
               correct: false,
               explanation: "正相反：`CASE` 最多只执行对上的那一条，执行完就结束。"
+            },
+            {
+              key: "C",
+              label: "只显示 Checked",
+              correct: true,
+              explanation: "对。一条标签都没对上，这个 `CASE` 什么也不做，程序从 `ENDCASE` 后面接着走。"
+            },
+            {
+              key: "D",
+              label: "程序停下来报错",
+              correct: false,
+              explanation: "没有匹配不是错误。要让「其它情况」也有着落，得自己写 `OTHERWISE`。"
             }
           ]
         }
@@ -483,27 +482,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
-              label: "A",
-              correct: true,
-              explanation: "对。90 不落在 `50 TO 79` 里，所以第一条不成立，继续往下试，对上了 `80 TO 100`。这一次调换顺序没出问题，是因为两个区间不重叠——重叠时才会出现「后面那条永远轮不到」。"
-            },
-            {
-              key: "B",
-              label: "Pass",
-              correct: false,
-              explanation: "90 不在 50 到 79 里。范围标签要真的落在区间内才算对上，顺序影响的是「谁先被试」，不是「谁能被对上」。"
-            },
-            {
-              key: "C",
               label: "Fail",
               correct: false,
               explanation: "`OTHERWISE` 只在所有标签都没对上时才走。90 会先对上某一条。"
             },
             {
-              key: "D",
+              key: "B",
               label: "编辑器会拦下来",
               correct: false,
               explanation: "分支的先后顺序没有规定，只有 `OTHERWISE` 的位置有规定。"
+            },
+            {
+              key: "C",
+              label: "A",
+              correct: true,
+              explanation: "对。90 不落在 `50 TO 79` 里，所以第一条不成立，继续往下试，对上了 `80 TO 100`。这一次调换顺序没出问题，是因为两个区间不重叠——重叠时才会出现「后面那条永远轮不到」。"
+            },
+            {
+              key: "D",
+              label: "Pass",
+              correct: false,
+              explanation: "90 不在 50 到 79 里。范围标签要真的落在区间内才算对上，顺序影响的是「谁先被试」，不是「谁能被对上」。"
             }
           ]
         },

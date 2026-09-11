@@ -574,12 +574,17 @@ export class Interpreter {
       const key = indices.join(",");
       let cell = arrayValue.elements.get(key);
       if (!cell) {
+        // 元素本身是记录或数组时，要像 `DECLARE` 一样先把空壳建出来——
+        // 否则 `Roster[1].Name ← ...` 会因为「Roster[1] 还没有值」停下来，
+        // 而学生并没有漏写任何一步：记录数组的格子天生就该是一条空记录。
+        const composite = instantiateComposite(arrayType.elementType);
         cell = {
           name: `${locationName(expression.target)}[${indices.join(", ")}]`,
           normalizedName: key,
           kind: "element",
           type: arrayType.elementType,
-          initialized: false
+          initialized: composite !== undefined,
+          ...(composite !== undefined ? { value: composite } : {})
         };
         arrayValue.elements.set(key, cell);
       }
@@ -997,13 +1002,19 @@ function instantiateComposite(type: RuntimeType): RuntimeArray | RuntimeRecord |
     return {
       kind: "record",
       type,
-      fields: new Map(type.fields.map((field) => [field.normalizedName, {
-        name: field.name,
-        normalizedName: field.normalizedName,
-        kind: "field" as const,
-        type: field.type,
-        initialized: false
-      }]))
+      fields: new Map(type.fields.map((field) => {
+        // 字段本身又是记录或数组时同样要先建空壳，理由和数组元素那边一样：
+        // `X.Born.D ← 7` 里的 `X.Born` 不该被当成「还没有值」。
+        const inner = instantiateComposite(field.type);
+        return [field.normalizedName, {
+          name: field.name,
+          normalizedName: field.normalizedName,
+          kind: "field" as const,
+          type: field.type,
+          initialized: inner !== undefined,
+          ...(inner !== undefined ? { value: inner } : {})
+        }] as const;
+      }))
     };
   }
   return undefined;

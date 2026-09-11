@@ -137,10 +137,6 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a number",
     "Odd"
   ],
-  "4.2.1/t5": [
-    "Enter a number",
-    "Odd"
-  ],
   "4.5.1/t1": [
     "Enter the day number",
     "Wednesday"
@@ -438,6 +434,727 @@ export const expectedOutputs: ExpectedOutputs = {
     "Class 2: count 0 total 0",
     "Enter a score",
     "Class 3: count 0 total 0"
+  ],
+  "7.2.1/t1": [
+    "Enter a word",
+    "Length: 6",
+    "Head: Mo",
+    "Tail: day"
+  ],
+  "7.2.1/t2": [
+    "Enter a word",
+    "Length: 8",
+    "Head: Co",
+    "Tail: ter"
+  ],
+  "7.2.1/t3": [
+    "Enter a word",
+    "Length: 5",
+    "Head: ab",
+    "Tail: cde"
+  ],
+  "7.2.1/t4": [
+    "Enter a word",
+    "Length: 10",
+    "Head: Ps",
+    "Tail: ode"
+  ],
+  "7.2.1/t5": [
+    "Enter a word",
+    "Length: 15",
+    "Head: Ex",
+    "Tail: ily"
+  ],
+  "7.T1/t1": [
+    "Enter the code",
+    "Enter the grade",
+    "Length: 4",
+    "Prefix: XY",
+    "Number: 99",
+    "Tag: XY-99",
+    "Grade: B"
+  ],
+  "7.T1/t2": [
+    "Enter the code",
+    "Enter the grade",
+    "Length: 6",
+    "Prefix: QR",
+    "Number: 2468",
+    "Tag: QR-2468",
+    "Grade: C"
+  ],
+  "7.T1/t3": [
+    "Enter the code",
+    "Enter the grade",
+    "Length: 3",
+    "Prefix: QQ",
+    "Number: 1",
+    "Tag: QQ-1",
+    "Grade: Z"
+  ],
+  "7.T1/t4": [
+    "Enter the code",
+    "Enter the grade",
+    "Length: 4",
+    "Prefix: ZZ",
+    "Number: 12",
+    "Tag: ZZ-12",
+    "Grade: A"
+  ],
+  "7.T1/t5": [
+    "Enter the code",
+    "Enter the grade",
+    "Length: 12",
+    "Prefix: MN",
+    "Number: 1234567890",
+    "Tag: MN-1234567890",
+    "Grade: Q"
+  ],
+  "8.2.1/t1": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "30",
+    "20",
+    "10"
+  ],
+  "8.2.1/t2": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "9",
+    "5",
+    "5"
+  ],
+  "8.2.1/t3": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "0",
+    "0",
+    "0"
+  ],
+  "8.2.1/t4": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "-3",
+    "-2",
+    "-1"
+  ],
+  "8.2.1/t5": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "888888",
+    "1",
+    "999999"
+  ],
+  "8.4.1/t1": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passed: 3"
+  ],
+  "8.4.1/t2": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passed: 0"
+  ],
+  "8.4.1/t3": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passed: 5"
+  ],
+  "8.4.1/t4": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passed: 0"
+  ],
+  "8.4.1/t5": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passed: 5"
+  ],
+  "8.T1/t1": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Total: 128",
+    "Highest: 22",
+    "Average: 18",
+    "Above average: 3"
+  ],
+  "8.T1/t2": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Total: 140",
+    "Highest: 20",
+    "Average: 20",
+    "Above average: 0"
+  ],
+  "8.T1/t3": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Total: -29",
+    "Highest: -1",
+    "Average: -4",
+    "Above average: 3"
+  ],
+  "8.T1/t4": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Total: 30",
+    "Highest: 10",
+    "Average: 4",
+    "Above average: 3"
+  ],
+  "8.T1/t5": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Total: 46",
+    "Highest: 40",
+    "Average: 6",
+    "Above average: 1"
+  ],
+  "9.3.1/t1": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Row 1: 15",
+    "Row 2: 24"
+  ],
+  "9.3.1/t2": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Row 1: 3",
+    "Row 2: 6"
+  ],
+  "9.3.1/t3": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Row 1: 0",
+    "Row 2: 0"
+  ],
+  "9.3.1/t4": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Row 1: -6",
+    "Row 2: 6"
+  ],
+  "9.3.1/t5": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Row 1: 100001",
+    "Row 2: 100001"
+  ],
+  "9.T1/t1": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1 total: 150",
+    "Student 2 total: 150",
+    "Student 3 total: 150",
+    "Subject 1 average: 70",
+    "Subject 2 average: 80"
+  ],
+  "9.T1/t2": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1 total: 100",
+    "Student 2 total: 100",
+    "Student 3 total: 100",
+    "Subject 1 average: 50",
+    "Subject 2 average: 50"
+  ],
+  "9.T1/t3": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1 total: 0",
+    "Student 2 total: 0",
+    "Student 3 total: 1",
+    "Subject 1 average: 0",
+    "Subject 2 average: 0"
+  ],
+  "9.T1/t4": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1 total: 100",
+    "Student 2 total: 100",
+    "Student 3 total: 100",
+    "Subject 1 average: 66",
+    "Subject 2 average: 33"
+  ],
+  "9.T1/t5": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1 total: 100000",
+    "Student 2 total: 2",
+    "Student 3 total: 100000",
+    "Subject 1 average: 33333",
+    "Subject 2 average: 33333"
+  ],
+  "10.2.1/t1": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter the number to find",
+    "Found at 4"
+  ],
+  "10.2.1/t2": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter the number to find",
+    "Found at 1"
+  ],
+  "10.2.1/t3": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter the number to find",
+    "Found at 6"
+  ],
+  "10.2.1/t4": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter the number to find",
+    "Not found"
+  ],
+  "10.2.1/t5": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter the number to find",
+    "Found at 2"
+  ],
+  "10.2.1/t6": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter the number to find",
+    "Found at 6"
+  ],
+  "10.4.1/t1": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "0",
+    "2",
+    "4",
+    "6",
+    "8"
+  ],
+  "10.4.1/t2": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+  ],
+  "10.4.1/t3": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+  ],
+  "10.4.1/t4": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "7",
+    "7",
+    "7",
+    "7",
+    "7"
+  ],
+  "10.4.1/t5": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "-99999",
+    "-1",
+    "0",
+    "99999",
+    "99999"
+  ],
+  "10.T1/t1": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "0",
+    "2",
+    "4",
+    "6",
+    "8",
+    "9",
+    "Enter the number to find",
+    "Found at 4"
+  ],
+  "10.T1/t2": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "Enter the number to find",
+    "Found at 1"
+  ],
+  "10.T1/t3": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "Enter the number to find",
+    "Found at 6"
+  ],
+  "10.T1/t4": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "0",
+    "2",
+    "4",
+    "6",
+    "8",
+    "9",
+    "Enter the number to find",
+    "Not found"
+  ],
+  "10.T1/t5": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "3",
+    "3",
+    "3",
+    "7",
+    "7",
+    "7",
+    "Enter the number to find",
+    "Found at 4"
+  ],
+  "10.T1/t6": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "-99999",
+    "-1",
+    "0",
+    "0",
+    "99999",
+    "99999",
+    "Enter the number to find",
+    "Found at 1"
+  ],
+  "11.3.1/t1": [
+    "Enter a name",
+    "Enter the first mark",
+    "Enter the second mark",
+    "Bob: 133"
+  ],
+  "11.3.1/t2": [
+    "Enter a name",
+    "Enter the first mark",
+    "Enter the second mark",
+    "Cal: 0"
+  ],
+  "11.3.1/t3": [
+    "Enter a name",
+    "Enter the first mark",
+    "Enter the second mark",
+    "Dee: 200"
+  ],
+  "11.3.1/t4": [
+    "Enter a name",
+    "Enter the first mark",
+    "Enter the second mark",
+    "Eve Marie: 100"
+  ],
+  "11.3.1/t5": [
+    "Enter a name",
+    "Enter the first mark",
+    "Enter the second mark",
+    "Fay: 0"
+  ],
+  "11.4.1/t1": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Top: Hal 72"
+  ],
+  "11.4.1/t2": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Top: Gil 90"
+  ],
+  "11.4.1/t3": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Top: Jon 88"
+  ],
+  "11.4.1/t4": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Top: Jon 51"
+  ],
+  "11.4.1/t5": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Top: Jon -99996"
+  ],
+  "11.T1/t1": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Hal 72",
+    "Jon 66",
+    "Gil 61",
+    "Ivy 58",
+    "Kay 49"
+  ],
+  "11.T1/t2": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Gil 90",
+    "Hal 80",
+    "Ivy 70",
+    "Jon 60",
+    "Kay 50"
+  ],
+  "11.T1/t3": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Kay 90",
+    "Jon 80",
+    "Ivy 70",
+    "Hal 60",
+    "Gil 50"
+  ],
+  "11.T1/t4": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Gil 70",
+    "Hal 70",
+    "Ivy 70",
+    "Jon 70",
+    "Kay 70"
+  ],
+  "11.T1/t5": [
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Enter a name",
+    "Enter a mark",
+    "Gil 99999",
+    "Kay 99999",
+    "Ivy 0",
+    "Hal -99999",
+    "Jon -99999"
   ]
 };
 
@@ -806,6 +1523,324 @@ export const sampleTranscripts: SampleTranscripts = {
     {
       "kind": "output",
       "text": "2 x 3 = 6"
+    }
+  ],
+  "7.2/Example_7_2_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Length: 8"
+    },
+    {
+      "kind": "output",
+      "text": "First three: Com"
+    },
+    {
+      "kind": "output",
+      "text": "Middle two: pu"
+    },
+    {
+      "kind": "output",
+      "text": "Last three: ter"
+    }
+  ],
+  "7.3/Example_7_3_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Continue? Enter Y or N"
+    },
+    {
+      "kind": "input",
+      "text": "y"
+    },
+    {
+      "kind": "output",
+      "text": "Going on"
+    }
+  ],
+  "7.4/Example_7_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Name: Ada Lovelace"
+    },
+    {
+      "kind": "output",
+      "text": "Words: 2"
+    }
+  ],
+  "7.4/Example_7_4_b.pseudocode": [
+    {
+      "kind": "output",
+      "text": "*****"
+    }
+  ],
+  "7.5/Example_7_5_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "A: 7"
+    },
+    {
+      "kind": "output",
+      "text": "B: 7"
+    },
+    {
+      "kind": "output",
+      "text": "C: 3"
+    }
+  ],
+  "7.6/Example_7_6_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Tail: 1234"
+    },
+    {
+      "kind": "output",
+      "text": "Tail length: 4"
+    }
+  ],
+  "8.2/Example_8_2_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "First: 80"
+    },
+    {
+      "kind": "output",
+      "text": "Last: 60"
+    },
+    {
+      "kind": "output",
+      "text": "Total: 210"
+    }
+  ],
+  "8.4/Example_8_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Enter a number"
+    },
+    {
+      "kind": "input",
+      "text": "1"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a number"
+    },
+    {
+      "kind": "input",
+      "text": "2"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a number"
+    },
+    {
+      "kind": "input",
+      "text": "3"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a number"
+    },
+    {
+      "kind": "input",
+      "text": "4"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a number"
+    },
+    {
+      "kind": "input",
+      "text": "5"
+    },
+    {
+      "kind": "output",
+      "text": "5"
+    },
+    {
+      "kind": "output",
+      "text": "4"
+    },
+    {
+      "kind": "output",
+      "text": "3"
+    },
+    {
+      "kind": "output",
+      "text": "2"
+    },
+    {
+      "kind": "output",
+      "text": "1"
+    }
+  ],
+  "8.5/Example_8_5_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Average: 21"
+    },
+    {
+      "kind": "output",
+      "text": "Above: 1"
+    }
+  ],
+  "9.1/Example_9_1_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Student 1, subject 2: 70"
+    },
+    {
+      "kind": "output",
+      "text": "Student 3, subject 1: 100"
+    },
+    {
+      "kind": "output",
+      "text": "Student 2 total: 145"
+    }
+  ],
+  "9.3/Example_9_3_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Row 1 total: 6"
+    },
+    {
+      "kind": "output",
+      "text": "Row 2 total: 12"
+    },
+    {
+      "kind": "output",
+      "text": "Col 1 total: 3"
+    },
+    {
+      "kind": "output",
+      "text": "Col 2 total: 6"
+    },
+    {
+      "kind": "output",
+      "text": "Col 3 total: 9"
+    }
+  ],
+  "10.1/Example_10_1_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Found at 2"
+    },
+    {
+      "kind": "output",
+      "text": "Found at 4"
+    }
+  ],
+  "10.2/Example_10_2_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Not in the list"
+    }
+  ],
+  "10.3/Example_10_3_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "3"
+    },
+    {
+      "kind": "output",
+      "text": "1"
+    },
+    {
+      "kind": "output",
+      "text": "7"
+    },
+    {
+      "kind": "output",
+      "text": "5"
+    },
+    {
+      "kind": "output",
+      "text": "9"
+    }
+  ],
+  "10.4/Example_10_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "1"
+    },
+    {
+      "kind": "output",
+      "text": "3"
+    },
+    {
+      "kind": "output",
+      "text": "5"
+    },
+    {
+      "kind": "output",
+      "text": "7"
+    },
+    {
+      "kind": "output",
+      "text": "9"
+    }
+  ],
+  "10.5/Example_10_5_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Passes: 3"
+    },
+    {
+      "kind": "output",
+      "text": "1"
+    },
+    {
+      "kind": "output",
+      "text": "3"
+    },
+    {
+      "kind": "output",
+      "text": "5"
+    },
+    {
+      "kind": "output",
+      "text": "7"
+    },
+    {
+      "kind": "output",
+      "text": "9"
+    }
+  ],
+  "11.2/Example_11_2_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Algorithms"
+    },
+    {
+      "kind": "output",
+      "text": "2020"
+    },
+    {
+      "kind": "output",
+      "text": "39.5"
+    }
+  ],
+  "11.3/Example_11_3_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Enter a title"
+    },
+    {
+      "kind": "input",
+      "text": "Algorithms"
+    },
+    {
+      "kind": "output",
+      "text": "Algorithms is 6 years old"
+    }
+  ],
+  "11.4/Example_11_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Ada passed"
+    },
+    {
+      "kind": "output",
+      "text": "Cal passed"
     }
   ]
 };

@@ -102,7 +102,7 @@ window.LANGUAGE_ADAPTER = (function (engine) {
     'parser.getRecord.requiresComma': 'GETRECORD 文件名后需要逗号',
     'parser.getRecord.requiresWritableTarget': 'GETRECORD 目标必须可写',
     'parser.putRecord.requiresComma': 'PUTRECORD 文件名后需要逗号',
-    'parser.bindingName.cannotBeKeyword': '关键字不能用作声明名称',
+    'parser.bindingName.cannotBeKeyword': '名称 {name} 是关键字或保留名称，不能作为标识符。请换一个名称',
     'parser.bindingName.invalidFormat': '声明名称必须以英文字母开头，且只含字母、数字或下划线',
     'parser.block.mismatchedEnd': '块结束符不匹配：期望 {expected}，实际为 {actual}',
     'parser.statement.unexpectedTrailingToken': '语句末尾出现意外内容：{token}',

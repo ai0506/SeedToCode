@@ -6,13 +6,13 @@
 <title>做题 · CAIE 9618 伪代码</title>
 <link rel="stylesheet" href="css/styles.css?v=13">
 <link rel="stylesheet" href="css/teaching.css?v=10">
-<link rel="stylesheet" href="css/task.css?v=3">
+<link rel="stylesheet" href="css/task.css?v=4">
 </head>
 <body>
 
 <!--
    独立做题页外壳。
-   题目和作答区左右并排，各自滚动——原来两者上下排布，写一行代码要往上翻一次题面。
+   题目和作答区左右并排，方便一边读题一边写代码。
    进入方式是课文里的入口卡，参数从查询串来：task.html?c=1&s=1.2&t=1.2.1
    题面、作答、判题全部来自 js/teaching-task.js，与课文页共用同一份实现。
 -->
@@ -57,7 +57,7 @@
       <div class="pane-head">
          <span class="pane-kicker">作答</span>
          <span class="spacer"></span>
-         <span class="small muted">提交后按语法 → 题目要求 → 运行结果 → 书写规范逐层判</span>
+         <span class="small muted">完成后检查语法、题目要求、运行结果和书写规范</span>
       </div>
       <div class="pane-scroll" id="workspaceScroll">
          <div id="workspace"></div>
@@ -78,7 +78,7 @@
    <span class="dot">·</span>
    <span class="mono" id="statusSyllabus"></span>
    <span class="spacer"></span>
-   <span class="status-slot">进度与课文同步</span>
+   <span class="status-slot">学习进度</span>
    <span class="dot">·</span>
    <span>CAIE 9618 (2027–2029)</span>
 </footer>
@@ -87,11 +87,11 @@
 <script src="js/lang.js?v=11"></script>
 <script src="js/language-engine.js?v=11"></script>
 <script src="js/language-adapter.js?v=9"></script>
-<script src="js/runtime-engine.js?v=9"></script>
+<script src="js/runtime-engine.js?v=10"></script>
 <script src="js/runtime-messages.js?v=3"></script>
-<script src="js/exercise-engine.js?v=11"></script>
-<script src="js/teaching-content.js?v=11"></script>
-<script src="js/teaching-task.js?v=3"></script>
-<script src="js/task-page.js?v=2"></script>
+<script src="js/exercise-engine.js?v=14"></script>
+<script src="js/teaching-content.js?v=16"></script>
+<script src="js/teaching-task.js?v=7"></script>
+<script src="js/task-page.js?v=3"></script>
 </body>
 </html>

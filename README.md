@@ -1,28 +1,90 @@
 # CAIE 9618 Pseudocode Editor
 
-本仓库目前包含可用的静态编辑器界面、已经接入页面的阶段 2 语言引擎，以及阶段 4 虚拟文件解释执行器。
+一个面向 CAIE 9618（2027–2029）的浏览器本地伪代码编辑器、解释执行器和配套教学平台。
 
-## 开发命令
+项目目前包含：
+
+- 浏览器内的 CAIE 9618 伪代码编辑、语法高亮、结构辅助、格式化和诊断。
+- 基于 AST 的静态分析与类型检查，区分阻断错误、CAIE 规范提示和建议。
+- 阶段 4 运行时：变量、表达式、过程、函数、调用栈，以及文本文件和随机文件的虚拟执行。
+- 教学课程、交互式小节题和章末题；题目使用真实的语言分析器、运行时和判题核心。
+- 独立做题页：左侧题面、右侧作答，带行号、输入输出用例、分级提示、判题结果和进度保存。
+- 所有数据保存在浏览器本地，不需要后端服务或数据库。
+
+## 快速开始
 
 ```bash
 npm install
 npm test
-npm run check
-npm run build
 ```
 
-- `npm test` 会先从源码构建全部 workspace，再执行自动化测试。
-- `npm run check` 只执行 TypeScript 类型检查。
-- `npm run build` 同时生成各包 ESM、`packages/language/dist/browser.js`，以及页面直接加载的语言和运行时 IIFE。
-- `npm run teaching:expected` 用参考解重新生成教学题库的期望输出快照；`npm test` 会先以 `--check` 比对快照，再跑全部测试。
+直接打开 `web/index.html` 可以使用编辑器。需要通过本地 HTTP 服务预览网页时：
 
-## 当前包
+```bash
+python3 -m http.server 8777 --directory web
+```
 
-- `packages/caie-spec`：CAIE 关键字、基本类型、内置函数签名和 70 个稳定规则 ID。
-- `packages/language`：与 DOM 和存储解耦的语言核心；已实现 Core 和 Advanced 静态检查，包括记录、枚举、指针、集合、文本/随机文件及 OOP，同时提供 CAIE 格式诊断和幂等格式化。
-- `packages/runtime`：与 DOM 解耦的阶段 4 解释器；除过程、函数与复合值外，真实执行文本/随机虚拟文件命令，并在正常结束时提交、停止或错误时回滚文件快照。
-- `packages/test-cases`：从 `TEST_CORPUS.md` 迁移出的结构化验收语料；`tests/pseudocode-samples` 的文件级回归已覆盖全部 12 个合法样本和 24 个非法样本。
-- `packages/exercise`：教学题目的判题核心；语法特征提取（从 AST 统计，不做文本匹配）、输出比对与 L0→L2 判题编排。
-- `packages/teaching-content`：教学内容数据；Chapter 1 与 Chapter 2 已完成，全部示例、参考解与期望输出由语言与运行时引擎实跑校验。规划与规格见 `teaching/`。
+然后访问 <http://localhost:8777>。
 
-页面位于 `web/`，通过生成的经典浏览器脚本加载语言核心与运行时；诊断、自动修复、格式化以及阶段 4 范围内的运行都使用真实引擎。页面可直接双击 `web/index.html` 使用；本地 HTTP 服务只用于开发预览，并非运行依赖。
+## 开发命令
+
+```bash
+npm run check
+npm run build
+npm test
+```
+
+- `npm run check`：执行全部 workspace 的 TypeScript 类型检查。
+- `npm run build`：构建 TypeScript，并生成网页直接加载的浏览器脚本。
+- `npm test`：构建项目、检查教学题目的期望输出快照，然后运行 Vitest 测试。
+- `npm run teaching:expected`：根据参考解重新生成教学题目的期望输出和运行记录。
+- `npm run teaching:preview`：生成或预览指定教学章节的可读版本。
+
+## 项目结构
+
+| 路径 | 作用 |
+|---|---|
+| `packages/caie-spec` | CAIE 关键字、类型、内置函数和稳定规则 ID |
+| `packages/language` | tokenizer、parser、AST、绑定、类型检查、静态诊断和格式化 |
+| `packages/runtime` | 与 DOM 解耦的 AST 解释器和虚拟文件运行时 |
+| `packages/exercise` | 教学题目的语法特征提取、输出比对和分层判题 |
+| `packages/test-cases` | 结构化验收语料 |
+| `packages/teaching-content` | 课程章节、题目、参考解、期望输出和浏览器发布数据 |
+| `web/index.html` | 主编辑器页面 |
+| `web/teaching.html` | 教学课程页 |
+| `web/task.html` | 独立做题页 |
+| `tests/pseudocode-samples` | 合法、非法和边界伪代码样本 |
+| `teaching/` | 教学模块的课程规划、内容规格、模板和交接文档 |
+
+## 当前教学内容
+
+项目当前状态以 [`PROJECT_STATE.md`](PROJECT_STATE.md) 为准。本文件只介绍产品入口与使用方式；实施计划、交接记录和历史背景中的状态描述不作为当前状态的权威来源。
+
+课程索引目前已登记 Chapter 1–7：
+
+1. 算法、伪代码与书写规范
+2. 变量与数据类型
+3. 表达式与运算符
+4. 选择
+5. 循环
+6. 循环的选择与嵌套
+7. 字符串与内置函数
+
+教学内容通过 `packages/teaching-content` 发布到浏览器；课文页负责阅读、导航和进度展示，代码题统一跳转到 `web/task.html`。Chapter 8–23 尚未登记到当前课程索引。
+
+## 语言与运行时边界
+
+CAIE 规定的语法和规则以以下资料为准：
+
+1. `pseudocode_guide-9618.pdf` 与 `syllabus-9618.pdf`
+2. `CAIE_RULES.md`
+3. `runtime-conventions.md`（CAIE 未定义、但编辑器必须确定的执行行为）
+4. `LANGUAGE_SPEC.md`
+
+`web/js/caie-spec.js` 主要服务于界面高亮、模板和编辑辅助；网页诊断与运行使用由 `packages/language`、`packages/runtime` 构建的真实引擎。
+
+## 说明
+
+- 这是学习和编写 CAIE 9618 伪代码的独立工具，不是 Cambridge 官方产品，也不暗示官方授权。
+- 项目只覆盖与伪代码书写、阅读、执行和算法设计直接相关的内容，不等同于完整覆盖 9618 课程的所有理论章节。
+- 本地浏览器数据与源文件状态互相独立；清除浏览器数据不会删除仓库中的代码和资料。

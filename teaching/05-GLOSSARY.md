@@ -70,6 +70,7 @@
 | 连接 | concatenation | 7 |
 | 数组 | array | 8 |
 | 索引 / 下标 | index | 8 |
+| 下标 | index | 8 |
 | 下界 | lower bound | 8 |
 | 上界 | upper bound | 8 |
 | 遍历 | traverse | 8 |
@@ -77,6 +78,8 @@
 | 二维数组 | 2D array | 9 |
 | 记录 | record | 11 |
 | 字段 | field | 11 |
+| 平行数组 | parallel arrays | 11 |
+| 记录数组 | array of records | 11 |
 
 ## E. 算法
 
@@ -85,6 +88,8 @@
 | 线性查找 | linear search | 10 |
 | 冒泡排序 | bubble sort | 10 |
 | 标志 | flag | 10 |
+| 一趟 | pass | 10 |
+| 交换 | swap | 10 |
 | 二分查找 | binary search | 18 |
 | 插入排序 | insertion sort | 18 |
 | 时间复杂度 | time complexity | 18 |

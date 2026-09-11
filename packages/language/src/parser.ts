@@ -58,6 +58,7 @@ import type {
 } from "./ast.js";
 import type { Diagnostic, SourcePosition, SourceRange, Token } from "./types.js";
 import { tokenize } from "./tokenizer.js";
+import { isKeyword, isTypeName } from "@caie-pseudocode/caie-spec";
 
 export type ParseOptions = { maxDiagnostics?: number };
 
@@ -410,7 +411,11 @@ class ExpressionParser {
     }
 
     if (token.kind !== "eof" && token.kind !== "newline" && token.kind !== "comment") this.advance();
-    this.report("PC2001", "OP-001", "parser.expression.expected", token.range, { token: token.text });
+    if ((isKeyword(token.text) || isTypeName(token.text)) && token.kind !== "boolean") {
+      this.report("PC2108", "ID-002", "parser.bindingName.cannotBeKeyword", token.range, { name: token.text });
+    } else {
+      this.report("PC2001", "OP-001", "parser.expression.expected", token.range, { token: token.text });
+    }
     const error: ErrorExpression = {
       kind: "ErrorExpression",
       reason: "missing-expression",
@@ -1091,8 +1096,14 @@ class ProgramParser {
   private parseFor(): ForStatement {
     const start = this.advance();
     const controlToken = this.current();
+    const controlIsReserved = isKeyword(controlToken.text) || isTypeName(controlToken.text) || controlToken.kind === "boolean";
     if (controlToken.kind === "identifier") this.advance();
-    else this.report("PC2201", "FOR-001", "parser.for.requiresControlVariable", controlToken.range, "CAIE");
+    else if (controlIsReserved) {
+      this.report("PC2108", "ID-002", "parser.bindingName.cannotBeKeyword", controlToken.range, "CAIE", "error", {
+        name: controlToken.text
+      });
+      this.advance();
+    } else this.report("PC2201", "FOR-001", "parser.for.requiresControlVariable", controlToken.range, "CAIE");
     const control: NameExpression = {
       kind: "NameExpression",
       name: controlToken.kind === "identifier" ? controlToken.text : "",
@@ -1125,6 +1136,11 @@ class ProgramParser {
             actual: name.text
           });
         }
+      } else if (isKeyword(this.current().text) || isTypeName(this.current().text) || this.current().kind === "boolean") {
+        this.report("PC2108", "ID-002", "parser.bindingName.cannotBeKeyword", this.current().range, "CAIE", "error", {
+          name: this.current().text
+        });
+        this.advance();
       } else {
         this.report("PC2203", "FOR-003", "parser.for.nextVariableRecommended", closing.range, "CAIE", "hint");
       }

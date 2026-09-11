@@ -60,6 +60,12 @@ export type TestResult = {
   firstDiffLine: number | null;
   /** 对不上的是哪一类：文字、数据，还是行数。用来给出有指向的反馈。 */
   diffKind: DiffKind | null;
+  /**
+   * 程序跑到一半停了时，停在哪儿、为什么。
+   * 这说的是学生自己的代码，不泄露判题用的数据——没有它，界面只能说
+   * 「程序中途出错了，先看看错误提示」，而学生根本找不到那个提示。
+   */
+  runtimeError: { code: string; messageKey: string; args?: Record<string, unknown>; line: number } | null;
   /** 下面三项只在揭示阈值到达后才展示；判题本身始终计算。 */
   inputs: string[];
   expected: string[];
@@ -156,7 +162,13 @@ export async function runWithInputs(
   source: string,
   inputs: string[],
   options: ExecutionOptions = {}
-): Promise<{ status: string; outputs: string[]; exhausted: boolean; transcript: TranscriptEntry[] }> {
+): Promise<{
+  status: string;
+  outputs: string[];
+  exhausted: boolean;
+  transcript: TranscriptEntry[];
+  error: { code: string; messageKey: string; args?: Record<string, unknown>; line: number } | null;
+}> {
   let cursor = 0;
   let exhausted = false;
   const transcript: TranscriptEntry[] = [];
@@ -193,7 +205,15 @@ export async function runWithInputs(
     }
   });
   const result = await controller.result;
-  return { status: result.status, outputs: result.outputs, exhausted, transcript };
+  const failure = result.error
+    ? {
+        code: result.error.code,
+        messageKey: result.error.messageKey,
+        ...(result.error.args ? { args: result.error.args as Record<string, unknown> } : {}),
+        line: result.error.range.start.line
+      }
+    : null;
+  return { status: result.status, outputs: result.outputs, exhausted, transcript, error: failure };
 }
 
 async function runCase(input: GradeInput, testCase: TestCase): Promise<TestResult> {
@@ -207,6 +227,7 @@ async function runCase(input: GradeInput, testCase: TestCase): Promise<TestResul
     status: run.exhausted ? "input-exhausted" : run.status,
     firstDiffLine: comparison.firstDiffLine,
     diffKind: comparison.diffKind,
+    runtimeError: run.error,
     inputs: testCase.inputs,
     expected: testCase.expected,
     actual: run.outputs

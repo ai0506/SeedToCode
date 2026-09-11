@@ -146,3 +146,23 @@ describe("指导提示 — 拼写建议不碰真名字", () => {
     expect(keysOf('OUTPIT "hi"')).toContain("typo.keywordSuggestion");
   });
 });
+
+describe("指导提示 — 关键字不能作为标识符", () => {
+  it("FOR 控制变量使用关键字时直接说明原因", () => {
+    const diagnostics = analyzeSource("FOR CLASS ← 1 TO 3\n   OUTPUT CLASS\nNEXT CLASS").diagnostics;
+    expect(diagnostics).toContainEqual(expect.objectContaining({
+      code: "PC2108",
+      ruleId: "ID-002",
+      messageKey: "parser.bindingName.cannotBeKeyword",
+      origin: "CAIE",
+      args: { name: "CLASS" }
+    }));
+    expect(diagnostics).not.toContainEqual(expect.objectContaining({ messageKey: "parser.for.requiresControlVariable" }));
+    expect(diagnostics.filter((diagnostic) => diagnostic.messageKey === "parser.bindingName.cannotBeKeyword")).toHaveLength(3);
+  });
+
+  it("声明名称仍然使用同一条提示，正常 FOR 不受影响", () => {
+    expect(keysOf("DECLARE CLASS : INTEGER")).toEqual(["parser.bindingName.cannotBeKeyword"]);
+    expect(keysOf("FOR I ← 1 TO 3\n   OUTPUT I\nNEXT I")).toEqual([]);
+  });
+});

@@ -27,6 +27,27 @@
    /* 进度这一份由 teaching-task.js 持有：独立做题页 task.html 写的是同一份，
       学生在那边做完题回到这里，目录进度点和完成度必须已经对上。 */
    var POSITION_KEY = "caie.teaching.position.v1";
+   /* 关卡答过没有，也要记下来。只记进度点是不够的：学生答完选择题去做题，
+      回来时这一节又缩回了关卡之前的样子，得再答一遍才能看到后面的内容。 */
+   var GATES_KEY = "caie.teaching.gates.v1";
+   var passedGates = (function () {
+      try {
+         var value = JSON.parse(localStorage.getItem(GATES_KEY) || "{}");
+         return value && typeof value === "object" ? value : {};
+      } catch (e) { return {}; }
+   })();
+   /* 正在照着记录把关卡重放一遍。重放期间不滚动、不跳转——那是学生自己点的时候才该做的事。 */
+   var restoring = false;
+
+   function gateKey(gateId) { return chapter.id + "/" + gateId; }
+
+   function rememberGate(gateId) {
+      if (!gateId || passedGates[gateKey(gateId)]) return;
+      passedGates[gateKey(gateId)] = true;
+      try { localStorage.setItem(GATES_KEY, JSON.stringify(passedGates)); } catch (e) { /* 无痕模式等 */ }
+   }
+
+   function gateWasPassed(gateId) { return Boolean(gateId && passedGates[gateKey(gateId)]); }
    var savedPosition = (function () {
       try {
          var value = JSON.parse(localStorage.getItem(POSITION_KEY) || "null");
@@ -96,6 +117,7 @@
    // 转义与行内标记（`code` / **bold**）与题目页共用一份，免得两边的正文渲染走样
    var esc = T.esc;
    var inline = T.inline;
+   var plainText = T.plainText;
 
    function alertLike(text) {
       var box = $(".quiz-feedback");
@@ -145,7 +167,7 @@
             return (
                '<li><button class="toc-link" data-open-chapter="' + item.id + '" data-open-section="' + section.id + '">' +
                '<span class="sn">' + section.id + "</span>" +
-               '<span class="st">' + esc(section.title) + "</span>" +
+               '<span class="st">' + inline(section.title) + "</span>" +
                '<span class="dot-state" data-dot-chapter="' + item.id + '" data-dot="' + section.id + '"></span></button></li>'
             );
          }).join("") +
@@ -156,7 +178,7 @@
             '<div class="toc-chapter' + (expanded ? " open" : "") + '" data-toc-chapter="' + item.id + '">' +
             '<button class="toc-ch-head" data-toggle-toc-chapter="' + item.id + '" aria-expanded="' + expanded + '">' +
             '<span class="caret">›</span><span class="toc-num">' + item.id + "</span>" +
-            '<span class="toc-ch-name">' + esc(item.title) + '</span><span class="dot-state" data-chapter-status="' + item.id + '"></span></button>' +
+            '<span class="toc-ch-name">' + inline(item.title) + '</span><span class="dot-state" data-chapter-status="' + item.id + '"></span></button>' +
             '<ul class="toc-sections">' + sections + "</ul></div>"
          );
       }).join("");
@@ -189,7 +211,7 @@
          '<span class="mono">' + esc(block.fileName) + "</span><span class=\"spacer\"></span>" +
          '<button class="btn small" data-open-editor="' + esc(block.code) +
          '" data-open-name="' + esc(block.fileName.replace(/\.pseudocode$/i, "")) +
-         '" data-open-label="' + esc("来自 " + block.title) + '">在编辑器中打开</button>';
+         '" data-open-label="' + esc("来自 " + plainText(block.title)) + '">在编辑器中打开</button>';
       var annots = block.annotations
          .map(function (a) {
             var label = a.fromLine === a.toLine ? "第 " + a.fromLine + " 行" : a.fromLine + "–" + a.toLine + " 行";
@@ -221,7 +243,7 @@
             esc(block.sampleRun.outputs.join("\n")) + "</pre></div>";
       }
       return (
-         '<section class="block" data-el="example"><h3>' + esc(block.title) + "</h3>" +
+         '<section class="block" data-el="example"><h3>' + inline(block.title) + "</h3>" +
          codeCard(block.code, { head: head }) +
          '<ul class="annots">' + annots + "</ul>" + run + "</section>"
       );
@@ -237,14 +259,14 @@
                : esc(pane.code);
             return (
                '<div class="compare-pane' + (isPseudo ? " is-pseudocode" : "") + '">' +
-               '<div class="compare-head">' + esc(pane.label) + "</div>" +
+               '<div class="compare-head">' + inline(pane.label) + "</div>" +
                '<pre class="compare-code' + codeClass + '">' + code + "</pre>" +
                '<div class="compare-note">' + inline(pane.note) + "</div></div>"
             );
          })
          .join("");
       return (
-         '<section class="block" data-el="comparison"><h3>' + esc(block.title) + "</h3>" +
+         '<section class="block" data-el="comparison"><h3>' + inline(block.title) + "</h3>" +
          (block.intro ? "<p>" + inline(block.intro) + "</p>" : "") +
          '<div class="compare">' + panes + "</div></section>"
       );
@@ -271,7 +293,7 @@
             diags.push('<li class="sev-error"><div class="problem-msg"><span class="sev-chip">运行时错误</span>' + inline(item.expectRuntimeError.text) + '</div><div class="problem-meta"><span>第 ' + item.expectRuntimeError.line + ' 行</span><span class="origin-tag rt">编辑器约定</span></div></li>');
          }
          return (
-            (item.title ? "<h4>" + esc(item.title) + "</h4>" : "") +
+            (item.title ? "<h4>" + inline(item.title) + "</h4>" : "") +
             codeCard(item.code, {
                head: '<span class="spacer"></span><span class="chip" style="height:16px;font-size:10px;background:var(--danger-soft);color:var(--danger);border-color:transparent">故意写错</span>',
                badLines: bad
@@ -281,7 +303,7 @@
          );
       }).join("");
       return (
-         '<section class="block" data-el="counterExample"><h3>' + esc(block.title) + "</h3>" +
+         '<section class="block" data-el="counterExample"><h3>' + inline(block.title) + "</h3>" +
          cases + "</section>"
       );
    }
@@ -381,6 +403,7 @@
 
    function solve(quiz, analysisHTML) {
       quiz.classList.add("solved");
+      rememberGate(quiz.dataset.gate);
       quiz.dataset.analysis = analysisHTML || "";
       $("[data-gate-next]", quiz).disabled = false;
       $("[data-gate-note]", quiz).textContent = "答对了。点「继续」看完整解析和后面的内容。";
@@ -527,7 +550,7 @@
          '<div class="te-head">' +
          '<span class="chip" style="background:var(--accent-soft);color:var(--accent);border-color:transparent">' +
          (isChapterTask ? "章末大题" : "伪代码题") + "</span>" +
-         '<span class="te-title">' + esc(task.title) + "</span>" +
+         '<span class="te-title">' + inline(task.title) + "</span>" +
          '<span class="spacer"></span>' +
          '<span class="te-state" data-state="' + (done ? "done" : "todo") + '">' +
          (done ? "✓ 已通过" : "未通过") + "</span></div>" +
@@ -536,8 +559,7 @@
          '<div class="te-meta">' + meta + "</div>" +
          '<div class="te-go">' +
          '<a class="btn btn-primary te-btn" href="' + href + '">打开做题页 ›</a>' +
-         '<span class="te-note">题目在左、作答在右，两边各自滚动。' +
-         "做完之后进度会自动记回这一节。</span></div></div></div></section>"
+         '<span class="te-note">先读清题目要求，再开始作答；完成后可以回到这一节继续复习。</span></div></div></div></section>'
       );
    }
 
@@ -671,9 +693,9 @@
    function renderSection(section, index) {
       var head =
          '<div class="crumb"><span>' + (chapter.level === "AS" ? "AS Level" : "A Level") + "</span>" +
-         '<span class="dot">·</span><span>Chapter ' + chapter.id + "　" + esc(chapter.title) + "</span>" +
+         '<span class="dot">·</span><span>Chapter ' + chapter.id + "　" + inline(chapter.title) + "</span>" +
          '<span class="dot">·</span><span>第 ' + (index + 1) + " 节 / 共 " + chapter.sections.length + " 节</span></div>" +
-         '<h1 class="sec-title">' + section.id + "　" + esc(section.title) + "</h1>" +
+         '<h1 class="sec-title">' + section.id + "　" + inline(section.title) + "</h1>" +
          '<div class="sec-meta"><span class="chip level-' + chapter.level.toLowerCase() + '">' + chapter.level + "</span>" +
          section.syllabus.map(function (s) { return '<span class="chip mono">' + esc(s) + "</span>"; }).join("") +
          '<span class="chip">约 ' + section.estimatedMinutes + " 分钟</span></div>";
@@ -724,7 +746,7 @@
          var dots = live
             ? liveChapter.sections.map(function (section) {
                  return '<span class="ch-dot' + (isDoneFor(liveChapter, section.id) ? " done" : "") + '" data-step="' + section.id + '" title="' +
-                    esc(section.id + " " + section.title) + '"></span>';
+                    esc(section.id + " " + plainText(section.title)) + '"></span>';
               }).join("") + (liveChapter.chapterTasks.length ? '<span class="ch-dot star' + (isDoneFor(liveChapter, "chapterTask") ? " done" : "") + '" data-step="chapterTask" title="章末大题"></span>' : "")
             : "";
          var action = live
@@ -732,13 +754,13 @@
               (liveDone === 0 ? "开始学习" : liveDone >= liveTotal ? "重看一遍" : "继续") + "</button>"
             : '<span class="chip">尚未上线</span>';
          var body = live
-            ? '<button class="ch-body ch-open" data-toggle-home-chapter="' + liveChapter.id + '" aria-expanded="' + expanded + '" aria-label="展开或收起 Chapter ' + liveChapter.id + "　" + esc(liveChapter.title) + '">' +
-              '<span class="ch-title"><span class="caret">›</span>' + esc(plan.title) + '</span><span class="ch-dots">' + dots + '</span><span class="ch-status">' + status + "　" + liveDone + " / " + liveTotal + "</span></button>"
-            : '<span class="ch-body"><span class="ch-title">' + esc(plan.title) + "</span></span>";
+            ? '<button class="ch-body ch-open" data-toggle-home-chapter="' + liveChapter.id + '" aria-expanded="' + expanded + '" aria-label="展开或收起 Chapter ' + liveChapter.id + "　" + esc(plainText(liveChapter.title)) + '">' +
+              '<span class="ch-title"><span class="caret">›</span>' + inline(plan.title) + '</span><span class="ch-dots">' + dots + '</span><span class="ch-status">' + status + "　" + liveDone + " / " + liveTotal + "</span></button>"
+            : '<span class="ch-body"><span class="ch-title">' + inline(plan.title) + "</span></span>";
          var children = live
             ? '<ul class="ch-subsections">' + liveChapter.sections.map(function (section) {
                return '<li><button class="ch-sub-link" data-open-chapter="' + liveChapter.id + '" data-open-section="' + section.id + '">' +
-                  '<span>' + section.id + '</span><span>' + esc(section.title) + '</span></button></li>';
+                  '<span>' + section.id + '</span><span>' + inline(section.title) + '</span></button></li>';
               }).join("") + (liveChapter.chapterTasks.length ? '<li><button class="ch-sub-link kind-task" data-open-chapter="' + liveChapter.id + '" data-open-section="chapterTask"><span>★</span><span>章末大题</span></button></li>' : '') + '</ul>'
             : "";
          var card = (
@@ -779,7 +801,7 @@
       var task = chapter.chapterTasks[0];
       var head =
          '<div class="crumb"><span>' + (chapter.level === "AS" ? "AS Level" : "A Level") + "</span>" +
-         '<span class="dot">·</span><span>Chapter ' + chapter.id + "　" + esc(chapter.title) + "</span></div>" +
+         '<span class="dot">·</span><span>Chapter ' + chapter.id + "　" + inline(chapter.title) + "</span></div>" +
          '<h1 class="sec-title">章末大题</h1>' +
          '<div class="sec-meta"><span class="chip level-' + chapter.level.toLowerCase() + '">' + chapter.level + "</span>" +
          '<span class="chip">用得上第 1–' + chapter.id + " 章的全部内容</span></div>";
@@ -808,7 +830,26 @@
       if (targetSection) show(targetSection);
    }
 
+   /**
+    * 地址栏上不留东西。
+    *
+    * `?c=4&s=4.2` 只是做题页回来时用一次的「去哪一节」指令，用完就该擦掉——
+    * 否则人已经翻到别处、甚至回了主页，它还挂在那儿，刷新一下又被带回去。
+    * 擦掉之后刷新仍然回得到原处：位置记在本地（`caie.teaching.position.v1`），
+    * 不靠地址栏。
+    */
+   function clearUrlParams() {
+      if (!window.history || !window.history.replaceState) return;
+      if (!location.search) return;
+      try {
+         window.history.replaceState(null, "", location.pathname);
+      } catch (e) {
+         /* 某些浏览器在 file:// 下不允许改地址栏；不影响页面本身 */
+      }
+   }
+
    function show(id, restoreScrollTop) {
+      clearUrlParams();
       $$("[data-section]").forEach(function (node) { node.hidden = node.dataset.section !== id; });
       $$(".toc-link").forEach(function (b) {
          var active = b.dataset.goto === id ||
@@ -824,10 +865,10 @@
       prevBtn.disabled = !prev;
       nextBtn.disabled = !next;
       prevBtn.innerHTML = prev
-         ? '<span class="nav-kicker">‹ 上一节</span><span class="nav-title">' + esc(labelOf(prev)) + "</span>"
+         ? '<span class="nav-kicker">‹ 上一节</span><span class="nav-title">' + inline(labelOf(prev)) + "</span>"
          : '<span class="nav-kicker">上一节</span><span class="nav-title">没有了</span>';
       nextBtn.innerHTML = next
-         ? '<span class="nav-kicker">下一节 ›</span><span class="nav-title">' + esc(labelOf(next)) + "</span>"
+         ? '<span class="nav-kicker">下一节 ›</span><span class="nav-title">' + inline(labelOf(next)) + "</span>"
          : '<span class="nav-kicker">本章</span><span class="nav-title">到此结束</span>';
       prevBtn.dataset.goto = prev || "";
       nextBtn.dataset.goto = next || "";
@@ -841,8 +882,8 @@
          : isTask
             ? "Chapter " + chapter.id + " · 章末大题"
             : "Chapter " + chapter.id + " · 第 " + index + " / " + chapter.sections.length + " 节";
-      $("#ltCh").textContent = isHome ? "CAIE 9618 伪代码" : "Chapter " + chapter.id + " · " + chapter.title;
-      $("#ltSec").textContent = isHome ? "课程主页" : isTask ? "章末大题" : section.id + "　" + section.title;
+      $("#ltCh").textContent = isHome ? "CAIE 9618 伪代码" : "Chapter " + chapter.id + " · " + plainText(chapter.title);
+      $("#ltSec").textContent = isHome ? "课程主页" : isTask ? "章末大题" : section.id + "　" + plainText(section.title);
       $("#statusSection").textContent = isHome
          ? "课程主页"
          : isTask ? "Chapter " + chapter.id + " 章末大题" : "Chapter " + section.id;
@@ -885,6 +926,7 @@
             btn.textContent = "已继续";
             if (!block) {
                // 关卡就是本节最后一块内容：直接进入下一节
+               if (restoring) return;
                var here = btn.closest("[data-section]").dataset.section;
                var next = order[order.indexOf(here) + 1];
                markSectionDone(here);
@@ -898,7 +940,7 @@
                block.insertBefore(box, block.firstChild);
             }
             block.hidden = false;
-            block.scrollIntoView({ behavior: "smooth", block: "start" });
+            if (!restoring) block.scrollIntoView({ behavior: "smooth", block: "start" });
             $$(".quiz", block).forEach(wireQuiz);
             refreshTaskEntries();
          });
@@ -919,7 +961,54 @@
          });
       });
 
+      restorePassedGates();
       show(initialSection || "home", initialScrollTop);
+   }
+
+   /**
+    * 把记录在案的关卡照着重放一遍：选对那一项、点「继续」。
+    *
+    * 走的是和学生自己点时完全相同的代码路径，所以解析、解锁、题目入口都会照常出现——
+    * 不需要另写一套「恢复用」的渲染，也就不会和真实路径慢慢分叉。
+    * 关卡解锁出来的内容里可能还有下一个关卡，所以要一轮一轮来，直到没有可重放的为止。
+    */
+   function restorePassedGates() {
+      restoring = true;
+      try {
+         for (var round = 0; round < 8; round += 1) {
+            var pending = $$(".quiz").filter(function (quiz) {
+               return !quiz.classList.contains("solved") && gateWasPassed(quiz.dataset.gate);
+            });
+            if (!pending.length) break;
+            pending.forEach(replayQuiz);
+         }
+      } finally {
+         restoring = false;
+      }
+   }
+
+   function replayQuiz(quiz) {
+      var type = quiz.dataset.quiz;
+      if (type === "single-choice" || type === "true-false") {
+         var right = $$(".opt", quiz).filter(function (opt) { return opt.dataset.correct === "true"; })[0];
+         if (right) right.click();
+      } else if (type === "click-line") {
+         var answer = $$(".clickable-code .ln", quiz).filter(function (ln) { return ln.dataset.answer === "true"; })[0];
+         if (answer) answer.click();
+      } else {
+         // fill-blank：先点空，再点对应的候选词，一个空一个空来
+         $$(".blank", quiz).forEach(function (blank) {
+            if (blank.classList.contains("right")) return;
+            blank.click();
+            var word = $$(".bank-item", quiz).filter(function (item) {
+               return item.textContent.trim() === blank.dataset.answer;
+            })[0];
+            if (word) word.click();
+         });
+      }
+      if (!quiz.classList.contains("solved")) return;
+      var next = $("[data-gate-next]", quiz);
+      if (next && !next.disabled) next.click();
    }
 
    /** `teaching.html?c=1&s=1.2`：做题页做完之后带着落点回来，不能只按上次的滚动位置恢复。 */

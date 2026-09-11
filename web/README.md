@@ -1,5 +1,7 @@
 # Web 编辑器
 
+页面与引擎的当前状态以 [`../PROJECT_STATE.md`](../PROJECT_STATE.md) 为准。本文件说明页面实现；“尚未实现”部分只列当前仍未完成的能力，不记录历史状态。
+
 页面运行时是纯静态资源，可直接双击 `web/index.html` 打开或启动本地服务。修改 TypeScript 语言或运行时核心后需要执行根目录 `npm run build`，重新生成浏览器引擎脚本：
 
 ```bash
@@ -76,6 +78,5 @@ python3 -m http.server 8777 --directory web
 
 ## 尚未实现（按计划）
 
-- 阶段 4：文本与随机虚拟文件的真实执行、事务提交和失败回滚。
-- 文本文件命令和随机文件命令的真实执行。
-- IndexedDB、单步调试、Dry Run。
+- Advanced 特性的运行时执行（枚举、指针、集合、OOP）。
+- 单步调试与 Dry Run。

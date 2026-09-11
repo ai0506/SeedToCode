@@ -33,6 +33,13 @@
          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
    }
 
+   // 纯文本场景（title/aria-label 属性、textContent）：标记符号渲染不出标签，直接去掉
+   function plainText(text) {
+      return String(text == null ? "" : text)
+         .replace(/`([^`]+)`/g, "$1")
+         .replace(/\*\*([^*]+)\*\*/g, "$1");
+   }
+
    /* ---------------- 进度：两个页面读写同一份 ---------------- */
 
    var PROGRESS_KEY = "caie.teaching.progress.v1";
@@ -86,17 +93,37 @@
 
    /* ---------------- 特征名 ---------------- */
 
+   // 学生看到的是这里的名字，不是特征 ID。FEATURE_IDS 里的每一项都要有一条——
+   // 漏一条，界面上就会冒出 `select.case-otherwise` 这样的内部标识。
    var FEATURE_LABELS = {
       "io.input": "INPUT",
       "io.output": "OUTPUT",
       "decl.variable": "DECLARE",
-      "misc.comment": "注释",
-      "loop.while": "WHILE",
-      "loop.for": "FOR",
-      "loop.repeat": "REPEAT",
-      "select.if": "IF",
-      "select.case": "CASE",
+      "decl.constant": "CONSTANT",
+      "decl.array-1d": "一维数组声明",
+      "decl.array-2d": "二维数组声明",
+      "decl.record-type": "记录类型",
+      "decl.enum": "枚举类型",
+      "decl.pointer": "指针类型",
+      "decl.set": "集合类型",
+      "decl.class": "类定义",
+      "type.integer": "INTEGER",
+      "type.real": "REAL",
+      "type.char": "CHAR",
+      "type.string": "STRING",
+      "type.boolean": "BOOLEAN",
+      "type.date": "DATE",
+      "literal.integer": "整数字面量",
+      "literal.real": "实数字面量",
+      "literal.char": "字符字面量",
+      "literal.string": "字符串字面量",
+      "literal.boolean": "布尔字面量",
+      "literal.date": "日期字面量",
       "assign.simple": "赋值 ←",
+      "expr.function-call": "函数调用",
+      "array.index": "数组下标",
+      "array.index-2d": "二维下标",
+      "record.field-access": "记录字段",
       "op.arithmetic": "四则运算",
       "op.div": "DIV",
       "op.mod": "MOD",
@@ -104,7 +131,47 @@
       "op.relational": "比较运算",
       "op.and": "AND",
       "op.or": "OR",
-      "op.not": "NOT"
+      "op.not": "NOT",
+      "select.if": "IF",
+      "select.if-else": "IF … ELSE",
+      "select.nested-if": "嵌套 IF",
+      "select.case": "CASE",
+      "select.case-otherwise": "OTHERWISE",
+      "select.case-range": "CASE 范围标签",
+      "loop.for": "FOR",
+      "loop.for-step": "STEP",
+      "loop.while": "WHILE",
+      "loop.repeat": "REPEAT",
+      "loop.nested": "嵌套循环",
+      "routine.procedure": "PROCEDURE",
+      "routine.function": "FUNCTION",
+      "routine.call": "CALL",
+      "routine.return": "RETURN",
+      "param.byval": "BYVAL",
+      "param.byref": "BYREF",
+      "builtin.length": "LENGTH",
+      "builtin.mid": "MID",
+      "builtin.right": "RIGHT",
+      "builtin.lcase": "LCASE",
+      "builtin.ucase": "UCASE",
+      "builtin.int": "INT",
+      "builtin.rand": "RAND",
+      "builtin.eof": "EOF",
+      "file.open-read": "OPENFILE … READ",
+      "file.open-write": "OPENFILE … WRITE",
+      "file.open-append": "OPENFILE … APPEND",
+      "file.open-random": "OPENFILE … RANDOM",
+      "file.read": "READFILE",
+      "file.write": "WRITEFILE",
+      "file.close": "CLOSEFILE",
+      "file.seek": "SEEK",
+      "file.getrecord": "GETRECORD",
+      "file.putrecord": "PUTRECORD",
+      "oop.new": "NEW",
+      "oop.inherits": "INHERITS",
+      "oop.super": "SUPER",
+      "oop.method-call": "方法调用",
+      "misc.comment": "注释"
    };
    function featureLabel(feature) {
       return FEATURE_LABELS[feature] || feature;
@@ -473,10 +540,24 @@
       }).join("").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
    }
 
+   /**
+    * 程序跑到一半停了：把停在哪一行、为什么停直接说出来。
+    * 这说的是学生自己的代码，不泄露判题用的数据。
+    * 原来这里只说「先看看错误提示」，而界面上根本没有那个提示。
+    */
+   function runtimeErrorHtml(failed) {
+      if (!failed || !failed.runtimeError) return "";
+      var text = window.runtimeMessage ? window.runtimeMessage(failed.runtimeError) : failed.runtimeError.messageKey;
+      return (
+         '<div class="code-note"><span class="code-note-head">第 ' + failed.runtimeError.line + " 行</span>" +
+         esc(text) + "</div>"
+      );
+   }
+
    /** 输出对不上时，指出该往哪个方向查——「输出不符」这四个字帮不了任何人。 */
    function diffAdvice(failed) {
       if (failed.status === "input-exhausted") return "程序要的输入比题目给的多——检查是不是多读了一次。";
-      if (failed.status === "error") return "程序中途出错了，先看看错误提示。";
+      if (failed.status === "error") return "程序没跑完就停了——停下来的那一行和原因在下面。";
       if (failed.status === "stopped") return "程序没能正常结束，检查一下是不是停不下来。";
       switch (failed.diffKind) {
          case "line-count":
@@ -525,6 +606,7 @@
          var body = tally +
             '<div class="case-hint"><span class="lead">没通过的情况</span>' + esc(failed.caseHint) + "</div>";
          body += '<p class="reveal-note">' + diffAdvice(failed) + "</p>";
+         body += runtimeErrorHtml(failed);
          body += codeNoteHtml(result.codeNotes);
          if (failedRuns >= REVEAL_AFTER) {
             body +=
@@ -652,6 +734,9 @@
          renderVerdict(verdict, result, failedRuns, task, function (passResult) {
             if (opts.onPass) opts.onPass(passResult);
          });
+         // 语法错误、诊断列表这些反馈都长在作答区底部，提交按钮又在滚动区顶部附近——
+         // 不主动滚下去的话，很多学生根本看不到判题结果已经出来了。
+         verdict.scrollIntoView({ behavior: "smooth", block: "end" });
       });
 
       return { textarea: textarea, verdict: verdict };
@@ -673,6 +758,7 @@
    window.TEACHING_TASK = {
       esc: esc,
       inline: inline,
+      plainText: plainText,
       featureLabel: featureLabel,
       progress: Progress,
       answers: Answers,

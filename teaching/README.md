@@ -1,5 +1,7 @@
 # 教学模块（Teaching Module）
 
+教学模块当前状态以 [`../PROJECT_STATE.md`](../PROJECT_STATE.md) 为准。本目录的计划、规格和交接文档可以记录设计上下文或历史背景，但不作为当前状态的权威来源，也不应把历史状态继续写入当前状态。
+
 本目录只放**教学模块的规划与规格文档**，不放任何章节正文或题库数据。
 
 实际的教学页是 `web/teaching.html`，正文由 `packages/teaching-content` 的数据渲染，题目由 `packages/exercise` + 语言/运行时引擎在浏览器里真判。
@@ -29,17 +31,17 @@
 | [chapter-01-preview.md](chapter-01-preview.md) | Chapter 1 的可读预览（由内容数据生成，方便审阅正文；不是最终版式） |
 | [chapter-02-preview.md](chapter-02-preview.md) | Chapter 2 的可读预览（由内容数据生成，方便审阅正文；不是最终版式） |
 | [chapter-03-preview.md](chapter-03-preview.md) | Chapter 3 的可读预览（由内容数据生成，方便审阅正文；不是最终版式） |
-| [chapter-04-draft.md](chapter-04-draft.md) | **Chapter 4 正文草稿**——网页已嵌入只读阅读版，尚未接入判题 |
-| [chapter-05-draft.md](chapter-05-draft.md) | **Chapter 5 正文草稿**——网页已嵌入只读阅读版，尚未接入判题 |
-| [chapter-06-draft.md](chapter-06-draft.md) | **Chapter 6 正文草稿**——网页已嵌入只读阅读版，尚未接入判题 |
-| [chapter-07-draft.md](chapter-07-draft.md) | **Chapter 7 正文草稿**——网页已嵌入只读阅读版，尚未接入判题 |
+| [chapter-04-draft.md](chapter-04-draft.md) | Chapter 4 的正文底稿（已转成 `chapter-04.ts` 的互动数据；只作通读用，不是权威版本） |
+| [chapter-05-draft.md](chapter-05-draft.md) | Chapter 5 的正文底稿（已转成 `chapter-05.ts` 的互动数据；只作通读用，不是权威版本） |
+| [chapter-06-draft.md](chapter-06-draft.md) | Chapter 6 的正文底稿（已转成 `chapter-06.ts` 的互动数据；只作通读用，不是权威版本） |
+| [chapter-07-draft.md](chapter-07-draft.md) | Chapter 7 的正文底稿（已转成 `chapter-07.ts` 的互动数据；只作通读用，不是权威版本） |
 
 ## 现在做到哪儿了
 
 - 规格与大纲：完成（00–06）
 - 判题核心 `packages/exercise`：首版可用
 - 教学页 `web/teaching.html` 与做题页 `web/task.html`：接通真实内容与引擎，判题、运行、进度都是真的
-- 内容：Chapter 1–3 已接入真实内容与判题；Chapter 4–7 已嵌入只读草稿阅读版，尚未接入判题；Chapter 8–23 未上线
+- 内容：Chapter 1–7 已接入正式内容、真实判题和页面流程；Chapter 8–23 尚未上线
 
 细节、风险与接手建议见 [07-HANDOFF.md](07-HANDOFF.md)。
 

@@ -24,8 +24,9 @@ describe("Chapter 3 — 大纲落点", () => {
     );
   });
 
-  it("浏览器课程数据发布已嵌入的七章", () => {
-    expect(browserCourse.chapters.map((chapter) => chapter.id)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+  it("浏览器课程数据和课程索引登记的章节一一对应", () => {
+    // 写死章号会让每加一章就来改这里一次。要守的其实是「别漏发布」。
+    expect(browserCourse.chapters.map((chapter) => chapter.id)).toEqual(course.chapters.map((chapter) => chapter.id));
   });
 });
 

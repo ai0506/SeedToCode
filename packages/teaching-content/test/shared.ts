@@ -284,6 +284,18 @@ export function verifyChapter(verification: ChapterVerification): void {
       }
     });
 
+    it("正确答案不总是落在同一个位置", () => {
+      // 只按位置猜也能过关，闸门就白设了。Chapter 4–11 一度连着三十道题的
+      // 正确项都是 A——测试全绿，是在页面上一路点 A 点出来的。
+      const positions = quizzes
+        .map(({ block }) => block)
+        .filter((block): block is Extract<Quiz, { type: "single-choice" | "true-false" }> =>
+          block.type === "single-choice" || block.type === "true-false")
+        .map((block) => block.options.findIndex((option) => option.correct));
+      if (positions.length < 3) return;
+      expect(new Set(positions).size, `Chapter ${chapter.id} 的正确项全在第 ${positions[0] + 1} 个`).toBeGreaterThan(1);
+    });
+
     it("参考解、题面示例、快照与判题用例彼此一致", async () => {
       expect(tasks.length, "伪代码题数量").toBeGreaterThan(0);
       for (const { section, task } of tasks) {

@@ -67,10 +67,25 @@ function skeleton(line: string, inputs: string[]): { text: string; slots: number
   return { text, slots };
 }
 
+/**
+ * 把每一段数字换成一个占位符：`Class 2: count -3` → `Class #: count #`。
+ * 负号算进数字里——否则 `Highest: -1` 和 `Highest: 0` 会被当成两种不同的文字。
+ */
+function maskNumbers(line: string): string {
+  return line.replace(/-?\d+/gu, "#");
+}
+
 function classify(expectedLine: string, actualLine: string, inputs: string[]): DiffKind {
   const e = skeleton(expectedLine, inputs);
   const a = skeleton(actualLine, inputs);
   if (e.text === a.text) return "data";
+  // 抠掉输入只认「原样回显」的值。算出来的数字（个数、总和、平均）不在输入里，
+  // 骨架里会原地留着，于是「文字全对、只有数字不对」被误判成「文字写错了」——
+  // 方向刚好指反。把数字蒙掉再比：蒙掉之后一样，说明错的是数据不是文字。
+  // 两边都要比：原始行（一边的数恰好等于某个输入时，骨架里它已经变成占位符了）
+  // 和抠掉输入之后的骨架。
+  if (maskNumbers(expectedLine) === maskNumbers(actualLine)) return "data";
+  if (maskNumbers(e.text) === maskNumbers(a.text)) return "data";
   if (e.slots === a.slots) return "literal";
   return "mixed";
 }

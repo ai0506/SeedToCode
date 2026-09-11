@@ -34,3 +34,32 @@ describe("Chapter 2 基本类型与字面量特征", () => {
     expect(features).not.toContain("literal.integer");
   });
 });
+
+describe("Chapter 11 记录特征", () => {
+  const source = [
+    "TYPE TStudent",
+    "   DECLARE Name : STRING",
+    "   DECLARE Mark : INTEGER",
+    "ENDTYPE",
+    "DECLARE One : TStudent",
+    "DECLARE Form : ARRAY[1:3] OF TStudent",
+    'One.Name ← "Ada"',
+    "Form[1].Mark ← One.Mark"
+  ].join("\n");
+
+  it("识别 TYPE 定义与点号访问，并把字段的类型也算进去", () => {
+    const features = extractFeatures(parseSource(source).program);
+    expect([...features]).toEqual(
+      expect.arrayContaining([
+        "decl.record-type", "record.field-access", "decl.array-1d", "array.index",
+        "type.string", "type.integer"
+      ])
+    );
+  });
+
+  it("没有记录时不会凭空报出记录特征", () => {
+    const features = extractFeatures(parseSource('DECLARE Name : STRING\nName ← "Ada"').program);
+    expect(features).not.toContain("decl.record-type");
+    expect(features).not.toContain("record.field-access");
+  });
+});

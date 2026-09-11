@@ -149,6 +149,53 @@ OUTPUT Form[1].Name, ":", Form[1].Year`).result;
     expect(result.outputs).toEqual(["Ada:12", "Ada:13", "Ada:13"]);
   });
 
+  it("writes straight into a record array element without assigning the whole record first", async () => {
+    // 记录数组的格子天生就是一条空记录：`Form[1].Name ← ...` 不该报「Form[1] 还没有值」。
+    const result = await executeSource(`TYPE Student
+   DECLARE Name : STRING
+   DECLARE Year : INTEGER
+ENDTYPE
+DECLARE Form : ARRAY[1:2] OF Student
+DECLARE I : INTEGER
+FOR I ← 1 TO 2
+   Form[I].Year ← I * 10
+NEXT I
+Form[1].Name ← "Ada"
+OUTPUT Form[1].Name, ":", Form[1].Year
+OUTPUT Form[2].Year`).result;
+
+    expect(result.status).toBe("completed");
+    expect(result.outputs).toEqual(["Ada:10", "20"]);
+  });
+
+  it("treats a record field that is itself a record or an array as ready to write into", async () => {
+    const result = await executeSource(`TYPE Born
+   DECLARE Year : INTEGER
+ENDTYPE
+TYPE Student
+   DECLARE When : Born
+   DECLARE Marks : ARRAY[1:3] OF INTEGER
+ENDTYPE
+DECLARE One : Student
+One.When.Year ← 2009
+One.Marks[2] ← 55
+OUTPUT One.When.Year, ":", One.Marks[2]`).result;
+
+    expect(result.status).toBe("completed");
+    expect(result.outputs).toEqual(["2009:55"]);
+  });
+
+  it("still reports an unset primitive field rather than inventing a value", async () => {
+    const result = await executeSource(`TYPE Student
+   DECLARE Name : STRING
+ENDTYPE
+DECLARE Form : ARRAY[1:2] OF Student
+OUTPUT Form[1].Name`).result;
+
+    expect(result.status).toBe("error");
+    expect(result.error?.messageKey).toBe("runtime.name.uninitialized");
+  });
+
   it("rejects oversized arrays before allocating elements", async () => {
     const result = await executeSource("DECLARE Huge : ARRAY[1:1000] OF INTEGER", { maxArrayElements: 100 }).result;
 

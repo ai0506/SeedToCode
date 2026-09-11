@@ -43,7 +43,7 @@ for (const s of chapter.sections) {
   for (const b of s.blocks) {
     if (b.kind === "explanation") {
       for (const para of b.paragraphs) p(`${para}\n`);
-      for (const c of b.callouts ?? []) p(`> **规则**（${c.source === "CAIE" ? "CAIE 规定" : "编辑器约定"}）　${c.text}\n`);
+      for (const c of b.callouts ?? []) p(`> **${c.source === "convention" ? "写法" : "规则"}**（${c.source === "CAIE" ? "CAIE 规定" : c.source === "convention" ? "通行写法" : "编辑器约定"}）　${c.text}\n`);
     } else if (b.kind === "example") {
       p(`**示例：${b.title}**　\`${b.fileName}\`\n`);
       p("```\n" + b.code + "\n```");

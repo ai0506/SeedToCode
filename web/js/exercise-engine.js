@@ -414,10 +414,15 @@ var CAIEExercise = (() => {
     }
     return { text, slots };
   }
+  function maskNumbers(line) {
+    return line.replace(/-?\d+/gu, "#");
+  }
   function classify(expectedLine, actualLine, inputs) {
     const e = skeleton(expectedLine, inputs);
     const a = skeleton(actualLine, inputs);
     if (e.text === a.text) return "data";
+    if (maskNumbers(expectedLine) === maskNumbers(actualLine)) return "data";
+    if (maskNumbers(e.text) === maskNumbers(a.text)) return "data";
     if (e.slots === a.slots) return "literal";
     return "mixed";
   }
@@ -1272,7 +1277,11 @@ var CAIEExercise = (() => {
       }
       if (token.kind !== "eof" && token.kind !== "newline" && token.kind !== "comment")
         this.advance();
-      this.report("PC2001", "OP-001", "parser.expression.expected", token.range, { token: token.text });
+      if ((isKeyword(token.text) || isTypeName(token.text)) && token.kind !== "boolean") {
+        this.report("PC2108", "ID-002", "parser.bindingName.cannotBeKeyword", token.range, { name: token.text });
+      } else {
+        this.report("PC2001", "OP-001", "parser.expression.expected", token.range, { token: token.text });
+      }
       const error = {
         kind: "ErrorExpression",
         reason: "missing-expression",
@@ -1930,9 +1939,15 @@ var CAIEExercise = (() => {
     parseFor() {
       const start = this.advance();
       const controlToken = this.current();
+      const controlIsReserved = isKeyword(controlToken.text) || isTypeName(controlToken.text) || controlToken.kind === "boolean";
       if (controlToken.kind === "identifier")
         this.advance();
-      else
+      else if (controlIsReserved) {
+        this.report("PC2108", "ID-002", "parser.bindingName.cannotBeKeyword", controlToken.range, "CAIE", "error", {
+          name: controlToken.text
+        });
+        this.advance();
+      } else
         this.report("PC2201", "FOR-001", "parser.for.requiresControlVariable", controlToken.range, "CAIE");
       const control = {
         kind: "NameExpression",
@@ -1966,6 +1981,11 @@ var CAIEExercise = (() => {
               actual: name.text
             });
           }
+        } else if (isKeyword(this.current().text) || isTypeName(this.current().text) || this.current().kind === "boolean") {
+          this.report("PC2108", "ID-002", "parser.bindingName.cannotBeKeyword", this.current().range, "CAIE", "error", {
+            name: this.current().text
+          });
+          this.advance();
         } else {
           this.report("PC2203", "FOR-003", "parser.for.nextVariableRecommended", closing.range, "CAIE", "hint");
         }
@@ -4658,12 +4678,14 @@ var CAIEExercise = (() => {
         const key = indices.join(",");
         let cell = arrayValue.elements.get(key);
         if (!cell) {
+          const composite = instantiateComposite(arrayType.elementType);
           cell = {
             name: `${locationName(expression.target)}[${indices.join(", ")}]`,
             normalizedName: key,
             kind: "element",
             type: arrayType.elementType,
-            initialized: false
+            initialized: composite !== void 0,
+            ...composite !== void 0 ? { value: composite } : {}
           };
           arrayValue.elements.set(key, cell);
         }
@@ -5107,13 +5129,17 @@ var CAIEExercise = (() => {
       return {
         kind: "record",
         type,
-        fields: new Map(type.fields.map((field) => [field.normalizedName, {
-          name: field.name,
-          normalizedName: field.normalizedName,
-          kind: "field",
-          type: field.type,
-          initialized: false
-        }]))
+        fields: new Map(type.fields.map((field) => {
+          const inner = instantiateComposite(field.type);
+          return [field.normalizedName, {
+            name: field.name,
+            normalizedName: field.normalizedName,
+            kind: "field",
+            type: field.type,
+            initialized: inner !== void 0,
+            ...inner !== void 0 ? { value: inner } : {}
+          }];
+        }))
       };
     }
     return void 0;
@@ -5510,7 +5536,13 @@ var CAIEExercise = (() => {
       }
     });
     const result = await controller.result;
-    return { status: result.status, outputs: result.outputs, exhausted, transcript };
+    const failure = result.error ? {
+      code: result.error.code,
+      messageKey: result.error.messageKey,
+      ...result.error.args ? { args: result.error.args } : {},
+      line: result.error.range.start.line
+    } : null;
+    return { status: result.status, outputs: result.outputs, exhausted, transcript, error: failure };
   }
   async function runCase(input, testCase) {
     const run = await runWithInputs(input.source, testCase.inputs, input.execute);
@@ -5523,6 +5555,7 @@ var CAIEExercise = (() => {
       status: run.exhausted ? "input-exhausted" : run.status,
       firstDiffLine: comparison.firstDiffLine,
       diffKind: comparison.diffKind,
+      runtimeError: run.error,
       inputs: testCase.inputs,
       expected: testCase.expected,
       actual: run.outputs
