@@ -263,6 +263,7 @@ html[data-el-labels="on"] .block::after { opacity: 1; }
 /* 同一件事的几种写法并排放。只有伪代码那一栏做语法着色，
  * 另外几栏是自然语言或别的编程语言，着色反而会误导。 */
 .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top: 10px; }
+.compare.cols-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .compare-pane { border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-panel); display: flex; flex-direction: column; overflow: hidden; }
 .compare-pane.is-pseudocode { box-shadow: inset 0 0 0 1px var(--accent); }
 .compare-head {
@@ -272,11 +273,17 @@ html[data-el-labels="on"] .block::after { opacity: 1; }
 }
 .compare-pane.is-pseudocode .compare-head { background: var(--accent-soft); color: var(--accent); }
 .compare-code {
-   margin: 0; padding: 9px 10px; flex: 1;
+   margin: 0; padding: 9px 8px; flex: 1;
    font-family: var(--font-mono); font-size: 12px; line-height: 19px;
-   white-space: pre-wrap; overflow-x: auto; scrollbar-gutter: stable;
+   /* 代码不折行：折出来的那一行会被当成真的换了一行，缩进也跟着乱。
+    * 太宽就让它在自己这一栏里横向滚动。散文栏另作处理，见下。
+    * 这里不留滚动条槽——一栏本来就窄，白留 15px 会让 47 个字符的一行刚好溢出去。 */
+   white-space: pre; overflow-x: auto;
 }
-.compare-code.is-natural { font-family: var(--font-ui); font-size: 12.5px; line-height: 20px; color: var(--text-dim); }
+.compare-code.is-natural { font-family: var(--font-ui); font-size: 12.5px; line-height: 20px; color: var(--text-dim); white-space: pre-wrap; }
+/* 流程图、结构图：等宽、绝不折行，而且单独占满一行——挤在窄栏里就没法看了。 */
+.compare-pane.is-diagram { grid-column: 1 / -1; }
+.compare-code.is-diagram { color: var(--text-dim); }
 .compare-code.is-other { color: var(--text-dim); }
 .compare-note {
    padding: 8px 10px; border-top: 1px solid var(--border); background: var(--bg-sunken);
@@ -451,16 +458,62 @@ html[data-el-labels="on"] .block::after { opacity: 1; }
 .mini-editor { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--bg-panel); }
 .mini-editor-head { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 10px; background: var(--bg-sunken); border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--text-dim); }
 .mini-editor-head .spacer { flex: 1; }
-.mini-editor textarea {
-   display: block; width: 100%; height: 168px; padding: 10px 12px;
-   border: 0; resize: vertical; background: var(--bg-panel); color: var(--text);
+/* 行号槽、着色层和 textarea 并排在同一行里；只有 .mini-code 会被撑开 */
+.mini-editor-body { display: flex; min-height: 168px; }
+.mini-editor-body.locked-body { min-height: 0; padding: 8px 0; }
+.mini-editor-body.locked-body .mini-gutter { padding-top: 0; padding-bottom: 0; background: transparent; border-right: 0; }
+.mini-editor-body.locked-body pre { flex: 1; min-width: 0; padding: 0 12px 0 6px; overflow-x: auto; }
+/* 行号：诊断按行号说话，作答区没有行号等于让学生自己数 */
+.mini-gutter {
+   flex: 0 0 44px; width: 44px;
+   padding: 10px 8px 10px 0;
+   overflow: hidden;
+   border-right: 1px solid var(--border);
+   background: var(--bg-sunken);
    font-family: var(--font-mono); font-size: 12.5px; line-height: 21px;
-   tab-size: 3;
+   color: var(--text-faint); text-align: right;
+   font-variant-numeric: tabular-nums;
+   user-select: none;
 }
-.mini-editor textarea:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ring); }
-.mini-editor-locked { padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--bg-sunken); color: var(--text-dim); font-size: 11.5px; }
-.mini-editor-locked span { display: block; margin-bottom: 4px; }
-.mini-editor-locked pre { margin: 0; color: var(--text); font: 12.5px/21px var(--font-mono); white-space: pre-wrap; }
+.mini-gutter span { display: block; }
+
+/* 作答区是「透明 textarea 垫在着色层上」这一套，和主编辑器同一个做法：
+   两层的字体、行高、内边距、换行方式必须逐项对齐，光标才落在看到的字上。 */
+.mini-code { position: relative; flex: 1; min-width: 0; display: flex; }
+.mini-highlight,
+.mini-code textarea {
+   margin: 0; border: 0;
+   padding: 10px 12px 10px 6px;
+   font-family: var(--font-mono); font-size: 12.5px; line-height: 21px;
+   white-space: pre; tab-size: 3;
+}
+/* 只有作答区那一层是垫在 textarea 底下的；锁定片段里的同名元素是普通静态块 */
+.mini-code .mini-highlight {
+   position: absolute; inset: 0; z-index: 1;
+   overflow: hidden; pointer-events: none;
+   color: var(--tk-ident); background: transparent;
+}
+.mini-highlight code { font: inherit; }
+.mini-code textarea {
+   position: relative; z-index: 2;
+   display: block; flex: 1; width: 100%; min-width: 0; height: auto; align-self: stretch;
+   overflow: auto; resize: none;
+   background: transparent; color: transparent; caret-color: var(--text);
+}
+.mini-code textarea:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ring); }
+/* textarea 的字是透明的，所以选区背景必须半透明，才能透出底下那层的颜色 */
+.mini-code textarea::selection { background: var(--sel-glass); color: transparent; }
+.mini-code textarea::placeholder { color: var(--text-faint); }
+
+.mini-editor-locked { border-bottom: 1px solid var(--border); background: var(--bg-sunken); color: var(--text-dim); font-size: 11.5px; }
+/* 锁定片段和作答区之前只差一点底色，学生分不清哪段能改。把「不能改」写在一条带里。 */
+.locked-note {
+   display: flex; align-items: center; gap: 5px;
+   padding: 5px 12px; border-bottom: 1px solid var(--border);
+   font-size: 10.5px; letter-spacing: .3px; color: var(--text-faint);
+}
+.locked-note::before { content: "🔒"; font-size: 9.5px; opacity: .75; }
+.mini-editor-locked pre { margin: 0; color: var(--tk-ident); opacity: .72; }
 
 .task-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
 .task-actions .spacer { flex: 1; }

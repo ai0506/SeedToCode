@@ -53,3 +53,30 @@ describe("判题结果里的运行时错误", () => {
     expect(result.testResults.find((item) => item.passed)?.runtimeError).toBeNull();
   });
 });
+
+describe("L0 也交出排在错误之前的规范提示", () => {
+  it("忘了 CLOSEFILE 时，真正的原因和它的两个后果一起显示", async () => {
+    const source = [
+      "DECLARE Name : STRING",
+      'OPENFILE "N.txt" FOR WRITE',
+      'WRITEFILE "N.txt", "a"',
+      'OPENFILE "N.txt" FOR READ',
+      'WHILE NOT EOF("N.txt")',
+      '   READFILE "N.txt", Name',
+      "ENDWHILE",
+      'CLOSEFILE "N.txt"'
+    ].join("\n");
+    const result = await grade({ source, tests: [] });
+    expect(result.failedLayer).toBe("L0");
+    // 原因（第 4 行还开着就又打开一次）排在两个后果前面
+    expect(result.diagnostics.map((d) => d.ruleId)).toEqual(["FILE-004", "FILE-002", "FILE-002"]);
+    expect(result.diagnostics[0].severity).toBe("caie");
+  });
+
+  it("排在错误后面的规范提示不跟着出来", async () => {
+    const source = ["DECLARE N : INTEGER", 'N ← "x"', "output N"].join("\n");
+    const result = await grade({ source, tests: [] });
+    expect(result.failedLayer).toBe("L0");
+    expect(result.diagnostics.every((d) => d.severity === "error")).toBe(true);
+  });
+});

@@ -1155,6 +1155,596 @@ export const expectedOutputs: ExpectedOutputs = {
     "Ivy 0",
     "Hal -99999",
     "Jon -99999"
+  ],
+  "12.3.1/t1": [
+    "Enter a label",
+    "Enter a count",
+    "Red **",
+    "Enter a label",
+    "Enter a count",
+    "Green ****",
+    "Enter a label",
+    "Enter a count",
+    "Blue ******"
+  ],
+  "12.3.1/t2": [
+    "Enter a label",
+    "Enter a count",
+    "Red ",
+    "Enter a label",
+    "Enter a count",
+    "Green *",
+    "Enter a label",
+    "Enter a count",
+    "Blue **"
+  ],
+  "12.3.1/t3": [
+    "Enter a label",
+    "Enter a count",
+    "A *",
+    "Enter a label",
+    "Enter a count",
+    "B *",
+    "Enter a label",
+    "Enter a count",
+    "C *"
+  ],
+  "12.3.1/t4": [
+    "Enter a label",
+    "Enter a count",
+    "Two words ***",
+    "Enter a label",
+    "Enter a count",
+    "X **",
+    "Enter a label",
+    "Enter a count",
+    "Y ****"
+  ],
+  "12.3.1/t5": [
+    "Enter a label",
+    "Enter a count",
+    "Big ****************************************",
+    "Enter a label",
+    "Enter a count",
+    "Small ",
+    "Enter a label",
+    "Enter a count",
+    "Mid *******"
+  ],
+  "12.5.1/t1": [
+    "Enter a number",
+    "Enter a number",
+    "3 8"
+  ],
+  "12.5.1/t2": [
+    "Enter a number",
+    "Enter a number",
+    "3 8"
+  ],
+  "12.5.1/t3": [
+    "Enter a number",
+    "Enter a number",
+    "7 7"
+  ],
+  "12.5.1/t4": [
+    "Enter a number",
+    "Enter a number",
+    "-1 0"
+  ],
+  "12.5.1/t5": [
+    "Enter a number",
+    "Enter a number",
+    "-99999 99999"
+  ],
+  "12.T1/t1": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "1",
+    "3",
+    "5"
+  ],
+  "12.T1/t2": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "1",
+    "2",
+    "3"
+  ],
+  "12.T1/t3": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "1",
+    "2",
+    "3"
+  ],
+  "12.T1/t4": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "6",
+    "6",
+    "6"
+  ],
+  "12.T1/t5": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "-99999",
+    "0",
+    "99999"
+  ],
+  "13.3.1/t1": [
+    "Enter a mark",
+    "95 A",
+    "Enter a mark",
+    "72 B",
+    "Enter a mark",
+    "55 C"
+  ],
+  "13.3.1/t2": [
+    "Enter a mark",
+    "80 A",
+    "Enter a mark",
+    "60 B",
+    "Enter a mark",
+    "40 C"
+  ],
+  "13.3.1/t3": [
+    "Enter a mark",
+    "79 B",
+    "Enter a mark",
+    "59 C",
+    "Enter a mark",
+    "39 F"
+  ],
+  "13.3.1/t4": [
+    "Enter a mark",
+    "0 F",
+    "Enter a mark",
+    "100 A",
+    "Enter a mark",
+    "0 F"
+  ],
+  "13.3.1/t5": [
+    "Enter a mark",
+    "99999 A",
+    "Enter a mark",
+    "-99999 F",
+    "Enter a mark",
+    "41 C"
+  ],
+  "13.5.1/t1": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Largest: 8"
+  ],
+  "13.5.1/t2": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Largest: 9"
+  ],
+  "13.5.1/t3": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Largest: 9"
+  ],
+  "13.5.1/t4": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Largest: 5"
+  ],
+  "13.5.1/t5": [
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Enter a number",
+    "Largest: -99996"
+  ],
+  "13.T1/t1": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Average: 65",
+    "Grade: B"
+  ],
+  "13.T1/t2": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Average: 80",
+    "Grade: A"
+  ],
+  "13.T1/t3": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Average: 0",
+    "Grade: F"
+  ],
+  "13.T1/t4": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Average: 40",
+    "Grade: C"
+  ],
+  "13.T1/t5": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Average: 19999",
+    "Grade: A"
+  ],
+  "14.3.1/t1": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Red",
+    "Green",
+    "Blue"
+  ],
+  "14.3.1/t2": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Two words",
+    "X",
+    "Something longer"
+  ],
+  "14.3.1/t3": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Same",
+    "Same",
+    "Same"
+  ],
+  "14.3.1/t4": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "A",
+    "B",
+    "C"
+  ],
+  "14.3.1/t5": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "QWERTYUIOPASDFGHJKLZXCVBNM",
+    "Z",
+    "Mixed Case Name"
+  ],
+  "14.5.1/t1": [
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "1: one",
+    "2: two",
+    "3: three",
+    "4: four"
+  ],
+  "14.5.1/t2": [
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "1: a b c",
+    "2: d",
+    "3: e f",
+    "4: g h i j"
+  ],
+  "14.5.1/t3": [
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "1: x",
+    "2: x",
+    "3: x",
+    "4: x"
+  ],
+  "14.5.1/t4": [
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "1: 1",
+    "2: 2",
+    "3: 3",
+    "4: 4"
+  ],
+  "14.5.1/t5": [
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "Enter a line",
+    "1: Q",
+    "2: WERTYUIOPASDFGHJKLZXCVBNM",
+    "3: e",
+    "4: R"
+  ],
+  "14.T1/t1": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Alice",
+    "Charlie",
+    "Edward",
+    "Count: 3"
+  ],
+  "14.T1/t2": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Count: 0"
+  ],
+  "14.T1/t3": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Abcde",
+    "Fghij",
+    "Klmno",
+    "Pqrst",
+    "Uvwxy",
+    "Count: 5"
+  ],
+  "14.T1/t4": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Two words",
+    "Count: 1"
+  ],
+  "14.T1/t5": [
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "Enter a name",
+    "QWERTYUIOPASDFGHJKLZXCVBNM",
+    "Count: 1"
+  ],
+  "16.2.1/t1": [
+    "Enter the length",
+    "Enter the width",
+    "Area: 15",
+    "Perimeter: 16"
+  ],
+  "16.2.1/t2": [
+    "Enter the length",
+    "Enter the width",
+    "Area: 36",
+    "Perimeter: 24"
+  ],
+  "16.2.1/t3": [
+    "Enter the length",
+    "Enter the width",
+    "Area: 1",
+    "Perimeter: 4"
+  ],
+  "16.2.1/t4": [
+    "Enter the length",
+    "Enter the width",
+    "Area: 0",
+    "Perimeter: 18"
+  ],
+  "16.2.1/t5": [
+    "Enter the length",
+    "Enter the width",
+    "Area: 99980001",
+    "Perimeter: 39996"
+  ],
+  "16.5.1/t1": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Frost days: 3"
+  ],
+  "16.5.1/t2": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Frost days: 0"
+  ],
+  "16.5.1/t3": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Frost days: 5"
+  ],
+  "16.5.1/t4": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Frost days: 0"
+  ],
+  "16.5.1/t5": [
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Enter a temperature",
+    "Frost days: 2"
+  ],
+  "16.7.1/t1": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passes: 4",
+    "Fails: 2"
+  ],
+  "16.7.1/t2": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passes: 6",
+    "Fails: 0"
+  ],
+  "16.7.1/t3": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passes: 0",
+    "Fails: 6"
+  ],
+  "16.7.1/t4": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passes: 6",
+    "Fails: 0"
+  ],
+  "16.7.1/t5": [
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Passes: 2",
+    "Fails: 4"
+  ],
+  "16.T1/t1": [
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Total loans: 22",
+    "Average loans: 4",
+    "Most borrowed: Beta"
+  ],
+  "16.T1/t2": [
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Total loans: 19",
+    "Average loans: 3",
+    "Most borrowed: Alpha"
+  ],
+  "16.T1/t3": [
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Total loans: 19",
+    "Average loans: 3",
+    "Most borrowed: Sigma"
+  ],
+  "16.T1/t4": [
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Total loans: 1",
+    "Average loans: 0",
+    "Most borrowed: Sigma"
+  ],
+  "16.T1/t5": [
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Total loans: 26",
+    "Average loans: 5",
+    "Most borrowed: Sigma"
+  ],
+  "16.T1/t6": [
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Enter a title",
+    "Enter a loan count",
+    "Total loans: 100000",
+    "Average loans: 20000",
+    "Most borrowed: Alpha"
   ]
 };
 
@@ -1841,6 +2431,480 @@ export const sampleTranscripts: SampleTranscripts = {
     {
       "kind": "output",
       "text": "Cal passed"
+    }
+  ],
+  "12.2/Example_12_2_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Report"
+    },
+    {
+      "kind": "output",
+      "text": "----------"
+    },
+    {
+      "kind": "output",
+      "text": "Total: 42"
+    },
+    {
+      "kind": "output",
+      "text": "----------"
+    }
+  ],
+  "12.3/Example_12_3_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "------"
+    },
+    {
+      "kind": "output",
+      "text": "Total: 42"
+    },
+    {
+      "kind": "output",
+      "text": "---"
+    }
+  ],
+  "12.4/Example_12_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "inside: 105"
+    },
+    {
+      "kind": "output",
+      "text": "outside: 5"
+    }
+  ],
+  "12.5/Example_12_5_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "before: 1 2"
+    },
+    {
+      "kind": "output",
+      "text": "after: 2 1"
+    }
+  ],
+  "12.6/Example_12_6_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "inside: 100"
+    },
+    {
+      "kind": "output",
+      "text": "outside: 7"
+    }
+  ],
+  "13.2/Example_13_2_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "10"
+    },
+    {
+      "kind": "output",
+      "text": "14"
+    },
+    {
+      "kind": "output",
+      "text": "hello!"
+    }
+  ],
+  "13.3/Example_13_3_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "positive"
+    },
+    {
+      "kind": "output",
+      "text": "negative"
+    },
+    {
+      "kind": "output",
+      "text": "zero"
+    }
+  ],
+  "13.4/Example_13_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "42"
+    },
+    {
+      "kind": "output",
+      "text": "12"
+    },
+    {
+      "kind": "output",
+      "text": "84"
+    }
+  ],
+  "13.5/Example_13_5_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "called with 3"
+    },
+    {
+      "kind": "output",
+      "text": "called with 4"
+    },
+    {
+      "kind": "output",
+      "text": "14"
+    }
+  ],
+  "14.2/Example_14_2_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Saved 2 names"
+    }
+  ],
+  "14.3/Example_14_3_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "1: Ada"
+    },
+    {
+      "kind": "output",
+      "text": "2: Bob"
+    }
+  ],
+  "14.4/Example_14_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "after append 1: first"
+    },
+    {
+      "kind": "output",
+      "text": "after append 2: second"
+    },
+    {
+      "kind": "output",
+      "text": "after write 1: third"
+    }
+  ],
+  "14.5/Example_14_5_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "1: Ada"
+    },
+    {
+      "kind": "output",
+      "text": "2: Bob"
+    },
+    {
+      "kind": "output",
+      "text": "3: Cal"
+    },
+    {
+      "kind": "output",
+      "text": "Total: 3"
+    }
+  ],
+  "14.6/Example_14_6_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "ada"
+    },
+    {
+      "kind": "output",
+      "text": "cathy"
+    }
+  ],
+  "15.4/Example_15_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Ada"
+    },
+    {
+      "kind": "output",
+      "text": "Bob"
+    },
+    {
+      "kind": "output",
+      "text": "Cal"
+    }
+  ],
+  "15.5/Example_15_5_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Top is at 3"
+    },
+    {
+      "kind": "output",
+      "text": "Top holds 30"
+    },
+    {
+      "kind": "output",
+      "text": "After one pop, top holds 20"
+    },
+    {
+      "kind": "output",
+      "text": "Slot 3 still holds 30"
+    }
+  ],
+  "15.5/Example_15_5_b.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Next out: Ada"
+    },
+    {
+      "kind": "output",
+      "text": "Next out: Bob"
+    },
+    {
+      "kind": "output",
+      "text": "Front is 2, Rear is 3"
+    }
+  ],
+  "16.2/Example_16_2_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Enter the width"
+    },
+    {
+      "kind": "input",
+      "text": "3"
+    },
+    {
+      "kind": "output",
+      "text": "Enter the height"
+    },
+    {
+      "kind": "input",
+      "text": "4"
+    },
+    {
+      "kind": "output",
+      "text": "Area: 12"
+    },
+    {
+      "kind": "output",
+      "text": "Perimeter: 14"
+    }
+  ],
+  "16.4/Example_16_4_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "80"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "70"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "90"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "60"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "100"
+    },
+    {
+      "kind": "output",
+      "text": "Average: 80"
+    }
+  ],
+  "16.6/Example_16_6_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Ada"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "80"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Bob"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "70"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Cal"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "90"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Dee"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "60"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Eve"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "100"
+    },
+    {
+      "kind": "output",
+      "text": "Average: 80"
+    }
+  ],
+  "16.7/Example_16_7_a.pseudocode": [
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Ada"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "80"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Bob"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "70"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Cal"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "90"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Dee"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "60"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a name"
+    },
+    {
+      "kind": "input",
+      "text": "Eve"
+    },
+    {
+      "kind": "output",
+      "text": "Enter a mark"
+    },
+    {
+      "kind": "input",
+      "text": "100"
+    },
+    {
+      "kind": "output",
+      "text": "Average: 80"
+    },
+    {
+      "kind": "output",
+      "text": "Cal"
+    },
+    {
+      "kind": "output",
+      "text": "Eve"
     }
   ]
 };

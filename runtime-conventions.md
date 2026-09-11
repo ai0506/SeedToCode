@@ -1,4 +1,4 @@
-# Pseudocode Editor 运行时约定
+# SeedToCode 运行时约定
 
 版本：0.1  
 来源标签：`Editor Runtime`  

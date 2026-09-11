@@ -1,4 +1,4 @@
-export { FEATURE_IDS, extractFeatures } from "./features.js";
+export { AHEAD_EXEMPT_FEATURES, FEATURE_IDS, extractFeatures } from "./features.js";
 export type { FeatureId } from "./features.js";
 export { compareOutputs } from "./compare.js";
 export { findCodeNotes, findUnpromptedInputs } from "./notes.js";

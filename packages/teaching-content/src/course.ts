@@ -9,6 +9,11 @@ import { chapter08 } from "./chapter-08.js";
 import { chapter09 } from "./chapter-09.js";
 import { chapter10 } from "./chapter-10.js";
 import { chapter11 } from "./chapter-11.js";
+import { chapter12 } from "./chapter-12.js";
+import { chapter13 } from "./chapter-13.js";
+import { chapter14 } from "./chapter-14.js";
+import { chapter15 } from "./chapter-15.js";
+import { chapter16 } from "./chapter-16.js";
 import type { Chapter, ChapterTask, Section, Task } from "./types.js";
 
 /**
@@ -18,7 +23,7 @@ import type { Chapter, ChapterTask, Section, Task } from "./types.js";
  */
 export const course = {
   syllabusVersion: "CAIE 9618 (2027–2029)",
-  chapters: [chapter01, chapter02, chapter03, chapter04, chapter05, chapter06, chapter07, chapter08, chapter09, chapter10, chapter11] as Chapter[]
+  chapters: [chapter01, chapter02, chapter03, chapter04, chapter05, chapter06, chapter07, chapter08, chapter09, chapter10, chapter11, chapter12, chapter13, chapter14, chapter15, chapter16] as Chapter[]
 };
 
 export const allChapters = course.chapters;

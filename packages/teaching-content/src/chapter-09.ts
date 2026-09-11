@@ -80,27 +80,27 @@ export const chapter09: Chapter = {
           options: [
             {
               key: "A",
-              label: "43 个",
-              correct: false,
-              explanation: "这是把上界拼在一起了。方括号里的两组数是两个方向的范围，不是一个数字。"
-            },
-            {
-              key: "B",
-              label: "12 个",
-              correct: true,
-              explanation: "对。4 行乘 3 列等于 12。两组上下界各自都是两端都算数，所以是 4 个乘 3 个。"
-            },
-            {
-              key: "C",
               label: "7 个",
               correct: false,
               explanation: "把两个方向加起来了。表格的格子数是行数乘列数，不是相加。"
             },
             {
-              key: "D",
+              key: "B",
               label: "6 个",
               correct: false,
               explanation: "少算了两端：1 到 4 是四个数不是三个，1 到 3 是三个数不是两个。"
+            },
+            {
+              key: "C",
+              label: "43 个",
+              correct: false,
+              explanation: "这是把上界拼在一起了。方括号里的两组数是两个方向的范围，不是一个数字。"
+            },
+            {
+              key: "D",
+              label: "12 个",
+              correct: true,
+              explanation: "对。4 行乘 3 列等于 12。两组上下界各自都是两端都算数，所以是 4 个乘 3 个。"
             }
           ]
         }
@@ -156,27 +156,27 @@ export const chapter09: Chapter = {
           options: [
             {
               key: "A",
+              label: "程序照常跑完，但用的是另一个格子",
+              correct: true,
+              explanation: "对。行和列的范围一样大，所以两个写法都落在表格里，谁也拦不住。这种错只能靠自己把行列的含义写清楚来防。"
+            },
+            {
+              key: "B",
               label: "编辑器会拦下来",
               correct: false,
               explanation: "两个下标都在 1 到 5 之间，完全合法。编辑器不知道你心里想的是哪个格子。"
             },
             {
-              key: "B",
+              key: "C",
               label: "运行时越界，程序停下来",
               correct: false,
               explanation: "越界是指了不存在的格子。这里指的格子存在，只是不是你要的那个。"
             },
             {
-              key: "C",
+              key: "D",
               label: "两个写法本来就是同一个格子",
               correct: false,
               explanation: "除非行号和列号正好相等，否则它们是不同的两个格子。表格不是对称的。"
-            },
-            {
-              key: "D",
-              label: "程序照常跑完，但用的是另一个格子",
-              correct: true,
-              explanation: "对。行和列的范围一样大，所以两个写法都落在表格里，谁也拦不住。这种错只能靠自己把行列的含义写清楚来防。"
             }
           ]
         }
@@ -250,27 +250,27 @@ export const chapter09: Chapter = {
           options: [
             {
               key: "A",
-              label: "第二行的结果里混进了第一行的数",
-              correct: true,
-              explanation: "对。只清零一次，第一行加完的数还留在 `Sum` 里，第二行接着往上加。结果变成了「到这一行为止的累计」。"
-            },
-            {
-              key: "B",
-              label: "每行都显示 0",
-              correct: false,
-              explanation: "清零只发生在开头，之后循环照样往里加，不会一直是 0。"
-            },
-            {
-              key: "C",
               label: "编辑器会拦下来",
               correct: false,
               explanation: "两个位置都合法。放错一层不会报错，只会算错——这正是麻烦的地方。"
             },
             {
-              key: "D",
+              key: "B",
               label: "没有区别",
               correct: false,
               explanation: "有区别，而且只在第二行往后才看得出来。第一行的结果两种写法是一样的。"
+            },
+            {
+              key: "C",
+              label: "第二行的结果里混进了第一行的数",
+              correct: true,
+              explanation: "对。只清零一次，第一行加完的数还留在 `Sum` 里，第二行接着往上加。结果变成了「到这一行为止的累计」。"
+            },
+            {
+              key: "D",
+              label: "每行都显示 0",
+              correct: false,
+              explanation: "清零只发生在开头，之后循环照样往里加，不会一直是 0。"
             }
           ]
         },

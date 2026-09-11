@@ -110,7 +110,7 @@ export function check(program: Program, binding: BindResult, options: CheckOptio
         const isEof = expression.callee.kind === "NameExpression" && expression.callee.normalizedName === "EOF";
         const ruleId = isEof ? "FILE-002"
           : expression.callee.kind === "NameExpression" && isBuiltin(expression.callee.normalizedName) ? "BUILTIN-001" : "PROC-002";
-        validateArguments(expression.arguments, argumentTypes, calleeType.parameters, ruleId, report, references);
+        validateArguments(expression.arguments, argumentTypes, calleeType.parameters, ruleId, report, references, expression.range);
         if (isEof && expression.arguments[0]) checkKnownFileMode(expression.arguments[0], ["READ"], "FILE-002", "type.file.eofRequiresReadMode");
         return record(expression, calleeType.returns);
       }
@@ -123,7 +123,7 @@ export function check(program: Program, binding: BindResult, options: CheckOptio
         }
         const constructor = classType.members.find(({ normalizedName, kind }) => normalizedName === "NEW" && kind === "procedure");
         if (constructor?.type.kind === "procedure") {
-          validateArguments(expression.arguments, argumentTypes, constructor.type.parameters, "OOP-003", report, references);
+          validateArguments(expression.arguments, argumentTypes, constructor.type.parameters, "OOP-003", report, references, expression.range);
         } else if (expression.arguments.length > 0) {
           report("PC4010", "OOP-003", "type.call.argumentCount", expression.range, "CAIE", {
             expected: 0, actual: expression.arguments.length
@@ -299,10 +299,10 @@ export function check(program: Program, binding: BindResult, options: CheckOptio
         const calleeType = infer(statement.call.callee);
         const argumentTypes = statement.call.arguments.map(infer);
         if (calleeType.kind === "procedure") {
-          validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references);
+          validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references, statement.call.range);
         } else if (calleeType.kind === "function") {
           report("PC4020", "OOP-004", "type.function.cannotBeStatement", statement.call.callee.range);
-          validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references);
+          validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references, statement.call.range);
         } else if (calleeType.kind !== "unknown") {
           report("PC4035", "OOP-004", "type.call.notCallable", statement.call.callee.range);
         }
@@ -463,9 +463,9 @@ export function check(program: Program, binding: BindResult, options: CheckOptio
         const argumentTypes = statement.arguments.map(infer);
         if (targetType.kind === "function") {
           report("PC4020", "FUNC-002", "type.function.cannotUseCall", statement.target.range);
-          validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references);
+          validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references, statement.range);
         } else if (targetType.kind === "procedure") {
-          validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references);
+          validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references, statement.range);
         }
         break;
       }
@@ -602,11 +602,13 @@ function validateArguments(
   parameters: RoutineParameterType[],
   ruleId: string,
   report: (code: string, ruleId: string, messageKey: string, range: SourceRange, origin?: Diagnostic["origin"], args?: Diagnostic["args"]) => void,
-  references: Map<number, SymbolInfo>
+  references: Map<number, SymbolInfo>,
+  /** 一个实参都没写时，提示要落在调用那一行上——否则它会掉到第 1 行去。 */
+  callSiteRange: SourceRange
 ): void {
   const callRange = expressions.length > 0
     ? { start: expressions[0].range.start, end: expressions.at(-1)!.range.end }
-    : { start: { offset: 0, line: 1, column: 1 }, end: { offset: 0, line: 1, column: 1 } };
+    : callSiteRange;
   if (expressions.length !== parameters.length) {
     report("PC4010", ruleId, "type.call.argumentCount", callRange, "CAIE", { expected: parameters.length, actual: expressions.length });
   }

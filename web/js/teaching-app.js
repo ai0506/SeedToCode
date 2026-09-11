@@ -32,7 +32,7 @@
    var GATES_KEY = "caie.teaching.gates.v1";
    var passedGates = (function () {
       try {
-         var value = JSON.parse(localStorage.getItem(GATES_KEY) || "{}");
+         var value = window.CAIEStorage.get(GATES_KEY, {});
          return value && typeof value === "object" ? value : {};
       } catch (e) { return {}; }
    })();
@@ -44,13 +44,13 @@
    function rememberGate(gateId) {
       if (!gateId || passedGates[gateKey(gateId)]) return;
       passedGates[gateKey(gateId)] = true;
-      try { localStorage.setItem(GATES_KEY, JSON.stringify(passedGates)); } catch (e) { /* 无痕模式等 */ }
+      window.CAIEStorage.set(GATES_KEY, passedGates);
    }
 
    function gateWasPassed(gateId) { return Boolean(gateId && passedGates[gateKey(gateId)]); }
    var savedPosition = (function () {
       try {
-         var value = JSON.parse(localStorage.getItem(POSITION_KEY) || "null");
+         var value = window.CAIEStorage.get(POSITION_KEY, null);
          return value && Number.isInteger(Number(value.chapterId)) && typeof value.sectionId === "string" &&
             Number.isFinite(Number(value.scrollTop)) && Number(value.scrollTop) >= 0 ? value : null;
       } catch (e) { return null; }
@@ -68,7 +68,7 @@
          scrollTop: Math.max(0, Math.round(Number(scrollTop) || 0))
       };
       savedPosition = value;
-      try { localStorage.setItem(POSITION_KEY, JSON.stringify(value)); } catch (e) { /* 无痕模式等 */ }
+      window.CAIEStorage.set(POSITION_KEY, value);
    }
 
    function saveCurrentPosition() {
@@ -253,12 +253,16 @@
       var panes = block.panes
          .map(function (pane) {
             var isPseudo = pane.language === "pseudocode";
-            var codeClass = isPseudo ? "" : pane.language === "natural" ? " is-natural" : " is-other";
+            var codeClass = isPseudo ? ""
+               : pane.language === "natural" ? " is-natural"
+               : pane.language === "diagram" ? " is-diagram"
+               : " is-other";
             var code = isPseudo
                ? pane.code.split("\n").map(highlightLine).join("\n")
                : esc(pane.code);
             return (
-               '<div class="compare-pane' + (isPseudo ? " is-pseudocode" : "") + '">' +
+               '<div class="compare-pane' + (isPseudo ? " is-pseudocode" : "") +
+               (pane.language === "diagram" ? " is-diagram" : "") + '">' +
                '<div class="compare-head">' + inline(pane.label) + "</div>" +
                '<pre class="compare-code' + codeClass + '">' + code + "</pre>" +
                '<div class="compare-note">' + inline(pane.note) + "</div></div>"
@@ -268,7 +272,9 @@
       return (
          '<section class="block" data-el="comparison"><h3>' + inline(block.title) + "</h3>" +
          (block.intro ? "<p>" + inline(block.intro) + "</p>" : "") +
-         '<div class="compare">' + panes + "</div></section>"
+         // 四栏及以上时改成两栏排：760px 的正文宽度切成四份只剩 247px，
+         // 一行 48 个字符的伪代码在里面横向滚动，读起来比换行还难。
+         '<div class="compare' + (block.panes.length >= 4 ? " cols-2" : "") + '">' + panes + "</div></section>"
       );
    }
 
@@ -555,7 +561,7 @@
          '<span class="te-state" data-state="' + (done ? "done" : "todo") + '">' +
          (done ? "✓ 已通过" : "未通过") + "</span></div>" +
          '<div class="te-body">' +
-         '<p class="te-statement">' + inline(task.statement) + "</p>" +
+         '<p class="te-statement">' + inline(task.statement).replace(/\n/g, "<br>") + "</p>" +
          '<div class="te-meta">' + meta + "</div>" +
          '<div class="te-go">' +
          '<a class="btn btn-primary te-btn" href="' + href + '">打开做题页 ›</a>' +
@@ -811,7 +817,12 @@
 
    /* ---------------- 导航 ---------------- */
 
-   var order = ["home"].concat(chapter.sections.map(function (s) { return s.id; })).concat(["chapterTask"]);
+   /** 导航顺序。没有章末大题的章（概念章）不该多出一步空白的「章末大题」页。 */
+   function orderOf(targetChapter) {
+      return ["home"].concat(chapterSteps(targetChapter));
+   }
+
+   var order = orderOf(chapter);
 
    function firstUnfinishedFor(targetChapter) {
       for (var i = 0; i < targetChapter.sections.length; i += 1) {
@@ -825,7 +836,7 @@
       if (!nextChapter) return;
       chapter = nextChapter;
       tocExpanded[chapter.id] = true;
-      order = ["home"].concat(chapter.sections.map(function (section) { return section.id; })).concat(["chapterTask"]);
+      order = orderOf(chapter);
       renderCurrentChapter();
       if (targetSection) show(targetSection);
    }
@@ -943,6 +954,13 @@
             if (!restoring) block.scrollIntoView({ behavior: "smooth", block: "start" });
             $$(".quiz", block).forEach(wireQuiz);
             refreshTaskEntries();
+            // 关卡后面还有内容，但如果剩下的全是说明性文字（没有下一个 quiz，也没有伪代码题入口），
+            // 那这一节其实已经没有别的东西要学生互动了——2.5 就是这样：quiz 后面挂着 example/counterExample，
+            // 原来只有「quiz 是本节最后一块内容」才会标完成，这种「quiz 后面还有静态尾巴」的节永远标不成已完成。
+            if (!restoring && !block.querySelector(".quiz") && !block.querySelector("[data-task-entry]")) {
+               var hereTail = btn.closest("[data-section]").dataset.section;
+               markSectionDone(hereTail);
+            }
          });
       });
 
@@ -985,6 +1003,34 @@
       } finally {
          restoring = false;
       }
+      backfillCompletedTailSections();
+   }
+
+   /**
+    * 补一遍「关卡后面只剩静态尾巴」的完成判定（见上面点击处理器里同一条规则的注释）。
+    *
+    * 那条规则只在学生刚答对、真实点「继续」时跑一次；而重放走的是同一个点击处理器，
+    * 却又特地用 `restoring` 把这条判定挡住了——原因是它旁边那条「关卡就是本节最后一块
+    * 内容」的分支在恢复时不该顺手把学生带去下一节，两条规则当时图省事共用了一个开关。
+    * 结果是：只要学生在「静态尾巴」这条规则上线之前就已经答对过 2.5 这类小节的关卡，
+    * 存档里就只留了「关卡通过」、没留「本节完成」，以后每次重新打开都还是重放一遍、
+    * 永远补不上这个 done。开完关卡重放后单独再扫一遍所有小节：全部关卡都已解开
+    * 且没有还没做的题目入口，就直接标完成，不牵扯导航，所以不需要顾虑 `restoring`。
+    */
+   function backfillCompletedTailSections() {
+      var changed = false;
+      chapter.sections.forEach(function (section) {
+         if (isDoneFor(chapter, section.id)) return;
+         var root = $('[data-section="' + section.id + '"]');
+         if (!root) return;
+         var quizzes = $$(".quiz", root);
+         if (!quizzes.length) return;
+         if (quizzes.some(function (quiz) { return !quiz.classList.contains("solved"); })) return;
+         if (root.querySelector("[data-task-entry]")) return;
+         setDone(section.id);
+         changed = true;
+      });
+      if (changed) refreshProgressUI();
    }
 
    function replayQuiz(quiz) {
@@ -1034,7 +1080,7 @@
       if (resumeChapter) {
          chapter = resumeChapter;
          tocExpanded[chapter.id] = true;
-         order = ["home"].concat(chapter.sections.map(function (section) { return section.id; })).concat(["chapterTask"]);
+         order = orderOf(chapter);
       }
       var resumeSection = requested
          ? (order.indexOf(requested.sectionId) >= 0 ? requested.sectionId : "home")

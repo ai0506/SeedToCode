@@ -12,7 +12,7 @@
 - `packages/runtime`：**阶段 4**。除基本类型、表达式、`IF`/`CASE`、三种循环、数组、记录之外，过程与函数（含 `BYVAL`/`BYREF`、递归、调用栈）与文本/随机虚拟文件也已真实执行。
 - **尚未实现**：Advanced 特性（枚举、指针、集合、OOP）的执行。
 - `packages/exercise`：**首版**。特征提取（`FEATURE_IDS` + AST 遍历）、输出比对、L0→L2 判题编排已可用。
-- `packages/teaching-content`：**Chapter 1–11 已完成**并全部通过引擎校验。
+- `packages/teaching-content`：**Chapter 1–16（AS 全部）已完成**并全部通过引擎校验。
 
 判题能力已经覆盖到文件为止，只剩 A Level 的 Advanced 特性。
 

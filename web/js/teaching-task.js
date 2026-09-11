@@ -46,11 +46,10 @@
    var ANSWER_KEY = "caie.teaching.answers.v1";
 
    function readStore(key) {
-      try { return JSON.parse(localStorage.getItem(key) || "{}") || {}; }
-      catch (e) { return {}; }
+      return window.CAIEStorage.get(key, {});
    }
    function writeStore(key, value) {
-      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* 无痕模式等 */ }
+      window.CAIEStorage.set(key, value);
    }
 
    var progress = readStore(PROGRESS_KEY);
@@ -98,6 +97,7 @@
    var FEATURE_LABELS = {
       "io.input": "INPUT",
       "io.output": "OUTPUT",
+      "io.output-variable": "OUTPUT 变量",
       "decl.variable": "DECLARE",
       "decl.constant": "CONSTANT",
       "decl.array-1d": "一维数组声明",
@@ -280,8 +280,10 @@
          .join("") + "</div>";
 
       return (
-         '<p class="task-statement">' + inline(task.statement) + "</p>" +
-         '<dl class="spec-grid"><dt>输入</dt><dd>' + inline(task.ioSpec.input) + "</dd>" +
+         // 题面、输入、输出三处都会写成多行（题目里给一段结构化英语、给一份输出格式），
+         // 换行要照留。原来只有「输出」那一处做了替换，另外两处的换行被 HTML 折成了空格。
+         '<p class="task-statement">' + inline(task.statement).replace(/\n/g, "<br>") + "</p>" +
+         '<dl class="spec-grid"><dt>输入</dt><dd>' + inline(task.ioSpec.input).replace(/\n/g, "<br>") + "</dd>" +
          "<dt>输出</dt><dd>" + inline(task.ioSpec.output).replace(/\n/g, "<br>") + "</dd>" +
          (opts.compact ? "" : constraintsHtml(task, isChapterTask)) + "</dl>" +
          examples + hints
@@ -303,15 +305,28 @@
       return html;
    }
 
+   /**
+    * 作答区和课文里的示例代码必须长得一样——学生照着有颜色的例子写，
+    * 写出来的却是一片灰字，会以为自己写的不是同一种东西。
+    * 高亮器缺席时退回纯转义，作答区绝不能因为着色失败就变成空白。
+    */
+   function hl(source) {
+      var text = String(source == null ? "" : source);
+      if (window.LANG && typeof window.LANG.highlight === "function") {
+         try { return window.LANG.highlight(text); } catch (error) { /* 退回纯文本 */ }
+      }
+      return esc(text);
+   }
+
    function renderWorkspace(task) {
       var lockedLines = lockedLineCount(task);
       // 锁定片段也带行号：不然学生看到作答区从第 3 行开始会以为出了错，
       // 而诊断报的正是把锁定行算进去之后的行号。
       var locked = lockedLines
-         ? '<div class="mini-editor-locked"><span>已准备好，不需要改：</span>' +
+         ? '<div class="mini-editor-locked"><span class="locked-note">已准备好，不需要改</span>' +
            '<div class="mini-editor-body locked-body"><div class="mini-gutter" aria-hidden="true">' +
-           gutterHtml(1, lockedLines) + '</div><pre>' +
-           esc(task.lockedStarterCode.replace(/\n+$/, "")) + "</pre></div></div>"
+           gutterHtml(1, lockedLines) + '</div><pre class="mini-highlight"><code>' +
+           hl(task.lockedStarterCode.replace(/\n+$/, "")) + "</code></pre></div></div>"
          : "";
       return (
          '<div class="mini-editor">' +
@@ -320,8 +335,9 @@
          '<span class="small muted">三空格缩进 · <code class="mono">&lt;-</code> 自动转 <code class="mono">←</code></span></div>' +
          locked +
          '<div class="mini-editor-body"><div class="mini-gutter" aria-hidden="true"></div>' +
-         '<textarea spellcheck="false" placeholder="从这里继续写…" data-line-offset="' + lockedLines +
-         '"></textarea></div></div>' +
+         '<div class="mini-code"><pre class="mini-highlight" aria-hidden="true"><code></code></pre>' +
+         '<textarea spellcheck="false" wrap="off" placeholder="从这里继续写…" data-line-offset="' +
+         lockedLines + '"></textarea></div></div></div>' +
          '<div class="task-actions">' +
          '<button class="btn btn-primary fixed-btn wide" data-act="submit">提交</button>' +
          '<button class="btn fixed-btn" data-act="reset">重置</button>' +
@@ -367,6 +383,10 @@
       var line = textarea.value.slice(lineStart, end);
       if (isInLiteralOrComment(line, end - 2 - lineStart)) return false;
       textarea.setRangeText("←", end - 2, end, "end");
+      // setRangeText 不会派发 input 事件，着色层和行号槽都只在 input 事件里重绘：
+      // 不补发一次，画面还停在转换前的「<-」，而真实光标已经站到只有一个字符的
+      // 「←」后面，视觉上就成了「卡在 < 和 - 中间」，得等下一次真实按键才会重绘对齐。
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
       return true;
    }
 
@@ -490,6 +510,29 @@
       }
       textarea.addEventListener("input", paint);
       textarea.addEventListener("scroll", function () { gutter.scrollTop = textarea.scrollTop; }, { passive: true });
+      paint();
+   }
+
+   /**
+    * 着色层垫在透明 textarea 底下，两层的字体、行高、内边距和换行方式必须逐项一致，
+    * 否则光标会和看到的字错位。两层都不换行（textarea 上是 wrap="off"），
+    * 所以横向滚动也要跟着同步，不然长行一划出去颜色就掉队了。
+    */
+   function wireHighlight(textarea, layer) {
+      var code = layer.querySelector("code") || layer;
+      var last = null;
+      function paint() {
+         if (textarea.value === last) return;
+         last = textarea.value;
+         // 末行是空行时补一个零宽字符，不然着色层会比 textarea 矮一行、滚动量对不上
+         code.innerHTML = hl(last) + (/\n$/.test(last) ? "\u200b" : "");
+      }
+      function sync() {
+         layer.scrollTop = textarea.scrollTop;
+         layer.scrollLeft = textarea.scrollLeft;
+      }
+      textarea.addEventListener("input", function () { paint(); sync(); });
+      textarea.addEventListener("scroll", sync, { passive: true });
       paint();
    }
 
@@ -628,6 +671,9 @@
          ? '<p class="reveal-note">你用到了 ' + result.aheadFeatures.map(featureLabel).join("、") +
            "——写得没问题，只是本章还没讲到它。</p>"
          : "";
+      // 通过≠没毛病：像 OUTPUT "Score: 64" 这种整句写死、刚好和这一次的期望输出撞上的写法，
+      // 判题只看文字对不上，看不出「读的是引号还是变量」，所以这条提醒在通过时也要给，不能只在没通过时才说。
+      var codeNote = codeNoteHtml(result.codeNotes);
       var coverage = "";
       if (task.suggestedFeatures) {
          coverage = '<div class="coverage">' + task.suggestedFeatures.map(function (f) {
@@ -636,7 +682,7 @@
                featureLabel(f) + "</span>";
          }).join("") + "</div>";
       }
-      setVerdict(verdict, "pass", "通过", "全部通过", tally + coverage + style + ahead, [1, 1, 1, 1]);
+      setVerdict(verdict, "pass", "通过", "全部通过", tally + coverage + style + codeNote + ahead, [1, 1, 1, 1]);
       if (onPass) onPass(result);
    }
 
@@ -653,6 +699,7 @@
       var verdict = $(".verdict", root);
       // 锁定片段自己也有一条行号槽，别把学生作答区的行号画到那上面去
       var gutter = $(".mini-editor-body:not(.locked-body) .mini-gutter", root);
+      var highlight = $(".mini-code .mini-highlight", root);
       var saveSlot = $(".save-slot", root);
       // 只统计「跑到用例这一层还没过」的次数：语法错误的提交不算，
       // 因为那时学生根本还没开始对付数据。
@@ -668,6 +715,7 @@
       textarea.value = saved != null ? saved : (task.starterCode || "");
 
       if (gutter) wireGutter(textarea, gutter, lockedLineCount(task));
+      if (highlight) wireHighlight(textarea, highlight);
       wireIndenting(textarea);
 
       function markSaved() {
@@ -708,6 +756,8 @@
          if (converted === text) return;
          event.preventDefault();
          textarea.setRangeText(converted, textarea.selectionStart, textarea.selectionEnd, "end");
+         // 同样不会自动派发 input 事件，着色层和行号槽要靠这一下补发才会跟着粘贴内容重绘。
+         textarea.dispatchEvent(new Event("input", { bubbles: true }));
       });
 
       $("[data-act='reset']", root).addEventListener("click", function () {

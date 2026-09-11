@@ -9,6 +9,11 @@ import { chapter08 } from "./chapter-08.js";
 import { chapter09 } from "./chapter-09.js";
 import { chapter10 } from "./chapter-10.js";
 import { chapter11 } from "./chapter-11.js";
+import { chapter12 } from "./chapter-12.js";
+import { chapter13 } from "./chapter-13.js";
+import { chapter14 } from "./chapter-14.js";
+import { chapter15 } from "./chapter-15.js";
+import { chapter16 } from "./chapter-16.js";
 import { expectedOutputs, sampleTranscripts } from "./expected-outputs.js";
 import { toPublicChapter, type PublicChapter } from "./publish.js";
 
@@ -26,7 +31,12 @@ export const course: { syllabusVersion: string; chapters: PublicChapter[] } = {
     toPublicChapter(chapter08, expectedOutputs, sampleTranscripts),
     toPublicChapter(chapter09, expectedOutputs, sampleTranscripts),
     toPublicChapter(chapter10, expectedOutputs, sampleTranscripts),
-    toPublicChapter(chapter11, expectedOutputs, sampleTranscripts)
+    toPublicChapter(chapter11, expectedOutputs, sampleTranscripts),
+    toPublicChapter(chapter12, expectedOutputs, sampleTranscripts),
+    toPublicChapter(chapter13, expectedOutputs, sampleTranscripts),
+    toPublicChapter(chapter14, expectedOutputs, sampleTranscripts),
+    toPublicChapter(chapter15, expectedOutputs, sampleTranscripts),
+    toPublicChapter(chapter16, expectedOutputs, sampleTranscripts)
   ]
 };
 

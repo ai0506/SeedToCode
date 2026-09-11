@@ -63,3 +63,78 @@ describe("Chapter 11 记录特征", () => {
     expect(features).not.toContain("record.field-access");
   });
 });
+
+describe("Chapter 12–14 模块与文件特征", () => {
+  it("过程、调用与两种传递方式各自识别", () => {
+    const byval = extractFeatures(parseSource([
+      "PROCEDURE Bump(N : INTEGER)",
+      "   N ← N + 1",
+      "ENDPROCEDURE",
+      "DECLARE X : INTEGER",
+      "X ← 1",
+      "CALL Bump(X)"
+    ].join("\n")).program);
+    expect([...byval]).toEqual(expect.arrayContaining(["routine.procedure", "routine.call", "param.byval"]));
+    expect(byval).not.toContain("param.byref");
+
+    const byref = extractFeatures(parseSource([
+      "PROCEDURE Swap(BYREF A : INTEGER, BYREF B : INTEGER)",
+      "   DECLARE T : INTEGER",
+      "   T ← A",
+      "   A ← B",
+      "   B ← T",
+      "ENDPROCEDURE"
+    ].join("\n")).program);
+    expect(byref).toContain("param.byref");
+    expect(byref).not.toContain("param.byval");
+  });
+
+  it("连着的参数省略 BYREF 时，后一个也算传引用", () => {
+    // Guide 8.3：连续相同传递方式的参数可以不重复写关键字
+    const features = extractFeatures(parseSource([
+      "PROCEDURE Swap(BYREF A : INTEGER, B : INTEGER)",
+      "   DECLARE T : INTEGER",
+      "   T ← A",
+      "   A ← B",
+      "   B ← T",
+      "ENDPROCEDURE"
+    ].join("\n")).program);
+    expect(features).toContain("param.byref");
+    expect(features).not.toContain("param.byval");
+  });
+
+  it("函数、RETURN 与表达式里的调用", () => {
+    const features = extractFeatures(parseSource([
+      "FUNCTION Double(N : INTEGER) RETURNS INTEGER",
+      "   RETURN N * 2",
+      "ENDFUNCTION",
+      "OUTPUT Double(3)"
+    ].join("\n")).program);
+    expect([...features]).toEqual(
+      expect.arrayContaining(["routine.function", "routine.return", "expr.function-call", "param.byval"])
+    );
+    expect(features).not.toContain("routine.procedure");
+  });
+
+  it("三种打开模式、读写关和 EOF 各自识别", () => {
+    const features = extractFeatures(parseSource([
+      "DECLARE Line : STRING",
+      'OPENFILE "Names.txt" FOR WRITE',
+      'WRITEFILE "Names.txt", "Ada"',
+      'CLOSEFILE "Names.txt"',
+      'OPENFILE "Names.txt" FOR APPEND',
+      'CLOSEFILE "Names.txt"',
+      'OPENFILE "Names.txt" FOR READ',
+      'WHILE NOT EOF("Names.txt")',
+      '   READFILE "Names.txt", Line',
+      "ENDWHILE",
+      'CLOSEFILE "Names.txt"'
+    ].join("\n")).program);
+    expect([...features]).toEqual(
+      expect.arrayContaining([
+        "file.open-write", "file.open-append", "file.open-read",
+        "file.write", "file.read", "file.close", "builtin.eof"
+      ])
+    );
+  });
+});

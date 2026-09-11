@@ -147,8 +147,12 @@ export type Comparison = {
   intro?: string;
   panes: Array<{
     label: string;
-    /** pseudocode 栏会送进引擎校验并受知识点闸门约束；其余栏不校验。 */
-    language: "natural" | "pseudocode" | "python";
+    /**
+     * pseudocode 栏会送进引擎校验并受知识点闸门约束；其余栏不校验。
+     * `diagram` 是流程图、结构图这类需要等宽字体、一个字都不能换行的图（考纲 §9.2、§12.2
+     * 要求会读这两种图）——它和 `natural` 的区别是排版，不是内容：`natural` 是散文，会折行。
+     */
+    language: "natural" | "pseudocode" | "python" | "diagram";
     code: string;
     note: string;
   }>;

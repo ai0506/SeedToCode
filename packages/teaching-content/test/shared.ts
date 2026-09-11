@@ -2,7 +2,14 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { analyzeSource } from "@caie-pseudocode/language";
-import { extractFeatures, findUnpromptedInputs, grade, runWithInputs, type FeatureId } from "@caie-pseudocode/exercise";
+import {
+  AHEAD_EXEMPT_FEATURES,
+  extractFeatures,
+  findUnpromptedInputs,
+  grade,
+  runWithInputs,
+  type FeatureId
+} from "@caie-pseudocode/exercise";
 import { executeSource } from "@caie-pseudocode/runtime";
 import type {
   Block,
@@ -30,6 +37,12 @@ export type ChapterVerification = {
   course: Chapter[];
   expectedOutputs: ExpectedOutputs;
   sampleTranscripts: SampleTranscripts;
+  /**
+   * 概念章：考纲明确不要求为这一章的内容写伪代码（目前只有 Chapter 15）。
+   * 这种章整章没有伪代码题，所以「至少一道题」这条要反过来断言。
+   * 见 teaching/01-CURRICULUM.md 对应章节下方的说明。
+   */
+  conceptOnly?: boolean;
 };
 
 const BANNED_PHRASES = [
@@ -138,7 +151,7 @@ function featuresAvailableBefore(chapter: Chapter, course: Chapter[]): FeatureId
 }
 
 export function verifyChapter(verification: ChapterVerification): void {
-  const { chapter, course, expectedOutputs, sampleTranscripts } = verification;
+  const { chapter, course, expectedOutputs, sampleTranscripts, conceptOnly = false } = verification;
   const sections = chapter.sections;
   const examples = blocksOf(chapter, "example");
   const counters = blocksOf(chapter, "counterExample");
@@ -178,6 +191,12 @@ export function verifyChapter(verification: ChapterVerification): void {
       expect(minutes, `Chapter ${chapter.id} 预计分钟数（上限 ${minuteBudget}）`).toBeLessThanOrEqual(minuteBudget);
     });
 
+    it("章末大题最多一道", () => {
+      // 教学页的「章末大题」只渲染 chapterTasks[0]，进度也只记一个 `chapterTask` 步。
+      // 写第二道进去不会报错，只是学生永远看不到它——所以在这里拦住。
+      expect(chapter.chapterTasks.length, `Chapter ${chapter.id} 的章末大题超过一道，页面只显示得出第一道`).toBeLessThanOrEqual(1);
+    });
+
     it("知识点闸门在全课程中只增不减", () => {
       let previous = featuresAvailableBefore(chapter, course);
       for (const section of sections) {
@@ -196,7 +215,9 @@ export function verifyChapter(verification: ChapterVerification): void {
         const analysis = analyzeSource(block.code);
         expect(analysis.diagnostics.filter((item) => item.severity === "error"), `${section.id}《${block.title}》`).toHaveLength(0);
         expect(analysis.diagnostics.filter((item) => item.severity === "caie"), `${section.id}《${block.title}》`).toHaveLength(0);
-        const ahead = [...extractFeatures(analysis.program)].filter((feature) => !(taughtBySection.get(section.id) ?? []).includes(feature));
+        const ahead = [...extractFeatures(analysis.program)].filter(
+          (feature) => !AHEAD_EXEMPT_FEATURES.has(feature) && !(taughtBySection.get(section.id) ?? []).includes(feature)
+        );
         expect(ahead, `${section.id}《${block.title}》提前用到 ${ahead.join(", ")}`).toHaveLength(0);
         expect(findUnpromptedInputs(analysis.program), `${section.id}《${block.title}》有未提示的 INPUT`).toHaveLength(0);
         const lineCount = block.code.split("\n").length;
@@ -248,13 +269,18 @@ export function verifyChapter(verification: ChapterVerification): void {
         const languages = block.panes.map((pane) => pane.language);
         expect(languages, `${section.id} 缺自然语言`).toContain("natural");
         expect(languages, `${section.id} 缺伪代码`).toContain("pseudocode");
-        expect(languages.some((language) => language !== "natural" && language !== "pseudocode"), `${section.id} 缺真实语言`).toBe(true);
+        expect(
+          languages.some((language) => language !== "natural" && language !== "pseudocode" && language !== "diagram"),
+          `${section.id} 缺真实语言`
+        ).toBe(true);
         for (const pane of block.panes) {
           expect(pane.note.trim().length, `${section.id}「${pane.label}」说明过短`).toBeGreaterThanOrEqual(12);
           if (pane.language !== "pseudocode") continue;
           const analysis = analyzeSource(pane.code);
           expect(analysis.diagnostics.filter((item) => item.severity !== "hint"), `${section.id} 对照伪代码`).toHaveLength(0);
-          const ahead = [...extractFeatures(analysis.program)].filter((feature) => !(taughtBySection.get(section.id) ?? []).includes(feature));
+          const ahead = [...extractFeatures(analysis.program)].filter(
+          (feature) => !AHEAD_EXEMPT_FEATURES.has(feature) && !(taughtBySection.get(section.id) ?? []).includes(feature)
+        );
           expect(ahead, `${section.id} 对照提前用到 ${ahead.join(", ")}`).toHaveLength(0);
         }
       }
@@ -297,12 +323,18 @@ export function verifyChapter(verification: ChapterVerification): void {
     });
 
     it("参考解、题面示例、快照与判题用例彼此一致", async () => {
+      if (conceptOnly) {
+        expect(tasks, `Chapter ${chapter.id} 是概念章，不该有伪代码题`).toHaveLength(0);
+        return;
+      }
       expect(tasks.length, "伪代码题数量").toBeGreaterThan(0);
       for (const { section, task } of tasks) {
         const analysis = analyzeSource(task.referenceSolution);
         expect(analysis.diagnostics.filter((item) => item.severity === "error"), `${task.id} 参考解`).toHaveLength(0);
         const taught = section ? (taughtBySection.get(section.id) ?? []) : sections.at(-1)?.taughtFeatures ?? [];
-        const ahead = [...extractFeatures(analysis.program)].filter((feature) => !taught.includes(feature));
+        const ahead = [...extractFeatures(analysis.program)].filter(
+          (feature) => !AHEAD_EXEMPT_FEATURES.has(feature) && !taught.includes(feature)
+        );
         expect(ahead, `${task.id} 参考解提前用到 ${ahead.join(", ")}`).toHaveLength(0);
         expect(findUnpromptedInputs(analysis.program), `${task.id} 参考解有未提示的 INPUT`).toHaveLength(0);
         const tests = task.tests.map((test) => ({ ...test, expected: expectedOutputs[`${task.id}/${test.id}`] ?? [] }));

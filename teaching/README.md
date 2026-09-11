@@ -41,7 +41,7 @@
 - 规格与大纲：完成（00–06）
 - 判题核心 `packages/exercise`：首版可用
 - 教学页 `web/teaching.html` 与做题页 `web/task.html`：接通真实内容与引擎，判题、运行、进度都是真的
-- 内容：Chapter 1–7 已接入正式内容、真实判题和页面流程；Chapter 8–23 尚未上线
+- 内容：**Chapter 1–16（AS 全部）**已接入正式内容、真实判题和页面流程；A Level 的 Chapter 17–23 尚未上线
 
 细节、风险与接手建议见 [07-HANDOFF.md](07-HANDOFF.md)。
 

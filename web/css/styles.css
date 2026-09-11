@@ -1,4 +1,4 @@
-/* CAIE 9618 Pseudocode Editor
+/* SeedToCode（CAIE 9618 Pseudocode Editor）
  * 布局稳定性规则：
  *  - 交互反馈只用 background / color / box-shadow / opacity / outline
  *  - 任何会出现或消失的内容都预留固定槽位
@@ -122,12 +122,19 @@ body {
    background: var(--bg-panel);
    border-bottom: 1px solid var(--border);
    flex: 0 0 auto;
+   /* 顶栏必须自成一层：窄屏下侧栏/结果面板是 z-index 44、45 的 fixed 抽屉，
+      而「更多▾」菜单只有 40，顶栏又是 static——菜单会被结果面板整个盖住，点不到。
+      46 压过两个抽屉，又低于 50 的模态遮罩。 */
+   position: relative;
+   z-index: 46;
 }
 .topbar-left, .topbar-right { display: flex; align-items: center; gap: 8px; }
 .topbar-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
 
+.brand-block { display: flex; flex-direction: column; justify-content: center; gap: 1px; line-height: 1.1; }
 .brand { font-weight: 600; letter-spacing: .2px; white-space: nowrap; }
 .brand-dim { color: var(--text-faint); font-weight: 400; margin-left: 2px; }
+.brand-tag { color: var(--text-faint); font-size: 10px; white-space: nowrap; }
 .badge {
    font-size: 10px; line-height: 16px; height: 18px; padding: 0 6px; border-radius: 9px;
    background: var(--bg-sunken); color: var(--text-dim); border: 1px solid var(--border);
@@ -154,6 +161,8 @@ body {
 
 /* ---------- 按钮 ---------- */
 .btn {
+   /* 跨页入口是 <a class="btn">，没有这一行就会带着浏览器默认的下划线 */
+   text-decoration: none;
    font: inherit; height: var(--ctl-h); padding: 0 12px; border-radius: var(--radius);
    border: 1px solid var(--border-strong); background: var(--bg-panel);
    color: var(--text); cursor: pointer; white-space: nowrap;
@@ -240,6 +249,8 @@ html[data-theme="dark"] .btn-primary { color: #14201b; }
    transition: background-color .12s ease;
 }
 .menu button:hover { background: var(--bg-sunken); }
+.menu button[disabled] { color: var(--text-faint); opacity: .5; cursor: default; }
+.menu button[disabled]:hover { background: transparent; }
 .menu hr { border: 0; border-top: 1px solid var(--border); margin: 4px 2px; }
 .menu-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .menu kbd { width: 74px; flex: 0 0 74px; text-align: right; }
@@ -255,6 +266,66 @@ kbd {
    width: 210px; flex: 0 0 210px; display: flex; flex-direction: column; min-height: 0;
    background: var(--bg-panel); border-right: 1px solid var(--border);
 }
+
+/* ---------- 项目选择器 ----------
+ * 这块原先是照另一套尺度写的：9/10/7px 圆角、15px 项目名、自造的弹出层，
+ * 而且四处 color 用的 `var(--muted)` 全站从未定义过——本该是安静的灰色标签，
+ * 实际全部退化成继承来的正文色，所以整块显得又黑又重。
+ * 现在只用定义过的 token，并服从侧栏本来的节奏：34px 分组头 + 28px 行。
+ */
+.project-switcher-wrap { position: relative; padding: 6px 8px 8px; }
+.project-switcher {
+   width: 100%; height: 28px; display: flex; align-items: center; gap: 7px;
+   padding: 0 8px; border: 0; border-radius: 4px;
+   background: transparent; color: var(--text);
+   font: inherit; font-size: 12.5px; font-weight: 500; text-align: left; cursor: pointer;
+   transition: background-color .12s ease;
+}
+.project-switcher:hover, .project-switcher[aria-expanded="true"] { background: var(--bg-sunken); }
+.project-switcher:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.project-folder-icon {
+   width: 15px; height: 15px; flex: 0 0 15px;
+   fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round;
+   color: var(--text-dim);
+}
+#projectNameLabel { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 箭头跟上面的文件夹一样是 SVG；原先是个 18px 的 ⌄ 字符，和侧栏其他图标不一路 */
+.project-chevron {
+   width: 11px; height: 11px; flex: 0 0 11px;
+   fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+   color: var(--text-faint); transition: transform .12s ease;
+}
+.project-switcher[aria-expanded="true"] .project-chevron { transform: rotate(180deg); }
+
+/* 位置贴着 wrap 的下沿算，不再写死 top: 43px */
+.project-picker { top: calc(100% - 4px); left: 8px; right: 8px; width: auto; }
+/* 项目多了只让列表滚，下面的新建/重命名/删除始终留在弹层里 */
+#projectPickerList { max-height: 196px; overflow-y: auto; }
+.project-picker-item, .project-picker-action {
+   display: flex; align-items: center; gap: 8px;
+   width: 100%; height: 28px; padding: 0 9px;
+   border: 0; border-radius: 4px; background: transparent; color: var(--text);
+   font: inherit; font-size: 12.5px; text-align: left; cursor: pointer;
+   transition: background-color .12s ease;
+}
+.project-picker-item:hover, .project-picker-action:hover { background: var(--bg-sunken); }
+.project-picker-item:focus-visible,
+.project-picker-action:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.project-picker-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 勾靠右对齐到固定槽位；原先是把「　✓」直接拼在项目名后面，名字一长就被省略号吃掉 */
+.project-picker-check { flex: 0 0 12px; text-align: right; color: var(--accent); }
+.project-picker-item.current { color: var(--accent); font-weight: 600; }
+/* 课文项目在列表里标一下：它不是用户自己建的，行为也不一样（不能改名） */
+.project-picker-tag {
+   flex: 0 0 auto; height: 16px; padding: 0 5px; border-radius: 3px;
+   display: inline-flex; align-items: center;
+   background: var(--bg-sunken); color: var(--text-faint);
+   font-size: 10px; font-weight: 400; letter-spacing: .3px;
+}
+.project-picker-action[disabled] { color: var(--text-faint); opacity: .5; cursor: default; }
+.project-picker-action[disabled]:hover { background: transparent; }
+.project-picker-action { color: var(--text-dim); }
+.project-picker-action.danger { color: var(--danger); }
 .sidebar.collapsed { display: none; }
 
 .panel-head, .panel-sub {
@@ -274,30 +345,19 @@ kbd {
 .file-list li:hover { background: var(--bg-sunken); }
 .file-list li.active { background: var(--accent-soft); font-weight: 500; }
 .file-list .fname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* 课文文件：单独一组放在用户文件下面，可折叠；归档后从列表里收起来 */
-.file-list .file-group {
-   display: flex; align-items: center; gap: 4px; height: 26px; padding: 0 4px 0 2px;
-   margin-top: 6px; border-top: 1px solid var(--border);
-}
-.file-list .file-group:hover { background: transparent; }
-.file-group-head {
-   display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; height: 22px;
-   padding: 0 4px; border: 0; border-radius: 4px; background: none; cursor: pointer;
-   color: var(--text-dim); font: inherit; font-size: 11.5px;
-}
-.file-group-head:hover { background: var(--bg-sunken); color: var(--text); }
-.file-group-head:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
-.file-group-head .caret { color: var(--text-faint); transition: transform .12s ease; }
-.file-group.open .file-group-head .caret { transform: rotate(90deg); }
-.file-group-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
-.file-group-count { font-variant-numeric: tabular-nums; color: var(--text-faint); }
-.file-group-archived {
-   height: 20px; min-width: 70px; padding: 0 7px; border: 0; border-radius: 4px; background: var(--bg-sunken);
-   color: var(--text-faint); font: inherit; font-size: 10.5px; cursor: pointer; white-space: nowrap;
-   text-align: center;
-}
-.file-group-archived:hover { color: var(--text-dim); }
+/* 归档的课文文件：留在列表里但压暗，和没归档的区分开 */
 .file-list li[data-archived] { opacity: .5; }
+/* 归档开关坐在「代码文件」面板头里，只有课文项目才显示（renderArchivedToggle 控制）。
+   面板头是 34px 固定高，这个按钮按小号 chip 处理，不要把那一行撑开。 */
+.file-group-archived {
+   height: 20px; padding: 0 8px; border: 0; border-radius: 4px;
+   background: var(--bg-sunken); color: var(--text-faint);
+   font: inherit; font-size: 10.5px; letter-spacing: 0; text-transform: none;
+   cursor: pointer; white-space: nowrap;
+   transition: background-color .12s ease, color .12s ease;
+}
+.file-group-archived:hover { background: var(--border); color: var(--text-dim); }
+.file-group-archived:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
 /* 行内操作按钮常驻布局，只切换 opacity，避免 hover 时挤压文件名 */
 .file-list .row-actions { display: flex; gap: 2px; opacity: 0; pointer-events: none; transition: opacity .12s ease; }
 .file-list li:hover .row-actions,
@@ -661,6 +721,13 @@ code { font-family: var(--font-mono); font-size: .92em; }
 
 /* ---------- 窄屏：侧栏改为抽屉，覆盖而不是挤压编辑器 ---------- */
 @media (max-width: 900px) {
+   /* 顶栏左右两块都是 nowrap，宽度不够时会直接压到居中的文档名上。
+      先让掉纯装饰的品牌块和开关文字，「运行」「学习」「更多」这些要点的留下。 */
+   .topbar-left .brand-block, .topbar-right .switch-label { display: none; }
+   .topbar-left, .topbar-right { flex: 0 0 auto; }
+   .topbar-center { min-width: 0; }
+   .topbar-center .doc-name { min-width: 0; }
+
    .sidebar {
       position: fixed; top: var(--topbar-h); bottom: var(--statusbar-h); left: 0; z-index: 45;
       box-shadow: 6px 0 24px rgba(0, 0, 0, .14);

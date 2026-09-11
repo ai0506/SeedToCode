@@ -216,7 +216,8 @@ export const chapter02: Chapter = {
           ioSpec: { input: "没有输入。", output: "一行：`Points: 0`。冒号后有一个空格。" },
           constraints: {
             require: [
-              { feature: "assign.simple", reason: "本节练习的是先给变量一个值；只把零直接写进 OUTPUT 不能体现初始化。" }
+              { feature: "assign.simple", reason: "本节练习的是先给变量一个值；只把零直接写进 OUTPUT 不能体现初始化。" },
+              { feature: "io.output-variable", reason: "OUTPUT 要显示的是 Points 变量里的值，不能把 \"Points: 0\" 整句写成固定文字。" }
             ]
           },
           hints: [

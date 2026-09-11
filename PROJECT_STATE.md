@@ -39,3 +39,19 @@
 | Ch3 | Production |
 | Ch4–7 | Production |
 | Ch8–23 | Planned |
+
+## Product and local storage
+
+| Area | Status |
+|---|---|
+| SeedToCode product naming | Complete |
+| Single-project to multi-project UI | Complete |
+| Project create/switch/rename/delete | Complete |
+| Dedicated lesson-files project | Complete |
+| Storage facade (`CAIEStorage`) | Complete |
+| Legacy localStorage migration mirror | Complete |
+| IndexedDB entity initialization | Complete |
+| Page reads fully from IndexedDB entities | Planned |
+| Cloud sync/auth/cloud run | Planned |
+
+说明：当前页面已经通过 `CAIEStorage` 统一访问本地存储，并将 editor/teaching 旧数据镜像到 IndexedDB；为保证同步启动和 `file://` 兼容，页面读取仍使用兼容快照，尚未完成“完全由 IndexedDB entity 读取”的最终切换。多项目当前由编辑器的 `seedtocode.projects.v1` 注册表保存，教学数据仍按独立旧 key 通过 facade 访问。

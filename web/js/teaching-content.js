@@ -828,7 +828,8 @@ var CAIETeaching = (() => {
             ioSpec: { input: "\u6CA1\u6709\u8F93\u5165\u3002", output: "\u4E00\u884C\uFF1A`Points: 0`\u3002\u5192\u53F7\u540E\u6709\u4E00\u4E2A\u7A7A\u683C\u3002" },
             constraints: {
               require: [
-                { feature: "assign.simple", reason: "\u672C\u8282\u7EC3\u4E60\u7684\u662F\u5148\u7ED9\u53D8\u91CF\u4E00\u4E2A\u503C\uFF1B\u53EA\u628A\u96F6\u76F4\u63A5\u5199\u8FDB OUTPUT \u4E0D\u80FD\u4F53\u73B0\u521D\u59CB\u5316\u3002" }
+                { feature: "assign.simple", reason: "\u672C\u8282\u7EC3\u4E60\u7684\u662F\u5148\u7ED9\u53D8\u91CF\u4E00\u4E2A\u503C\uFF1B\u53EA\u628A\u96F6\u76F4\u63A5\u5199\u8FDB OUTPUT \u4E0D\u80FD\u4F53\u73B0\u521D\u59CB\u5316\u3002" },
+                { feature: "io.output-variable", reason: 'OUTPUT \u8981\u663E\u793A\u7684\u662F Points \u53D8\u91CF\u91CC\u7684\u503C\uFF0C\u4E0D\u80FD\u628A "Points: 0" \u6574\u53E5\u5199\u6210\u56FA\u5B9A\u6587\u5B57\u3002' }
               ]
             },
             hints: [
@@ -1723,27 +1724,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "\u4EC0\u4E48\u90FD\u6CA1\u6709",
+                correct: false,
+                explanation: '\u8DF3\u8FC7\u7684\u53EA\u662F `IF` \u7BA1\u7740\u7684\u90A3\u4E00\u884C\u3002`OUTPUT "Done"` \u6CA1\u6709\u7F29\u8FDB\uFF0C\u4E0D\u5F52\u5B83\u7BA1\u3002'
+              },
+              {
+                key: "B",
                 label: "\u53EA\u6709 Passed",
                 correct: false,
                 explanation: "\u6B63\u597D\u53CD\u4E86\uFF1A\u6761\u4EF6\u4E0D\u6210\u7ACB\u65F6\u8DF3\u8FC7\u7684\u6070\u6070\u662F `Passed` \u90A3\u4E00\u884C\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "\u53EA\u6709 Done",
                 correct: true,
                 explanation: '\u5BF9\u3002`40 >= 50` \u7B97\u51FA `FALSE`\uFF0C`THEN` \u548C `ENDIF` \u4E4B\u95F4\u90A3\u4E00\u884C\u88AB\u6574\u4E2A\u8DF3\u8FC7\uFF1B`OUTPUT "Done"` \u4E0D\u5728 `IF` \u7684\u8303\u56F4\u91CC\uFF0C\u7167\u5E38\u6267\u884C\u3002'
               },
               {
-                key: "C",
+                key: "D",
                 label: "Passed \u548C Done",
                 correct: false,
                 explanation: "`Passed` \u53EA\u5728\u6761\u4EF6\u6210\u7ACB\u65F6\u624D\u663E\u793A\u300240 \u4E0D\u5230 50\uFF0C\u6761\u4EF6\u7B97\u51FA\u6765\u662F `FALSE`\u3002"
-              },
-              {
-                key: "D",
-                label: "\u4EC0\u4E48\u90FD\u6CA1\u6709",
-                correct: false,
-                explanation: '\u8DF3\u8FC7\u7684\u53EA\u662F `IF` \u7BA1\u7740\u7684\u90A3\u4E00\u884C\u3002`OUTPUT "Done"` \u6CA1\u6709\u7F29\u8FDB\uFF0C\u4E0D\u5F52\u5B83\u7BA1\u3002'
               }
             ]
           }
@@ -1827,27 +1828,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "Small",
+                correct: true,
+                explanation: "\u5BF9\u3002`10 > 10` \u7B97\u51FA `FALSE`\u2014\u2014`>` \u8981\u6C42\u4E25\u683C\u5927\u4E8E\uFF0C\u76F8\u7B49\u4E0D\u7B97\u3002\u6761\u4EF6\u4E0D\u6210\u7ACB\uFF0C\u8D70 `ELSE`\u3002"
+              },
+              {
+                key: "B",
                 label: "Big",
                 correct: false,
                 explanation: "\u8981\u663E\u793A `Big`\uFF0C`A` \u5F97\u6BD4 10 \u5927\u3002\u6B63\u597D\u7B49\u4E8E 10 \u65F6 `>` \u7ED9\u51FA\u7684\u662F `FALSE`\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "\u4E24\u4E2A\u90FD\u663E\u793A",
                 correct: false,
                 explanation: "`ELSE` \u7684\u4E24\u6761\u5206\u652F\u6070\u597D\u8D70\u4E00\u6761\u3002\u8D70\u4E86\u4E0A\u9762\u90A3\u6761\u5C31\u4E0D\u4F1A\u518D\u8D70\u4E0B\u9762\u90A3\u6761\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "\u4EC0\u4E48\u90FD\u4E0D\u663E\u793A",
                 correct: false,
                 explanation: "\u6709 `ELSE` \u65F6\u4E0D\u5B58\u5728\u300C\u4E24\u6761\u90FD\u4E0D\u8D70\u300D\uFF1A\u6761\u4EF6\u7684\u7ED3\u679C\u4E0D\u662F `TRUE` \u5C31\u662F `FALSE`\uFF0C\u603B\u6709\u4E00\u6761\u8981\u8D70\u3002"
-              },
-              {
-                key: "D",
-                label: "Small",
-                correct: true,
-                explanation: "\u5BF9\u3002`10 > 10` \u7B97\u51FA `FALSE`\u2014\u2014`>` \u8981\u6C42\u4E25\u683C\u5927\u4E8E\uFF0C\u76F8\u7B49\u4E0D\u7B97\u3002\u6761\u4EF6\u4E0D\u6210\u7ACB\uFF0C\u8D70 `ELSE`\u3002"
               }
             ]
           },
@@ -1950,27 +1951,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "Pass",
-                correct: true,
-                explanation: "\u5BF9\u3002\u4E32\u63A5\u662F\u6309\u987A\u5E8F\u8BD5\u7684\uFF1A90 \u649E\u4E0A\u7B2C\u4E00\u4E2A `Score >= 50` \u5C31\u6210\u7ACB\u4E86\uFF0C\u663E\u793A `Pass` \u4E4B\u540E\u6574\u4E2A\u7ED3\u6784\u7ED3\u675F\uFF0C`>= 80` \u90A3\u4E00\u6761\u6839\u672C\u6CA1\u673A\u4F1A\u88AB\u8BD5\u5230\u3002"
-              },
-              {
-                key: "B",
                 label: "A",
                 correct: false,
                 explanation: "`>= 80` \u88AB\u653E\u8FDB\u4E86 `ELSE` \u91CC\uFF0C\u53EA\u6709\u7B2C\u4E00\u4E2A\u6761\u4EF6\u4E0D\u6210\u7ACB\u65F6\u624D\u8F6E\u5F97\u5230\u5B83\u300290 \u8BA9\u7B2C\u4E00\u4E2A\u6761\u4EF6\u6210\u7ACB\u4E86\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "A \u548C Pass \u90FD\u663E\u793A",
                 correct: false,
                 explanation: "\u4E00\u4E32 `IF \u2026 ELSE` \u53EA\u4F1A\u8D70\u4E00\u6761\u8DEF\u3002\u8D70\u4E86 `THEN` \u5C31\u4E0D\u4F1A\u518D\u8D70 `ELSE`\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "Fail",
                 correct: false,
                 explanation: "`Fail` \u5728\u6700\u91CC\u9762\u7684 `ELSE` \u91CC\uFF0C\u8981\u4E24\u4E2A\u6761\u4EF6\u90FD\u4E0D\u6210\u7ACB\u624D\u8D70\u5F97\u5230\u3002"
+              },
+              {
+                key: "D",
+                label: "Pass",
+                correct: true,
+                explanation: "\u5BF9\u3002\u4E32\u63A5\u662F\u6309\u987A\u5E8F\u8BD5\u7684\uFF1A90 \u649E\u4E0A\u7B2C\u4E00\u4E2A `Score >= 50` \u5C31\u6210\u7ACB\u4E86\uFF0C\u663E\u793A `Pass` \u4E4B\u540E\u6574\u4E2A\u7ED3\u6784\u7ED3\u675F\uFF0C`>= 80` \u90A3\u4E00\u6761\u6839\u672C\u6CA1\u673A\u4F1A\u88AB\u8BD5\u5230\u3002"
               }
             ]
           }
@@ -2027,27 +2028,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u663E\u793A Monday",
-                correct: false,
-                explanation: "\u6CA1\u6709\u300C\u5BF9\u4E0D\u4E0A\u5C31\u7528\u7B2C\u4E00\u6761\u300D\u8FD9\u79CD\u89C4\u5219\u3002\u6807\u7B7E\u5FC5\u987B\u771F\u7684\u5BF9\u4E0A\u624D\u4F1A\u6267\u884C\u3002"
-              },
-              {
-                key: "B",
                 label: "\u4E09\u6761\u5206\u652F\u90FD\u6267\u884C",
                 correct: false,
                 explanation: "\u6B63\u76F8\u53CD\uFF1A`CASE` \u6700\u591A\u53EA\u6267\u884C\u5BF9\u4E0A\u7684\u90A3\u4E00\u6761\uFF0C\u6267\u884C\u5B8C\u5C31\u7ED3\u675F\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "\u53EA\u663E\u793A Checked",
                 correct: true,
                 explanation: "\u5BF9\u3002\u4E00\u6761\u6807\u7B7E\u90FD\u6CA1\u5BF9\u4E0A\uFF0C\u8FD9\u4E2A `CASE` \u4EC0\u4E48\u4E5F\u4E0D\u505A\uFF0C\u7A0B\u5E8F\u4ECE `ENDCASE` \u540E\u9762\u63A5\u7740\u8D70\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "\u7A0B\u5E8F\u505C\u4E0B\u6765\u62A5\u9519",
                 correct: false,
                 explanation: "\u6CA1\u6709\u5339\u914D\u4E0D\u662F\u9519\u8BEF\u3002\u8981\u8BA9\u300C\u5176\u5B83\u60C5\u51B5\u300D\u4E5F\u6709\u7740\u843D\uFF0C\u5F97\u81EA\u5DF1\u5199 `OTHERWISE`\u3002"
+              },
+              {
+                key: "D",
+                label: "\u663E\u793A Monday",
+                correct: false,
+                explanation: "\u6CA1\u6709\u300C\u5BF9\u4E0D\u4E0A\u5C31\u7528\u7B2C\u4E00\u6761\u300D\u8FD9\u79CD\u89C4\u5219\u3002\u6807\u7B7E\u5FC5\u987B\u771F\u7684\u5BF9\u4E0A\u624D\u4F1A\u6267\u884C\u3002"
               }
             ]
           }
@@ -2127,27 +2128,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "Fail",
-                correct: false,
-                explanation: "`OTHERWISE` \u53EA\u5728\u6240\u6709\u6807\u7B7E\u90FD\u6CA1\u5BF9\u4E0A\u65F6\u624D\u8D70\u300290 \u4F1A\u5148\u5BF9\u4E0A\u67D0\u4E00\u6761\u3002"
-              },
-              {
-                key: "B",
                 label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4E0B\u6765",
                 correct: false,
                 explanation: "\u5206\u652F\u7684\u5148\u540E\u987A\u5E8F\u6CA1\u6709\u89C4\u5B9A\uFF0C\u53EA\u6709 `OTHERWISE` \u7684\u4F4D\u7F6E\u6709\u89C4\u5B9A\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "A",
                 correct: true,
                 explanation: "\u5BF9\u300290 \u4E0D\u843D\u5728 `50 TO 79` \u91CC\uFF0C\u6240\u4EE5\u7B2C\u4E00\u6761\u4E0D\u6210\u7ACB\uFF0C\u7EE7\u7EED\u5F80\u4E0B\u8BD5\uFF0C\u5BF9\u4E0A\u4E86 `80 TO 100`\u3002\u8FD9\u4E00\u6B21\u8C03\u6362\u987A\u5E8F\u6CA1\u51FA\u95EE\u9898\uFF0C\u662F\u56E0\u4E3A\u4E24\u4E2A\u533A\u95F4\u4E0D\u91CD\u53E0\u2014\u2014\u91CD\u53E0\u65F6\u624D\u4F1A\u51FA\u73B0\u300C\u540E\u9762\u90A3\u6761\u6C38\u8FDC\u8F6E\u4E0D\u5230\u300D\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "Pass",
                 correct: false,
                 explanation: "90 \u4E0D\u5728 50 \u5230 79 \u91CC\u3002\u8303\u56F4\u6807\u7B7E\u8981\u771F\u7684\u843D\u5728\u533A\u95F4\u5185\u624D\u7B97\u5BF9\u4E0A\uFF0C\u987A\u5E8F\u5F71\u54CD\u7684\u662F\u300C\u8C01\u5148\u88AB\u8BD5\u300D\uFF0C\u4E0D\u662F\u300C\u8C01\u80FD\u88AB\u5BF9\u4E0A\u300D\u3002"
+              },
+              {
+                key: "D",
+                label: "Fail",
+                correct: false,
+                explanation: "`OTHERWISE` \u53EA\u5728\u6240\u6709\u6807\u7B7E\u90FD\u6CA1\u5BF9\u4E0A\u65F6\u624D\u8D70\u300290 \u4F1A\u5148\u5BF9\u4E0A\u67D0\u4E00\u6761\u3002"
               }
             ]
           },
@@ -2232,27 +2233,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u5E74\u9F84\u591F 18 \u5C81\u5E76\u4E14\u4E70\u4E86\u7968\u624D\u653E\u884C",
-                correct: true,
-                explanation: "\u5BF9\u3002\u8FD9\u4E2A\u6761\u4EF6\u7528\u5230\u4E86\u4E24\u4E2A\u4E0D\u540C\u7684\u4E1C\u897F\uFF0C\u8FD8\u5F97\u7528 `AND` \u62FC\u8D77\u6765\u3002`CASE` \u7684\u6807\u7B7E\u53EA\u80FD\u662F\u503C\u6216\u533A\u95F4\uFF0C\u88C5\u4E0D\u4E0B\u4E00\u4E2A\u5B8C\u6574\u7684\u6761\u4EF6\u3002"
-              },
-              {
-                key: "B",
                 label: "\u6309 1 \u5230 12 \u7684\u6708\u4EFD\u7F16\u53F7\u663E\u793A\u6708\u4EFD\u540D",
                 correct: false,
                 explanation: "\u540C\u4E00\u4E2A\u53D8\u91CF\u6BD4\u5341\u4E8C\u4E2A\u4E0D\u540C\u7684\u503C\uFF0C`CASE` \u6B63\u5408\u9002\uFF0C\u6BD4\u5341\u4E8C\u5C42 `IF` \u6E05\u695A\u5F97\u591A\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "\u6309 0 \u5230 100 \u7684\u5206\u6570\u5206\u6210\u56DB\u6863",
                 correct: false,
                 explanation: "\u540C\u4E00\u4E2A\u53D8\u91CF\u6BD4\u56DB\u4E2A\u533A\u95F4\uFF0C\u7528\u8303\u56F4\u6807\u7B7E\u7684 `CASE` \u5199\u5F97\u4E0B\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "\u6309\u4E09\u4E2A\u5B57\u6BCD\u5206\u522B\u663E\u793A\u4E0D\u540C\u7684\u8BDD",
                 correct: false,
                 explanation: "\u540C\u4E00\u4E2A\u53D8\u91CF\u6BD4\u4E09\u4E2A\u5B57\u7B26\u5B57\u9762\u91CF\uFF0C`CASE` \u5199\u5F97\u4E0B\u2014\u2014\u6807\u7B7E\u5199\u6210 `'A' :` \u5C31\u884C\u3002"
+              },
+              {
+                key: "D",
+                label: "\u5E74\u9F84\u591F 18 \u5C81\u5E76\u4E14\u4E70\u4E86\u7968\u624D\u653E\u884C",
+                correct: true,
+                explanation: "\u5BF9\u3002\u8FD9\u4E2A\u6761\u4EF6\u7528\u5230\u4E86\u4E24\u4E2A\u4E0D\u540C\u7684\u4E1C\u897F\uFF0C\u8FD8\u5F97\u7528 `AND` \u62FC\u8D77\u6765\u3002`CASE` \u7684\u6807\u7B7E\u53EA\u80FD\u662F\u503C\u6216\u533A\u95F4\uFF0C\u88C5\u4E0D\u4E0B\u4E00\u4E2A\u5B8C\u6574\u7684\u6761\u4EF6\u3002"
               }
             ]
           }
@@ -2445,27 +2446,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "3 \u904D",
-                correct: false,
-                explanation: "3 \u662F\u8D77\u70B9\uFF0C\u5B83\u51B3\u5B9A\u4ECE\u54EA\u513F\u5F00\u59CB\u6570\uFF0C\u4E0D\u51B3\u5B9A\u6570\u591A\u5C11\u4E2A\u3002"
-              },
-              {
-                key: "B",
                 label: "5 \u904D",
                 correct: true,
                 explanation: "\u5BF9\u3002`I` \u4F9D\u6B21\u53D6 3\u30014\u30015\u30016\u30017\uFF0C\u4E24\u7AEF\u90FD\u5305\u542B\uFF0C\u6240\u4EE5\u662F\u300C\u7EC8\u70B9\u51CF\u8D77\u70B9\u518D\u52A0\u4E00\u300D\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "4 \u904D",
                 correct: false,
                 explanation: "\u8D77\u70B9\u548C\u7EC8\u70B9\u90FD\u7B97\u5728\u5185\uFF0C\u522B\u5FD8\u4E86\u52A0\u4E00\uFF1A7 \u51CF 3 \u662F 4\uFF0C\u4F46 3\u30014\u30015\u30016\u30017 \u4E00\u5171\u662F\u4E94\u4E2A\u6570\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "7 \u904D",
                 correct: false,
                 explanation: "7 \u662F\u7EC8\u70B9\uFF0C\u4E0D\u662F\u6B21\u6570\u3002\u8D77\u70B9\u4E0D\u662F 1 \u7684\u65F6\u5019\uFF0C\u6B21\u6570\u548C\u7EC8\u70B9\u4E0D\u662F\u4E00\u56DE\u4E8B\u3002"
+              },
+              {
+                key: "D",
+                label: "3 \u904D",
+                correct: false,
+                explanation: "3 \u662F\u8D77\u70B9\uFF0C\u5B83\u51B3\u5B9A\u4ECE\u54EA\u513F\u5F00\u59CB\u6570\uFF0C\u4E0D\u51B3\u5B9A\u6570\u591A\u5C11\u4E2A\u3002"
               }
             ]
           },
@@ -2674,27 +2675,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "\u7A0B\u5E8F\u4F1A\u4E00\u76F4\u8DD1\u4E0B\u53BB",
+                correct: false,
+                explanation: "\u4E00\u76F4\u8DD1\u4E0B\u53BB\u7684\u662F\u300C\u6761\u4EF6\u6C38\u8FDC\u6210\u7ACB\u300D\u7684\u5FAA\u73AF\u3002\u8FD9\u91CC\u6761\u4EF6\u4E00\u5F00\u59CB\u5C31\u4E0D\u6210\u7ACB\u3002"
+              },
+              {
+                key: "B",
                 label: "\u53EA\u6709 Done",
                 correct: true,
                 explanation: "\u5BF9\u3002\u6761\u4EF6\u5728\u6BCF\u4E00\u904D\u5F00\u59CB\u4E4B\u524D\u5224\u65AD\uFF0C`10 < 5` \u7B2C\u4E00\u6B21\u5C31\u662F `FALSE`\uFF0C\u5FAA\u73AF\u4F53\u4E00\u904D\u90FD\u4E0D\u8DD1\uFF0C\u76F4\u63A5\u6267\u884C `ENDWHILE` \u540E\u9762\u90A3\u4E00\u884C\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "In \u4E00\u904D\uFF0C\u7136\u540E Done",
                 correct: false,
                 explanation: "\u90A3\u662F\u4E0B\u4E00\u8282 `REPEAT` \u7684\u884C\u4E3A\u3002`WHILE` \u5148\u770B\u6761\u4EF6\u518D\u51B3\u5B9A\u8FDB\u4E0D\u8FDB\u53BB\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "\u4EC0\u4E48\u90FD\u6CA1\u6709",
                 correct: false,
                 explanation: '\u8DF3\u8FC7\u7684\u53EA\u662F\u5FAA\u73AF\u4F53\u3002`OUTPUT "Done"` \u5728 `ENDWHILE` \u540E\u9762\uFF0C\u4E0D\u5F52\u5FAA\u73AF\u7BA1\u3002'
-              },
-              {
-                key: "D",
-                label: "\u7A0B\u5E8F\u4F1A\u4E00\u76F4\u8DD1\u4E0B\u53BB",
-                correct: false,
-                explanation: "\u4E00\u76F4\u8DD1\u4E0B\u53BB\u7684\u662F\u300C\u6761\u4EF6\u6C38\u8FDC\u6210\u7ACB\u300D\u7684\u5FAA\u73AF\u3002\u8FD9\u91CC\u6761\u4EF6\u4E00\u5F00\u59CB\u5C31\u4E0D\u6210\u7ACB\u3002"
               }
             ]
           }
@@ -2755,27 +2756,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u4E00\u76F4\u663E\u793A 10",
-                correct: false,
-                explanation: "\u4E00\u76F4\u8DD1\u4E0B\u53BB\u8981\u6C42\u6761\u4EF6\u4E00\u76F4\u4E0D\u6210\u7ACB\u3002`10 > 5` \u7B2C\u4E00\u6B21\u5224\u65AD\u5C31\u6210\u7ACB\u4E86\u3002"
-              },
-              {
-                key: "B",
                 label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4E0B\u6765",
                 correct: false,
                 explanation: "\u8FD9\u6BB5\u4EE3\u7801\u5408\u6CD5\u3002`Count` \u5728\u5FAA\u73AF\u91CC\u6CA1\u53D8\uFF0C\u4F46\u6761\u4EF6\u7B2C\u4E00\u6B21\u5C31\u6210\u7ACB\uFF0C\u4E0D\u4F1A\u51FA\u95EE\u9898\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "\u663E\u793A\u4E00\u6B21 10\uFF0C\u7136\u540E\u7ED3\u675F",
                 correct: true,
                 explanation: "\u5BF9\u3002\u5FAA\u73AF\u4F53\u5148\u6267\u884C\u4E00\u904D\u663E\u793A `10`\uFF0C\u7136\u540E\u5224\u65AD `10 > 5` \u6210\u7ACB\uFF0C\u4E8E\u662F\u7ED3\u675F\u3002\u6761\u4EF6\u5728\u540E\u9762\uFF0C\u6240\u4EE5\u81F3\u5C11\u8DD1\u4E00\u904D\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "\u4EC0\u4E48\u90FD\u4E0D\u663E\u793A\uFF0C\u56E0\u4E3A 10 \u5DF2\u7ECF\u5927\u4E8E 5",
                 correct: false,
                 explanation: "\u90A3\u662F `WHILE` \u7684\u884C\u4E3A\u3002`REPEAT` \u628A\u6761\u4EF6\u653E\u5728\u540E\u9762\uFF0C\u5148\u8DD1\u5B8C\u4E00\u904D\u624D\u8F6E\u5230\u5224\u65AD\u3002"
+              },
+              {
+                key: "D",
+                label: "\u4E00\u76F4\u663E\u793A 10",
+                correct: false,
+                explanation: "\u4E00\u76F4\u8DD1\u4E0B\u53BB\u8981\u6C42\u6761\u4EF6\u4E00\u76F4\u4E0D\u6210\u7ACB\u3002`10 > 5` \u7B2C\u4E00\u6B21\u5224\u65AD\u5C31\u6210\u7ACB\u4E86\u3002"
               }
             ]
           },
@@ -2916,27 +2917,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "\u53EA\u8981\u8FD8\u6709\u94B1\u5C31\u7EE7\u7EED\u4E70\u4E1C\u897F",
+                correct: false,
+                explanation: "\u4E00\u5206\u94B1\u90FD\u6CA1\u6709\u65F6\u5E94\u8BE5\u4E00\u6B21\u90FD\u4E0D\u4E70\u3002\u300C\u53EF\u80FD 0 \u6B21\u300D\u6B63\u662F `WHILE` \u7684\u573A\u5408\u3002"
+              },
+              {
+                key: "B",
                 label: "\u628A\u4E00\u4E32\u6570\u5B57\u4ECE\u5934\u5230\u5C3E\u8D70\u4E00\u904D",
                 correct: false,
                 explanation: "\u6B21\u6570\u4E8B\u5148\u5C31\u77E5\u9053\uFF0C\u8FD9\u79CD\u60C5\u51B5\u8FDE `WHILE` \u90FD\u4E0D\u662F\u9996\u9009\uFF0C`FOR` \u624D\u662F\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "\u663E\u793A 1 \u5230 10",
                 correct: false,
                 explanation: "\u6B21\u6570\u5DF2\u77E5\uFF0C\u7528 `FOR` \u6700\u76F4\u63A5\uFF1A\u8D77\u70B9\u7EC8\u70B9\u5199\u5728\u4E00\u884C\u91CC\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "\u53CD\u590D\u8981\u6C42\u7528\u6237\u8F93\u5165\u5BC6\u7801\uFF0C\u76F4\u5230\u8F93\u5BF9\u4E3A\u6B62",
                 correct: true,
                 explanation: "\u5BF9\u3002\u4E0D\u95EE\u4E00\u6B21\u5C31\u6CA1\u6709\u5BC6\u7801\u53EF\u4EE5\u68C0\u67E5\u3002\u7528 `WHILE` \u4E5F\u505A\u5F97\u5230\uFF0C\u4F46\u5FC5\u987B\u5728\u5FAA\u73AF\u524D\u5148\u95EE\u4E00\u6B21\uFF0C\u90A3\u4E00\u6BB5\u4F1A\u91CD\u590D\u5199\u4E24\u904D\u3002"
-              },
-              {
-                key: "D",
-                label: "\u53EA\u8981\u8FD8\u6709\u94B1\u5C31\u7EE7\u7EED\u4E70\u4E1C\u897F",
-                correct: false,
-                explanation: "\u4E00\u5206\u94B1\u90FD\u6CA1\u6709\u65F6\u5E94\u8BE5\u4E00\u6B21\u90FD\u4E0D\u4E70\u3002\u300C\u53EF\u80FD 0 \u6B21\u300D\u6B63\u662F `WHILE` \u7684\u573A\u5408\u3002"
               }
             ]
           }
@@ -3135,27 +3136,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u4E09\u79CD\u90FD\u4E00\u6837\uFF0C\u968F\u4FBF\u6311",
-                correct: false,
-                explanation: "\u4E09\u79CD\u786E\u5B9E\u90FD\u5199\u5F97\u51FA\u6765\uFF0C\u4F46\u4EE3\u4EF7\u4E0D\u4E00\u6837\uFF1A`FOR` \u5199\u4E0D\u51FA\uFF0C`WHILE` \u8981\u91CD\u590D\u4E24\u884C\u3002\u6311\u7684\u5C31\u662F\u4EE3\u4EF7\u6700\u5C0F\u7684\u90A3\u4E2A\u3002"
-              },
-              {
-                key: "B",
-                label: "`REPEAT`",
-                correct: true,
-                explanation: "\u5BF9\u3002\u4E0D\u95EE\u4E00\u6B21\u5C31\u6CA1\u6709\u503C\u53EF\u4EE5\u68C0\u67E5\uFF0C\u6240\u4EE5\u300C\u81F3\u5C11\u8DD1\u4E00\u904D\u300D\u662F\u8FD9\u4EF6\u4E8B\u7684\u672C\u6765\u9762\u76EE\uFF0C\u6761\u4EF6\u653E\u5728\u540E\u9762\u6B63\u5408\u9002\u3002"
-              },
-              {
-                key: "C",
                 label: "`FOR`",
                 correct: false,
                 explanation: "\u7528\u6237\u53EF\u80FD\u4E00\u6B21\u5C31\u8F93\u5BF9\uFF0C\u4E5F\u53EF\u80FD\u8F93\u9519\u5341\u6B21\u3002\u6B21\u6570\u4E8B\u5148\u4E0D\u77E5\u9053\uFF0C`FOR` \u7684\u8D77\u70B9\u7EC8\u70B9\u6CA1\u6CD5\u5199\u3002"
               },
               {
-                key: "D",
+                key: "B",
                 label: "`WHILE`",
                 correct: false,
                 explanation: "\u80FD\u5199\uFF0C\u4F46\u522B\u626D\uFF1A\u5224\u65AD\u6761\u4EF6\u65F6\u624B\u91CC\u5F97\u5148\u6709\u4E2A\u503C\uFF0C\u6240\u4EE5\u5FC5\u987B\u5728\u5FAA\u73AF\u524D\u9762\u5148\u95EE\u4E00\u6B21\uFF0C\u90A3\u4E24\u884C\u5C31\u5F97\u5199\u4E24\u904D\u3002"
+              },
+              {
+                key: "C",
+                label: "\u4E09\u79CD\u90FD\u4E00\u6837\uFF0C\u968F\u4FBF\u6311",
+                correct: false,
+                explanation: "\u4E09\u79CD\u786E\u5B9E\u90FD\u5199\u5F97\u51FA\u6765\uFF0C\u4F46\u4EE3\u4EF7\u4E0D\u4E00\u6837\uFF1A`FOR` \u5199\u4E0D\u51FA\uFF0C`WHILE` \u8981\u91CD\u590D\u4E24\u884C\u3002\u6311\u7684\u5C31\u662F\u4EE3\u4EF7\u6700\u5C0F\u7684\u90A3\u4E2A\u3002"
+              },
+              {
+                key: "D",
+                label: "`REPEAT`",
+                correct: true,
+                explanation: "\u5BF9\u3002\u4E0D\u95EE\u4E00\u6B21\u5C31\u6CA1\u6709\u503C\u53EF\u4EE5\u68C0\u67E5\uFF0C\u6240\u4EE5\u300C\u81F3\u5C11\u8DD1\u4E00\u904D\u300D\u662F\u8FD9\u4EF6\u4E8B\u7684\u672C\u6765\u9762\u76EE\uFF0C\u6761\u4EF6\u653E\u5728\u540E\u9762\u6B63\u5408\u9002\u3002"
               }
             ]
           }
@@ -3229,27 +3230,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u6709\uFF0C`REPEAT` \u7248\u4F1A\u591A\u4E70\u4E00\u4EF6",
-                correct: false,
-                explanation: "25 \u5143\u8DB3\u591F\u4E70\u7B2C\u4E00\u4EF6\uFF0C\u4E24\u4E2A\u7248\u672C\u5728\u8FD9\u91CC\u7684\u884C\u4E3A\u5B8C\u5168\u4E00\u6837\uFF1A\u4E70\u3001\u518D\u5224\u65AD\u3002"
-              },
-              {
-                key: "B",
-                label: "\u6709\uFF0C`WHILE` \u7248\u4F1A\u5C11\u4E70\u4E00\u4EF6",
-                correct: false,
-                explanation: "`WHILE` \u4E0D\u4F1A\u5C11\u8DD1\uFF1A\u53EA\u8981\u6761\u4EF6\u6210\u7ACB\u5B83\u5C31\u7EE7\u7EED\uFF0C25 \u5230 15 \u5230 5\uFF0C\u6B63\u597D\u4E24\u904D\u3002"
-              },
-              {
-                key: "C",
                 label: "`REPEAT` \u7248\u4F1A\u62A5\u9519",
                 correct: false,
                 explanation: "\u4E24\u4E2A\u7248\u672C\u90FD\u5408\u6CD5\u3001\u90FD\u8DD1\u5F97\u5B8C\u3002\u8FD9\u6B63\u662F\u8FD9\u7C7B\u9519\u8BEF\u9EBB\u70E6\u7684\u5730\u65B9\u2014\u2014\u6CA1\u6709\u4EFB\u4F55\u63D0\u793A\u3002"
               },
               {
-                key: "D",
+                key: "B",
                 label: "\u6CA1\u6709\u533A\u522B\uFF0C\u4E24\u4E2A\u90FD\u662F\u4E70 2 \u4EF6\u3001\u5269 5 \u5143",
                 correct: true,
                 explanation: "\u5BF9\u300225 \u5143\u65F6\u5FAA\u73AF\u4F53\u672C\u6765\u5C31\u8BE5\u8DD1\uFF0C\u300C\u5148\u505A\u518D\u5224\u65AD\u300D\u548C\u300C\u5148\u5224\u65AD\u518D\u505A\u300D\u5F97\u5230\u7684\u662F\u540C\u4E00\u4E32\u52A8\u4F5C\u3002\u533A\u522B\u53EA\u5728\u5FAA\u73AF\u4F53\u4E00\u904D\u90FD\u4E0D\u8BE5\u8DD1\u7684\u65F6\u5019\u624D\u51FA\u73B0\u3002"
+              },
+              {
+                key: "C",
+                label: "\u6709\uFF0C`REPEAT` \u7248\u4F1A\u591A\u4E70\u4E00\u4EF6",
+                correct: false,
+                explanation: "25 \u5143\u8DB3\u591F\u4E70\u7B2C\u4E00\u4EF6\uFF0C\u4E24\u4E2A\u7248\u672C\u5728\u8FD9\u91CC\u7684\u884C\u4E3A\u5B8C\u5168\u4E00\u6837\uFF1A\u4E70\u3001\u518D\u5224\u65AD\u3002"
+              },
+              {
+                key: "D",
+                label: "\u6709\uFF0C`WHILE` \u7248\u4F1A\u5C11\u4E70\u4E00\u4EF6",
+                correct: false,
+                explanation: "`WHILE` \u4E0D\u4F1A\u5C11\u8DD1\uFF1A\u53EA\u8981\u6761\u4EF6\u6210\u7ACB\u5B83\u5C31\u7EE7\u7EED\uFF0C25 \u5230 15 \u5230 5\uFF0C\u6B63\u597D\u4E24\u904D\u3002"
               }
             ]
           }
@@ -3308,27 +3309,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "3 \u6B21",
+                correct: false,
+                explanation: "3 \u662F\u5185\u5C42\u4E00\u8F6E\u7684\u904D\u6570\uFF0C\u90A3\u53EA\u662F\u5916\u5C42\u7B2C\u4E00\u904D\u7684\u60C5\u51B5\u3002"
+              },
+              {
+                key: "B",
                 label: "15 \u6B21",
                 correct: true,
                 explanation: "\u5BF9\u3002\u5916\u5C42\u6BCF\u4E00\u904D\u90FD\u8981\u628A\u5185\u5C42\u4ECE 1 \u5230 3 \u5B8C\u6574\u8DD1\u4E00\u8F6E\uFF0C\u6240\u4EE5\u662F 5 \u4E58 3\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "8 \u6B21",
                 correct: false,
                 explanation: "\u628A\u4E24\u5C42\u76F8\u52A0\uFF0C\u7B49\u4E8E\u628A\u5B83\u4EEC\u5F53\u6210\u5148\u540E\u53D1\u751F\u7684\u4E24\u4EF6\u4E8B\u3002\u5D4C\u5957\u4E0D\u662F\u5148\u540E\uFF0C\u662F\u5305\u542B\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "5 \u6B21",
                 correct: false,
                 explanation: "5 \u662F\u5916\u5C42\u7684\u904D\u6570\u3002\u5916\u5C42\u8DD1\u4E00\u904D\uFF0C\u91CC\u9762\u90A3\u53E5\u8BDD\u5DF2\u7ECF\u6267\u884C\u4E86 3 \u6B21\u3002"
-              },
-              {
-                key: "D",
-                label: "3 \u6B21",
-                correct: false,
-                explanation: "3 \u662F\u5185\u5C42\u4E00\u8F6E\u7684\u904D\u6570\uFF0C\u90A3\u53EA\u662F\u5916\u5C42\u7B2C\u4E00\u904D\u7684\u60C5\u51B5\u3002"
               }
             ]
           }
@@ -3379,27 +3380,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "\u8FD8\u662F 6 \u884C\uFF0C\u53EA\u662F\u987A\u5E8F\u53D8\u4E86",
+                correct: false,
+                explanation: "\u663E\u793A\u51E0\u884C\u53D6\u51B3\u4E8E\u8FD9\u4E00\u53E5\u88AB\u6267\u884C\u51E0\u6B21\u3002\u79BB\u5F00\u5185\u5C42\u4E4B\u540E\uFF0C\u5B83\u4E00\u8F6E\u53EA\u6267\u884C\u4E00\u6B21\u3002"
+              },
+              {
+                key: "B",
                 label: "\u4E00\u5171\u663E\u793A 3 \u884C",
                 correct: false,
                 explanation: "3 \u662F\u5185\u5C42\u7684\u904D\u6570\u3002\u8FD9\u4E00\u53E5\u73B0\u5728\u5F52\u5916\u5C42\u7BA1\uFF0C\u548C\u5185\u5C42\u8DD1\u51E0\u904D\u6CA1\u5173\u7CFB\u4E86\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4E0B\u6765",
                 correct: false,
                 explanation: "\u4E24\u4E2A\u4F4D\u7F6E\u90FD\u5408\u6CD5\u3002\u8FD9\u6B63\u662F\u8981\u5C0F\u5FC3\u7684\u5730\u65B9\uFF1A\u4F4D\u7F6E\u653E\u9519\u4E0D\u4F1A\u62A5\u9519\uFF0C\u53EA\u4F1A\u7B97\u9519\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "\u4E00\u5171\u663E\u793A 2 \u884C",
                 correct: true,
                 explanation: "\u5BF9\u3002\u632A\u5230 `NEXT J` \u540E\u9762\u5B83\u5C31\u5F52\u5916\u5C42\u7BA1\u4E86\u2014\u2014\u5916\u5C42\u8DD1\u51E0\u904D\u5C31\u663E\u793A\u51E0\u904D\uFF0C\u4E0D\u518D\u662F\u6BCF\u4E00\u5217\u5404\u4E00\u884C\u3002"
-              },
-              {
-                key: "D",
-                label: "\u8FD8\u662F 6 \u884C\uFF0C\u53EA\u662F\u987A\u5E8F\u53D8\u4E86",
-                correct: false,
-                explanation: "\u663E\u793A\u51E0\u884C\u53D6\u51B3\u4E8E\u8FD9\u4E00\u53E5\u88AB\u6267\u884C\u51E0\u6B21\u3002\u79BB\u5F00\u5185\u5C42\u4E4B\u540E\uFF0C\u5B83\u4E00\u8F6E\u53EA\u6267\u884C\u4E00\u6B21\u3002"
               }
             ]
           },
@@ -3719,27 +3720,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "seud",
-                correct: false,
-                explanation: "\u8FD9\u662F\u4ECE\u7B2C 2 \u4E2A\u5B57\u7B26\u5F00\u59CB\u53D6\u7684\u7ED3\u679C\u3002`MID` \u7684\u8D77\u70B9\u4ECE 1 \u6570\u8D77\uFF0C\u7B2C 3 \u4E2A\u4E0D\u662F `s`\u3002"
-              },
-              {
-                key: "B",
-                label: "udoc",
-                correct: false,
-                explanation: "\u8FD9\u662F\u4ECE\u7B2C 4 \u4E2A\u5F00\u59CB\u53D6\u7684\u3002\u628A\u8D77\u70B9\u5F53\u6210\u300C\u8DF3\u8FC7 3 \u4E2A\u300D\u5C31\u4F1A\u9519\u4E00\u4F4D\u3002"
-              },
-              {
-                key: "C",
                 label: "Pseu",
                 correct: false,
                 explanation: "\u8FD9\u662F `MID(S, 1, 4)`\uFF0C\u4E5F\u5C31\u662F\u5F00\u5934\u56DB\u4E2A\u5B57\u7B26\u3002\u7B2C\u4E8C\u4E2A\u53C2\u6570\u662F\u8D77\u70B9\uFF0C\u4E0D\u662F\u4E2A\u6570\u3002"
               },
               {
-                key: "D",
+                key: "B",
                 label: "eudo",
                 correct: true,
                 explanation: "\u5BF9\u3002\u4ECE\u7B2C 3 \u4E2A\u5B57\u7B26\u5F00\u59CB\u6570\uFF1A`P` \u662F 1\u3001`s` \u662F 2\u3001`e` \u662F 3\u3002\u4ECE `e` \u8D77\u53D6 4 \u4E2A\uFF0C\u662F `e`\u3001`u`\u3001`d`\u3001`o`\u3002"
+              },
+              {
+                key: "C",
+                label: "seud",
+                correct: false,
+                explanation: "\u8FD9\u662F\u4ECE\u7B2C 2 \u4E2A\u5B57\u7B26\u5F00\u59CB\u53D6\u7684\u7ED3\u679C\u3002`MID` \u7684\u8D77\u70B9\u4ECE 1 \u6570\u8D77\uFF0C\u7B2C 3 \u4E2A\u4E0D\u662F `s`\u3002"
+              },
+              {
+                key: "D",
+                label: "udoc",
+                correct: false,
+                explanation: "\u8FD9\u662F\u4ECE\u7B2C 4 \u4E2A\u5F00\u59CB\u53D6\u7684\u3002\u628A\u8D77\u70B9\u5F53\u6210\u300C\u8DF3\u8FC7 3 \u4E2A\u300D\u5C31\u4F1A\u9519\u4E00\u4F4D\u3002"
               }
             ]
           },
@@ -3861,27 +3862,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "OUTPUT UCASE('h')",
-                correct: true,
-                explanation: "\u5BF9\u3002`'h'` \u662F\u5355\u5F15\u53F7\u5199\u7684 `CHAR` \u5B57\u9762\u91CF\uFF0C\u6B63\u662F `UCASE` \u8981\u7684\u4E1C\u897F\u3002"
-              },
-              {
-                key: "B",
                 label: "OUTPUT UCASE(S)",
                 correct: false,
                 explanation: "`S` \u662F `STRING`\uFF0C\u800C `UCASE` \u53EA\u6536 `CHAR`\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "OUTPUT UCASE(MID(S, 1, 1))",
                 correct: false,
                 explanation: "\u770B\u7740\u50CF\u7ED5\u5F00\u4E86\uFF0C\u5176\u5B9E\u6CA1\u6709\uFF1A`MID` \u8FD8\u56DE\u6765\u7684\u662F `STRING`\uFF0C\u54EA\u6015\u53EA\u6709\u4E00\u4E2A\u5B57\u7B26\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: 'OUTPUT UCASE("h")',
                 correct: false,
                 explanation: "\u53CC\u5F15\u53F7\u91CC\u7684\u662F `STRING`\u3002\u8FD9\u4E00\u5904\u5DEE\u522B\u5728\u8FD9\u4E24\u4E2A\u51FD\u6570\u4E0A\u662F\u786C\u6027\u7684\u3002"
+              },
+              {
+                key: "D",
+                label: "OUTPUT UCASE('h')",
+                correct: true,
+                explanation: "\u5BF9\u3002`'h'` \u662F\u5355\u5F15\u53F7\u5199\u7684 `CHAR` \u5B57\u9762\u91CF\uFF0C\u6B63\u662F `UCASE` \u8981\u7684\u4E1C\u897F\u3002"
               }
             ]
           }
@@ -3959,27 +3960,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: 'OUTPUT "Score: " & "N"',
-                correct: false,
-                explanation: "\u8FD9\u80FD\u901A\u8FC7\u68C0\u67E5\uFF0C\u4F46\u663E\u793A\u7684\u662F `Score: N` \u8FD9\u51E0\u4E2A\u5B57\u6BCD\u2014\u2014\u5F15\u53F7\u91CC\u7684 `N` \u662F\u6587\u5B57\u672C\u8EAB\uFF0C\u4E0D\u662F\u53D8\u91CF\u7684\u503C\u3002"
-              },
-              {
-                key: "B",
-                label: 'OUTPUT "Score: " + N',
-                correct: false,
-                explanation: "`+` \u662F\u52A0\u6CD5\uFF0C\u4E0D\u662F\u8FDE\u63A5\u3002\u63A5\u6587\u5B57\u7528 `&`\uFF0C\u800C\u8FD9\u91CC\u8FDE `&` \u90FD\u4E0D\u8BE5\u7528\u3002"
-              },
-              {
-                key: "C",
                 label: 'OUTPUT "Score: ", N',
                 correct: true,
                 explanation: "\u5BF9\u3002`OUTPUT` \u7684\u9017\u53F7\u5F62\u5F0F\u5BF9\u7C7B\u578B\u6CA1\u6709\u8981\u6C42\uFF0C\u6570\u5B57\u76F4\u63A5\u663E\u793A\u51FA\u6765\u3002"
               },
               {
-                key: "D",
+                key: "B",
                 label: 'OUTPUT "Score: " & N',
                 correct: false,
                 explanation: "`&` \u4E24\u8FB9\u90FD\u5F97\u662F `STRING`\uFF0C\u800C `N` \u662F `INTEGER`\u3002"
+              },
+              {
+                key: "C",
+                label: 'OUTPUT "Score: " & "N"',
+                correct: false,
+                explanation: "\u8FD9\u80FD\u901A\u8FC7\u68C0\u67E5\uFF0C\u4F46\u663E\u793A\u7684\u662F `Score: N` \u8FD9\u51E0\u4E2A\u5B57\u6BCD\u2014\u2014\u5F15\u53F7\u91CC\u7684 `N` \u662F\u6587\u5B57\u672C\u8EAB\uFF0C\u4E0D\u662F\u53D8\u91CF\u7684\u503C\u3002"
+              },
+              {
+                key: "D",
+                label: 'OUTPUT "Score: " + N',
+                correct: false,
+                explanation: "`+` \u662F\u52A0\u6CD5\uFF0C\u4E0D\u662F\u8FDE\u63A5\u3002\u63A5\u6587\u5B57\u7528 `&`\uFF0C\u800C\u8FD9\u91CC\u8FDE `&` \u90FD\u4E0D\u8BE5\u7528\u3002"
               }
             ]
           }
@@ -4103,27 +4104,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "LENGTH(Word) \u5355\u72EC\u5360\u4E00\u884C",
-                correct: true,
-                explanation: "\u5BF9\u3002\u51FD\u6570\u7B97\u51FA\u4E86\u4E00\u4E2A\u503C\uFF0C\u4F46\u6CA1\u6709\u8D4B\u7ED9\u8C01\u3001\u4E5F\u6CA1\u6709\u663E\u793A\u51FA\u6765\uFF0C\u8FD9\u4E2A\u503C\u65E0\u5904\u53EF\u53BB\uFF0C\u6240\u4EE5\u5B83\u4E0D\u80FD\u5355\u72EC\u6210\u4E3A\u4E00\u6761\u8BED\u53E5\u3002"
-              },
-              {
-                key: "B",
-                label: "FOR I \u2190 1 TO LENGTH(Word)",
-                correct: false,
-                explanation: "\u6210\u7ACB\u3002`LENGTH` \u7B97\u51FA `INTEGER`\uFF0C\u6B63\u597D\u80FD\u5F53\u5FAA\u73AF\u7684\u7EC8\u70B9\u3002"
-              },
-              {
-                key: "C",
                 label: 'IF MID(Code, 1, 1) = "A" THEN',
                 correct: false,
                 explanation: '\u6210\u7ACB\u3002`MID` \u8FD8\u56DE\u6765\u7684\u662F `STRING`\uFF0C\u53F3\u8FB9 `"A"` \u4E5F\u662F `STRING`\uFF0C\u4E24\u8FB9\u7C7B\u578B\u5BF9\u5F97\u4E0A\u3002'
               },
               {
-                key: "D",
+                key: "B",
                 label: "OUTPUT MID(Code, 1, LENGTH(Code) - 2)",
                 correct: false,
                 explanation: "\u6210\u7ACB\u3002\u53C2\u6570\u53EF\u4EE5\u662F\u7B97\u5F0F\uFF0C\u5148\u7B97\u5B8C\u518D\u4EA4\u7ED9\u51FD\u6570\u3002"
+              },
+              {
+                key: "C",
+                label: "LENGTH(Word) \u5355\u72EC\u5360\u4E00\u884C",
+                correct: true,
+                explanation: "\u5BF9\u3002\u51FD\u6570\u7B97\u51FA\u4E86\u4E00\u4E2A\u503C\uFF0C\u4F46\u6CA1\u6709\u8D4B\u7ED9\u8C01\u3001\u4E5F\u6CA1\u6709\u663E\u793A\u51FA\u6765\uFF0C\u8FD9\u4E2A\u503C\u65E0\u5904\u53EF\u53BB\uFF0C\u6240\u4EE5\u5B83\u4E0D\u80FD\u5355\u72EC\u6210\u4E3A\u4E00\u6761\u8BED\u53E5\u3002"
+              },
+              {
+                key: "D",
+                label: "FOR I \u2190 1 TO LENGTH(Word)",
+                correct: false,
+                explanation: "\u6210\u7ACB\u3002`LENGTH` \u7B97\u51FA `INTEGER`\uFF0C\u6B63\u597D\u80FD\u5F53\u5FAA\u73AF\u7684\u7EC8\u70B9\u3002"
               }
             ]
           }
@@ -5019,27 +5020,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "43 \u4E2A",
-                correct: false,
-                explanation: "\u8FD9\u662F\u628A\u4E0A\u754C\u62FC\u5728\u4E00\u8D77\u4E86\u3002\u65B9\u62EC\u53F7\u91CC\u7684\u4E24\u7EC4\u6570\u662F\u4E24\u4E2A\u65B9\u5411\u7684\u8303\u56F4\uFF0C\u4E0D\u662F\u4E00\u4E2A\u6570\u5B57\u3002"
-              },
-              {
-                key: "B",
-                label: "12 \u4E2A",
-                correct: true,
-                explanation: "\u5BF9\u30024 \u884C\u4E58 3 \u5217\u7B49\u4E8E 12\u3002\u4E24\u7EC4\u4E0A\u4E0B\u754C\u5404\u81EA\u90FD\u662F\u4E24\u7AEF\u90FD\u7B97\u6570\uFF0C\u6240\u4EE5\u662F 4 \u4E2A\u4E58 3 \u4E2A\u3002"
-              },
-              {
-                key: "C",
                 label: "7 \u4E2A",
                 correct: false,
                 explanation: "\u628A\u4E24\u4E2A\u65B9\u5411\u52A0\u8D77\u6765\u4E86\u3002\u8868\u683C\u7684\u683C\u5B50\u6570\u662F\u884C\u6570\u4E58\u5217\u6570\uFF0C\u4E0D\u662F\u76F8\u52A0\u3002"
               },
               {
-                key: "D",
+                key: "B",
                 label: "6 \u4E2A",
                 correct: false,
                 explanation: "\u5C11\u7B97\u4E86\u4E24\u7AEF\uFF1A1 \u5230 4 \u662F\u56DB\u4E2A\u6570\u4E0D\u662F\u4E09\u4E2A\uFF0C1 \u5230 3 \u662F\u4E09\u4E2A\u6570\u4E0D\u662F\u4E24\u4E2A\u3002"
+              },
+              {
+                key: "C",
+                label: "43 \u4E2A",
+                correct: false,
+                explanation: "\u8FD9\u662F\u628A\u4E0A\u754C\u62FC\u5728\u4E00\u8D77\u4E86\u3002\u65B9\u62EC\u53F7\u91CC\u7684\u4E24\u7EC4\u6570\u662F\u4E24\u4E2A\u65B9\u5411\u7684\u8303\u56F4\uFF0C\u4E0D\u662F\u4E00\u4E2A\u6570\u5B57\u3002"
+              },
+              {
+                key: "D",
+                label: "12 \u4E2A",
+                correct: true,
+                explanation: "\u5BF9\u30024 \u884C\u4E58 3 \u5217\u7B49\u4E8E 12\u3002\u4E24\u7EC4\u4E0A\u4E0B\u754C\u5404\u81EA\u90FD\u662F\u4E24\u7AEF\u90FD\u7B97\u6570\uFF0C\u6240\u4EE5\u662F 4 \u4E2A\u4E58 3 \u4E2A\u3002"
               }
             ]
           }
@@ -5095,27 +5096,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "\u7A0B\u5E8F\u7167\u5E38\u8DD1\u5B8C\uFF0C\u4F46\u7528\u7684\u662F\u53E6\u4E00\u4E2A\u683C\u5B50",
+                correct: true,
+                explanation: "\u5BF9\u3002\u884C\u548C\u5217\u7684\u8303\u56F4\u4E00\u6837\u5927\uFF0C\u6240\u4EE5\u4E24\u4E2A\u5199\u6CD5\u90FD\u843D\u5728\u8868\u683C\u91CC\uFF0C\u8C01\u4E5F\u62E6\u4E0D\u4F4F\u3002\u8FD9\u79CD\u9519\u53EA\u80FD\u9760\u81EA\u5DF1\u628A\u884C\u5217\u7684\u542B\u4E49\u5199\u6E05\u695A\u6765\u9632\u3002"
+              },
+              {
+                key: "B",
                 label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4E0B\u6765",
                 correct: false,
                 explanation: "\u4E24\u4E2A\u4E0B\u6807\u90FD\u5728 1 \u5230 5 \u4E4B\u95F4\uFF0C\u5B8C\u5168\u5408\u6CD5\u3002\u7F16\u8F91\u5668\u4E0D\u77E5\u9053\u4F60\u5FC3\u91CC\u60F3\u7684\u662F\u54EA\u4E2A\u683C\u5B50\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "\u8FD0\u884C\u65F6\u8D8A\u754C\uFF0C\u7A0B\u5E8F\u505C\u4E0B\u6765",
                 correct: false,
                 explanation: "\u8D8A\u754C\u662F\u6307\u4E86\u4E0D\u5B58\u5728\u7684\u683C\u5B50\u3002\u8FD9\u91CC\u6307\u7684\u683C\u5B50\u5B58\u5728\uFF0C\u53EA\u662F\u4E0D\u662F\u4F60\u8981\u7684\u90A3\u4E2A\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "\u4E24\u4E2A\u5199\u6CD5\u672C\u6765\u5C31\u662F\u540C\u4E00\u4E2A\u683C\u5B50",
                 correct: false,
                 explanation: "\u9664\u975E\u884C\u53F7\u548C\u5217\u53F7\u6B63\u597D\u76F8\u7B49\uFF0C\u5426\u5219\u5B83\u4EEC\u662F\u4E0D\u540C\u7684\u4E24\u4E2A\u683C\u5B50\u3002\u8868\u683C\u4E0D\u662F\u5BF9\u79F0\u7684\u3002"
-              },
-              {
-                key: "D",
-                label: "\u7A0B\u5E8F\u7167\u5E38\u8DD1\u5B8C\uFF0C\u4F46\u7528\u7684\u662F\u53E6\u4E00\u4E2A\u683C\u5B50",
-                correct: true,
-                explanation: "\u5BF9\u3002\u884C\u548C\u5217\u7684\u8303\u56F4\u4E00\u6837\u5927\uFF0C\u6240\u4EE5\u4E24\u4E2A\u5199\u6CD5\u90FD\u843D\u5728\u8868\u683C\u91CC\uFF0C\u8C01\u4E5F\u62E6\u4E0D\u4F4F\u3002\u8FD9\u79CD\u9519\u53EA\u80FD\u9760\u81EA\u5DF1\u628A\u884C\u5217\u7684\u542B\u4E49\u5199\u6E05\u695A\u6765\u9632\u3002"
               }
             ]
           }
@@ -5189,27 +5190,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u7B2C\u4E8C\u884C\u7684\u7ED3\u679C\u91CC\u6DF7\u8FDB\u4E86\u7B2C\u4E00\u884C\u7684\u6570",
-                correct: true,
-                explanation: "\u5BF9\u3002\u53EA\u6E05\u96F6\u4E00\u6B21\uFF0C\u7B2C\u4E00\u884C\u52A0\u5B8C\u7684\u6570\u8FD8\u7559\u5728 `Sum` \u91CC\uFF0C\u7B2C\u4E8C\u884C\u63A5\u7740\u5F80\u4E0A\u52A0\u3002\u7ED3\u679C\u53D8\u6210\u4E86\u300C\u5230\u8FD9\u4E00\u884C\u4E3A\u6B62\u7684\u7D2F\u8BA1\u300D\u3002"
-              },
-              {
-                key: "B",
-                label: "\u6BCF\u884C\u90FD\u663E\u793A 0",
-                correct: false,
-                explanation: "\u6E05\u96F6\u53EA\u53D1\u751F\u5728\u5F00\u5934\uFF0C\u4E4B\u540E\u5FAA\u73AF\u7167\u6837\u5F80\u91CC\u52A0\uFF0C\u4E0D\u4F1A\u4E00\u76F4\u662F 0\u3002"
-              },
-              {
-                key: "C",
                 label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4E0B\u6765",
                 correct: false,
                 explanation: "\u4E24\u4E2A\u4F4D\u7F6E\u90FD\u5408\u6CD5\u3002\u653E\u9519\u4E00\u5C42\u4E0D\u4F1A\u62A5\u9519\uFF0C\u53EA\u4F1A\u7B97\u9519\u2014\u2014\u8FD9\u6B63\u662F\u9EBB\u70E6\u7684\u5730\u65B9\u3002"
               },
               {
-                key: "D",
+                key: "B",
                 label: "\u6CA1\u6709\u533A\u522B",
                 correct: false,
                 explanation: "\u6709\u533A\u522B\uFF0C\u800C\u4E14\u53EA\u5728\u7B2C\u4E8C\u884C\u5F80\u540E\u624D\u770B\u5F97\u51FA\u6765\u3002\u7B2C\u4E00\u884C\u7684\u7ED3\u679C\u4E24\u79CD\u5199\u6CD5\u662F\u4E00\u6837\u7684\u3002"
+              },
+              {
+                key: "C",
+                label: "\u7B2C\u4E8C\u884C\u7684\u7ED3\u679C\u91CC\u6DF7\u8FDB\u4E86\u7B2C\u4E00\u884C\u7684\u6570",
+                correct: true,
+                explanation: "\u5BF9\u3002\u53EA\u6E05\u96F6\u4E00\u6B21\uFF0C\u7B2C\u4E00\u884C\u52A0\u5B8C\u7684\u6570\u8FD8\u7559\u5728 `Sum` \u91CC\uFF0C\u7B2C\u4E8C\u884C\u63A5\u7740\u5F80\u4E0A\u52A0\u3002\u7ED3\u679C\u53D8\u6210\u4E86\u300C\u5230\u8FD9\u4E00\u884C\u4E3A\u6B62\u7684\u7D2F\u8BA1\u300D\u3002"
+              },
+              {
+                key: "D",
+                label: "\u6BCF\u884C\u90FD\u663E\u793A 0",
+                correct: false,
+                explanation: "\u6E05\u96F6\u53EA\u53D1\u751F\u5728\u5F00\u5934\uFF0C\u4E4B\u540E\u5FAA\u73AF\u7167\u6837\u5F80\u91CC\u52A0\uFF0C\u4E0D\u4F1A\u4E00\u76F4\u662F 0\u3002"
               }
             ]
           },
@@ -5550,27 +5551,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u7F16\u8F91\u5668\u5728\u8FD0\u884C\u524D\u5C31\u62E6\u4E0B\u6765",
-                correct: false,
-                explanation: "\u8FD9\u6BB5\u4EE3\u7801\u7684\u5199\u6CD5\u5B8C\u5168\u6B63\u786E\u3002\u7F16\u8F91\u5668\u4E0D\u77E5\u9053\u6570\u7EC4\u91CC\u5C06\u6765\u4F1A\u653E\u4EC0\u4E48\u503C\uFF0C\u4E5F\u5C31\u65E0\u4ECE\u5224\u65AD\u627E\u4E0D\u627E\u5F97\u5230\u3002"
-              },
-              {
-                key: "B",
                 label: "\u4EC0\u4E48\u90FD\u6CA1\u6709\uFF0C\u7A0B\u5E8F\u6B63\u5E38\u7ED3\u675F",
                 correct: true,
                 explanation: "\u5BF9\u3002`IF` \u4E00\u6B21\u90FD\u6CA1\u6210\u7ACB\uFF0C`OUTPUT` \u5C31\u4E00\u6B21\u90FD\u6CA1\u6267\u884C\u3002\u7A0B\u5E8F\u8DD1\u5B8C\u4E86\uFF0C\u53EA\u662F\u4EC0\u4E48\u4E5F\u6CA1\u8BF4\u2014\u2014\u300C\u6CA1\u627E\u5230\u300D\u548C\u300C\u7A0B\u5E8F\u6CA1\u8DD1\u300D\u5728\u5C4F\u5E55\u4E0A\u957F\u5F97\u4E00\u6A21\u4E00\u6837\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "\u663E\u793A `Found at 0`",
                 correct: false,
                 explanation: "\u4E0D\u4F1A\u3002`OUTPUT` \u53EA\u5199\u5728 `IF` \u91CC\u9762\uFF0C\u6761\u4EF6\u6CA1\u6210\u7ACB\u5B83\u5C31\u4E0D\u6267\u884C\uFF0C\u4E0D\u5B58\u5728\u4E00\u4E2A\u300C\u8868\u793A\u6CA1\u627E\u5230\u300D\u7684\u9ED8\u8BA4\u8F93\u51FA\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "\u7A0B\u5E8F\u5728\u8FD0\u884C\u65F6\u505C\u4E0B\u6765\u62A5\u9519",
                 correct: false,
                 explanation: "\u6CA1\u6709\u4EFB\u4F55\u4E00\u6B65\u51FA\u9519\uFF1A\u4E0B\u6807\u59CB\u7EC8\u5728 1 \u5230 5 \u4E4B\u95F4\uFF0C\u6BD4\u8F83\u4E5F\u5408\u6CD5\u3002\u627E\u4E0D\u5230\u4E0D\u662F\u9519\u8BEF\uFF0C\u53EA\u662F\u7ED3\u679C\u3002"
+              },
+              {
+                key: "D",
+                label: "\u7F16\u8F91\u5668\u5728\u8FD0\u884C\u524D\u5C31\u62E6\u4E0B\u6765",
+                correct: false,
+                explanation: "\u8FD9\u6BB5\u4EE3\u7801\u7684\u5199\u6CD5\u5B8C\u5168\u6B63\u786E\u3002\u7F16\u8F91\u5668\u4E0D\u77E5\u9053\u6570\u7EC4\u91CC\u5C06\u6765\u4F1A\u653E\u4EC0\u4E48\u503C\uFF0C\u4E5F\u5C31\u65E0\u4ECE\u5224\u65AD\u627E\u4E0D\u627E\u5F97\u5230\u3002"
               }
             ]
           }
@@ -5640,27 +5641,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u7ED3\u679C\u4E0D\u53D8\uFF0C\u53EA\u662F\u591A\u8D70\u4E00\u6B65",
-                correct: false,
-                explanation: "\u5FAA\u73AF\u786E\u5B9E\u7ACB\u523B\u5C31\u505C\u4E86\uFF0C\u4F46\u505C\u4E0B\u6765\u65F6 `Position` \u7684\u503C\u5DF2\u7ECF\u88AB\u6539\u8FC7\uFF0C\u800C\u8FD9\u4E2A\u503C\u6B63\u662F\u8981\u62A5\u51FA\u6765\u7684\u7B54\u6848\u3002"
-              },
-              {
-                key: "B",
                 label: "\u4F1A\u53D8\u6210\u627E\u4E0D\u5230",
                 correct: false,
                 explanation: "`Found` \u7167\u6837\u88AB\u8BBE\u6210 `TRUE`\uFF0C\u6240\u4EE5\u8D70\u7684\u8FD8\u662F\u300C\u627E\u5230\u4E86\u300D\u90A3\u4E00\u652F\uFF0C\u53EA\u662F\u62A5\u51FA\u6765\u7684\u683C\u5B50\u4E0D\u5BF9\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "\u8FD0\u884C\u65F6\u8D8A\u754C\u505C\u4E0B\u6765",
                 correct: false,
                 explanation: "\u591A\u52A0\u7684\u90A3\u4E00\u6B21\u53D1\u751F\u5728\u5FAA\u73AF\u4F53\u7684\u672B\u5C3E\uFF0C\u52A0\u5B8C\u5FAA\u73AF\u5C31\u5224\u65AD\u6761\u4EF6\u5E76\u9000\u51FA\uFF0C\u4E0D\u4F1A\u518D\u62FF\u8FD9\u4E2A\u4E0B\u6807\u53BB\u53D6\u683C\u5B50\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "\u62A5\u51FA\u6765\u7684\u4F4D\u7F6E\u6BD4\u771F\u5B9E\u4F4D\u7F6E\u5927\u4E00",
                 correct: true,
                 explanation: "\u5BF9\u3002\u6BD4\u4E2D\u7684\u90A3\u4E00\u8F6E\u628A\u6807\u5FD7\u7ACB\u8D77\u6765\u4E4B\u540E\u53C8\u591A\u52A0\u4E86\u4E00\u6B21\uFF0C`Position` \u5DF2\u7ECF\u8D8A\u8FC7\u547D\u4E2D\u7684\u683C\u5B50\u3002\u7B2C 3 \u683C\u547D\u4E2D\u4F1A\u62A5\u6210\u7B2C 4 \u683C\u3002"
+              },
+              {
+                key: "D",
+                label: "\u7ED3\u679C\u4E0D\u53D8\uFF0C\u53EA\u662F\u591A\u8D70\u4E00\u6B65",
+                correct: false,
+                explanation: "\u5FAA\u73AF\u786E\u5B9E\u7ACB\u523B\u5C31\u505C\u4E86\uFF0C\u4F46\u505C\u4E0B\u6765\u65F6 `Position` \u7684\u503C\u5DF2\u7ECF\u88AB\u6539\u8FC7\uFF0C\u800C\u8FD9\u4E2A\u503C\u6B63\u662F\u8981\u62A5\u51FA\u6765\u7684\u7B54\u6848\u3002"
               }
             ]
           },
@@ -5831,27 +5832,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u6700\u5927\u7684\u90A3\u4E2A\u6570\u5DF2\u7ECF\u5728\u6700\u540E\u4E00\u683C",
-                correct: true,
-                explanation: "\u5BF9\u3002\u6700\u5927\u7684\u6570\u65E0\u8BBA\u4ECE\u54EA\u4E00\u683C\u51FA\u53D1\uFF0C\u6BCF\u4E00\u6B21\u6BD4\u8F83\u90FD\u4F1A\u8D62\uFF0C\u4E8E\u662F\u88AB\u4E00\u8DEF\u5F80\u53F3\u6362\u5230\u5934\u3002\u8FD9\u662F\u4E00\u8D9F\u552F\u4E00\u80FD\u4FDD\u8BC1\u7684\u4E8B\u3002"
-              },
-              {
-                key: "B",
-                label: "\u6700\u5C0F\u7684\u90A3\u4E2A\u6570\u5DF2\u7ECF\u5728\u7B2C\u4E00\u683C",
-                correct: false,
-                explanation: "\u4E0D\u4E00\u5B9A\u3002\u5C0F\u7684\u6570\u6BCF\u8D9F\u6700\u591A\u5F80\u5DE6\u632A\u4E00\u683C\uFF1A\u5B83\u53EA\u6709\u5728\u8DDF\u5DE6\u90BB\u5C45\u6BD4\u7684\u90A3\u4E00\u6B21\u624D\u4F1A\u88AB\u6362\u8FC7\u53BB\u3002"
-              },
-              {
-                key: "C",
                 label: "\u6574\u6392\u5DF2\u7ECF\u6392\u597D\u4E86",
                 correct: false,
                 explanation: "\u53EA\u6709\u78B0\u5DE7\u7684\u65F6\u5019\u624D\u4F1A\u3002\u4E00\u8D9F\u5B89\u987F\u7684\u662F\u672B\u5C3E\u90A3\u4E00\u4E2A\uFF0C\u524D\u9762\u7684\u987A\u5E8F\u4ECD\u7136\u53EF\u80FD\u662F\u4E71\u7684\u3002"
               },
               {
-                key: "D",
+                key: "B",
                 label: "\u81F3\u5C11\u53D1\u751F\u4E86\u4E00\u6B21\u4EA4\u6362",
                 correct: false,
                 explanation: "\u672C\u6765\u5C31\u5DF2\u7ECF\u6392\u597D\u7684\u4E00\u6392\uFF0C\u8D70\u4E00\u8D9F\u4E00\u6B21\u4E5F\u4E0D\u4F1A\u6362\u3002\u4E0B\u4E00\u8282\u672B\u5C3E\u6B63\u662F\u5229\u7528\u8FD9\u4E00\u70B9\u63D0\u524D\u6536\u5DE5\u3002"
+              },
+              {
+                key: "C",
+                label: "\u6700\u5927\u7684\u90A3\u4E2A\u6570\u5DF2\u7ECF\u5728\u6700\u540E\u4E00\u683C",
+                correct: true,
+                explanation: "\u5BF9\u3002\u6700\u5927\u7684\u6570\u65E0\u8BBA\u4ECE\u54EA\u4E00\u683C\u51FA\u53D1\uFF0C\u6BCF\u4E00\u6B21\u6BD4\u8F83\u90FD\u4F1A\u8D62\uFF0C\u4E8E\u662F\u88AB\u4E00\u8DEF\u5F80\u53F3\u6362\u5230\u5934\u3002\u8FD9\u662F\u4E00\u8D9F\u552F\u4E00\u80FD\u4FDD\u8BC1\u7684\u4E8B\u3002"
+              },
+              {
+                key: "D",
+                label: "\u6700\u5C0F\u7684\u90A3\u4E2A\u6570\u5DF2\u7ECF\u5728\u7B2C\u4E00\u683C",
+                correct: false,
+                explanation: "\u4E0D\u4E00\u5B9A\u3002\u5C0F\u7684\u6570\u6BCF\u8D9F\u6700\u591A\u5F80\u5DE6\u632A\u4E00\u683C\uFF1A\u5B83\u53EA\u6709\u5728\u8DDF\u5DE6\u90BB\u5C45\u6BD4\u7684\u90A3\u4E00\u6B21\u624D\u4F1A\u88AB\u6362\u8FC7\u53BB\u3002"
               }
             ]
           }
@@ -5923,27 +5924,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u7F16\u8F91\u5668\u5728\u8FD0\u884C\u524D\u5C31\u62E6\u4E0B\u6765",
-                correct: false,
-                explanation: "\u4E0B\u6807\u662F `J + 1`\uFF0C\u662F\u4E2A\u7B97\u51FA\u6765\u7684\u503C\u3002\u8981\u7B49 `J` \u771F\u7684\u53D6\u5230 5 \u624D\u77E5\u9053\u8D8A\u754C\uFF0C\u8FD0\u884C\u524D\u770B\u4E0D\u51FA\u6765\u3002"
-              },
-              {
-                key: "B",
-                label: "\u6700\u540E\u4E00\u683C\u4F1A\u88AB\u5F53\u6210 0 \u53C2\u4E0E\u6BD4\u8F83",
-                correct: false,
-                explanation: "\u4E0D\u5B58\u5728\u7684\u683C\u5B50\u4E0D\u4F1A\u88AB\u5F53\u6210 0\u3002\u8D8A\u754C\u5C31\u662F\u8D8A\u754C\uFF0C\u7A0B\u5E8F\u4F1A\u505C\u4E0B\u6765\u800C\u4E0D\u662F\u7F16\u4E00\u4E2A\u503C\u51FA\u6765\u3002"
-              },
-              {
-                key: "C",
                 label: "\u7B2C\u4E00\u8D9F\u8D70\u5230\u6700\u540E\u4E00\u5BF9\u65F6\u8D8A\u754C\uFF0C\u7A0B\u5E8F\u505C\u4E0B\u6765",
                 correct: true,
                 explanation: "\u5BF9\u3002`J` \u8D70\u5230 5 \u65F6\u8981\u53D6 `Values[J + 1]`\uFF0C\u4E5F\u5C31\u662F\u7B2C 6 \u683C\uFF0C\u800C\u6570\u7EC4\u53EA\u6709 5 \u683C\u3002\u7A0B\u5E8F\u505C\u5728\u6BD4\u8F83\u90A3\u4E00\u884C\u3002"
               },
               {
-                key: "D",
+                key: "B",
                 label: "\u6392\u5E8F\u7ED3\u679C\u6B63\u786E\uFF0C\u53EA\u662F\u591A\u6BD4\u4E86\u51E0\u6B21",
                 correct: false,
                 explanation: "\u591A\u6BD4\u51E0\u6B21\u672C\u8EAB\u4E0D\u5F71\u54CD\u7ED3\u679C\uFF0C\u4F46\u8FD9\u91CC\u591A\u51FA\u6765\u7684\u90A3\u4E00\u6B21\u8981\u8BFB\u4E00\u4E2A\u4E0D\u5B58\u5728\u7684\u683C\u5B50\uFF0C\u7A0B\u5E8F\u6839\u672C\u8D70\u4E0D\u5230\u6700\u540E\u3002"
+              },
+              {
+                key: "C",
+                label: "\u7F16\u8F91\u5668\u5728\u8FD0\u884C\u524D\u5C31\u62E6\u4E0B\u6765",
+                correct: false,
+                explanation: "\u4E0B\u6807\u662F `J + 1`\uFF0C\u662F\u4E2A\u7B97\u51FA\u6765\u7684\u503C\u3002\u8981\u7B49 `J` \u771F\u7684\u53D6\u5230 5 \u624D\u77E5\u9053\u8D8A\u754C\uFF0C\u8FD0\u884C\u524D\u770B\u4E0D\u51FA\u6765\u3002"
+              },
+              {
+                key: "D",
+                label: "\u6700\u540E\u4E00\u683C\u4F1A\u88AB\u5F53\u6210 0 \u53C2\u4E0E\u6BD4\u8F83",
+                correct: false,
+                explanation: "\u4E0D\u5B58\u5728\u7684\u683C\u5B50\u4E0D\u4F1A\u88AB\u5F53\u6210 0\u3002\u8D8A\u754C\u5C31\u662F\u8D8A\u754C\uFF0C\u7A0B\u5E8F\u4F1A\u505C\u4E0B\u6765\u800C\u4E0D\u662F\u7F16\u4E00\u4E2A\u503C\u51FA\u6765\u3002"
               }
             ]
           },
@@ -6094,27 +6095,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "0",
+                correct: false,
+                explanation: "`REPEAT` \u81F3\u5C11\u6267\u884C\u4E00\u6B21\u2014\u2014\u4E0D\u5148\u8D70\u4E00\u8D9F\uFF0C\u6839\u672C\u65E0\u4ECE\u77E5\u9053\u8981\u4E0D\u8981\u4EA4\u6362\u3002"
+              },
+              {
+                key: "B",
                 label: "4",
                 correct: false,
                 explanation: "4 \u662F\u4E0A\u4E00\u8282\u90A3\u79CD\u56FA\u5B9A\u8D9F\u6570\u7684\u5199\u6CD5\u3002\u52A0\u4E86\u6807\u5FD7\u4E4B\u540E\uFF0C\u8D70\u6EE1 4 \u8D9F\u53EA\u4F1A\u53D1\u751F\u5728\u6700\u574F\u7684\u60C5\u51B5\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "2",
                 correct: false,
                 explanation: "\u4E0D\u9700\u8981\u7B2C\u4E8C\u8D9F\u3002\u7B2C\u4E00\u8D9F\u7ED3\u675F\u65F6\u6807\u5FD7\u8FD8\u662F `FALSE`\uFF0C`UNTIL` \u5DF2\u7ECF\u6210\u7ACB\uFF0C\u4E0D\u4F1A\u518D\u8FDB\u5FAA\u73AF\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "1",
                 correct: true,
                 explanation: "\u5BF9\u3002\u7B2C\u4E00\u8D9F\u628A\u6BCF\u4E00\u5BF9\u90FD\u6BD4\u4E86\u4E00\u904D\uFF0C\u4E00\u6B21\u4E5F\u6CA1\u6362\uFF0C`Swapped` \u4FDD\u6301 `FALSE`\uFF0C`UNTIL` \u7684\u6761\u4EF6\u6210\u7ACB\uFF0C\u5FAA\u73AF\u5C31\u7ED3\u675F\u4E86\u3002"
-              },
-              {
-                key: "D",
-                label: "0",
-                correct: false,
-                explanation: "`REPEAT` \u81F3\u5C11\u6267\u884C\u4E00\u6B21\u2014\u2014\u4E0D\u5148\u8D70\u4E00\u8D9F\uFF0C\u6839\u672C\u65E0\u4ECE\u77E5\u9053\u8981\u4E0D\u8981\u4EA4\u6362\u3002"
               }
             ]
           }
@@ -6372,27 +6373,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "\u4E00\u53E5\u8981\u663E\u793A\u7ED9\u7528\u6237\u7684\u63D0\u793A\u8BED",
+                correct: false,
+                explanation: "\u8FD9\u53EA\u662F\u4E00\u4E2A\u503C\uFF0C\u4E00\u4E2A `STRING` \u53D8\u91CF\u5C31\u591F\uFF0C\u6CA1\u6709\u51E0\u6837\u4E1C\u897F\u9700\u8981\u7ED1\u5728\u4E00\u8D77\u3002"
+              },
+              {
+                key: "B",
                 label: "5 \u4E2A\u73ED\u5404 4 \u4E2A\u5C0F\u7EC4\u7684\u4EBA\u6570",
                 correct: false,
                 explanation: "\u5168\u662F\u4EBA\u6570\uFF0C\u7C7B\u578B\u76F8\u540C\uFF0C\u8981\u6307\u51C6\u4E00\u4E2A\u6570\u5F97\u8BF4\u6E05\u300C\u7B2C\u51E0\u73ED\u7B2C\u51E0\u7EC4\u300D\u2014\u2014\u8FD9\u662F\u4E8C\u7EF4\u6570\u7EC4\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "\u4E00\u4EF6\u5546\u54C1\u7684\u7F16\u53F7\u3001\u540D\u79F0\u548C\u5355\u4EF7",
                 correct: true,
                 explanation: "\u5BF9\u3002\u4E09\u6837\u4E1C\u897F\u7C7B\u578B\u5404\u4E0D\u76F8\u540C\uFF0C\u5374\u63CF\u8FF0\u7684\u662F\u540C\u4E00\u4EF6\u5546\u54C1\u2014\u2014\u6B63\u662F\u8BB0\u5F55\u8981\u7ED1\u7684\u90A3\u79CD\u4E00\u4EFD\u6570\u636E\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "\u4E00\u4E2A\u73ED 30 \u4E2A\u5B66\u751F\u7684\u603B\u5206",
                 correct: false,
                 explanation: "\u4E09\u5341\u4E2A\u540C\u7C7B\u578B\u7684\u6570\uFF0C\u4E00\u4E2A\u7F16\u53F7\u5C31\u6307\u5F97\u51C6\u3002\u8FD9\u662F\u6570\u7EC4\u7684\u6D3B\uFF0C\u4E0D\u662F\u8BB0\u5F55\u7684\u3002"
-              },
-              {
-                key: "D",
-                label: "\u4E00\u53E5\u8981\u663E\u793A\u7ED9\u7528\u6237\u7684\u63D0\u793A\u8BED",
-                correct: false,
-                explanation: "\u8FD9\u53EA\u662F\u4E00\u4E2A\u503C\uFF0C\u4E00\u4E2A `STRING` \u53D8\u91CF\u5C31\u591F\uFF0C\u6CA1\u6709\u51E0\u6837\u4E1C\u897F\u9700\u8981\u7ED1\u5728\u4E00\u8D77\u3002"
               }
             ]
           }
@@ -6576,27 +6577,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
-                label: "\u8BB0\u5F55\u91CC\u7684\u90A3\u4E2A\u5B57\u6BB5",
-                correct: false,
-                explanation: "\u6307\u4E0D\u5230\u3002\u5B57\u6BB5\u6C38\u8FDC\u8981\u7ECF\u7531\u67D0\u4E2A\u8BB0\u5F55\u53D8\u91CF\u624D\u6307\u5F97\u5230\uFF0C\u5355\u5199\u5B57\u6BB5\u540D\u4E0D\u884C\u3002"
-              },
-              {
-                key: "B",
                 label: "\u4E24\u4E2A\u4E00\u8D77\u6539",
                 correct: false,
                 explanation: "\u5B83\u4EEC\u662F\u4E24\u4E2A\u5404\u81EA\u72EC\u7ACB\u7684\u5B58\u653E\u4F4D\u7F6E\uFF0C\u4E00\u53E5\u8D4B\u503C\u53EA\u80FD\u6539\u4E00\u4E2A\u3002"
               },
               {
-                key: "C",
+                key: "B",
                 label: "\u7F16\u8F91\u5668\u4F1A\u56E0\u4E3A\u91CD\u540D\u62A5\u9519",
                 correct: false,
                 explanation: "\u4E0D\u91CD\u540D\u3002\u5B57\u6BB5\u540D\u53EA\u5728\u5B83\u6240\u5C5E\u7684\u7C7B\u578B\u91CC\u6709\u610F\u4E49\uFF0C\u4E0D\u5360\u7528\u7A0B\u5E8F\u91CC\u666E\u901A\u53D8\u91CF\u7684\u540D\u5B57\u3002"
               },
               {
-                key: "D",
+                key: "C",
                 label: "\u90A3\u4E2A\u72EC\u7ACB\u7684\u53D8\u91CF",
                 correct: true,
                 explanation: "\u5BF9\u3002\u4E0D\u5E26\u70B9\u53F7\u5C31\u662F\u90A3\u4E2A\u72EC\u7ACB\u7684\u53D8\u91CF\u3002\u8981\u6539\u8BB0\u5F55\u91CC\u7684\u90A3\u4E2A\uFF0C\u5FC5\u987B\u5199\u6210 `Current.Year`\u2014\u2014\u70B9\u53F7\u5DE6\u8FB9\u6307\u660E\u4E86\u662F\u8C01\u7684\u3002"
+              },
+              {
+                key: "D",
+                label: "\u8BB0\u5F55\u91CC\u7684\u90A3\u4E2A\u5B57\u6BB5",
+                correct: false,
+                explanation: "\u6307\u4E0D\u5230\u3002\u5B57\u6BB5\u6C38\u8FDC\u8981\u7ECF\u7531\u67D0\u4E2A\u8BB0\u5F55\u53D8\u91CF\u624D\u6307\u5F97\u5230\uFF0C\u5355\u5199\u5B57\u6BB5\u540D\u4E0D\u884C\u3002"
               }
             ]
           },
@@ -6856,27 +6857,27 @@ var CAIETeaching = (() => {
             options: [
               {
                 key: "A",
+                label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4E0B\u6765",
+                correct: false,
+                explanation: "\u7F16\u8F91\u5668\u53EA\u770B\u5F97\u5230\u4E24\u4E2A\u5404\u81EA\u72EC\u7ACB\u7684\u6570\u7EC4\uFF0C\u770B\u4E0D\u51FA\u4F60\u5FC3\u91CC\u8BA4\u4E3A\u5B83\u4EEC\u7684\u7B2C `I` \u683C\u8BF4\u7684\u662F\u540C\u4E00\u4E2A\u4EBA\u3002"
+              },
+              {
+                key: "B",
                 label: "\u8FD0\u884C\u65F6\u4F1A\u8D8A\u754C\u505C\u4E0B\u6765",
                 correct: false,
                 explanation: "\u4EA4\u6362\u53EA\u5728\u5DF2\u6709\u7684\u683C\u5B50\u4E4B\u95F4\u642C\u503C\uFF0C\u4E0B\u6807\u4E00\u4E2A\u90FD\u6CA1\u8D8A\u754C\u3002\u6570\u636E\u9519\u4E86\uFF0C\u4F46\u7A0B\u5E8F\u6CA1\u51FA\u9519\u3002"
               },
               {
-                key: "B",
+                key: "C",
                 label: "\u6362\u6210\u8BB0\u5F55\u6570\u7EC4\u4E5F\u4E00\u6837\u4F1A\u51FA\u8FD9\u4E2A\u95EE\u9898",
                 correct: false,
                 explanation: "\u4E0D\u4E00\u6837\u3002\u8BB0\u5F55\u6570\u7EC4\u91CC\u59D3\u540D\u548C\u5206\u6570\u5728\u540C\u4E00\u683C\uFF0C\u4EA4\u6362\u6574\u683C\u65F6\u5B83\u4EEC\u53EA\u80FD\u4E00\u8D77\u8D70\uFF0C\u6CA1\u6709\u300C\u53EA\u6362\u4E86\u4E00\u534A\u300D\u8FD9\u79CD\u5199\u6CD5\u3002"
               },
               {
-                key: "C",
+                key: "D",
                 label: "\u7A0B\u5E8F\u7167\u5E38\u8DD1\u5B8C\uFF0C\u4F46\u59D3\u540D\u548C\u5206\u6570\u5BF9\u4E0D\u4E0A\u4E86",
                 correct: true,
                 explanation: "\u5BF9\u3002\u4E24\u4E2A\u6570\u7EC4\u5404\u81EA\u90FD\u662F\u5408\u6CD5\u7684\uFF0C\u4E0B\u6807\u4E5F\u90FD\u5728\u8303\u56F4\u91CC\uFF0C\u6CA1\u6709\u4EFB\u4F55\u4E00\u6B65\u51FA\u9519\u2014\u2014\u9519\u7684\u53EA\u662F\u90A3\u53E5\u6CA1\u5199\u8FDB\u7A0B\u5E8F\u7684\u7EA6\u5B9A\u3002"
-              },
-              {
-                key: "D",
-                label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4E0B\u6765",
-                correct: false,
-                explanation: "\u7F16\u8F91\u5668\u53EA\u770B\u5F97\u5230\u4E24\u4E2A\u5404\u81EA\u72EC\u7ACB\u7684\u6570\u7EC4\uFF0C\u770B\u4E0D\u51FA\u4F60\u5FC3\u91CC\u8BA4\u4E3A\u5B83\u4EEC\u7684\u7B2C `I` \u683C\u8BF4\u7684\u662F\u540C\u4E00\u4E2A\u4EBA\u3002"
               }
             ]
           }
@@ -6968,6 +6969,4263 @@ var CAIETeaching = (() => {
           { id: "t3", kind: "boundary", inputs: ["Gil", "50", "Hal", "60", "Ivy", "70", "Jon", "80", "Kay", "90"], caseHint: "\u8BFB\u8FDB\u6765\u7684\u65F6\u5019\u6B63\u597D\u5B8C\u5168\u5012\u8FC7\u6765\u3002" },
           { id: "t4", kind: "normal", inputs: ["Gil", "70", "Hal", "70", "Ivy", "70", "Jon", "70", "Kay", "70"], caseHint: "\u6240\u6709\u4EBA\u5206\u6570\u5B8C\u5168\u76F8\u540C\uFF0C\u8C01\u90FD\u4E0D\u8BE5\u88AB\u6362\u5230\u522B\u4EBA\u524D\u9762\u53BB\u3002" },
           { id: "t5", kind: "extreme", inputs: ["Gil", "99999", "Hal", "-99999", "Ivy", "0", "Jon", "-99999", "Kay", "99999"], caseHint: "\u6DF7\u7740\u6781\u5927\u548C\u6781\u5C0F\u7684\u5206\u6570\uFF0C\u800C\u4E14\u4E24\u5934\u90FD\u6709\u5E76\u5217\u7684\u3002" }
+        ]
+      }
+    ]
+  };
+
+  // packages/teaching-content/src/chapter-12.ts
+  var AFTER_CHAPTER_11 = [
+    "io.output",
+    "io.input",
+    "decl.variable",
+    "misc.comment",
+    "type.string",
+    "literal.string",
+    "type.integer",
+    "type.real",
+    "type.char",
+    "type.boolean",
+    "type.date",
+    "literal.integer",
+    "literal.real",
+    "literal.char",
+    "literal.boolean",
+    "literal.date",
+    "assign.simple",
+    "decl.constant",
+    "op.arithmetic",
+    "op.div",
+    "op.mod",
+    "op.relational",
+    "op.and",
+    "op.or",
+    "op.not",
+    "select.if",
+    "select.if-else",
+    "select.nested-if",
+    "select.case",
+    "select.case-range",
+    "select.case-otherwise",
+    "loop.for",
+    "loop.for-step",
+    "loop.while",
+    "loop.repeat",
+    "loop.nested",
+    "builtin.length",
+    "builtin.mid",
+    "builtin.right",
+    "builtin.ucase",
+    "builtin.lcase",
+    "op.concat",
+    "builtin.int",
+    "builtin.rand",
+    "decl.array-1d",
+    "array.index",
+    "decl.array-2d",
+    "array.index-2d",
+    "decl.record-type",
+    "record.field-access"
+  ];
+  var AFTER_12_1 = [...AFTER_CHAPTER_11, "routine.procedure", "routine.call"];
+  var AFTER_12_3 = [...AFTER_12_1, "param.byval"];
+  var AFTER_12_5 = [...AFTER_12_3, "param.byref"];
+  var chapter12 = {
+    id: 12,
+    title: "\u8FC7\u7A0B",
+    level: "AS",
+    syllabus: ["\xA711.3"],
+    prerequisites: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    sections: [
+      {
+        id: "12.1",
+        title: "\u5206\u89E3\uFF1A\u628A\u4E00\u6BB5\u7A0B\u5E8F\u62C6\u6210\u51E0\u4EF6\u4E8B",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_12_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u5230\u8FD9\u91CC\u4E3A\u6B62\u5199\u7684\u90FD\u662F\u4E00\u6574\u6BB5\u7A0B\u5E8F\uFF0C\u4ECE\u7B2C\u4E00\u884C\u8BFB\u5230\u6700\u540E\u4E00\u884C\u3002\u7A0B\u5E8F\u4E00\u957F\uFF0C\u8FD9\u79CD\u5199\u6CD5\u5F00\u59CB\u96BE\u53D7\uFF1A\u540C\u4E00\u4EF6\u4E8B\u8981\u505A\u4E09\u904D\u5C31\u5F97\u628A\u90A3\u51E0\u884C\u6284\u4E09\u904D\uFF0C\u4EE5\u540E\u6539\u4E00\u5904\u8FD8\u5F97\u8BB0\u7740\u53E6\u5916\u4E24\u5904\u4E5F\u8981\u6539\u3002",
+              "\u529E\u6CD5\u662F**\u5206\u89E3\uFF08decomposition\uFF09**\uFF1A\u628A\u300C\u505A\u4E00\u4EF6\u4E8B\u300D\u7684\u90A3\u51E0\u884C\u5355\u72EC\u62FF\u51FA\u6765\uFF0C\u8D77\u4E2A\u540D\u5B57\uFF1B\u9700\u8981\u7684\u65F6\u5019\u558A\u4E00\u58F0\u540D\u5B57\u5C31\u884C\u3002\u4F2A\u4EE3\u7801\u91CC\u8FD9\u6837\u4E00\u6BB5\u88AB\u8D77\u4E86\u540D\u5B57\u7684\u4EE3\u7801\u53EB\u4E00\u4E2A**\u8FC7\u7A0B\uFF08procedure\uFF09**\u3002",
+              "\u4EC0\u4E48\u65F6\u5019\u8BE5\u62BD\u51FA\u4E00\u4E2A\u8FC7\u7A0B\uFF1F\u4E24\u4E2A\u4FE1\u53F7\uFF1A**\u540C\u4E00\u6BB5\u4EE3\u7801\u51FA\u73B0\u4E86\u7B2C\u4E8C\u904D**\uFF0C\u6216\u8005**\u4F60\u5F97\u5148\u7ED9\u8FD9\u51E0\u884C\u8D77\u4E2A\u540D\u5B57\u624D\u8BF4\u5F97\u6E05\u5B83\u5728\u5E72\u561B**\u3002\u7B2C\u4E8C\u4E2A\u4FE1\u53F7\u5E38\u5E38\u6BD4\u7B2C\u4E00\u4E2A\u91CD\u8981\u2014\u2014\u540D\u5B57\u672C\u8EAB\u5C31\u662F\u89E3\u91CA\u3002",
+              "\u62C6\u5B8C\u4E4B\u540E\u4E3B\u7A0B\u5E8F\u53D8\u6210\u4E00\u5F20\u76EE\u5F55\uFF1A\u5148\u5E72\u8FD9\u4E2A\u3001\u518D\u5E72\u90A3\u4E2A\uFF0C\u7EC6\u8282\u5404\u81EA\u6536\u5728\u81EA\u5DF1\u7684\u540D\u5B57\u5E95\u4E0B\u3002\u8FD9\u79CD\u5199\u6CD5\u53EB**\u6A21\u5757\u5316\uFF08modularity\uFF09**\uFF0C\u597D\u5904\u4E0D\u662F\u7A0B\u5E8F\u53D8\u77ED\uFF0C\u800C\u662F**\u6BCF\u6B21\u53EA\u9700\u8981\u770B\u4E00\u5C0F\u5757**\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u7406\u89E3\u5206\u89E3\u4E0E\u6A21\u5757\u5316\u7684\u610F\u4E49\uFF0C\u5E76\u80FD\u5199\u51FA\u548C\u4F7F\u7528\u8FC7\u7A0B\uFF08\xA711.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "comparison",
+            title: "\u540C\u4E00\u4EFD\u8F93\u51FA\uFF0C\u6284\u4E09\u904D\u8FD8\u662F\u8D77\u4E2A\u540D\u5B57",
+            intro: "\u4E00\u5F20\u62A5\u8868\uFF0C\u4E09\u5904\u90FD\u8981\u753B\u4E00\u6761\u5206\u9694\u7EBF\u3002",
+            panes: [
+              {
+                label: "\u81EA\u7136\u8BED\u8A00",
+                language: "natural",
+                code: ["\u663E\u793A\u6807\u9898\u3002", "\u753B\u4E00\u6761\u5206\u9694\u7EBF\u3002", "\u663E\u793A\u603B\u8BA1\u3002", "\u753B\u4E00\u6761\u5206\u9694\u7EBF\u3002", "\u663E\u793A\u7ED3\u675F\u8BED\u3002", "\u753B\u4E00\u6761\u5206\u9694\u7EBF\u3002"].join("\n"),
+                note: "\u300C\u753B\u4E00\u6761\u5206\u9694\u7EBF\u300D\u8FD9\u53E5\u8BDD\u8BF4\u4E86\u4E09\u904D\uFF0C\u4F46\u5B83\u662F\u540C\u4E00\u4EF6\u4E8B\u2014\u2014\u8BF4\u7684\u4EBA\u4E0D\u4F1A\u628A\u90A3\u6761\u7EBF\u7684\u6837\u5B50\u91CD\u590D\u63CF\u8FF0\u4E09\u6B21\u3002"
+              },
+              {
+                label: "\u6284\u4E09\u904D",
+                language: "pseudocode",
+                code: [
+                  'OUTPUT "Report"',
+                  'OUTPUT "----------"',
+                  'OUTPUT "Total: 42"',
+                  'OUTPUT "----------"',
+                  'OUTPUT "Done"',
+                  'OUTPUT "----------"'
+                ].join("\n"),
+                note: "\u8DD1\u8D77\u6765\u5B8C\u5168\u6B63\u786E\u3002\u4F46\u7EBF\u8981\u6539\u957F\u4E00\u683C\uFF0C\u5C31\u5F97\u627E\u9F50\u4E09\u5904\u90FD\u6539\uFF1B\u6F0F\u4E00\u5904\uFF0C\u4E09\u6761\u7EBF\u91CC\u6709\u4E00\u6761\u4E0D\u4E00\u6837\u957F\u3002"
+              },
+              {
+                label: "\u62BD\u6210\u4E00\u4E2A\u8FC7\u7A0B",
+                language: "pseudocode",
+                code: [
+                  "PROCEDURE ShowLine()",
+                  '   OUTPUT "----------"',
+                  "ENDPROCEDURE",
+                  'OUTPUT "Report"',
+                  "CALL ShowLine()",
+                  'OUTPUT "Total: 42"',
+                  "CALL ShowLine()",
+                  'OUTPUT "Done"',
+                  "CALL ShowLine()"
+                ].join("\n"),
+                note: "\u7EBF\u957F\u4EC0\u4E48\u6837\u53EA\u5199\u5728\u4E00\u4E2A\u5730\u65B9\u3002\u8981\u6539\u5C31\u6539\u90A3\u4E00\u5904\uFF0C\u4E09\u6761\u7EBF\u4E00\u8D77\u53D8\u2014\u2014\u800C\u4E14\u4E3B\u7A0B\u5E8F\u8BFB\u8D77\u6765\u662F\u300C\u6807\u9898\u3001\u7EBF\u3001\u603B\u8BA1\u3001\u7EBF\u3001\u7ED3\u675F\u8BED\u3001\u7EBF\u300D\u3002"
+              },
+              {
+                label: "Python",
+                language: "python",
+                code: ["def show_line():", '    print("-" * 10)', "", 'print("Report")', "show_line()"].join("\n"),
+                note: "Python \u7684 `def` \u5C31\u662F\u540C\u4E00\u4EF6\u4E8B\uFF1A\u7ED9\u4E00\u6BB5\u4EE3\u7801\u8D77\u540D\u5B57\uFF0C\u7528\u7684\u65F6\u5019\u5199\u540D\u5B57\u3002\u533A\u522B\u53EA\u5728\u4F2A\u4EE3\u7801\u8C03\u7528\u8FC7\u7A0B\u65F6\u8981\u5199 `CALL`\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E0B\u9762\u54EA\u4E00\u79CD\u60C5\u51B5**\u6700**\u8BE5\u62BD\u51FA\u4E00\u4E2A\u8FC7\u7A0B\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u4E24\u6BB5\u957F\u5F97\u5F88\u50CF\u3001\u4F46\u505A\u7684\u4E8B\u5B8C\u5168\u4E0D\u540C\u7684\u4EE3\u7801",
+                correct: false,
+                explanation: "\u50CF\u4E0D\u7B49\u4E8E\u662F\u540C\u4E00\u4EF6\u4E8B\u3002\u786C\u62BD\u6210\u4E00\u4E2A\u8FC7\u7A0B\uFF0C\u4EE5\u540E\u5176\u4E2D\u4E00\u8FB9\u8981\u6539\uFF0C\u5C31\u5F97\u52A0\u53C2\u6570\u3001\u52A0\u5206\u652F\uFF0C\u8D8A\u7F20\u8D8A\u4E71\u3002"
+              },
+              {
+                key: "B",
+                label: "\u53EA\u7528\u4E86\u4E00\u6B21\u3001\u4F46\u5199\u8D77\u6765\u5F88\u957F\u7684\u4E00\u6BB5\u8BA1\u7B97",
+                correct: false,
+                explanation: "\u53EA\u7528\u4E00\u6B21\u4E5F\u53EF\u4EE5\u62BD\u2014\u2014\u5982\u679C\u62BD\u51FA\u6765\u80FD\u7ED9\u5B83\u8D77\u4E2A\u8BF4\u5F97\u6E05\u7684\u540D\u5B57\u3002\u4F46\u5149\u662F\u300C\u957F\u300D\u672C\u8EAB\u4E0D\u662F\u7406\u7531\uFF0C\u5207\u5F00\u800C\u4E0D\u89E3\u91CA\u53EA\u662F\u628A\u5B83\u632A\u4E86\u4E2A\u5730\u65B9\u3002"
+              },
+              {
+                key: "C",
+                label: "\u540C\u4E00\u6BB5\u4E03\u884C\u7684\u68C0\u67E5\uFF0C\u5728\u7A0B\u5E8F\u91CC\u4E09\u4E2A\u5730\u65B9\u539F\u6837\u51FA\u73B0",
+                correct: true,
+                explanation: "\u5BF9\u3002\u91CD\u590D\u51FA\u73B0\u662F\u6700\u786C\u7684\u4FE1\u53F7\uFF1A\u62BD\u51FA\u6765\u4E4B\u540E\u8981\u6539\u53EA\u6539\u4E00\u5904\uFF0C\u4E5F\u4E0D\u4F1A\u51FA\u73B0\u300C\u4E09\u5904\u91CC\u6709\u4E00\u5904\u5FD8\u4E86\u6539\u300D\u3002"
+              },
+              {
+                key: "D",
+                label: "\u4E00\u53E5 `OUTPUT`",
+                correct: false,
+                explanation: "\u62BD\u51FA\u6765\u4E4B\u540E\u8BFB\u4EE3\u7801\u7684\u4EBA\u8FD8\u5F97\u8DF3\u8FC7\u53BB\u770B\u4E00\u773C\u624D\u77E5\u9053\u5B83\u663E\u793A\u4EC0\u4E48\uFF0C\u53CD\u800C\u6BD4\u539F\u5730\u5199\u7740\u66F4\u96BE\u8BFB\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "12.2",
+        title: "`PROCEDURE ... ENDPROCEDURE` \u4E0E `CALL`",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 11,
+        taughtFeatures: AFTER_12_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u5B9A\u4E49\u4E00\u4E2A\u8FC7\u7A0B\u5199\u5728 `PROCEDURE` \u548C `ENDPROCEDURE` \u4E4B\u95F4\uFF0C\u540D\u5B57\u540E\u9762**\u8DDF\u4E00\u5BF9\u62EC\u53F7**\u2014\u2014\u54EA\u6015\u4E00\u4E2A\u53C2\u6570\u90FD\u6CA1\u6709\uFF0C\u8FD9\u5BF9\u62EC\u53F7\u4E5F\u4E0D\u80FD\u7701\u3002\u4E2D\u95F4\u7684\u51E0\u884C\u7167\u5E38\u7F29\u8FDB\u4E09\u683C\u3002",
+              "\u5B9A\u4E49\u53EA\u662F\u300C\u8BF4\u6E05\u8FD9\u4EF6\u4E8B\u600E\u4E48\u505A\u300D\uFF0C\u5B83\u81EA\u5DF1\u4E0D\u4F1A\u53D1\u751F\u3002\u8981\u5B83\u771F\u7684\u53D1\u751F\uFF0C\u5F97**\u8C03\u7528**\u5B83\uFF1A`CALL ShowLine()`\uFF0C\u540C\u6837\u5E26\u62EC\u53F7\u3002",
+              "`CALL` \u8FD9\u4E2A\u8BCD\u4E0D\u80FD\u7701\u3002\u4F2A\u4EE3\u7801\u91CC**\u8FC7\u7A0B\u53EA\u80FD\u7528 `CALL` \u8C03\u7528**\u2014\u2014\u5149\u5199 `ShowLine()` \u662F\u4E0D\u884C\u7684\u3002\uFF08\u7B2C 13 \u7AE0\u7684\u51FD\u6570\u6B63\u597D\u76F8\u53CD\uFF0C\u90A3\u79CD\u624D\u4E0D\u5199 `CALL`\u3002\uFF09",
+              "\u8FC7\u7A0B\u5B9A\u4E49\u653E\u5728\u54EA\u513F\u90FD\u80FD\u8BA4\uFF0C\u653E\u5728\u8C03\u7528\u540E\u9762\u4E5F\u884C\uFF1B\u4F46\u4E60\u60EF\u4E0A\u628A\u8FC7\u7A0B\u5199\u5728\u524D\u9762\u3001\u4E3B\u7A0B\u5E8F\u653E\u5728\u6700\u540E\uFF0C\u8BFB\u8D77\u6765\u662F\u300C\u5148\u8BA4\u8BC6\u8FD9\u51E0\u4EF6\u5DE5\u5177\uFF0C\u518D\u770B\u5B83\u4EEC\u600E\u4E48\u88AB\u7528\u300D\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8FC7\u7A0B\u5199\u6210 `PROCEDURE <\u540D\u5B57>()` \u2026 `ENDPROCEDURE`\uFF0C\u4EE5\u72EC\u7ACB\u8BED\u53E5 `CALL <\u540D\u5B57>()` \u8C03\u7528\uFF08G\xA78.1\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u4E00\u4E2A\u6CA1\u6709\u53C2\u6570\u7684\u8FC7\u7A0B",
+            fileName: "Example_12_2_a.pseudocode",
+            code: [
+              "PROCEDURE ShowLine()",
+              '   OUTPUT "----------"',
+              "ENDPROCEDURE",
+              'OUTPUT "Report"',
+              "CALL ShowLine()",
+              'OUTPUT "Total: 42"',
+              "CALL ShowLine()"
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 3, text: "\u5B9A\u4E49\u3002\u8FD9\u4E09\u884C\u8DD1\u8D77\u6765\u4EC0\u4E48\u4E5F\u4E0D\u663E\u793A\u2014\u2014\u5B83\u53EA\u662F\u628A\u300C\u753B\u4E00\u6761\u7EBF\u300D\u8FD9\u4EF6\u4E8B\u8BB0\u4E0B\u6765\u3002" },
+              { fromLine: 4, toLine: 7, text: "\u4E3B\u7A0B\u5E8F\u3002\u771F\u6B63\u6309\u987A\u5E8F\u6267\u884C\u7684\u662F\u8FD9\u56DB\u884C\uFF1B`CALL` \u4E00\u51FA\u73B0\uFF0C\u5C31\u8DF3\u8FDB\u53BB\u628A\u8FC7\u7A0B\u91CC\u7684\u5185\u5BB9\u505A\u4E00\u904D\u518D\u56DE\u6765\u3002" },
+              { fromLine: 5, toLine: 5, text: "`CALL` \u548C\u62EC\u53F7\u90FD\u4E0D\u80FD\u5C11\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["Report", "----------", "Total: 42", "----------"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u4E24\u79CD\u5C11\u5199\u4E86\u4E1C\u897F\u7684\u5199\u6CD5",
+            cases: [
+              {
+                title: "\u5B9A\u4E49\u65F6\u6F0F\u4E86\u62EC\u53F7",
+                code: ["PROCEDURE Greet", '   OUTPUT "Hello"', "ENDPROCEDURE", "CALL Greet()"].join("\n"),
+                note: "\u6CA1\u6709\u53C2\u6570\u4E5F\u8981\u5199 `()`\u3002\u62EC\u53F7\u662F\u8FC7\u7A0B\u540D\u5B57\u7684\u4E00\u90E8\u5206\uFF0C\u4E0D\u662F\u300C\u6709\u53C2\u6570\u624D\u52A0\u300D\u7684\u88C5\u9970\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "PROC-001", line: 1, text: "\u8FC7\u7A0B\u540D\u540E\u9762\u8981\u8DDF\u4E00\u5BF9\u62EC\u53F7\uFF0C\u6CA1\u6709\u53C2\u6570\u4E5F\u8981\u5199\u3002" }
+                ]
+              },
+              {
+                title: "\u8C03\u7528\u65F6\u6F0F\u4E86 `CALL`",
+                code: ["PROCEDURE Greet()", '   OUTPUT "Hello"', "ENDPROCEDURE", "Greet()"].join("\n"),
+                note: "\u5149\u5199\u540D\u5B57\u52A0\u62EC\u53F7\uFF0C\u5728\u4F2A\u4EE3\u7801\u91CC\u4E0D\u7B97\u8C03\u7528\u8FC7\u7A0B\u3002\u8FD9\u79CD\u5199\u6CD5\u5728\u522B\u7684\u8BED\u8A00\u91CC\u5F88\u5E38\u89C1\uFF0C\u6240\u4EE5\u683C\u5916\u5BB9\u6613\u5E26\u8FDB\u6765\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "PROC-001", line: 4, text: "\u8C03\u7528\u8FC7\u7A0B\u8981\u5199\u6210 `CALL \u540D\u5B57()`\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E0A\u9762\u90A3\u6BB5\u793A\u4F8B\uFF0C\u628A\u4E24\u53E5 `CALL ShowLine()` \u90FD\u5220\u6389\uFF0C\u5C4F\u5E55\u4E0A\u4F1A\u770B\u5230\u4EC0\u4E48\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "`Report` \u548C `Total: 42`\uFF0C\u6CA1\u6709\u7EBF",
+                correct: true,
+                explanation: "\u5BF9\u3002`PROCEDURE` \u90A3\u4E09\u884C\u53EA\u662F\u5B9A\u4E49\uFF0C\u4E0D\u5199 `CALL` \u5C31\u4E00\u6B21\u90FD\u4E0D\u6267\u884C\u3002\u5B9A\u4E49\u548C\u53D1\u751F\u662F\u4E24\u56DE\u4E8B\u3002"
+              },
+              {
+                key: "B",
+                label: "\u4E24\u6761\u7EBF\uFF0C\u4F46\u6CA1\u6709\u522B\u7684",
+                correct: false,
+                explanation: "\u53CD\u4E86\u3002\u5B9A\u4E49\u91CC\u7684 `OUTPUT` \u4E0D\u4F1A\u81EA\u5DF1\u6267\u884C\uFF0C\u5012\u662F\u4E3B\u7A0B\u5E8F\u90A3\u4E24\u53E5\u4E00\u5B9A\u4F1A\u6267\u884C\u3002"
+              },
+              {
+                key: "C",
+                label: "\u548C\u539F\u6765\u4E00\u6837",
+                correct: false,
+                explanation: "\u5982\u679C\u4E00\u6837\uFF0C\u90A3 `CALL` \u5C31\u6CA1\u6709\u5B58\u5728\u7684\u5FC5\u8981\u4E86\u3002\u8FC7\u7A0B\u8981\u88AB\u8C03\u7528\u624D\u4F1A\u53D1\u751F\u3002"
+              },
+              {
+                key: "D",
+                label: "\u7F16\u8F91\u5668\u4F1A\u56E0\u4E3A\u8FC7\u7A0B\u6CA1\u88AB\u7528\u5230\u800C\u62E6\u4E0B\u6765",
+                correct: false,
+                explanation: "\u5B9A\u4E49\u4E86\u4E0D\u7528\u4E0D\u662F\u9519\u8BEF\u3002\u5199\u597D\u4E00\u4E2A\u8FC7\u7A0B\u6682\u65F6\u8FD8\u6CA1\u8C03\u7528\uFF0C\u662F\u5F88\u6B63\u5E38\u7684\u4E2D\u95F4\u72B6\u6001\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "12.3",
+        title: "\u53C2\u6570\u4E0E\u5B9E\u53C2",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 11,
+        taughtFeatures: AFTER_12_3,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u4E0A\u9762\u90A3\u4E2A `ShowLine` \u6BCF\u6B21\u753B\u7684\u7EBF\u4E00\u6837\u957F\u3002\u8981\u8BA9\u5B83\u6BCF\u6B21\u4E0D\u4E00\u6837\uFF0C\u5F97\u5728\u62EC\u53F7\u91CC\u7559\u4E2A\u53E3\u5B50\u628A\u503C\u9012\u8FDB\u53BB\u2014\u2014\u8FD9\u4E2A\u53E3\u5B50\u53EB**\u53C2\u6570\uFF08parameter\uFF09**\uFF0C\u5199\u6CD5\u548C `DECLARE` \u4E00\u6837\uFF1A\u540D\u5B57\u3001\u5192\u53F7\u3001\u7C7B\u578B\u3002",
+              "\u8C03\u7528\u65F6\u62EC\u53F7\u91CC\u771F\u6B63\u7ED9\u8FDB\u53BB\u7684\u90A3\u4E2A\u503C\u53EB**\u5B9E\u53C2\uFF08argument\uFF09**\u3002\u8003\u7EB2\u628A\u8FD9\u4E24\u4E2A\u8BCD\u5206\u5F97\u5F88\u6E05\u695A\uFF1A**\u53C2\u6570\u662F\u5B9A\u4E49\u91CC\u7684\u90A3\u4E2A\u540D\u5B57\uFF0C\u5B9E\u53C2\u662F\u8C03\u7528\u65F6\u7684\u90A3\u4E2A\u503C**\u3002",
+              "\u53C2\u6570\u5728\u8FC7\u7A0B\u4F53\u91CC**\u5C31\u662F\u4E00\u4E2A\u5DF2\u7ECF\u6709\u503C\u7684\u53D8\u91CF**\uFF0C\u4E0D\u7528\u518D `DECLARE`\uFF1B\u5B83\u7684\u503C\u6765\u81EA\u8FD9\u4E00\u6B21\u8C03\u7528\u7ED9\u7684\u5B9E\u53C2\u3002\u540C\u4E00\u4E2A\u8FC7\u7A0B\u88AB\u8C03\u7528\u4E24\u6B21\uFF0C\u53C2\u6570\u5C31\u5148\u540E\u662F\u4E24\u4E2A\u4E0D\u540C\u7684\u503C\u3002",
+              "\u591A\u4E2A\u53C2\u6570\u7528\u9017\u53F7\u9694\u5F00\uFF0C\u6BCF\u4E2A\u90FD\u8981\u5199\u7C7B\u578B\u3002\u5B9E\u53C2\u7684**\u4E2A\u6570\u3001\u987A\u5E8F\u3001\u7C7B\u578B**\u4E09\u6837\u90FD\u8981\u5BF9\u5F97\u4E0A\u2014\u2014\u5BF9\u4E0D\u4E0A\uFF0C\u7F16\u8F91\u5668\u5728\u8FD0\u884C\u524D\u5C31\u62E6\u4E0B\u6765\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u5B9E\u53C2\u7684\u6570\u91CF\u3001\u987A\u5E8F\u548C\u7C7B\u578B\u5FC5\u987B\u4E0E\u5F62\u53C2\u4E00\u81F4\uFF08G\xA78.1\uFF09\u3002\u8003\u7EB2\u660E\u786E\u8981\u6C42\u533A\u5206 parameter \u4E0E argument\uFF08\xA711.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u628A\u503C\u9012\u8FDB\u8FC7\u7A0B\u91CC",
+            fileName: "Example_12_3_a.pseudocode",
+            code: [
+              "PROCEDURE ShowLine(Width : INTEGER)",
+              "   DECLARE I : INTEGER",
+              "   DECLARE Bar : STRING",
+              '   Bar \u2190 ""',
+              "   FOR I \u2190 1 TO Width",
+              '      Bar \u2190 Bar & "-"',
+              "   NEXT I",
+              "   OUTPUT Bar",
+              "ENDPROCEDURE",
+              "PROCEDURE ShowRow(Label : STRING, Value : INTEGER)",
+              '   OUTPUT Label, ": ", Value',
+              "ENDPROCEDURE",
+              "CALL ShowLine(6)",
+              'CALL ShowRow("Total", 42)',
+              "CALL ShowLine(3)"
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 1, text: "`Width` \u662F\u53C2\u6570\u3002\u5B83\u5728\u8FC7\u7A0B\u4F53\u91CC\u5F53\u53D8\u91CF\u7528\uFF0C\u4F46\u4E0D\u9700\u8981 `DECLARE`\u2014\u2014\u62EC\u53F7\u91CC\u8FD9\u4E00\u53E5\u5DF2\u7ECF\u662F\u58F0\u660E\u4E86\u3002" },
+              { fromLine: 10, toLine: 10, text: "\u4E24\u4E2A\u53C2\u6570\uFF0C\u5404\u5199\u5404\u7684\u7C7B\u578B\u3002\u9017\u53F7\u9694\u5F00\u3002" },
+              { fromLine: 13, toLine: 15, text: '`6`\u3001`"Total"`\u3001`42`\u3001`3` \u90FD\u662F\u5B9E\u53C2\u3002`ShowLine` \u88AB\u8C03\u7528\u4E24\u6B21\uFF0C`Width` \u5148\u662F 6 \u518D\u662F 3\u3002' }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["------", "Total: 42", "---"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u4E24\u79CD\u5BF9\u4E0D\u4E0A\u7684\u8C03\u7528",
+            cases: [
+              {
+                title: "\u5C11\u7ED9\u4E86\u4E00\u4E2A\u5B9E\u53C2",
+                code: [
+                  "PROCEDURE ShowRow(Label : STRING, Value : INTEGER)",
+                  '   OUTPUT Label, ": ", Value',
+                  "ENDPROCEDURE",
+                  'CALL ShowRow("Total")'
+                ].join("\n"),
+                note: "\u5B9A\u4E49\u91CC\u6709\u4E24\u4E2A\u53C2\u6570\uFF0C\u8C03\u7528\u53EA\u7ED9\u4E86\u4E00\u4E2A\u3002`Value` \u6CA1\u6709\u503C\u53EF\u7528\uFF0C\u6240\u4EE5\u8FD9\u4E00\u6761\u8FD0\u884C\u524D\u5C31\u88AB\u62E6\u4F4F\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "PROC-002", line: 4, text: "\u8FD9\u4E2A\u8FC7\u7A0B\u8981\u4E24\u4E2A\u5B9E\u53C2\uFF0C\u8FD9\u91CC\u53EA\u7ED9\u4E86\u4E00\u4E2A\u3002" }
+                ]
+              },
+              {
+                title: "\u987A\u5E8F\u5F04\u53CD\u4E86",
+                code: [
+                  "PROCEDURE ShowRow(Label : STRING, Value : INTEGER)",
+                  '   OUTPUT Label, ": ", Value',
+                  "ENDPROCEDURE",
+                  'CALL ShowRow(42, "Total")'
+                ].join("\n"),
+                note: "\u4E2A\u6570\u5BF9\u4E86\uFF0C\u4F46\u7B2C\u4E00\u4E2A\u53C2\u6570\u8981 `STRING`\u3001\u7B2C\u4E8C\u4E2A\u8981 `INTEGER`\uFF0C\u8FD9\u91CC\u6B63\u597D\u53CD\u7740\u7ED9\u3002**\u5B9E\u53C2\u662F\u6309\u4F4D\u7F6E\u5BF9\u4E0A\u53BB\u7684\uFF0C\u4E0D\u662F\u6309\u540D\u5B57\u3002**",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "PROC-002", line: 4, text: "\u8FD9\u4E2A\u4F4D\u7F6E\u4E0A\u7684\u5B9E\u53C2\u7C7B\u578B\u548C\u53C2\u6570\u5BF9\u4E0D\u4E0A\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: '`PROCEDURE ShowRow(Label : STRING, Value : INTEGER)` \u91CC\uFF0C`Label` \u548C\u8C03\u7528\u65F6\u5199\u7684 `"Total"` \u5206\u522B\u53EB\u4EC0\u4E48\uFF1F',
+            options: [
+              {
+                key: "A",
+                label: '`Label` \u662F\u53D8\u91CF\uFF0C`"Total"` \u662F\u5E38\u91CF',
+                correct: false,
+                explanation: '`Label` \u5728\u8FC7\u7A0B\u4F53\u91CC\u786E\u5B9E\u5F53\u53D8\u91CF\u7528\uFF0C\u4F46\u8FD9\u4E0D\u662F\u5B83\u5728\u8FD9\u91CC\u7684\u540D\u79F0\uFF1B\u800C `"Total"` \u53EA\u662F\u4E00\u4E2A\u5B57\u9762\u91CF\uFF0C\u4E0D\u662F `CONSTANT`\u3002'
+              },
+              {
+                key: "B",
+                label: "\u4E24\u4E2A\u90FD\u53EB\u53C2\u6570",
+                correct: false,
+                explanation: "\u8003\u7EB2\u628A\u5B83\u4EEC\u5206\u5F00\uFF1A\u5B9A\u4E49\u91CC\u7684\u540D\u5B57\u662F\u53C2\u6570\uFF0C\u8C03\u7528\u65F6\u7ED9\u7684\u503C\u53E6\u6709\u540D\u5B57\u3002\u6DF7\u7740\u8BF4\u4F1A\u5728\u8BFB\u9898\u65F6\u5403\u4E8F\u3002"
+              },
+              {
+                key: "C",
+                label: '`Label` \u662F\u5B9E\u53C2\uFF0C`"Total"` \u662F\u53C2\u6570',
+                correct: false,
+                explanation: "\u8BF4\u53CD\u4E86\u3002\u5B9A\u4E49\u91CC\u7684\u90A3\u4E2A\u540D\u5B57\u662F\u53C2\u6570\uFF0C\u8C03\u7528\u65F6\u9012\u8FDB\u53BB\u7684\u503C\u624D\u662F\u5B9E\u53C2\u3002"
+              },
+              {
+                key: "D",
+                label: '`Label` \u662F\u53C2\u6570\uFF0C`"Total"` \u662F\u5B9E\u53C2',
+                correct: true,
+                explanation: "\u5BF9\u3002\u53C2\u6570\uFF08parameter\uFF09\u662F\u5B9A\u4E49\u91CC\u7559\u7684\u53E3\u5B50\uFF0C\u5B9E\u53C2\uFF08argument\uFF09\u662F\u6BCF\u6B21\u8C03\u7528\u771F\u6B63\u585E\u8FDB\u53BB\u7684\u503C\u3002"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "12.3.1",
+            title: "\u4E09\u884C\u5C0F\u6761\u5F62\u56FE",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u5B9A\u4E49\u4E00\u4E2A\u8FC7\u7A0B\uFF0C\u5B83\u63A5\u53D7\u4E00\u4E2A\u540D\u79F0\u548C\u4E00\u4E2A\u4E2A\u6570\uFF0C\u663E\u793A\u300C\u540D\u79F0 + \u7A7A\u683C + \u90A3\u4E48\u591A\u4E2A\u661F\u53F7\u300D\uFF1B\u4E3B\u7A0B\u5E8F\u8BFB\u5165\u4E09\u7EC4\u540D\u79F0\u548C\u4E2A\u6570\uFF0C\u6BCF\u8BFB\u4E00\u7EC4\u5C31\u8C03\u7528\u4E00\u6B21\u8FD9\u4E2A\u8FC7\u7A0B\u3002",
+            ioSpec: {
+              input: [
+                "\u516D\u884C\uFF0C\u4E00\u7EC4\u4E24\u884C\uFF1A\u5148\u540D\u79F0\uFF08`STRING`\uFF09\uFF0C\u518D\u4E2A\u6570\uFF08`INTEGER`\uFF09\uFF0C\u4E09\u7EC4\u4F9D\u6B21\u8BFB\u5B8C\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
+                "\u540D\u79F0\u524D\u662F `Enter a label`\uFF0C\u4E2A\u6570\u524D\u662F `Enter a count`"
+              ].join("\n"),
+              output: ["\u6BCF\u8BFB\u5B8C\u4E00\u7EC4\u663E\u793A\u4E00\u884C\uFF1A", "`<\u540D\u79F0> <\u90A3\u4E48\u591A\u4E2A\u661F\u53F7>`", "\u540D\u79F0\u548C\u661F\u53F7\u4E4B\u95F4\u4E00\u4E2A\u7A7A\u683C\u3002\u4E2A\u6570\u662F 0 \u65F6\u661F\u53F7\u4E00\u4E2A\u90FD\u6CA1\u6709\uFF0C\u90A3\u4E00\u884C\u5C31\u53EA\u5269\u540D\u79F0\u548C\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "routine.procedure",
+                  reason: "\u540C\u4E00\u4EF6\u4E8B\u8981\u505A\u4E09\u904D\uFF0C\u6B63\u8BE5\u628A\u5B83\u62BD\u6210\u4E00\u4E2A\u6709\u540D\u5B57\u7684\u8FC7\u7A0B\u3002"
+                },
+                {
+                  feature: "routine.call",
+                  reason: "\u8FC7\u7A0B\u5B9A\u4E49\u4E86\u8FD8\u5F97\u8C03\u7528\u624D\u4F1A\u53D1\u751F\uFF0C\u800C\u4E14\u8C03\u7528\u8981\u5199 `CALL`\u3002"
+                },
+                {
+                  feature: "param.byval",
+                  reason: "\u6BCF\u4E00\u7EC4\u7684\u540D\u79F0\u548C\u4E2A\u6570\u90FD\u4E0D\u4E00\u6837\uFF0C\u5F97\u5F53\u53C2\u6570\u9012\u8FDB\u8FC7\u7A0B\u91CC\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u8FC7\u7A0B\u8981\u4E24\u4E2A\u53C2\u6570\uFF1A\u4E00\u4E2A `STRING` \u7684\u540D\u79F0\uFF0C\u4E00\u4E2A `INTEGER` \u7684\u4E2A\u6570\u3002",
+              "\u661F\u53F7\u7528\u4E00\u4E2A `STRING` \u4ECE\u7A7A\u4E32\u5F00\u59CB\u63A5\uFF0C\u5FAA\u73AF\u91CC\u6BCF\u6B21\u63A5\u4E00\u4E2A\u3002",
+              "\u8BFB\u5165\u653E\u5728\u4E3B\u7A0B\u5E8F\u91CC\uFF0C\u8FC7\u7A0B\u53EA\u8D1F\u8D23\u663E\u793A\u2014\u2014\u8FD9\u6837\u8FC7\u7A0B\u624D\u7528\u5F97\u4E0A\u7B2C\u4E8C\u6B21\u3001\u7B2C\u4E09\u6B21\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["Mon", "3", "Tue", "5", "Wed", "1"],
+                outputs: [
+                  "Enter a label",
+                  "Enter a count",
+                  "Mon ***",
+                  "Enter a label",
+                  "Enter a count",
+                  "Tue *****",
+                  "Enter a label",
+                  "Enter a count",
+                  "Wed *"
+                ]
+              }
+            ],
+            referenceSolution: [
+              "PROCEDURE ShowBar(Label : STRING, Count : INTEGER)",
+              "   DECLARE I : INTEGER",
+              "   DECLARE Bar : STRING",
+              '   Bar \u2190 ""',
+              "   FOR I \u2190 1 TO Count",
+              '      Bar \u2190 Bar & "*"',
+              "   NEXT I",
+              '   OUTPUT Label, " ", Bar',
+              "ENDPROCEDURE",
+              "DECLARE Name : STRING",
+              "DECLARE Amount : INTEGER",
+              "DECLARE K : INTEGER",
+              "FOR K \u2190 1 TO 3",
+              '   OUTPUT "Enter a label"',
+              "   INPUT Name",
+              '   OUTPUT "Enter a count"',
+              "   INPUT Amount",
+              "   CALL ShowBar(Name, Amount)",
+              "NEXT K"
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["Red", "2", "Green", "4", "Blue", "6"], caseHint: "\u4E09\u7EC4\u666E\u901A\u7684\u6570\u636E\uFF0C\u4E2A\u6570\u5404\u4E0D\u76F8\u540C\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["Red", "0", "Green", "1", "Blue", "2"], caseHint: "\u7B2C\u4E00\u7EC4\u7684\u4E2A\u6570\u662F\u96F6\uFF0C\u90A3\u4E00\u884C\u4E00\u4E2A\u661F\u53F7\u90FD\u4E0D\u8BE5\u6709\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["A", "1", "B", "1", "C", "1"], caseHint: "\u4E09\u7EC4\u7684\u4E2A\u6570\u90FD\u53EA\u6709\u4E00\u4E2A\u3002" },
+              { id: "t4", kind: "normal", inputs: ["Two words", "3", "X", "2", "Y", "4"], caseHint: "\u7B2C\u4E00\u7EC4\u7684\u540D\u79F0\u91CC\u5E26\u7A7A\u683C\uFF0C\u8981\u539F\u6837\u663E\u793A\u51FA\u6765\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["Big", "40", "Small", "0", "Mid", "7"], caseHint: "\u4E00\u7EC4\u7684\u4E2A\u6570\u76F8\u5F53\u5927\uFF0C\u53E6\u4E00\u7EC4\u662F\u96F6\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "12.4",
+        title: "`BYVAL`\uFF1A\u8FC7\u7A0B\u6539\u7684\u662F\u526F\u672C",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_12_3,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u628A\u4E00\u4E2A\u53D8\u91CF\u5F53\u5B9E\u53C2\u9012\u8FDB\u8FC7\u7A0B\u4E4B\u540E\uFF0C\u8FC7\u7A0B\u91CC\u6539\u4E86\u5B83\uFF0C\u5916\u9762\u90A3\u4E2A\u53D8\u91CF\u4F1A\u8DDF\u7740\u53D8\u5417\uFF1F**\u9ED8\u8BA4\u4E0D\u4F1A\u3002**\u9012\u8FDB\u53BB\u7684\u662F\u503C\u7684\u4E00\u4EFD**\u526F\u672C**\uFF0C\u8FC7\u7A0B\u6539\u7684\u662F\u526F\u672C\uFF0C\u5916\u9762\u7684\u539F\u4EF6\u4E00\u52A8\u4E0D\u52A8\u3002",
+              "\u8FD9\u79CD\u4F20\u9012\u65B9\u5F0F\u53EB**\u4F20\u503C\uFF08by value\uFF09**\uFF0C\u53EF\u4EE5\u5728\u53C2\u6570\u524D\u9762\u5199\u4E0A `BYVAL` \u8BF4\u660E\u767D\u3002**\u4E0D\u5199\u7684\u65F6\u5019\u9ED8\u8BA4\u5C31\u662F `BYVAL`**\uFF0C\u6240\u4EE5\u524D\u9762\u51E0\u8282\u90A3\u4E9B\u53C2\u6570\u5176\u5B9E\u90FD\u662F\u4F20\u503C\u7684\u3002",
+              "\u9ED8\u8BA4\u662F\u4F20\u503C\u6709\u5B83\u7684\u9053\u7406\uFF1A\u8FC7\u7A0B\u53EA\u662F\u62FF\u8FD9\u4E2A\u503C\u6765\u7B97\u70B9\u4EC0\u4E48\uFF0C\u4E0D\u8BE5\u987A\u624B\u628A\u8C03\u7528\u8005\u7684\u53D8\u91CF\u6539\u6389\u3002**\u8C03\u7528\u4E00\u4E2A\u8FC7\u7A0B\u4E4B\u540E\uFF0C\u81EA\u5DF1\u7684\u53D8\u91CF\u8FD8\u662F\u539F\u6837**\u2014\u2014\u8FD9\u4EF6\u4E8B\u80FD\u9760\u5F97\u4F4F\uFF0C\u7A0B\u5E8F\u624D\u597D\u8BFB\u3002",
+              "\u6570\u7EC4\u548C\u8BB0\u5F55\u4E5F\u4E00\u6837\uFF1A\u6574\u4E2A\u6570\u7EC4\u5F53\u5B9E\u53C2\u4F20\u8FDB\u53BB\u662F\u4E00\u4EFD\u6DF1\u62F7\u8D1D\uFF0C\u8FC7\u7A0B\u91CC\u6539\u54EA\u4E00\u683C\u90FD\u5F71\u54CD\u4E0D\u5230\u5916\u9762\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "`BYVAL` / `BYREF` \u5199\u5728\u5F62\u53C2\u524D\uFF1B\u672A\u5199\u65F6\u9ED8\u8BA4\u6309\u503C\u4F20\u9012\uFF08G\xA78.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u91CC\u9762\u53D8\u4E86\uFF0C\u5916\u9762\u6CA1\u53D8",
+            fileName: "Example_12_4_a.pseudocode",
+            code: [
+              "PROCEDURE Bump(BYVAL N : INTEGER)",
+              "   N \u2190 N + 100",
+              '   OUTPUT "inside: ", N',
+              "ENDPROCEDURE",
+              "DECLARE Score : INTEGER",
+              "Score \u2190 5",
+              "CALL Bump(Score)",
+              'OUTPUT "outside: ", Score'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 1, text: "`BYVAL` \u5199\u4E0D\u5199\u90FD\u4E00\u6837\uFF0C\u8FD9\u91CC\u5199\u51FA\u6765\u662F\u4E3A\u4E86\u770B\u6E05\u695A\u3002" },
+              { fromLine: 2, toLine: 3, text: "\u8FC7\u7A0B\u91CC `N` \u786E\u5B9E\u53D8\u6210\u4E86 105\u2014\u2014\u6539\u7684\u662F\u90A3\u4EFD\u526F\u672C\u3002" },
+              { fromLine: 8, toLine: 8, text: "\u56DE\u5230\u4E3B\u7A0B\u5E8F\uFF0C`Score` \u8FD8\u662F 5\u3002\u8FC7\u7A0B\u78B0\u4E0D\u5230\u5B83\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["inside: 105", "outside: 5"]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u628A\u4E0A\u9762\u90A3\u6BB5\u91CC\u7684 `BYVAL` \u4E09\u4E2A\u5B57\u6BCD\u5220\u6389\uFF08\u5199\u6210 `PROCEDURE Bump(N : INTEGER)`\uFF09\uFF0C\u7ED3\u679C\u4F1A\u53D8\u5417\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u7F16\u8F91\u5668\u4F1A\u8981\u6C42\u5FC5\u987B\u5199\u51FA `BYVAL` \u6216 `BYREF`",
+                correct: false,
+                explanation: "\u4E0D\u8981\u6C42\u3002\u4E24\u4E2A\u90FD\u4E0D\u5199\u662F\u5408\u6CD5\u7684\u5199\u6CD5\uFF0C\u53EA\u662F\u8FD9\u65F6\u7684\u542B\u4E49\u56FA\u5B9A\u4E3A\u4F20\u503C\u3002"
+              },
+              {
+                key: "B",
+                label: "\u4E0D\u53D8\uFF0C\u4E24\u79CD\u5199\u6CD5\u5B8C\u5168\u4E00\u6837",
+                correct: true,
+                explanation: "\u5BF9\u3002\u4E0D\u5199\u4F20\u9012\u65B9\u5F0F\u65F6\u9ED8\u8BA4\u5C31\u662F `BYVAL`\uFF0C\u6240\u4EE5\u8FD9\u4E24\u79CD\u5199\u6CD5\u7684\u884C\u4E3A\u4E00\u6A21\u4E00\u6837\u3002\u5199\u51FA\u6765\u53EA\u662F\u66F4\u663E\u773C\u3002"
+              },
+              {
+                key: "C",
+                label: "\u4F1A\u53D8\u6210\u4F20\u5F15\u7528\uFF0C\u5916\u9762\u7684 `Score` \u53D8\u6210 105",
+                correct: false,
+                explanation: "\u4F20\u5F15\u7528\u8981\u663E\u5F0F\u5199 `BYREF`\u3002\u9ED8\u8BA4\u4ECE\u6765\u4E0D\u662F\u4F20\u5F15\u7528\u2014\u2014\u4E0D\u7136\u300C\u8C03\u7528\u4E00\u4E0B\u81EA\u5DF1\u7684\u53D8\u91CF\u5C31\u88AB\u6539\u4E86\u300D\u4F1A\u9632\u4E0D\u80DC\u9632\u3002"
+              },
+              {
+                key: "D",
+                label: "\u8FC7\u7A0B\u91CC `N` \u4F1A\u53D8\u6210\u672A\u521D\u59CB\u5316",
+                correct: false,
+                explanation: "\u53C2\u6570\u8FDB\u8FC7\u7A0B\u65F6\u5C31\u5E26\u7740\u5B9E\u53C2\u7684\u503C\uFF0C\u4E24\u79CD\u5199\u6CD5\u90FD\u4E00\u6837\u3002\u5B83\u4ECE\u6765\u4E0D\u9700\u8981\u53E6\u5916\u8D4B\u503C\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "12.5",
+        title: "`BYREF`\uFF1A\u8FC7\u7A0B\u6539\u7684\u662F\u539F\u4EF6",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_12_5,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u6709\u65F6\u5019\u4F60\u5C31\u662F\u8981\u8FC7\u7A0B\u53BB\u6539\u8C03\u7528\u8005\u7684\u53D8\u91CF\u2014\u2014\u6700\u5178\u578B\u7684\u662F\u300C\u628A\u4E24\u4E2A\u53D8\u91CF\u7684\u503C\u5BF9\u8C03\u300D\u3002\u8FD9\u65F6\u5728\u53C2\u6570\u524D\u9762\u5199 `BYREF`\uFF1A\u9012\u8FDB\u53BB\u7684\u4E0D\u518D\u662F\u526F\u672C\uFF0C\u800C\u662F**\u90A3\u4E2A\u53D8\u91CF\u672C\u8EAB**\uFF0C\u8FC7\u7A0B\u91CC\u6539\u5B83\u5C31\u662F\u6539\u5916\u9762\u7684\u539F\u4EF6\u3002",
+              "\u8FD9\u79CD\u4F20\u9012\u65B9\u5F0F\u53EB**\u4F20\u5F15\u7528\uFF08by reference\uFF09**\u3002Pseudocode Guide \u7ED9\u7684\u6837\u677F\u6B63\u662F `SWAP`\uFF1A\u7B2C 10 \u7AE0\u90A3\u4E09\u53E5\u501F\u4E34\u65F6\u53D8\u91CF\u7684\u4EA4\u6362\uFF0C\u62BD\u6210\u8FC7\u7A0B\u4E4B\u540E\u5C31\u80FD\u5BF9\u4EFB\u610F\u4E24\u4E2A\u53D8\u91CF\u7528\u3002",
+              "\u6709\u4E00\u6761\u5BB9\u6613\u6F0F\u7684\u89C4\u5219\uFF1A**\u8FDE\u7740\u7684\u51E0\u4E2A\u53C2\u6570\u4F20\u9012\u65B9\u5F0F\u76F8\u540C\u65F6\uFF0C\u5173\u952E\u5B57\u4E0D\u7528\u91CD\u590D\u5199**\u3002`(BYREF X : INTEGER, Y : INTEGER)` \u91CC `Y` **\u4E5F\u662F** `BYREF`\uFF0C\u4E0D\u662F\u9ED8\u8BA4\u7684\u4F20\u503C\u3002",
+              "`BYREF` \u7684\u5B9E\u53C2\u5FC5\u987B\u662F\u4E2A**\u80FD\u88AB\u6539\u7684\u4E1C\u897F**\u2014\u2014\u53D8\u91CF\u3001\u6570\u7EC4\u7684\u4E00\u683C\u3001\u8BB0\u5F55\u7684\u4E00\u4E2A\u5B57\u6BB5\u90FD\u884C\uFF0C\u4F46\u5199\u4E2A\u5B57\u9762\u91CF\u4E0D\u884C\uFF1A`CALL Swap(1, 2)` \u6CA1\u6709\u610F\u4E49\uFF0C`1` \u6CA1\u6709\u5730\u65B9\u53EF\u4EE5\u88AB\u6539\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "`BYREF` \u5199\u5728\u5F62\u53C2\u524D\uFF1B\u8FDE\u7EED\u76F8\u540C\u4F20\u9012\u65B9\u5F0F\u7684\u53C2\u6570\u53EF\u4EE5\u7701\u7565\u91CD\u590D\u7684\u5173\u952E\u5B57\uFF08G\xA78.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u628A\u4E24\u4E2A\u53D8\u91CF\u5BF9\u8C03",
+            fileName: "Example_12_5_a.pseudocode",
+            code: [
+              "PROCEDURE Swap(BYREF A : INTEGER, BYREF B : INTEGER)",
+              "   DECLARE Temp : INTEGER",
+              "   Temp \u2190 A",
+              "   A \u2190 B",
+              "   B \u2190 Temp",
+              "ENDPROCEDURE",
+              "DECLARE P : INTEGER",
+              "DECLARE Q : INTEGER",
+              "P \u2190 1",
+              "Q \u2190 2",
+              'OUTPUT "before: ", P, " ", Q',
+              "CALL Swap(P, Q)",
+              'OUTPUT "after: ", P, " ", Q'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 1, text: "\u4E24\u4E2A\u90FD\u5199\u4E86 `BYREF`\u3002\u53EA\u5199\u5728\u7B2C\u4E00\u4E2A\u524D\u9762\u4E5F\u662F\u540C\u6837\u7684\u610F\u601D\u2014\u2014\u7B2C\u4E8C\u4E2A\u4F1A\u8DDF\u7740\u7B2C\u4E00\u4E2A\u3002" },
+              { fromLine: 2, toLine: 5, text: "\u548C\u7B2C 10 \u7AE0\u90A3\u4E09\u53E5\u4EA4\u6362\u4E00\u6A21\u4E00\u6837\uFF0C\u53EA\u662F\u73B0\u5728\u5B83\u6709\u4E86\u540D\u5B57\uFF0C\u5BF9\u54EA\u4E24\u4E2A\u53D8\u91CF\u90FD\u80FD\u7528\u3002" },
+              { fromLine: 12, toLine: 13, text: "\u8C03\u7528\u4E4B\u540E\u4E3B\u7A0B\u5E8F\u91CC\u7684 `P` \u548C `Q` \u771F\u7684\u6362\u4E86\u3002\u8FD9\u6B63\u662F `BYVAL` \u505A\u4E0D\u5230\u7684\u4E8B\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["before: 1 2", "after: 2 1"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "`BYREF` \u6536\u4E0D\u4E0B\u4E00\u4E2A\u5B57\u9762\u91CF",
+            cases: [
+              {
+                code: ["PROCEDURE Bump(BYREF N : INTEGER)", "   N \u2190 N + 1", "ENDPROCEDURE", "CALL Bump(5)"].join("\n"),
+                note: "`BYREF` \u7684\u610F\u601D\u662F\u300C\u8FC7\u7A0B\u4F1A\u53BB\u6539\u4F60\u7ED9\u7684\u8FD9\u4E2A\u4E1C\u897F\u300D\u3002\u7ED9\u4E00\u4E2A `5` \u5C31\u6CA1\u6CD5\u5F80\u4E0B\u8BF4\u4E86\u2014\u2014`5` \u4E0D\u662F\u4E00\u4E2A\u80FD\u88AB\u6539\u7684\u4F4D\u7F6E\u3002\u6362\u6210\u4E00\u4E2A\u53D8\u91CF\u5C31\u884C\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "PARAM-001", line: 4, text: "`BYREF` \u7684\u5B9E\u53C2\u5F97\u662F\u4E00\u4E2A\u80FD\u88AB\u6539\u7684\u53D8\u91CF\uFF0C\u4E0D\u80FD\u662F\u5199\u6B7B\u7684\u503C\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "`PROCEDURE Swap(BYREF A : INTEGER, B : INTEGER)`\u2014\u2014\u53EA\u5728\u7B2C\u4E00\u4E2A\u53C2\u6570\u524D\u5199\u4E86 `BYREF`\u3002`B` \u662F\u600E\u4E48\u4F20\u7684\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u8981\u770B\u8C03\u7528\u65F6\u7ED9\u7684\u662F\u53D8\u91CF\u8FD8\u662F\u5B57\u9762\u91CF",
+                correct: false,
+                explanation: "\u4F20\u9012\u65B9\u5F0F\u5728\u5B9A\u4E49\u91CC\u5C31\u5B9A\u6B7B\u4E86\uFF0C\u548C\u8C03\u7528\u65F6\u7ED9\u4EC0\u4E48\u65E0\u5173\uFF1B\u53CD\u8FC7\u6765\u662F\u5B9A\u4E49\u91CC\u7684 `BYREF` \u8981\u6C42\u8C03\u7528\u65F6\u5FC5\u987B\u7ED9\u4E00\u4E2A\u80FD\u6539\u7684\u4E1C\u897F\u3002"
+              },
+              {
+                key: "B",
+                label: "\u4E5F\u662F\u4F20\u5F15\u7528",
+                correct: true,
+                explanation: "\u5BF9\u3002\u8FDE\u7740\u7684\u53C2\u6570\u4F20\u9012\u65B9\u5F0F\u76F8\u540C\u65F6\u5173\u952E\u5B57\u4E0D\u7528\u91CD\u590D\u5199\uFF0C\u6240\u4EE5 `B` \u8DDF\u7740 `A` \u4E00\u8D77\u662F `BYREF`\u3002\u8FD9\u6BB5 `Swap` \u7167\u6837\u80FD\u7528\u3002"
+              },
+              {
+                key: "C",
+                label: "\u4F20\u503C\uFF0C\u56E0\u4E3A\u5B83\u524D\u9762\u6CA1\u5199 `BYREF`",
+                correct: false,
+                explanation: "\u300C\u6CA1\u5199\u5C31\u9ED8\u8BA4\u4F20\u503C\u300D\u53EA\u5728**\u524D\u9762\u4E5F\u6CA1\u6709\u522B\u7684\u4F20\u9012\u65B9\u5F0F\u5173\u952E\u5B57**\u65F6\u6210\u7ACB\u3002\u8FD9\u91CC `BYREF` \u5DF2\u7ECF\u5199\u5728\u540C\u4E00\u4E32\u53C2\u6570\u7684\u524D\u9762\u4E86\u3002"
+              },
+              {
+                key: "D",
+                label: "\u5199\u6CD5\u4E0D\u5408\u6CD5\uFF0C\u6BCF\u4E2A\u53C2\u6570\u90FD\u5FC5\u987B\u5199",
+                correct: false,
+                explanation: "\u5408\u6CD5\u3002Pseudocode Guide \u81EA\u5DF1\u7684 `SWAP` \u6837\u677F\u5C31\u662F\u8FD9\u4E48\u5199\u7684\u3002"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "12.5.1",
+            title: "\u5C0F\u7684\u6392\u524D\u9762",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u5B9A\u4E49\u4E00\u4E2A\u8FC7\u7A0B\uFF0C\u5B83\u63A5\u53D7\u4E24\u4E2A\u6574\u6570\u53D8\u91CF\uFF0C\u5982\u679C\u524D\u4E00\u4E2A\u6BD4\u540E\u4E00\u4E2A\u5927\u5C31\u628A\u5B83\u4EEC\u5BF9\u8C03\uFF1B\u4E3B\u7A0B\u5E8F\u8BFB\u5165\u4E24\u4E2A\u6570\uFF0C\u8C03\u7528\u8FD9\u4E2A\u8FC7\u7A0B\uFF0C\u518D\u628A\u5B83\u4EEC\u663E\u793A\u51FA\u6765\u3002",
+            ioSpec: {
+              input: ["\u4E24\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a number`"].join("\n"),
+              output: ["\u4E00\u884C\uFF0C\u4E24\u4E2A\u6570\u4E2D\u95F4\u4E00\u4E2A\u7A7A\u683C\uFF0C\u5C0F\u7684\u5728\u524D\uFF1A", "`<\u5C0F\u7684> <\u5927\u7684>`"].join("\n")
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "param.byref",
+                  reason: "\u8FC7\u7A0B\u8981\u771F\u7684\u6539\u6389\u4E3B\u7A0B\u5E8F\u91CC\u90A3\u4E24\u4E2A\u53D8\u91CF\uFF0C\u4F20\u526F\u672C\u6539\u4E0D\u7740\u3002"
+                },
+                {
+                  feature: "routine.procedure",
+                  reason: "\u9898\u76EE\u8981\u6C42\u628A\u300C\u5FC5\u8981\u65F6\u5BF9\u8C03\u300D\u8FD9\u4EF6\u4E8B\u5199\u6210\u4E00\u4E2A\u6709\u540D\u5B57\u7684\u8FC7\u7A0B\u3002"
+                },
+                {
+                  feature: "select.if",
+                  reason: "\u5DF2\u7ECF\u662F\u5C0F\u7684\u5728\u524D\u65F6\u4E0D\u8BE5\u52A8\uFF0C\u53EA\u6709\u524D\u4E00\u4E2A\u66F4\u5927\u624D\u4EA4\u6362\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u4E24\u4E2A\u53C2\u6570\u90FD\u8981 `BYREF`\u2014\u2014\u53EA\u5199\u5728\u7B2C\u4E00\u4E2A\u524D\u9762\u4E5F\u7B97\u6570\u3002",
+              "\u4EA4\u6362\u8FD8\u662F\u90A3\u4E09\u53E5\uFF0C\u501F\u4E00\u4E2A\u4E34\u65F6\u53D8\u91CF\uFF1B\u8FD9\u4E2A\u4E34\u65F6\u53D8\u91CF\u5728\u8FC7\u7A0B\u91CC `DECLARE` \u5C31\u884C\u3002",
+              "\u663E\u793A\u653E\u5728\u4E3B\u7A0B\u5E8F\u91CC\uFF0C\u8FC7\u7A0B\u53EA\u7BA1\u8C03\u6574\u987A\u5E8F\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["9", "4"],
+                outputs: ["Enter a number", "Enter a number", "4 9"]
+              }
+            ],
+            referenceSolution: [
+              "PROCEDURE SortTwo(BYREF A : INTEGER, BYREF B : INTEGER)",
+              "   DECLARE Temp : INTEGER",
+              "   IF A > B THEN",
+              "      Temp \u2190 A",
+              "      A \u2190 B",
+              "      B \u2190 Temp",
+              "   ENDIF",
+              "ENDPROCEDURE",
+              "DECLARE X : INTEGER",
+              "DECLARE Y : INTEGER",
+              'OUTPUT "Enter a number"',
+              "INPUT X",
+              'OUTPUT "Enter a number"',
+              "INPUT Y",
+              "CALL SortTwo(X, Y)",
+              'OUTPUT X, " ", Y'
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["8", "3"], caseHint: "\u524D\u4E00\u4E2A\u6BD4\u540E\u4E00\u4E2A\u5927\uFF0C\u9700\u8981\u5BF9\u8C03\u3002" },
+              { id: "t2", kind: "normal", inputs: ["3", "8"], caseHint: "\u672C\u6765\u5C31\u662F\u5C0F\u7684\u5728\u524D\uFF0C\u4E0D\u8BE5\u52A8\u5B83\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["7", "7"], caseHint: "\u4E24\u4E2A\u6570\u4E00\u6837\u5927\u3002" },
+              { id: "t4", kind: "boundary", inputs: ["0", "-1"], caseHint: "\u4E00\u4E2A\u662F\u96F6\uFF0C\u53E6\u4E00\u4E2A\u662F\u8D1F\u6570\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["99999", "-99999"], caseHint: "\u4E00\u4E2A\u6781\u5927\u4E00\u4E2A\u6781\u5C0F\uFF0C\u800C\u4E14\u987A\u5E8F\u662F\u53CD\u7684\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "12.6",
+        title: "\u5C40\u90E8\u53D8\u91CF\u4E0E\u4F5C\u7528\u57DF",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_12_5,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u5728\u8FC7\u7A0B\u91CC `DECLARE` \u51FA\u6765\u7684\u53D8\u91CF\u53EB**\u5C40\u90E8\u53D8\u91CF\uFF08local variable\uFF09**\uFF1A\u5B83\u53EA\u5728\u8FD9\u4E2A\u8FC7\u7A0B\u91CC\u5B58\u5728\uFF0C\u8FC7\u7A0B\u4E00\u7ED3\u675F\u5C31\u6CA1\u4E86\uFF0C\u5916\u9762\u770B\u4E0D\u89C1\u4E5F\u7528\u4E0D\u4E86\u3002\u4E00\u4E2A\u540D\u5B57\u80FD\u5728\u54EA\u4E9B\u5730\u65B9\u7528\uFF0C\u8FD9\u4EF6\u4E8B\u53EB\u5B83\u7684**\u4F5C\u7528\u57DF\uFF08scope\uFF09**\u3002",
+              "\u5C40\u90E8\u53D8\u91CF\u6B63\u662F\u8FC7\u7A0B\u80FD\u72EC\u7ACB\u6210\u4E00\u4EF6\u4E8B\u7684\u539F\u56E0\u3002`Swap` \u91CC\u90A3\u4E2A `Temp` \u53EA\u5C5E\u4E8E `Swap`\uFF1B\u522B\u7684\u8FC7\u7A0B\u91CC\u4E5F\u53EB `Temp` \u6CA1\u5173\u7CFB\uFF0C\u5B83\u4EEC\u4E92\u4E0D\u76F8\u5E72\u2014\u2014\u5C31\u50CF\u7B2C 11 \u7AE0\u91CC\u8BB0\u5F55\u7684\u5B57\u6BB5\u540D\u548C\u666E\u901A\u53D8\u91CF\u540D\u4E92\u4E0D\u76F8\u5E72\u4E00\u6837\u3002",
+              "\u5728\u6240\u6709\u8FC7\u7A0B\u5916\u9762 `DECLARE` \u7684\u53D8\u91CF\u53EB**\u5168\u5C40\u53D8\u91CF\uFF08global variable\uFF09**\uFF0C\u8FC7\u7A0B\u91CC\u80FD\u8BFB\u4E5F\u80FD\u5199\u3002\u4F46**\u80FD\u6539\u4E0D\u7B49\u4E8E\u8BE5\u6539**\uFF1A\u8FC7\u7A0B\u5077\u5077\u6539\u5168\u5C40\u53D8\u91CF\uFF0C\u8C03\u7528\u5B83\u7684\u4EBA\u4ECE\u8C03\u7528\u90A3\u4E00\u884C\u770B\u4E0D\u51FA\u6765\u3002\u8981\u6539\u5C31\u628A\u5B83\u5F53 `BYREF` \u53C2\u6570\u660E\u5199\u5728\u62EC\u53F7\u91CC\u3002",
+              "\u5982\u679C\u8FC7\u7A0B\u91CC `DECLARE` \u4E86\u4E00\u4E2A\u548C\u5168\u5C40\u53D8\u91CF\u540C\u540D\u7684\u53D8\u91CF\uFF0C\u90A3\u8FC7\u7A0B\u91CC\u7528\u7684\u5C31\u662F\u81EA\u5DF1\u90A3\u4E2A\uFF0C\u5916\u9762\u90A3\u4E2A\u4E0D\u53D7\u5F71\u54CD\u2014\u2014\u540D\u5B57\u4E00\u6837\uFF0C\u662F\u4E24\u4E2A\u4E0D\u540C\u7684\u4F4D\u7F6E\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u7406\u89E3\u5C40\u90E8\u53D8\u91CF\u4E0E\u5168\u5C40\u53D8\u91CF\u7684\u533A\u522B\uFF0C\u4EE5\u53CA\u4F5C\u7528\u57DF\u7684\u542B\u4E49\uFF08\xA711.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u540C\u540D\uFF0C\u4F46\u662F\u4E24\u4E2A\u4E0D\u540C\u7684\u4F4D\u7F6E",
+            fileName: "Example_12_6_a.pseudocode",
+            code: [
+              "DECLARE Total : INTEGER",
+              "PROCEDURE Report()",
+              "   DECLARE Total : INTEGER",
+              "   Total \u2190 100",
+              '   OUTPUT "inside: ", Total',
+              "ENDPROCEDURE",
+              "Total \u2190 7",
+              "CALL Report()",
+              'OUTPUT "outside: ", Total'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 1, text: "\u5168\u5C40\u53D8\u91CF\uFF0C\u4E3B\u7A0B\u5E8F\u548C\u6240\u6709\u8FC7\u7A0B\u90FD\u770B\u5F97\u5230\u3002" },
+              { fromLine: 3, toLine: 4, text: "\u8FC7\u7A0B\u91CC\u53C8\u58F0\u660E\u4E86\u4E00\u4E2A\u540C\u540D\u7684\u3002\u4ECE\u8FD9\u4E00\u884C\u8D77\uFF0C\u8FC7\u7A0B\u5185\u90E8\u7684 `Total` \u6307\u7684\u90FD\u662F\u8FD9\u4E2A\u5C40\u90E8\u7684\u3002" },
+              { fromLine: 9, toLine: 9, text: "\u8FC7\u7A0B\u7ED3\u675F\u3001\u5C40\u90E8\u7684\u90A3\u4E2A\u6D88\u5931\uFF0C\u4E3B\u7A0B\u5E8F\u91CC\u7684 `Total` \u4ECD\u7136\u662F 7\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["inside: 100", "outside: 7"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u5728\u5916\u9762\u7528\u8FC7\u7A0B\u91CC\u7684\u53D8\u91CF",
+            cases: [
+              {
+                code: [
+                  "PROCEDURE Report()",
+                  "   DECLARE Count : INTEGER",
+                  "   Count \u2190 3",
+                  "ENDPROCEDURE",
+                  "CALL Report()",
+                  "OUTPUT Count"
+                ].join("\n"),
+                note: "`Count` \u662F `Report` \u7684\u5C40\u90E8\u53D8\u91CF\uFF0C\u8FC7\u7A0B\u4E00\u7ED3\u675F\u5C31\u4E0D\u5B58\u5728\u4E86\u3002\u4E3B\u7A0B\u5E8F\u8FD9\u4E00\u884C\u627E\u4E0D\u5230\u8FD9\u4E2A\u540D\u5B57\u2014\u2014**\u4E0D\u662F\u5B83\u7684\u503C\u4E0D\u5BF9\uFF0C\u662F\u8FD9\u4E2A\u540D\u5B57\u5728\u8FD9\u91CC\u6839\u672C\u6CA1\u6709\u610F\u4E49**\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "DECL-002", line: 6, text: "\u8FD9\u4E2A\u540D\u5B57\u662F\u5728\u8FC7\u7A0B\u91CC\u58F0\u660E\u7684\uFF0C\u4E3B\u7A0B\u5E8F\u770B\u4E0D\u5230\u5B83\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E00\u4E2A\u8FC7\u7A0B\u9700\u8981\u628A\u7B97\u51FA\u6765\u7684\u7ED3\u679C\u4EA4\u56DE\u7ED9\u4E3B\u7A0B\u5E8F\u3002\u4E0B\u9762\u54EA\u79CD\u505A\u6CD5**\u6700**\u5408\u9002\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u5728\u8FC7\u7A0B\u91CC `OUTPUT` \u51FA\u6765",
+                correct: false,
+                explanation: "\u90A3\u662F\u663E\u793A\u7ED9\u4EBA\u770B\uFF0C\u4E0D\u662F\u4EA4\u56DE\u7ED9\u7A0B\u5E8F\u3002\u4E3B\u7A0B\u5E8F\u62FF\u4E0D\u5230\u8FD9\u4E2A\u503C\uFF0C\u6CA1\u6CD5\u63A5\u7740\u62FF\u5B83\u53BB\u7B97\u3002"
+              },
+              {
+                key: "B",
+                label: "\u5728\u8FC7\u7A0B\u91CC\u76F4\u63A5\u6539\u4E00\u4E2A\u5168\u5C40\u53D8\u91CF",
+                correct: false,
+                explanation: "\u505A\u5F97\u5230\uFF0C\u4F46\u8C03\u7528\u90A3\u4E00\u884C\u770B\u4E0D\u51FA\u5B83\u4F1A\u6539\u4EC0\u4E48\uFF0C\u8BFB\u4EE3\u7801\u7684\u4EBA\u5F97\u7FFB\u8FDB\u8FC7\u7A0B\u91CC\u624D\u77E5\u9053\u3002\u80FD\u7528\u53C2\u6570\u8BF4\u6E05\u7684\u4E8B\u4E0D\u8BE5\u85CF\u8D77\u6765\u3002"
+              },
+              {
+                key: "C",
+                label: "\u628A\u7ED3\u679C\u5199\u6210\u8FC7\u7A0B\u91CC\u7684\u5C40\u90E8\u53D8\u91CF\uFF0C\u4E3B\u7A0B\u5E8F\u53BB\u8BFB\u5B83",
+                correct: false,
+                explanation: "\u8BFB\u4E0D\u5230\u3002\u5C40\u90E8\u53D8\u91CF\u968F\u8FC7\u7A0B\u4E00\u8D77\u6D88\u5931\uFF0C\u8FD9\u4E2A\u540D\u5B57\u5728\u4E3B\u7A0B\u5E8F\u91CC\u6CA1\u6709\u610F\u4E49\u3002"
+              },
+              {
+                key: "D",
+                label: "\u628A\u7528\u6765\u88C5\u7ED3\u679C\u7684\u53D8\u91CF\u5F53 `BYREF` \u53C2\u6570\u4F20\u8FDB\u53BB",
+                correct: true,
+                explanation: "\u5BF9\u3002\u8C03\u7528\u90A3\u4E00\u884C\u5C31\u5199\u7740\u300C\u8FD9\u4E2A\u53D8\u91CF\u4F1A\u88AB\u5B83\u6539\u300D\uFF0C\u770B\u4E00\u773C\u8C03\u7528\u5C31\u77E5\u9053\u5F71\u54CD\u5230\u8C01\u3002\uFF08\u4E0B\u4E00\u7AE0\u7684\u51FD\u6570\u8FD8\u6709\u66F4\u76F4\u63A5\u7684\u529E\u6CD5\u3002\uFF09"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    chapterTasks: [
+      {
+        kind: "chapterTask",
+        id: "12.T1",
+        title: "\u4E09\u4E2A\u6570\u6392\u597D\u5E8F",
+        statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u7528\u8FC7\u7A0B\u628A\u4E09\u4E2A\u6574\u6570\u4ECE\u5C0F\u5230\u5927\u6392\u597D\u518D\u663E\u793A\u51FA\u6765\u3002\u81F3\u5C11\u5199\u51FA\u4E09\u4E2A\u8FC7\u7A0B\u2014\u2014\u4E00\u4E2A\u8D1F\u8D23\u8BFB\u4E00\u4E2A\u6570\uFF0C\u4E00\u4E2A\u8D1F\u8D23\u628A\u4E24\u4E2A\u53D8\u91CF\u6309\u5927\u5C0F\u6446\u6B63\uFF0C\u4E00\u4E2A\u8D1F\u8D23\u628A\u4E09\u4E2A\u6570\u663E\u793A\u51FA\u6765\u3002\u4E3B\u7A0B\u5E8F\u53EA\u8D1F\u8D23\u6309\u987A\u5E8F\u8C03\u7528\u5B83\u4EEC\u3002",
+        ioSpec: {
+          input: ["\u4E09\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a number`"].join("\n"),
+          output: "\u4E09\u884C\uFF0C\u6BCF\u884C\u4E00\u4E2A\u6574\u6570\uFF0C\u4ECE\u5C0F\u5230\u5927\u3002"
+        },
+        suggestedFeatures: [
+          "routine.procedure",
+          "routine.call",
+          "param.byref",
+          "param.byval",
+          "select.if",
+          "io.input",
+          "io.output"
+        ],
+        hints: [
+          "\u300C\u8BFB\u4E00\u4E2A\u6570\u300D\u548C\u300C\u6446\u6B63\u4E24\u4E2A\u53D8\u91CF\u300D\u90FD\u8981\u6539\u8C03\u7528\u8005\u7684\u53D8\u91CF\uFF0C\u6240\u4EE5\u8D70 `BYREF`\uFF1B\u300C\u663E\u793A\u4E09\u4E2A\u6570\u300D\u53EA\u662F\u62FF\u6765\u770B\uFF0C`BYVAL` \u5C31\u591F\u3002",
+          "\u4E09\u4E2A\u6570\u6392\u5E8F\u4E0D\u7528\u65B0\u5199\u7B97\u6CD5\uFF1A\u628A\u300C\u6446\u6B63\u4E24\u4E2A\u300D\u8C03\u7528\u4E09\u6B21\u5C31\u884C\u2014\u2014\u5148\u7B2C\u4E00\u4E8C\u4E2A\uFF0C\u518D\u7B2C\u4E8C\u4E09\u4E2A\uFF0C\u6700\u540E\u518D\u7B2C\u4E00\u4E8C\u4E2A\u3002",
+          "\u4E3B\u7A0B\u5E8F\u5E94\u8BE5\u53EA\u5269\u4E0B\u51E0\u884C `DECLARE` \u548C\u4E00\u4E32 `CALL`\u3002"
+        ],
+        examples: [
+          {
+            inputs: ["7", "4", "9"],
+            outputs: ["Enter a number", "Enter a number", "Enter a number", "4", "7", "9"]
+          }
+        ],
+        referenceSolution: [
+          "PROCEDURE ReadNumber(BYREF N : INTEGER)",
+          '   OUTPUT "Enter a number"',
+          "   INPUT N",
+          "ENDPROCEDURE",
+          "PROCEDURE SortTwo(BYREF A : INTEGER, BYREF B : INTEGER)",
+          "   DECLARE Temp : INTEGER",
+          "   IF A > B THEN",
+          "      Temp \u2190 A",
+          "      A \u2190 B",
+          "      B \u2190 Temp",
+          "   ENDIF",
+          "ENDPROCEDURE",
+          "PROCEDURE ShowThree(A : INTEGER, B : INTEGER, C : INTEGER)",
+          "   OUTPUT A",
+          "   OUTPUT B",
+          "   OUTPUT C",
+          "ENDPROCEDURE",
+          "DECLARE X : INTEGER",
+          "DECLARE Y : INTEGER",
+          "DECLARE Z : INTEGER",
+          "CALL ReadNumber(X)",
+          "CALL ReadNumber(Y)",
+          "CALL ReadNumber(Z)",
+          "CALL SortTwo(X, Y)",
+          "CALL SortTwo(Y, Z)",
+          "CALL SortTwo(X, Y)",
+          "CALL ShowThree(X, Y, Z)"
+        ].join("\n"),
+        tests: [
+          { id: "t1", kind: "normal", inputs: ["5", "1", "3"], caseHint: "\u4E09\u4E2A\u5404\u4E0D\u76F8\u540C\u7684\u6570\uFF0C\u987A\u5E8F\u662F\u4E71\u7684\u3002" },
+          { id: "t2", kind: "boundary", inputs: ["1", "2", "3"], caseHint: "\u8BFB\u8FDB\u6765\u7684\u65F6\u5019\u672C\u6765\u5C31\u5DF2\u7ECF\u6392\u597D\u4E86\u3002" },
+          { id: "t3", kind: "boundary", inputs: ["3", "2", "1"], caseHint: "\u8BFB\u8FDB\u6765\u7684\u65F6\u5019\u6B63\u597D\u5B8C\u5168\u5012\u8FC7\u6765\u3002" },
+          { id: "t4", kind: "normal", inputs: ["6", "6", "6"], caseHint: "\u4E09\u4E2A\u6570\u5B8C\u5168\u4E00\u6837\uFF0C\u4E00\u6B21\u4E5F\u4E0D\u9700\u8981\u5BF9\u8C03\u3002" },
+          { id: "t5", kind: "extreme", inputs: ["99999", "-99999", "0"], caseHint: "\u6DF7\u7740\u6781\u5927\u548C\u6781\u5C0F\u7684\u503C\u3002" }
+        ]
+      }
+    ]
+  };
+
+  // packages/teaching-content/src/chapter-13.ts
+  var AFTER_CHAPTER_12 = [
+    "io.output",
+    "io.input",
+    "decl.variable",
+    "misc.comment",
+    "type.string",
+    "literal.string",
+    "type.integer",
+    "type.real",
+    "type.char",
+    "type.boolean",
+    "type.date",
+    "literal.integer",
+    "literal.real",
+    "literal.char",
+    "literal.boolean",
+    "literal.date",
+    "assign.simple",
+    "decl.constant",
+    "op.arithmetic",
+    "op.div",
+    "op.mod",
+    "op.relational",
+    "op.and",
+    "op.or",
+    "op.not",
+    "select.if",
+    "select.if-else",
+    "select.nested-if",
+    "select.case",
+    "select.case-range",
+    "select.case-otherwise",
+    "loop.for",
+    "loop.for-step",
+    "loop.while",
+    "loop.repeat",
+    "loop.nested",
+    "builtin.length",
+    "builtin.mid",
+    "builtin.right",
+    "builtin.ucase",
+    "builtin.lcase",
+    "op.concat",
+    "builtin.int",
+    "builtin.rand",
+    "decl.array-1d",
+    "array.index",
+    "decl.array-2d",
+    "array.index-2d",
+    "decl.record-type",
+    "record.field-access",
+    "routine.procedure",
+    "routine.call",
+    "param.byval",
+    "param.byref"
+  ];
+  var AFTER_13_1 = [...AFTER_CHAPTER_12, "routine.function", "routine.return", "expr.function-call"];
+  var chapter13 = {
+    id: 13,
+    title: "\u51FD\u6570",
+    level: "AS",
+    syllabus: ["\xA711.3"],
+    prerequisites: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    sections: [
+      {
+        id: "13.1",
+        title: "\u8FC7\u7A0B\u8FD8\u662F\u51FD\u6570",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_13_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u4E0A\u4E00\u7AE0\u672B\u5C3E\u7559\u4E86\u4E2A\u95EE\u9898\uFF1A\u8FC7\u7A0B\u7B97\u51FA\u6765\u7684\u7ED3\u679C\u600E\u4E48\u4EA4\u56DE\u7ED9\u4E3B\u7A0B\u5E8F\uFF1F`BYREF` \u53C2\u6570\u505A\u5F97\u5230\uFF0C\u4F46\u7ED5\u2014\u2014\u4F60\u5F97\u5148\u58F0\u660E\u4E00\u4E2A\u53D8\u91CF\u5F53\u5BB9\u5668\uFF0C\u518D\u628A\u5B83\u9012\u8FDB\u53BB\u7B49\u7740\u88AB\u586B\u3002",
+              "\u4E3A\u300C\u7B97\u51FA\u4E00\u4E2A\u503C\u4EA4\u56DE\u53BB\u300D\u51C6\u5907\u7684\u5199\u6CD5\u662F**\u51FD\u6570\uFF08function\uFF09**\u3002\u5B83\u548C\u8FC7\u7A0B\u7684\u533A\u522B\u53EA\u6709\u4E00\u6761\uFF1A**\u8FC7\u7A0B\u505A\u4E00\u4EF6\u4E8B\uFF0C\u51FD\u6570\u7B97\u51FA\u4E00\u4E2A\u503C**\u3002\u8003\u7EB2\u7684\u8BF4\u6CD5\u66F4\u51C6\u786E\uFF1A\u51FD\u6570\u8C03\u7528\u5B8C\u6210\u4E4B\u540E\uFF0C**\u8FD9\u4E2A\u8C03\u7528\u672C\u8EAB\u5C31\u53D8\u6210\u4E86\u90A3\u4E2A\u8FD4\u56DE\u503C**\u3002",
+              "\u6240\u4EE5\u51FD\u6570\u4E0D\u662F\u7528 `CALL` \u5355\u5360\u4E00\u884C\u7684\uFF0C\u800C\u662F\u5199\u5728**\u9700\u8981\u4E00\u4E2A\u503C\u7684\u5730\u65B9**\uFF1A\u8D4B\u503C\u53F7\u53F3\u8FB9\u3001`OUTPUT` \u91CC\u3001`IF` \u7684\u6761\u4EF6\u91CC\u3001\u751A\u81F3\u53E6\u4E00\u4E2A\u51FD\u6570\u7684\u5B9E\u53C2\u4F4D\u7F6E\u4E0A\u3002`LENGTH`\u3001`MID` \u8FD9\u4E9B\u5185\u7F6E\u7684\u4E1C\u897F\u4E00\u76F4\u5C31\u662F\u8FD9\u4E48\u7528\u7684\u2014\u2014\u73B0\u5728\u4F60\u80FD\u81EA\u5DF1\u5199\u4E86\u3002",
+              "\u5224\u636E\u5F88\u76F4\u63A5\uFF1A\u8FD9\u6BB5\u4EE3\u7801\u7684\u7ED3\u679C\u662F\u300C\u5C4F\u5E55\u4E0A\u591A\u4E86\u70B9\u4E1C\u897F\u300D\u6216\u8005\u300C\u67D0\u4E2A\u53D8\u91CF\u88AB\u6539\u4E86\u300D\uFF0C\u5199\u8FC7\u7A0B\uFF1B\u7ED3\u679C\u662F\u300C\u7B97\u51FA\u4E00\u4E2A\u503C\uFF0C\u62FF\u53BB\u63A5\u7740\u7528\u300D\uFF0C\u5199\u51FD\u6570\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u533A\u5206\u8FC7\u7A0B\u4E0E\u51FD\u6570\uFF0C\u5E76\u7406\u89E3\u300C\u8FD4\u56DE\u503C\u53D6\u4EE3\u4E86\u8FD9\u6B21\u8C03\u7528\u300D\uFF08\xA711.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "comparison",
+            title: "\u540C\u4E00\u4EF6\u4E8B\uFF0C\u4EA4\u56DE\u7ED3\u679C\u7684\u4E24\u79CD\u529E\u6CD5",
+            intro: "\u628A\u4E00\u4E2A\u6570\u4E58\u4EE5\u4E8C\uFF0C\u518D\u628A\u7ED3\u679C\u663E\u793A\u51FA\u6765\u3002",
+            panes: [
+              {
+                label: "\u81EA\u7136\u8BED\u8A00",
+                language: "natural",
+                code: ["\u300C\u628A 5 \u4E58\u4EE5\u4E8C\u300D\u8FD9\u53E5\u8BDD\u672C\u8EAB\u5C31\u4EE3\u8868\u4E00\u4E2A\u6570\u3002", "\u6240\u4EE5\u53EF\u4EE5\u76F4\u63A5\u8BF4\uFF1A\u663E\u793A\u300C\u628A 5 \u4E58\u4EE5\u4E8C\u300D\u3002", "\u800C\u4E0D\u5FC5\u5148\u8BF4\uFF1A\u7B97\u51FA\u6765\u653E\u7740\uFF0C\u5F85\u4F1A\u513F\u6211\u53BB\u62FF\u3002"].join("\n"),
+                note: "\u8BF4\u8BDD\u7684\u65F6\u5019\u6CA1\u4EBA\u4F1A\u5148\u58F0\u660E\u4E00\u4E2A\u5BB9\u5668\u3002\u300C\u628A 5 \u4E58\u4EE5\u4E8C\u300D\u5C31\u662F\u4E00\u4E2A\u503C\uFF0C\u53EF\u4EE5\u76F4\u63A5\u653E\u8FDB\u53E5\u5B50\u91CC\u7528\u3002"
+              },
+              {
+                label: "\u7528\u8FC7\u7A0B",
+                language: "pseudocode",
+                code: [
+                  "PROCEDURE Double(BYVAL N : INTEGER, BYREF Result : INTEGER)",
+                  "   Result \u2190 N * 2",
+                  "ENDPROCEDURE",
+                  "DECLARE Answer : INTEGER",
+                  "CALL Double(5, Answer)",
+                  "OUTPUT Answer"
+                ].join("\n"),
+                note: "\u80FD\u8DD1\uFF0C\u4F46\u4E3A\u4E86\u63A5\u4F4F\u4E00\u4E2A\u503C\u5F97\u5148\u9020\u4E00\u4E2A\u53D8\u91CF\uFF0C\u8FD8\u5F97\u591A\u5360\u4E00\u884C\u8C03\u7528\u3002\u7ED3\u679C\u548C\u300C5 \u4E58\u4EE5\u4E8C\u300D\u4E4B\u95F4\u9694\u7740\u4E24\u6B65\u3002"
+              },
+              {
+                label: "\u7528\u51FD\u6570",
+                language: "pseudocode",
+                code: [
+                  "FUNCTION Double(N : INTEGER) RETURNS INTEGER",
+                  "   RETURN N * 2",
+                  "ENDFUNCTION",
+                  "OUTPUT Double(5)"
+                ].join("\n"),
+                note: "`Double(5)` \u6574\u4E2A\u5C31\u662F\u4E00\u4E2A\u503C\uFF0C\u76F4\u63A5\u653E\u8FDB `OUTPUT` \u91CC\u3002\u4E0D\u7528\u5BB9\u5668\uFF0C\u4E5F\u4E0D\u7528\u5355\u72EC\u4E00\u884C\u8C03\u7528\u3002"
+              },
+              {
+                label: "Python",
+                language: "python",
+                code: ["def double(n):", "    return n * 2", "", "print(double(5))"].join("\n"),
+                note: "Python \u4E0D\u533A\u5206\u8FC7\u7A0B\u548C\u51FD\u6570\uFF0C\u5168\u7528 `def`\uFF1B\u4E0D\u5199 `return` \u7684\u5C31\u76F8\u5F53\u4E8E\u4F2A\u4EE3\u7801\u7684\u8FC7\u7A0B\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E0B\u9762\u54EA\u4E00\u4EF6\u4E8B**\u6700**\u8BE5\u5199\u6210\u51FD\u6570\u800C\u4E0D\u662F\u8FC7\u7A0B\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u7B97\u51FA\u4E00\u4E2A\u5B57\u7B26\u4E32\u91CC\u6709\u51E0\u4E2A\u7A7A\u683C",
+                correct: true,
+                explanation: "\u5BF9\u3002\u7ED3\u679C\u662F\u4E00\u4E2A\u6570\uFF0C\u800C\u4E14\u4F60\u591A\u534A\u8981\u62FF\u5B83\u63A5\u7740\u53BB\u7B97\u6216\u8005\u53BB\u5224\u65AD\u2014\u2014\u6B63\u597D\u653E\u5728\u9700\u8981\u4E00\u4E2A\u503C\u7684\u5730\u65B9\u3002"
+              },
+              {
+                key: "B",
+                label: "\u8BFB\u5165\u7528\u6237\u8F93\u5165\u7684\u4E09\u4E2A\u6570",
+                correct: false,
+                explanation: "\u8981\u4EA4\u56DE\u4E09\u4E2A\u503C\uFF0C\u800C\u51FD\u6570\u53EA\u8FD8\u4E00\u4E2A\u3002\u8FD9\u79CD\u7528\u8FC7\u7A0B\u914D `BYREF` \u53C2\u6570\u66F4\u5408\u9002\u3002"
+              },
+              {
+                key: "C",
+                label: "\u628A\u4E00\u4E2A\u6570\u7EC4\u4ECE\u5C0F\u5230\u5927\u6392\u597D",
+                correct: false,
+                explanation: "\u5B83\u7684\u7ED3\u679C\u662F\u300C\u90A3\u4E2A\u6570\u7EC4\u88AB\u91CD\u65B0\u6446\u8FC7\u4E86\u300D\uFF0C\u4E0D\u662F\u7B97\u51FA\u4E00\u4E2A\u503C\u3002\u8FD9\u79CD\u8BE5\u5199\u6210\u8FC7\u7A0B\uFF0C\u6570\u7EC4\u8D70 `BYREF`\u3002"
+              },
+              {
+                key: "D",
+                label: "\u628A\u4E00\u5F20\u62A5\u8868\u6253\u5370\u5230\u5C4F\u5E55\u4E0A",
+                correct: false,
+                explanation: "\u7ED3\u679C\u662F\u5C4F\u5E55\u4E0A\u591A\u4E86\u4E1C\u897F\uFF0C\u6CA1\u6709\u503C\u8981\u4EA4\u56DE\u53BB\u3002\u5178\u578B\u7684\u8FC7\u7A0B\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "13.2",
+        title: "`FUNCTION ... RETURNS ... ENDFUNCTION`",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 11,
+        taughtFeatures: AFTER_13_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u51FD\u6570\u7684\u5934\u90E8\u6BD4\u8FC7\u7A0B\u591A\u4E00\u622A\uFF1A`FUNCTION Double(N : INTEGER) RETURNS INTEGER`\u3002\u62EC\u53F7\u91CC\u7167\u6837\u662F\u53C2\u6570\uFF0C`RETURNS` \u540E\u9762\u5199\u7684\u662F**\u5B83\u4F1A\u8FD8\u56DE\u6765\u4EC0\u4E48\u7C7B\u578B\u7684\u503C**\u3002\u6536\u5C3E\u7528 `ENDFUNCTION`\u3002",
+              "\u4EA4\u56DE\u503C\u7528 `RETURN \u503C`\u3002**`RETURN` \u4E00\u6267\u884C\uFF0C\u51FD\u6570\u5F53\u573A\u7ED3\u675F**\uFF0C\u540E\u9762\u8FD8\u6CA1\u8DD1\u7684\u884C\u4E00\u884C\u90FD\u4E0D\u4F1A\u8DD1\u2014\u2014\u8FD9\u4E00\u70B9\u548C `ENDFUNCTION` \u4E0D\u4E00\u6837\uFF1A`ENDFUNCTION` \u53EA\u662F\u5199\u6CD5\u4E0A\u7684\u6536\u5C3E\uFF0C`RETURN` \u624D\u662F\u771F\u7684\u8D70\u4EBA\u3002",
+              "\u8C03\u7528\u65F6**\u4E0D\u5199 `CALL`**\uFF1A`X \u2190 Double(5)`\u3002\u5199\u4E86 `CALL` \u4F1A\u88AB\u62E6\u4E0B\u6765\u3002\u53CD\u8FC7\u6765\u4E5F\u4E00\u6837\u2014\u2014\u628A\u4E00\u4E2A\u51FD\u6570\u8C03\u7528\u5355\u72EC\u5199\u6210\u4E00\u884C\u662F\u4E0D\u884C\u7684\uFF0C\u90A3\u4E00\u884C\u6CA1\u6709\u4EBA\u63A5\u4F4F\u5B83\u8FD8\u56DE\u6765\u7684\u503C\u3002",
+              '`RETURN` \u540E\u9762\u90A3\u4E2A\u503C\u7684\u7C7B\u578B\u8981\u548C `RETURNS` \u5199\u7684\u5BF9\u5F97\u4E0A\u3002\u5199\u7740 `RETURNS INTEGER` \u5374 `RETURN "twice"`\uFF0C\u8FD0\u884C\u524D\u5C31\u88AB\u62E6\u4F4F\u3002'
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u51FD\u6570\u5934\u5305\u542B `RETURNS <\u7C7B\u578B>`\uFF0C\u4EE5 `ENDFUNCTION` \u7ED3\u675F\uFF0C\u7528 `RETURN <\u503C>` \u8FD4\u56DE\u5355\u4E2A\u503C\uFF1B\u51FD\u6570\u8C03\u7528\u5FC5\u987B\u51FA\u73B0\u5728\u8868\u8FBE\u5F0F\u4E2D\uFF0C\u4E0D\u4F7F\u7528 `CALL`\uFF08G\xA78.2\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u4E24\u4E2A\u51FD\u6570\uFF0C\u4E09\u79CD\u7528\u6CD5",
+            fileName: "Example_13_2_a.pseudocode",
+            code: [
+              "FUNCTION Double(N : INTEGER) RETURNS INTEGER",
+              "   RETURN N * 2",
+              "ENDFUNCTION",
+              "FUNCTION Shout(S : STRING) RETURNS STRING",
+              '   RETURN S & "!"',
+              "ENDFUNCTION",
+              "DECLARE X : INTEGER",
+              "X \u2190 Double(5)",
+              "OUTPUT X",
+              "OUTPUT Double(3) + Double(4)",
+              'OUTPUT Shout("hello")'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 1, text: "`RETURNS INTEGER` \u8BF4\u7684\u662F\u8FD8\u56DE\u6765\u4E00\u4E2A\u6574\u6570\uFF0C\u4E0D\u662F\u53C2\u6570\u7684\u7C7B\u578B\u2014\u2014\u53C2\u6570\u7684\u7C7B\u578B\u5728\u62EC\u53F7\u91CC\u3002" },
+              { fromLine: 8, toLine: 8, text: "\u653E\u5728\u8D4B\u503C\u53F7\u53F3\u8FB9\u3002`Double(5)` \u8FD9\u4E00\u6574\u5757\u5C31\u7B49\u4E8E 10\u3002" },
+              { fromLine: 10, toLine: 10, text: "\u653E\u5728\u8868\u8FBE\u5F0F\u91CC\uFF0C\u4E24\u4E2A\u8C03\u7528\u5404\u81EA\u53D8\u6210\u4E00\u4E2A\u6570\u518D\u76F8\u52A0\u3002\u8FD9\u662F\u8FC7\u7A0B\u505A\u4E0D\u5230\u7684\u4E8B\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["10", "14", "hello!"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u4E24\u79CD\u7528\u9519\u51FD\u6570\u7684\u5199\u6CD5",
+            cases: [
+              {
+                title: "\u62FF `CALL` \u8C03\u7528\u51FD\u6570",
+                code: ["FUNCTION Double(N : INTEGER) RETURNS INTEGER", "   RETURN N * 2", "ENDFUNCTION", "CALL Double(5)"].join("\n"),
+                note: "`CALL` \u662F\u8FC7\u7A0B\u4E13\u7528\u7684\u3002\u800C\u4E14\u8FD9\u4E00\u884C\u5C31\u7B97\u8DD1\u5F97\u8D77\u6765\u4E5F\u6CA1\u610F\u4E49\u2014\u2014`Double(5)` \u8FD8\u56DE\u6765\u4E00\u4E2A 10\uFF0C\u8FD9\u91CC\u6CA1\u6709\u4EBA\u63A5\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "FUNC-002", line: 4, text: "\u51FD\u6570\u4E0D\u7528 `CALL`\uFF0C\u8981\u5199\u5728\u9700\u8981\u4E00\u4E2A\u503C\u7684\u5730\u65B9\u3002" }
+                ]
+              },
+              {
+                title: "\u8FD8\u56DE\u6765\u7684\u7C7B\u578B\u4E0D\u5BF9",
+                code: ["FUNCTION Double(N : INTEGER) RETURNS INTEGER", '   RETURN "twice"', "ENDFUNCTION", "OUTPUT Double(5)"].join("\n"),
+                note: "\u5934\u90E8\u627F\u8BFA\u8FD8\u4E00\u4E2A `INTEGER`\uFF0C`RETURN` \u5374\u7ED9\u4E86\u4E00\u6BB5\u6587\u5B57\u3002\u627F\u8BFA\u548C\u5151\u73B0\u5BF9\u4E0D\u4E0A\uFF0C\u8FD0\u884C\u524D\u5C31\u67E5\u5F97\u51FA\u6765\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "FUNC-001", line: 2, text: "\u8FD8\u56DE\u6765\u7684\u503C\u548C `RETURNS` \u5199\u7684\u7C7B\u578B\u5BF9\u4E0D\u4E0A\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "fill-blank",
+            prompt: "\u8865\u5168\u8FD9\u4E2A\u51FD\u6570\uFF1A\u63A5\u53D7\u4E00\u4E2A `INTEGER`\uFF0C\u8FD8\u56DE\u6765\u5B83\u7684\u5E73\u65B9\u3002",
+            template: ["__1__ Square(N : INTEGER) __2__ INTEGER", "   __3__ N * N", "__4__"].join("\n"),
+            blanks: [
+              { index: 1, answer: "FUNCTION" },
+              { index: 2, answer: "RETURNS" },
+              { index: 3, answer: "RETURN" },
+              { index: 4, answer: "ENDFUNCTION" }
+            ],
+            bank: [
+              { word: "FUNCTION", explanation: "\u8D77\u5934\u7684\u5173\u952E\u5B57\uFF0C\u540E\u9762\u8DDF\u51FD\u6570\u540D\u548C\u53C2\u6570\u3002" },
+              { word: "RETURNS", explanation: "\u5E26 S \u7684\u8FD9\u4E2A\u5199\u5728\u5934\u90E8\uFF0C\u540E\u9762\u8DDF\u7684\u662F\u8FD8\u56DE\u6765\u7684\u503C\u662F\u4EC0\u4E48\u7C7B\u578B\u3002" },
+              { word: "RETURN", explanation: "\u4E0D\u5E26 S \u7684\u8FD9\u4E2A\u5199\u5728\u51FD\u6570\u4F53\u91CC\uFF0C\u540E\u9762\u8DDF\u771F\u6B63\u8981\u8FD8\u56DE\u53BB\u7684\u90A3\u4E2A\u503C\u3002" },
+              { word: "ENDFUNCTION", explanation: "\u6536\u5C3E\u7684\u5173\u952E\u5B57\uFF0C\u548C\u8D77\u5934\u7684 `FUNCTION` \u914D\u5BF9\u3002" },
+              { word: "PROCEDURE", explanation: "\u8FC7\u7A0B\u7528\u7684\u5173\u952E\u5B57\u3002\u8FC7\u7A0B\u4E0D\u8FD8\u503C\uFF0C\u8FD9\u91CC\u8981\u8FD8\u4E00\u4E2A\u5E73\u65B9\u6570\uFF0C\u6240\u4EE5\u4E0D\u662F\u5B83\u3002" },
+              { word: "CALL", explanation: "\u8C03\u7528\u8FC7\u7A0B\u7528\u7684\u3002\u51FD\u6570\u65E2\u4E0D\u7528\u5B83\u8D77\u5934\uFF0C\u4E5F\u4E0D\u7528\u5B83\u8C03\u7528\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "13.3",
+        title: "\u6BCF\u6761\u8DEF\u90FD\u8981 `RETURN`",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 11,
+        taughtFeatures: AFTER_13_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u51FD\u6570\u5FC5\u987B**\u5728\u6BCF\u4E00\u6761\u8D70\u5F97\u5230\u7684\u8DEF\u4E0A\u90FD\u8FD8\u56DE\u4E00\u4E2A\u503C**\u3002\u5C11\u4E00\u6761\u8DEF\u6CA1\u6709 `RETURN`\uFF0C\u8C03\u7528\u7684\u5730\u65B9\u5C31\u63A5\u5230\u7A7A\u2014\u2014\u6240\u4EE5\u7F16\u8F91\u5668\u5728\u8FD0\u884C\u524D\u5C31\u67E5\u8FD9\u4EF6\u4E8B\uFF0C\u800C\u4E14\u63D0\u793A\u6307\u56DE\u51FD\u6570\u7684\u5934\u90E8\u90A3\u4E00\u884C\u3002",
+              "\u6700\u5E38\u89C1\u7684\u7F3A\u53E3\u957F\u8FD9\u6837\uFF1A`IF ... THEN RETURN ... ENDIF` \u540E\u9762\u5C31\u6CA1\u4E86\u3002\u6761\u4EF6\u6210\u7ACB\u65F6\u6709\u503C\u53EF\u8FD8\uFF0C\u4E0D\u6210\u7ACB\u65F6\u51FD\u6570\u4E00\u8DEF\u8D70\u5230 `ENDFUNCTION` \u4E5F\u6CA1\u8FD8\u4EFB\u4F55\u4E1C\u897F\u3002\u8865\u6CD5\u662F\u52A0 `ELSE`\uFF0C\u6216\u8005\u5728 `ENDIF` \u540E\u9762\u518D\u5199\u4E00\u53E5 `RETURN`\u3002",
+              "\u56E0\u4E3A `RETURN` \u4E00\u6267\u884C\u5C31\u8D70\u4EBA\uFF0C`IF ... THEN RETURN A ENDIF` \u540E\u9762\u76F4\u63A5\u8DDF\u4E00\u53E5 `RETURN B` \u662F\u5B8C\u5168\u6B63\u786E\u7684\uFF1A**\u80FD\u8D70\u5230 `RETURN B` \u90A3\u4E00\u884C\uFF0C\u672C\u8EAB\u5C31\u8BF4\u660E\u6761\u4EF6\u6CA1\u6210\u7ACB**\u3002\u4E0D\u9700\u8981\u518D\u5199 `ELSE`\u3002",
+              "\u5FAA\u73AF\u91CC\u7684 `RETURN` \u4E5F\u4E00\u6837\uFF1A\u4E00\u65E6\u6267\u884C\uFF0C\u5FAA\u73AF\u548C\u51FD\u6570\u4E00\u8D77\u7ED3\u675F\u3002\u7B2C 10 \u7AE0\u300C\u627E\u5230\u5C31\u505C\u300D\u7684\u5199\u6CD5\uFF0C\u7528\u51FD\u6570\u5199\u5C31\u662F\u5FAA\u73AF\u91CC\u76F4\u63A5 `RETURN` \u90A3\u4E2A\u4F4D\u7F6E\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u51FD\u6570\u4EE5 `RETURN <\u503C>` \u8FD4\u56DE\u5355\u4E2A\u503C\uFF0C\u6267\u884C `RETURN` \u540E\u7ACB\u5373\u7ED3\u675F\u51FD\u6570\uFF08G\xA78.2\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u4E09\u6761\u8DEF\uFF0C\u4E09\u53E5 `RETURN`",
+            fileName: "Example_13_3_a.pseudocode",
+            code: [
+              "FUNCTION Sign(N : INTEGER) RETURNS STRING",
+              "   IF N > 0 THEN",
+              '      RETURN "positive"',
+              "   ENDIF",
+              "   IF N < 0 THEN",
+              '      RETURN "negative"',
+              "   ENDIF",
+              '   RETURN "zero"',
+              "ENDFUNCTION",
+              "OUTPUT Sign(5)",
+              "OUTPUT Sign(-5)",
+              "OUTPUT Sign(0)"
+            ].join("\n"),
+            annotations: [
+              { fromLine: 2, toLine: 4, text: "\u6210\u7ACB\u5C31\u8D70\u4EBA\uFF0C\u4E0B\u9762\u51E0\u884C\u90FD\u4E0D\u4F1A\u8DD1\u3002" },
+              { fromLine: 8, toLine: 8, text: "\u80FD\u8D70\u5230\u8FD9\u4E00\u884C\uFF0C\u8BF4\u660E\u4E0A\u9762\u4E24\u4E2A\u6761\u4EF6\u90FD\u6CA1\u6210\u7ACB\u2014\u2014\u6240\u4EE5\u8FD9\u53E5\u4E0D\u7528\u5305\u5728 `ELSE` \u91CC\u3002" },
+              { fromLine: 10, toLine: 12, text: "\u4E09\u6B21\u8C03\u7528\u5404\u8D70\u4E00\u6761\u8DEF\u3002\u51FD\u6570\u88AB\u8C03\u7528\u4E09\u6B21\uFF0C`N` \u5148\u540E\u662F\u4E09\u4E2A\u4E0D\u540C\u7684\u503C\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["positive", "negative", "zero"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u6709\u4E00\u6761\u8DEF\u8D70\u5230\u5E95\u4E5F\u6CA1\u8FD8\u4E1C\u897F",
+            cases: [
+              {
+                code: [
+                  "FUNCTION Sign(N : INTEGER) RETURNS STRING",
+                  "   IF N > 0 THEN",
+                  '      RETURN "positive"',
+                  "   ENDIF",
+                  "ENDFUNCTION",
+                  "OUTPUT Sign(0)"
+                ].join("\n"),
+                note: "`N` \u4E0D\u5927\u4E8E 0 \u7684\u65F6\u5019\uFF0C\u51FD\u6570\u4E00\u8DEF\u8D70\u5230 `ENDFUNCTION` \u4E5F\u6CA1\u6709 `RETURN`\u3002\u63D0\u793A\u6307\u5728\u5934\u90E8\u90A3\u4E00\u884C\u2014\u2014**\u7F3A\u53E3\u662F\u6574\u4E2A\u51FD\u6570\u7684\u4E8B\uFF0C\u4E0D\u662F\u67D0\u4E00\u884C\u7684\u4E8B**\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "FUNC-001", line: 1, text: "\u6709\u4E00\u6761\u8DEF\u8D70\u5B8C\u4E5F\u6CA1\u6709 `RETURN`\uFF0C\u8865\u4E00\u53E5\u653E\u5728 `ENDIF` \u540E\u9762\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: '\u4E0A\u9762\u90A3\u4E2A `Sign` \u51FD\u6570\uFF0C\u628A\u6700\u540E\u90A3\u53E5 `RETURN "zero"` \u6539\u5199\u6210 `ELSE RETURN "zero"` \u5305\u8FDB\u7B2C\u4E8C\u4E2A `IF` \u91CC\uFF0C\u4F1A\u600E\u6837\uFF1F',
+            options: [
+              {
+                key: "A",
+                label: '`N` \u7B49\u4E8E 0 \u65F6\u4F1A\u8FD8\u56DE `"negative"`',
+                correct: false,
+                explanation: "`0 < 0` \u4E0D\u6210\u7ACB\uFF0C\u8D70\u7684\u662F `ELSE` \u90A3\u4E00\u652F\u3002\u54EA\u4E00\u652F\u88AB\u8D70\u53D6\u51B3\u4E8E\u6761\u4EF6\u672C\u8EAB\uFF0C\u548C\u5305\u4E0D\u5305 `ELSE` \u65E0\u5173\u3002"
+              },
+              {
+                key: "B",
+                label: "\u51FD\u6570\u4F1A\u8FD8\u56DE\u4E24\u4E2A\u503C",
+                correct: false,
+                explanation: "\u51FD\u6570\u53EA\u8FD8\u4E00\u4E2A\u503C\u2014\u2014\u7B2C\u4E00\u53E5\u6267\u884C\u5230\u7684 `RETURN` \u4E00\u5230\uFF0C\u51FD\u6570\u5C31\u7ED3\u675F\u4E86\uFF0C\u4E0D\u5B58\u5728\u7B2C\u4E8C\u6B21\u3002"
+              },
+              {
+                key: "C",
+                label: "\u7F16\u8F91\u5668\u4F1A\u8BF4\u6709\u4E00\u6761\u8DEF\u6CA1\u6709 `RETURN`",
+                correct: false,
+                explanation: "\u4E0D\u4F1A\u3002\u5305\u8FDB `ELSE` \u4E4B\u540E\u4E24\u652F\u90FD\u6709 `RETURN`\uFF0C\u7B2C\u4E8C\u4E2A `IF` \u672C\u8EAB\u5C31\u628A\u6240\u6709\u60C5\u51B5\u76D6\u4F4F\u4E86\u3002"
+              },
+              {
+                key: "D",
+                label: "\u4E00\u6837\u5BF9\uFF0C\u53EA\u662F\u591A\u4E86\u4E00\u5C42\u7F29\u8FDB",
+                correct: true,
+                explanation: "\u5BF9\u3002\u4E24\u79CD\u5199\u6CD5\u8986\u76D6\u7684\u60C5\u51B5\u5B8C\u5168\u76F8\u540C\uFF0C\u884C\u4E3A\u4E5F\u5B8C\u5168\u76F8\u540C\uFF1B\u533A\u522B\u53EA\u5728\u8BFB\u8D77\u6765\u54EA\u79CD\u66F4\u987A\u2014\u2014\u8DEF\u6570\u4E00\u591A\uFF0C\u4E0D\u5199 `ELSE` \u7684\u90A3\u79CD\u901A\u5E38\u66F4\u5E73\u3002"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "13.3.1",
+            title: "\u5206\u6570\u6362\u7B49\u7B2C",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u5B9A\u4E49\u4E00\u4E2A\u51FD\u6570\uFF0C\u63A5\u53D7\u4E00\u4E2A\u6574\u6570\u5206\u6570\uFF0C\u8FD8\u56DE\u6765\u7B49\u7B2C\u2014\u201480 \u5206\u53CA\u4EE5\u4E0A\u662F `A`\uFF0C60 \u5206\u53CA\u4EE5\u4E0A\u662F `B`\uFF0C40 \u5206\u53CA\u4EE5\u4E0A\u662F `C`\uFF0C\u518D\u4F4E\u662F `F`\u3002\u4E3B\u7A0B\u5E8F\u8BFB\u5165\u4E09\u4E2A\u5206\u6570\uFF0C\u6BCF\u8BFB\u4E00\u4E2A\u5C31\u628A\u5206\u6570\u548C\u7B49\u7B2C\u663E\u793A\u51FA\u6765\u3002",
+            ioSpec: {
+              input: ["\u4E09\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a mark`"].join("\n"),
+              output: ["\u6BCF\u8BFB\u5B8C\u4E00\u4E2A\u663E\u793A\u4E00\u884C\uFF1A", "`<\u5206\u6570> <\u7B49\u7B2C>`", "\u4E2D\u95F4\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "routine.function",
+                  reason: "\u7B49\u7B2C\u662F\u7B97\u51FA\u6765\u7684\u4E00\u4E2A\u503C\uFF0C\u8981\u62FF\u53BB\u663E\u793A\uFF0C\u6B63\u8BE5\u7531\u51FD\u6570\u8FD8\u56DE\u6765\u3002"
+                },
+                {
+                  feature: "routine.return",
+                  reason: "\u56DB\u79CD\u7B49\u7B2C\u90FD\u662F\u4E00\u6761\u8DEF\uFF0C\u6BCF\u6761\u8DEF\u90FD\u5F97\u628A\u7ED3\u679C\u8FD8\u56DE\u53BB\u3002"
+                },
+                {
+                  feature: "expr.function-call",
+                  reason: "\u51FD\u6570\u4E0D\u5199 `CALL`\uFF0C\u8981\u653E\u5728\u9700\u8981\u4E00\u4E2A\u503C\u7684\u5730\u65B9\u7528\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u51FD\u6570\u5934\u90E8\u5199\u6210 `FUNCTION Grade(Mark : INTEGER) RETURNS STRING`\u3002",
+              "\u56DB\u4E2A\u95E8\u69DB\u4ECE\u9AD8\u5F80\u4F4E\u67E5\uFF1A\u5148\u770B\u591F\u4E0D\u591F 80\uFF0C\u518D\u770B\u591F\u4E0D\u591F 60\u2026\u2026\u987A\u5E8F\u53CD\u4E86\u4F1A\u5168\u843D\u5230\u7B2C\u4E00\u6761\u3002",
+              "\u6700\u540E\u90A3\u53E5 `RETURN` \u653E\u5728\u6240\u6709 `ENDIF` \u7684\u540E\u9762\u5C31\u884C\uFF0C\u4E0D\u5FC5\u5305 `ELSE`\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["85", "60", "10"],
+                outputs: ["Enter a mark", "85 A", "Enter a mark", "60 B", "Enter a mark", "10 F"]
+              }
+            ],
+            referenceSolution: [
+              "FUNCTION Grade(Mark : INTEGER) RETURNS STRING",
+              "   IF Mark >= 80 THEN",
+              '      RETURN "A"',
+              "   ENDIF",
+              "   IF Mark >= 60 THEN",
+              '      RETURN "B"',
+              "   ENDIF",
+              "   IF Mark >= 40 THEN",
+              '      RETURN "C"',
+              "   ENDIF",
+              '   RETURN "F"',
+              "ENDFUNCTION",
+              "DECLARE Mark : INTEGER",
+              "DECLARE I : INTEGER",
+              "FOR I \u2190 1 TO 3",
+              '   OUTPUT "Enter a mark"',
+              "   INPUT Mark",
+              '   OUTPUT Mark, " ", Grade(Mark)',
+              "NEXT I"
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["95", "72", "55"], caseHint: "\u4E09\u4E2A\u5206\u6570\u5404\u843D\u5728\u4E0D\u540C\u7684\u7B49\u7B2C\u4E0A\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["80", "60", "40"], caseHint: "\u4E09\u4E2A\u5206\u6570\u6B63\u597D\u90FD\u8E29\u5728\u95E8\u69DB\u4E0A\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["79", "59", "39"], caseHint: "\u4E09\u4E2A\u5206\u6570\u90FD\u5DEE\u4E00\u5206\u591F\u4E0D\u7740\u95E8\u69DB\u3002" },
+              { id: "t4", kind: "boundary", inputs: ["0", "100", "0"], caseHint: "\u96F6\u5206\u548C\u6EE1\u5206\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["99999", "-99999", "41"], caseHint: "\u4E00\u4E2A\u5927\u5F97\u79BB\u8C31\uFF0C\u4E00\u4E2A\u662F\u5F88\u5C0F\u7684\u8D1F\u6570\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "13.4",
+        title: "\u51FD\u6570\u7684\u53C2\u6570",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_13_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u51FD\u6570\u7684\u53C2\u6570\u548C\u8FC7\u7A0B\u7684\u5B8C\u5168\u4E00\u6837\uFF1A\u5199\u5728\u62EC\u53F7\u91CC\uFF0C\u540D\u5B57\u3001\u5192\u53F7\u3001\u7C7B\u578B\uFF1B\u8C03\u7528\u65F6\u6309\u4F4D\u7F6E\u7ED9\u5B9E\u53C2\uFF0C\u4E2A\u6570\u3001\u987A\u5E8F\u3001\u7C7B\u578B\u90FD\u8981\u5BF9\u4E0A\u3002\u9ED8\u8BA4\u4E5F\u8FD8\u662F\u4F20\u503C\u3002",
+              "\u4F46\u591A\u4E00\u6761\u89C4\u77E9\uFF1A**\u51FD\u6570\u7684\u53C2\u6570\u4E0D\u8BE5\u7528 `BYREF`**\u3002\u7406\u7531\u4E0D\u590D\u6742\u2014\u2014\u51FD\u6570\u662F\u7528\u6765\u7B97\u4E00\u4E2A\u503C\u7684\uFF0C\u987A\u624B\u628A\u8C03\u7528\u8005\u7684\u53D8\u91CF\u4E5F\u6539\u6389\uFF0C\u90A3\u662F\u53E6\u4E00\u4EF6\u4E8B\uFF0C\u4E24\u4EF6\u4E8B\u6DF7\u5728\u4E00\u53E5\u8868\u8FBE\u5F0F\u91CC\u8C01\u90FD\u770B\u4E0D\u6E05\u3002",
+              "\u5199\u4E86 `BYREF` \u7684\u51FD\u6570\u7167\u6837\u80FD\u8DD1\uFF0C\u7F16\u8F91\u5668\u7ED9\u7684\u662F\u4E00\u6761\u89C4\u8303\u63D0\u793A\uFF0C\u4E0D\u662F\u963B\u65AD\u9519\u8BEF\u2014\u2014**\u80FD\u8DD1\u4E0D\u7B49\u4E8E\u5408\u89C4\u8303**\uFF0CPseudocode Guide \u8FD9\u4E00\u6761\u5199\u5F97\u5F88\u660E\u786E\u3002",
+              "\u51FD\u6570\u4E5F\u53EF\u4EE5\u4E00\u4E2A\u53C2\u6570\u90FD\u6CA1\u6709\uFF1A`FUNCTION Answer() RETURNS INTEGER`\uFF0C\u8C03\u7528\u65F6\u5199 `Answer()`\u2014\u2014\u62EC\u53F7\u548C\u8FC7\u7A0B\u4E00\u6837\u4E0D\u80FD\u7701\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u51FD\u6570\u53C2\u6570\u4E0D\u5E94\u4EE5 `BYREF` \u4F20\u9012\uFF08G\xA78.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u6CA1\u6709\u53C2\u6570\u3001\u4E24\u4E2A\u53C2\u6570\u3001\u62FF\u51FD\u6570\u5F53\u5B9E\u53C2",
+            fileName: "Example_13_4_a.pseudocode",
+            code: [
+              "FUNCTION Answer() RETURNS INTEGER",
+              "   RETURN 42",
+              "ENDFUNCTION",
+              "FUNCTION Area(Width : INTEGER, Height : INTEGER) RETURNS INTEGER",
+              "   RETURN Width * Height",
+              "ENDFUNCTION",
+              "OUTPUT Answer()",
+              "OUTPUT Area(3, 4)",
+              "OUTPUT Area(Answer(), 2)"
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 1, text: "\u6CA1\u6709\u53C2\u6570\uFF0C\u62EC\u53F7\u7167\u5199\u3002" },
+              { fromLine: 8, toLine: 8, text: "\u4E24\u4E2A\u5B9E\u53C2\u6309\u4F4D\u7F6E\u5BF9\u4E0A `Width` \u548C `Height`\u3002" },
+              { fromLine: 9, toLine: 9, text: "`Answer()` \u5148\u53D8\u6210 42\uFF0C\u518D\u5F53\u5B9E\u53C2\u9012\u7ED9 `Area`\u3002\u51FD\u6570\u80FD\u653E\u5728\u4EFB\u4F55\u9700\u8981\u4E00\u4E2A\u503C\u7684\u5730\u65B9\u2014\u2014\u5305\u62EC\u53E6\u4E00\u4E2A\u51FD\u6570\u7684\u62EC\u53F7\u91CC\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["42", "12", "84"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u51FD\u6570\u53C2\u6570\u5199\u6210 `BYREF`",
+            cases: [
+              {
+                code: [
+                  "FUNCTION Bad(BYREF N : INTEGER) RETURNS INTEGER",
+                  "   N \u2190 N + 1",
+                  "   RETURN N",
+                  "ENDFUNCTION",
+                  "DECLARE X : INTEGER",
+                  "X \u2190 1",
+                  "OUTPUT Bad(X)",
+                  "OUTPUT X"
+                ].join("\n"),
+                note: "**\u8FD9\u6BB5\u8DD1\u5F97\u5B8C**\uFF0C\u4E24\u884C\u90FD\u663E\u793A 2\u2014\u2014\u51FD\u6570\u628A\u5916\u9762\u7684 `X` \u4E5F\u6539\u4E86\u3002\u63D0\u793A\u662F\u4E00\u6761\u89C4\u8303\u7EA7\u522B\u7684\uFF0C\u4E0D\u62E6\u4F60\u8FD0\u884C\u3002\u9EBB\u70E6\u5728\u4E8E\u8BFB\u7B2C 7 \u884C\u7684\u4EBA\u6839\u672C\u60F3\u4E0D\u5230 `X` \u4F1A\u56E0\u6B64\u53D8\u5316\u3002",
+                expectDiagnostics: [
+                  { severity: "caie", ruleId: "PARAM-002", line: 1, text: "\u51FD\u6570\u7684\u53C2\u6570\u4E0D\u8BE5\u7528 `BYREF`\u3002\u8981\u6539\u8C03\u7528\u8005\u7684\u53D8\u91CF\uFF0C\u90A3\u4EF6\u4E8B\u5E94\u8BE5\u4EA4\u7ED9\u8FC7\u7A0B\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E3A\u4EC0\u4E48\u89C4\u8303\u4E0D\u8BA9\u51FD\u6570\u7684\u53C2\u6570\u7528 `BYREF`\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u56E0\u4E3A `BYREF` \u53EA\u80FD\u7528\u5728 `INTEGER` \u4E0A",
+                correct: false,
+                explanation: "\u548C\u7C7B\u578B\u6CA1\u5173\u7CFB\u3002\u8FC7\u7A0B\u91CC `BYREF` \u4E00\u4E2A `STRING`\u3001\u4E00\u4E2A\u6570\u7EC4\u90FD\u5B8C\u5168\u6B63\u5E38\u3002"
+              },
+              {
+                key: "B",
+                label: "\u56E0\u4E3A\u51FD\u6570\u5199\u5728\u8868\u8FBE\u5F0F\u91CC\uFF0C\u987A\u624B\u6539\u6389\u522B\u4EBA\u7684\u53D8\u91CF\u4F1A\u8BA9\u90A3\u53E5\u8868\u8FBE\u5F0F\u8BF4\u4E0D\u6E05",
+                correct: true,
+                explanation: "\u5BF9\u3002\u51FD\u6570\u662F\u62FF\u6765\u6C42\u503C\u7684\uFF0C\u51FA\u73B0\u5728\u8D4B\u503C\u53F7\u53F3\u8FB9\u3001`IF` \u7684\u6761\u4EF6\u91CC\u3002\u5B83\u5728\u90A3\u513F\u6084\u6084\u6539\u6389\u4E00\u4E2A\u53D8\u91CF\uFF0C\u8BFB\u90A3\u4E00\u884C\u7684\u4EBA\u5B8C\u5168\u770B\u4E0D\u51FA\u6765\u3002"
+              },
+              {
+                key: "C",
+                label: "\u56E0\u4E3A\u7F16\u8F91\u5668\u8FD8\u6CA1\u5B9E\u73B0",
+                correct: false,
+                explanation: "\u5B9E\u73B0\u4E86\uFF0C\u5199\u4E86\u7167\u6837\u8DD1\u3002\u8FD9\u662F Pseudocode Guide \u7684\u5199\u6CD5\u8981\u6C42\uFF0C\u4E0D\u662F\u80FD\u529B\u9650\u5236\u3002"
+              },
+              {
+                key: "D",
+                label: "\u56E0\u4E3A\u51FD\u6570\u4E0D\u80FD\u6709\u53C2\u6570",
+                correct: false,
+                explanation: "\u51FD\u6570\u5F53\u7136\u80FD\u6709\u53C2\u6570\uFF0C\u800C\u4E14\u591A\u6570\u51FD\u6570\u90FD\u6709\u3002\u4E0D\u8BA9\u7528\u7684\u53EA\u662F `BYREF` \u8FD9\u4E00\u79CD\u4F20\u9012\u65B9\u5F0F\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "13.5",
+        title: "\u51FD\u6570\u4E0D\u8BE5\u6709\u526F\u4F5C\u7528",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_13_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u51FD\u6570\u9664\u4E86\u7B97\u51FA\u8FD4\u56DE\u503C\u4E4B\u5916\u8FD8\u5E72\u4E86\u522B\u7684\u2014\u2014\u663E\u793A\u4E86\u4E1C\u897F\u3001\u6539\u4E86\u5168\u5C40\u53D8\u91CF\u3001\u5F80\u6587\u4EF6\u91CC\u5199\u4E86\u4E00\u884C\u2014\u2014\u8FD9\u4E9B\u989D\u5916\u7684\u52A8\u4F5C\u7EDF\u79F0**\u526F\u4F5C\u7528\uFF08side effect\uFF09**\u3002\u4E0A\u4E00\u8282\u7684 `BYREF` \u53C2\u6570\u662F\u5176\u4E2D\u4E00\u79CD\uFF0C\u4F46\u4E0D\u6B62\u90A3\u4E00\u79CD\u3002",
+              "\u4E3A\u4EC0\u4E48\u8981\u8EB2\u5F00\u5B83\uFF1F\u56E0\u4E3A\u51FD\u6570\u85CF\u5728\u8868\u8FBE\u5F0F\u91CC\uFF0C**\u4F60\u6570\u4E0D\u6E05\u5B83\u88AB\u8C03\u7528\u4E86\u51E0\u6B21\u3001\u6309\u4EC0\u4E48\u987A\u5E8F**\u3002`OUTPUT Double(3) + Double(4)` \u91CC\u6709\u4E24\u6B21\u8C03\u7528\uFF1B\u6362\u4E2A\u5199\u6CD5\u53EF\u80FD\u662F\u4E00\u6B21\uFF0C\u4E5F\u53EF\u80FD\u662F\u4E09\u6B21\u3002\u6BCF\u6B21\u8C03\u7528\u90FD\u5077\u5077\u505A\u70B9\u4EC0\u4E48\uFF0C\u7ED3\u679C\u5C31\u8DDF\u7740\u8C03\u7528\u6B21\u6570\u98D8\u3002",
+              "\u7F16\u8F91\u5668\u4E0D\u62E6\u8FD9\u4EF6\u4E8B\u2014\u2014\u51FD\u6570\u91CC\u5199 `OUTPUT` \u8BED\u6CD5\u4E0A\u5B8C\u5168\u5408\u6CD5\u3002\u8FD9\u662F**\u5199\u6CD5\u4E0A\u7684\u8981\u6C42**\uFF0C\u8DDF\u7F29\u8FDB\u3001\u5927\u5199\u4E00\u6837\uFF1A\u4E0D\u9075\u5B88\u4E5F\u80FD\u8DD1\uFF0C\u4F46\u5199\u51FA\u6765\u7684\u7A0B\u5E8F\u522B\u4EBA\u8BFB\u4E0D\u660E\u767D\u3002",
+              "\u5224\u636E\u6709\u4E00\u53E5\u73B0\u6210\u7684\uFF1A**\u628A\u4E00\u4E2A\u51FD\u6570\u8C03\u7528\u6362\u6210\u5B83\u7B97\u51FA\u6765\u7684\u90A3\u4E2A\u503C\uFF0C\u7A0B\u5E8F\u7684\u884C\u4E3A\u5E94\u8BE5\u5B8C\u5168\u4E0D\u53D8\u3002** \u505A\u5F97\u5230\uFF0C\u5B83\u5C31\u662F\u5E72\u51C0\u7684\u3002"
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u4E00\u4E2A\u6709\u526F\u4F5C\u7528\u7684\u51FD\u6570\uFF0C\u6570\u6570\u5B83\u88AB\u53EB\u4E86\u51E0\u6B21",
+            fileName: "Example_13_5_a.pseudocode",
+            code: [
+              "FUNCTION Noisy(N : INTEGER) RETURNS INTEGER",
+              '   OUTPUT "called with ", N',
+              "   RETURN N * 2",
+              "ENDFUNCTION",
+              "OUTPUT Noisy(3) + Noisy(4)"
+            ].join("\n"),
+            annotations: [
+              { fromLine: 2, toLine: 2, text: "\u8FD9\u4E00\u53E5\u5C31\u662F\u526F\u4F5C\u7528\uFF1A\u5B83\u548C\u300C\u7B97\u51FA N \u7684\u4E24\u500D\u300D\u8FD9\u4EF6\u4E8B\u6CA1\u6709\u5173\u7CFB\u3002" },
+              { fromLine: 5, toLine: 5, text: "\u53EA\u5199\u4E86\u4E00\u53E5 `OUTPUT`\uFF0C\u5C4F\u5E55\u4E0A\u5374\u51FA\u6765\u4E09\u884C\u2014\u2014\u56E0\u4E3A\u8FD9\u4E00\u884C\u91CC\u51FD\u6570\u88AB\u8C03\u7528\u4E86\u4E24\u6B21\uFF0C\u6BCF\u6B21\u90FD\u81EA\u5DF1\u5148\u558A\u4E00\u55D3\u5B50\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["called with 3", "called with 4", "14"]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E0A\u9762\u90A3\u6BB5\u6700\u540E\u4E00\u884C\u5982\u679C\u6539\u6210 `OUTPUT Noisy(3) * 2`\uFF0C\u5C4F\u5E55\u4E0A\u4F1A\u6709\u51E0\u884C\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "1 \u884C",
+                correct: false,
+                explanation: "\u51FD\u6570\u4F53\u91CC\u90A3\u53E5 `OUTPUT` \u6BCF\u6B21\u8C03\u7528\u90FD\u4F1A\u6267\u884C\u4E00\u6B21\uFF0C\u6240\u4EE5\u9664\u4E86\u7ED3\u679C\u90A3\u884C\u4E4B\u5916\u81F3\u5C11\u8FD8\u6709\u4E00\u884C\u3002"
+              },
+              {
+                key: "B",
+                label: "2 \u884C",
+                correct: true,
+                explanation: "\u5BF9\uFF1A\u4E00\u6B21\u8C03\u7528\u5E26\u51FA\u4E00\u884C `called with 3`\uFF0C\u518D\u52A0\u7ED3\u679C `12`\u3002**\u540C\u6837\u4E00\u4E2A\u51FD\u6570\uFF0C\u6362\u4E2A\u5F0F\u5B50\u884C\u6570\u5C31\u53D8\u4E86**\u2014\u2014\u526F\u4F5C\u7528\u9EBB\u70E6\u5C31\u9EBB\u70E6\u5728\u8FD9\u91CC\u3002"
+              },
+              {
+                key: "C",
+                label: "\u770B\u8FD0\u884C\u51E0\u6B21\u624D\u77E5\u9053",
+                correct: false,
+                explanation: "\u6BCF\u6B21\u8FD0\u884C\u90FD\u4E00\u6837\u3002\u4E0D\u786E\u5B9A\u7684\u4E0D\u662F\u6B21\u6570\u672C\u8EAB\uFF0C\u800C\u662F\u8BFB\u4EE3\u7801\u7684\u4EBA\u5149\u770B\u90A3\u4E00\u884C\u731C\u4E0D\u51FA\u4F1A\u663E\u793A\u51E0\u884C\u3002"
+              },
+              {
+                key: "D",
+                label: "3 \u884C",
+                correct: false,
+                explanation: "3 \u884C\u662F\u539F\u6765\u90A3\u79CD\u5199\u6CD5\u7684\u7ED3\u679C\uFF1A\u4E24\u6B21\u8C03\u7528\u5404\u4E00\u884C\uFF0C\u52A0\u4E0A\u6700\u540E\u7684\u548C\u3002\u8FD9\u91CC\u53EA\u6709\u4E00\u6B21\u8C03\u7528\u3002"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "13.5.1",
+            title: "\u56DB\u4E2A\u6570\u91CC\u6700\u5927\u7684",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u5B9A\u4E49\u4E00\u4E2A**\u5E72\u51C0\u7684**\u51FD\u6570\uFF0C\u63A5\u53D7\u4E24\u4E2A\u6574\u6570\u3001\u8FD8\u56DE\u6765\u8F83\u5927\u7684\u90A3\u4E00\u4E2A\uFF08\u4E0D\u663E\u793A\u4EFB\u4F55\u4E1C\u897F\u3001\u4E0D\u6539\u4EFB\u4F55\u5916\u90E8\u53D8\u91CF\uFF09\uFF1B\u4E3B\u7A0B\u5E8F\u8BFB\u5165\u56DB\u4E2A\u6570\uFF0C\u9760\u53CD\u590D\u8C03\u7528\u8FD9\u4E2A\u51FD\u6570\u627E\u51FA\u6700\u5927\u7684\u4E00\u4E2A\u518D\u663E\u793A\u51FA\u6765\u3002",
+            ioSpec: {
+              input: ["\u56DB\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a number`"].join("\n"),
+              output: ["\u4E00\u884C\uFF0C\u5199\u6210\uFF1A", "`Largest: <\u6700\u5927\u7684\u90A3\u4E2A\u6570>`", "\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "routine.function",
+                  reason: "\u300C\u4E24\u4E2A\u6570\u91CC\u8F83\u5927\u7684\u90A3\u4E2A\u300D\u662F\u4E00\u4E2A\u503C\uFF0C\u62FF\u53BB\u63A5\u7740\u6BD4\uFF0C\u6B63\u8BE5\u7531\u51FD\u6570\u8FD8\u56DE\u6765\u3002"
+                },
+                {
+                  feature: "expr.function-call",
+                  reason: "\u51FD\u6570\u8981\u7528\u5728\u9700\u8981\u4E00\u4E2A\u503C\u7684\u5730\u65B9\uFF0C\u800C\u4E0D\u662F\u5355\u5360\u4E00\u884C\u3002"
+                }
+              ],
+              forbid: [
+                {
+                  feature: "param.byref",
+                  reason: "\u51FD\u6570\u7684\u53C2\u6570\u4E0D\u8BE5\u7528 `BYREF`\uFF0C\u8FD9\u9053\u9898\u8981\u5199\u7684\u6B63\u662F\u4E00\u4E2A\u5E72\u51C0\u7684\u51FD\u6570\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u51FD\u6570\u91CC\u53EA\u8981\u4E00\u4E2A `IF` \u548C\u4E24\u53E5 `RETURN`\uFF0C\u4E00\u53E5 `OUTPUT` \u90FD\u4E0D\u8BE5\u6709\u3002",
+              "\u5148\u628A\u7B2C\u4E00\u4E2A\u6570\u5F53\u6210\u300C\u76EE\u524D\u6700\u5927\u7684\u300D\uFF0C\u540E\u9762\u6BCF\u8BFB\u4E00\u4E2A\u5C31\u548C\u5B83\u6BD4\u4E00\u6B21\u3002",
+              "\u6BD4\u8F83\u7684\u7ED3\u679C\u8981\u5B58\u56DE\u53BB\uFF1A`Best \u2190 Bigger(Best, N)`\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["3", "9", "2", "7"],
+                outputs: ["Enter a number", "Enter a number", "Enter a number", "Enter a number", "Largest: 9"]
+              }
+            ],
+            referenceSolution: [
+              "FUNCTION Bigger(A : INTEGER, B : INTEGER) RETURNS INTEGER",
+              "   IF A > B THEN",
+              "      RETURN A",
+              "   ENDIF",
+              "   RETURN B",
+              "ENDFUNCTION",
+              "DECLARE Best : INTEGER",
+              "DECLARE N : INTEGER",
+              "DECLARE I : INTEGER",
+              'OUTPUT "Enter a number"',
+              "INPUT Best",
+              "FOR I \u2190 2 TO 4",
+              '   OUTPUT "Enter a number"',
+              "   INPUT N",
+              "   Best \u2190 Bigger(Best, N)",
+              "NEXT I",
+              'OUTPUT "Largest: ", Best'
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["4", "8", "1", "6"], caseHint: "\u6700\u5927\u7684\u90A3\u4E2A\u843D\u5728\u4E2D\u95F4\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["9", "1", "2", "3"], caseHint: "\u6700\u5927\u7684\u5C31\u662F\u7B2C\u4E00\u4E2A\u8BFB\u8FDB\u6765\u7684\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["1", "2", "3", "9"], caseHint: "\u6700\u5927\u7684\u662F\u6700\u540E\u4E00\u4E2A\u8BFB\u8FDB\u6765\u7684\u3002" },
+              { id: "t4", kind: "normal", inputs: ["5", "5", "5", "5"], caseHint: "\u56DB\u4E2A\u6570\u5B8C\u5168\u4E00\u6837\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["-99999", "-99998", "-99997", "-99996"], caseHint: "\u5168\u662F\u5F88\u5C0F\u7684\u8D1F\u6570\uFF0C\u6700\u5927\u7684\u4E5F\u662F\u8D1F\u7684\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "13.6",
+        title: "\u4E94\u4E2A\u5FC5\u987B\u5206\u6E05\u7684\u8BCD",
+        syllabus: ["\xA711.3"],
+        estimatedMinutes: 8,
+        taughtFeatures: AFTER_13_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u8003\u7EB2\u70B9\u540D\u8981\u6C42\u80FD\u5206\u6E05\u4E94\u4E2A\u8BCD\u3002\u62FF `FUNCTION Area(Width : INTEGER, Height : INTEGER) RETURNS INTEGER` \u8FD9\u4E00\u884C\u5F53\u4F8B\u5B50\uFF0C\u4E94\u4E2A\u8BCD\u5168\u5728\u91CC\u9762\u6216\u8005\u7D27\u6328\u7740\u5B83\u3002",
+              "**\u5934\u90E8\uFF08header\uFF09**\u5C31\u662F\u8FD9\u4E00\u884C\u672C\u8EAB\uFF1A\u540D\u5B57\u3001\u53C2\u6570\u3001\u8FD4\u56DE\u7C7B\u578B\u3002\u5B83\u4E0D\u5305\u542B\u51FD\u6570\u4F53\uFF0C\u4E5F\u4E0D\u5305\u542B `ENDFUNCTION`\u3002\u8FC7\u7A0B\u4E5F\u6709\u5934\u90E8\uFF0C\u53EA\u662F\u6CA1\u6709 `RETURNS` \u90A3\u4E00\u622A\u3002",
+              "**\u63A5\u53E3\uFF08interface\uFF09**\u662F\u5934\u90E8\u91CC\u56DE\u7B54\u300C\u600E\u4E48\u7528\u5B83\u300D\u7684\u90A3\u90E8\u5206\uFF1A\u8981\u7ED9\u5B83\u4EC0\u4E48\u3001\u5B83\u4F1A\u8FD8\u56DE\u6765\u4EC0\u4E48\u3002\u77E5\u9053\u63A5\u53E3\u5C31\u8DB3\u591F\u4F7F\u7528\u4E00\u4E2A\u51FD\u6570\u4E86\u2014\u2014**\u91CC\u9762\u600E\u4E48\u5199\u7684\u5B8C\u5168\u4E0D\u7528\u770B**\uFF0C\u8FD9\u6B63\u662F\u5206\u89E3\u5E26\u6765\u7684\u597D\u5904\u3002",
+              "**\u53C2\u6570\uFF08parameter\uFF09**\u662F `Width` \u548C `Height`\uFF1B**\u5B9E\u53C2\uFF08argument\uFF09**\u662F\u8C03\u7528\u65F6\u5199\u7684 `3` \u548C `4`\uFF1B**\u8FD4\u56DE\u503C\uFF08return value\uFF09**\u662F `RETURN` \u4EA4\u56DE\u53BB\u3001\u5E76\u4E14\u53D6\u4EE3\u4E86\u8FD9\u6B21\u8C03\u7528\u7684\u90A3\u4E2A\u6570\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u660E\u786E\u5217\u51FA header\u3001interface\u3001parameter\u3001argument\u3001return value \u4E94\u4E2A\u672F\u8BED\uFF08\xA711.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "`OUTPUT Area(3, 4)` \u663E\u793A\u51FA `12`\u3002\u8FD9\u4E2A `12` \u662F\u4EC0\u4E48\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u5934\u90E8",
+                correct: false,
+                explanation: "\u5934\u90E8\u662F `FUNCTION Area(...) RETURNS INTEGER` \u90A3\u4E00\u884C\uFF0C\u6BCF\u4E2A\u51FD\u6570\u53EA\u6709\u4E00\u4E2A\uFF0C\u548C\u8C03\u7528\u51E0\u6B21\u65E0\u5173\u3002"
+              },
+              {
+                key: "B",
+                label: "\u63A5\u53E3",
+                correct: false,
+                explanation: "\u63A5\u53E3\u8BF4\u7684\u662F\u300C\u8981\u7ED9\u4E24\u4E2A `INTEGER`\u3001\u4F1A\u8FD8\u56DE\u6765\u4E00\u4E2A `INTEGER`\u300D\u8FD9\u4EF6\u4E8B\uFF0C\u662F\u4F7F\u7528\u8BF4\u660E\uFF0C\u4E0D\u662F\u67D0\u4E00\u6B21\u7684\u7ED3\u679C\u3002"
+              },
+              {
+                key: "C",
+                label: "\u5B9E\u53C2",
+                correct: false,
+                explanation: "\u5B9E\u53C2\u662F\u8C03\u7528\u65F6\u9012\u8FDB\u53BB\u7684 `3` \u548C `4`\uFF0C\u65B9\u5411\u6B63\u597D\u76F8\u53CD\u2014\u2014\u5B83\u4EEC\u662F\u8FDB\u53BB\u7684\uFF0C`12` \u662F\u51FA\u6765\u7684\u3002"
+              },
+              {
+                key: "D",
+                label: "\u8FD4\u56DE\u503C",
+                correct: true,
+                explanation: "\u5BF9\u3002\u800C\u4E14\u66F4\u51C6\u786E\u7684\u8BF4\u6CD5\u662F\uFF1A`Area(3, 4)` \u8FD9\u4E00\u6574\u5757\u88AB\u8FD9\u4E2A\u503C\u53D6\u4EE3\u4E86\uFF0C\u6240\u4EE5 `OUTPUT` \u62FF\u5230\u7684\u5C31\u662F `12`\u3002"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    chapterTasks: [
+      {
+        kind: "chapterTask",
+        id: "13.T1",
+        title: "\u4E94\u79D1\u6210\u7EE9\u62A5\u544A",
+        statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 5 \u79D1\u6210\u7EE9\uFF0C\u7B97\u51FA\u5E73\u5747\u5206\uFF08\u53D6\u6574\u6570\u5546\uFF09\uFF0C\u518D\u6309\u5E73\u5747\u5206\u7ED9\u51FA\u7B49\u7B2C\uFF0C\u6700\u540E\u628A\u5E73\u5747\u5206\u548C\u7B49\u7B2C\u663E\u793A\u51FA\u6765\u3002\u5E73\u5747\u5206\u548C\u7B49\u7B2C\u5404\u5199\u6210\u4E00\u4E2A\u51FD\u6570\uFF0C\u663E\u793A\u5199\u6210\u4E00\u4E2A\u8FC7\u7A0B\uFF1B\u4E3B\u7A0B\u5E8F\u53EA\u8D1F\u8D23\u8BFB\u5165\u3001\u8C03\u7528\u548C\u4E32\u8D77\u6765\u3002\u7B49\u7B2C\u89C4\u5219\uFF1A80 \u5206\u53CA\u4EE5\u4E0A\u662F `A`\uFF0C60 \u5206\u53CA\u4EE5\u4E0A\u662F `B`\uFF0C40 \u5206\u53CA\u4EE5\u4E0A\u662F `C`\uFF0C\u518D\u4F4E\u662F `F`\u3002",
+        ioSpec: {
+          input: ["\u4E94\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a mark`"].join("\n"),
+          output: ["\u8BFB\u5B8C\u4E4B\u540E\u663E\u793A\u4E24\u884C\uFF1A", "`Average: <\u5E73\u5747\u5206>`", "`Grade: <\u7B49\u7B2C>`", "\u6BCF\u4E2A\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
+        },
+        suggestedFeatures: [
+          "routine.function",
+          "routine.return",
+          "expr.function-call",
+          "routine.procedure",
+          "routine.call",
+          "param.byval",
+          "op.div",
+          "select.if",
+          "loop.for",
+          "io.input",
+          "io.output"
+        ],
+        hints: [
+          "\u4E24\u4E2A\u51FD\u6570\u4E00\u4E2A\u8FC7\u7A0B\uFF1A\u7B97\u5E73\u5747\u7684\u51FD\u6570\u3001\u5224\u7B49\u7B2C\u7684\u51FD\u6570\u3001\u663E\u793A\u7ED3\u679C\u7684\u8FC7\u7A0B\u3002\u4E09\u4EF6\u4E8B\u5404\u7BA1\u5404\u7684\u3002",
+          "\u5224\u7B49\u7B2C\u7684\u90A3\u4E2A\u51FD\u6570\u62FF\u5E73\u5747\u5206\u5F53\u53C2\u6570\uFF0C\u5B83\u4E0D\u9700\u8981\u77E5\u9053\u6210\u7EE9\u662F\u600E\u4E48\u6765\u7684\u2014\u2014\u8FD9\u6B63\u662F\u63A5\u53E3\u7684\u610F\u601D\u3002",
+          "\u4E00\u4E2A\u51FD\u6570\u7684\u8FD4\u56DE\u503C\u53EF\u4EE5\u76F4\u63A5\u5F53\u53E6\u4E00\u4E2A\u8C03\u7528\u7684\u5B9E\u53C2\uFF1A`CALL ShowResult(Mean, Grade(Mean))`\u3002"
+        ],
+        examples: [
+          {
+            inputs: ["80", "70", "90", "60", "100"],
+            outputs: [
+              "Enter a mark",
+              "Enter a mark",
+              "Enter a mark",
+              "Enter a mark",
+              "Enter a mark",
+              "Average: 80",
+              "Grade: A"
+            ]
+          }
+        ],
+        referenceSolution: [
+          "FUNCTION Average(Total : INTEGER, Count : INTEGER) RETURNS INTEGER",
+          "   RETURN Total DIV Count",
+          "ENDFUNCTION",
+          "FUNCTION Grade(Mark : INTEGER) RETURNS STRING",
+          "   IF Mark >= 80 THEN",
+          '      RETURN "A"',
+          "   ENDIF",
+          "   IF Mark >= 60 THEN",
+          '      RETURN "B"',
+          "   ENDIF",
+          "   IF Mark >= 40 THEN",
+          '      RETURN "C"',
+          "   ENDIF",
+          '   RETURN "F"',
+          "ENDFUNCTION",
+          "PROCEDURE ShowResult(Value : INTEGER, Letter : STRING)",
+          '   OUTPUT "Average: ", Value',
+          '   OUTPUT "Grade: ", Letter',
+          "ENDPROCEDURE",
+          "DECLARE Sum : INTEGER",
+          "DECLARE Mark : INTEGER",
+          "DECLARE I : INTEGER",
+          "DECLARE Mean : INTEGER",
+          "Sum \u2190 0",
+          "FOR I \u2190 1 TO 5",
+          '   OUTPUT "Enter a mark"',
+          "   INPUT Mark",
+          "   Sum \u2190 Sum + Mark",
+          "NEXT I",
+          "Mean \u2190 Average(Sum, 5)",
+          "CALL ShowResult(Mean, Grade(Mean))"
+        ].join("\n"),
+        tests: [
+          { id: "t1", kind: "normal", inputs: ["55", "62", "71", "48", "90"], caseHint: "\u4E94\u79D1\u6210\u7EE9\u9AD8\u4F4E\u4E0D\u4E00\uFF0C\u5E73\u5747\u5206\u843D\u5728\u4E2D\u95F4\u7684\u7B49\u7B2C\u4E0A\u3002" },
+          { id: "t2", kind: "boundary", inputs: ["80", "80", "80", "80", "80"], caseHint: "\u5E73\u5747\u5206\u6B63\u597D\u8E29\u5728\u6700\u9AD8\u7684\u90A3\u4E2A\u95E8\u69DB\u4E0A\u3002" },
+          { id: "t3", kind: "boundary", inputs: ["0", "0", "0", "0", "0"], caseHint: "\u5168\u90E8\u96F6\u5206\u3002" },
+          { id: "t4", kind: "boundary", inputs: ["41", "40", "40", "40", "40"], caseHint: "\u603B\u5206\u9664\u4E0D\u5C3D\uFF0C\u6574\u9664\u4E4B\u540E\u6B63\u597D\u843D\u56DE\u95E8\u69DB\u4E0A\u3002" },
+          { id: "t5", kind: "extreme", inputs: ["99999", "0", "0", "0", "0"], caseHint: "\u4E00\u79D1\u5927\u5F97\u79BB\u8C31\uFF0C\u5176\u4F59\u5168\u662F\u96F6\u3002" }
+        ]
+      }
+    ]
+  };
+
+  // packages/teaching-content/src/chapter-14.ts
+  var AFTER_CHAPTER_13 = [
+    "io.output",
+    "io.input",
+    "decl.variable",
+    "misc.comment",
+    "type.string",
+    "literal.string",
+    "type.integer",
+    "type.real",
+    "type.char",
+    "type.boolean",
+    "type.date",
+    "literal.integer",
+    "literal.real",
+    "literal.char",
+    "literal.boolean",
+    "literal.date",
+    "assign.simple",
+    "decl.constant",
+    "op.arithmetic",
+    "op.div",
+    "op.mod",
+    "op.relational",
+    "op.and",
+    "op.or",
+    "op.not",
+    "select.if",
+    "select.if-else",
+    "select.nested-if",
+    "select.case",
+    "select.case-range",
+    "select.case-otherwise",
+    "loop.for",
+    "loop.for-step",
+    "loop.while",
+    "loop.repeat",
+    "loop.nested",
+    "builtin.length",
+    "builtin.mid",
+    "builtin.right",
+    "builtin.ucase",
+    "builtin.lcase",
+    "op.concat",
+    "builtin.int",
+    "builtin.rand",
+    "decl.array-1d",
+    "array.index",
+    "decl.array-2d",
+    "array.index-2d",
+    "decl.record-type",
+    "record.field-access",
+    "routine.procedure",
+    "routine.call",
+    "param.byval",
+    "param.byref",
+    "routine.function",
+    "routine.return",
+    "expr.function-call"
+  ];
+  var AFTER_14_1 = [...AFTER_CHAPTER_13, "file.open-write", "file.write", "file.close"];
+  var AFTER_14_3 = [...AFTER_14_1, "file.open-read", "file.read"];
+  var AFTER_14_4 = [...AFTER_14_3, "file.open-append"];
+  var AFTER_14_5 = [...AFTER_14_4, "builtin.eof"];
+  var chapter14 = {
+    id: 14,
+    title: "\u6587\u672C\u6587\u4EF6",
+    level: "AS",
+    syllabus: ["\xA710.3"],
+    prerequisites: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+    sections: [
+      {
+        id: "14.1",
+        title: "\u4E3A\u4EC0\u4E48\u9700\u8981\u6587\u4EF6",
+        syllabus: ["\xA710.3"],
+        estimatedMinutes: 8,
+        taughtFeatures: AFTER_14_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u5230\u8FD9\u91CC\u4E3A\u6B62\uFF0C\u7A0B\u5E8F\u91CC\u6240\u6709\u7684\u6570\u636E\u2014\u2014\u53D8\u91CF\u3001\u6570\u7EC4\u3001\u8BB0\u5F55\u2014\u2014\u90FD\u6709\u540C\u4E00\u4E2A\u6BDB\u75C5\uFF1A**\u7A0B\u5E8F\u4E00\u7ED3\u675F\uFF0C\u5B83\u4EEC\u5C31\u5168\u6CA1\u4E86**\u3002\u4E0B\u6B21\u518D\u8FD0\u884C\uFF0C\u4E00\u5207\u4ECE\u5934\u5F00\u59CB\uFF0C\u4E0A\u6B21\u8F93\u5165\u7684\u4E1C\u897F\u4E00\u4E2A\u5B57\u90FD\u4E0D\u5269\u3002",
+              "\u8981\u8BA9\u6570\u636E\u6D3B\u8FC7\u4E00\u6B21\u8FD0\u884C\uFF0C\u5C31\u5F97\u628A\u5B83\u5199\u5230\u7A0B\u5E8F\u5916\u9762\u53BB\u3002**\u6587\u672C\u6587\u4EF6\uFF08text file\uFF09**\u662F\u6700\u7B80\u5355\u7684\u90A3\u79CD\u53BB\u5904\uFF1A\u4E00\u4E2A\u6709\u540D\u5B57\u7684\u5730\u65B9\uFF0C\u91CC\u9762\u662F\u4E00\u884C\u4E00\u884C\u7684\u6587\u5B57\uFF0C\u7A0B\u5E8F\u7ED3\u675F\u4E4B\u540E\u5B83\u8FD8\u5728\u3002",
+              "\u6587\u672C\u6587\u4EF6\u53EA\u88C5\u6587\u5B57\u3002\u5F80\u91CC\u5199\u4E00\u4E2A\u6570\uFF0C\u5199\u8FDB\u53BB\u7684\u662F\u8FD9\u4E2A\u6570**\u5199\u51FA\u6765\u7684\u6837\u5B50**\uFF1B\u8BFB\u56DE\u6765\u7684\u4E5F\u662F\u4E00\u884C\u6587\u5B57\uFF0C\u4E0D\u4F1A\u81EA\u52A8\u53D8\u56DE\u6570\u2014\u2014\u8FD9\u4E00\u70B9\u540E\u9762\u51E0\u8282\u4F1A\u53CD\u590D\u78B0\u5230\u3002",
+              "\u7528\u6587\u4EF6\u7684\u56DB\u4EF6\u4E8B\u603B\u662F\u8FD9\u4E2A\u987A\u5E8F\uFF1A**\u6253\u5F00\u3001\u8BFB\u6216\u5199\u3001\u5173\u6389**\u3002\u4E2D\u95F4\u90A3\u4E00\u6B65\u505A\u4EC0\u4E48\u7531\u6253\u5F00\u65F6\u9009\u7684\u65B9\u5F0F\u51B3\u5B9A\uFF0C\u4E0B\u9762\u51E0\u8282\u4E00\u4EF6\u4E00\u4EF6\u8BF4\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u80FD\u4F7F\u7528\u6587\u672C\u6587\u4EF6\u5B58\u50A8\u548C\u8BFB\u53D6\u6570\u636E\uFF08\xA710.3\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "comparison",
+            title: "\u8BB0\u5728\u53D8\u91CF\u91CC\uFF0C\u8FD8\u662F\u8BB0\u5230\u6587\u4EF6\u91CC",
+            intro: "\u628A\u4E00\u4E2A\u540D\u5B57\u5B58\u8D77\u6765\u3002",
+            panes: [
+              {
+                label: "\u81EA\u7136\u8BED\u8A00",
+                language: "natural",
+                code: ["\u8BB0\u5728\u8111\u5B50\u91CC\uFF1A\u8FD9\u6B21\u8C08\u8BDD\u7ED3\u675F\u5C31\u5FD8\u4E86\u3002", "\u5199\u5728\u7EB8\u4E0A\uFF1A\u660E\u5929\u8FD8\u80FD\u7FFB\u51FA\u6765\u770B\u3002"].join("\n"),
+                note: "\u53D8\u91CF\u662F\u8111\u5B50\uFF0C\u6587\u4EF6\u662F\u7EB8\u3002\u5DEE\u522B\u4E0D\u5728\u8FD9\u4E00\u523B\u80FD\u4E0D\u80FD\u7528\uFF0C\u800C\u5728\u4E0B\u6B21\u8FD8\u5728\u4E0D\u5728\u3002"
+              },
+              {
+                label: "\u53D8\u91CF",
+                language: "pseudocode",
+                code: ["DECLARE Best : STRING", 'Best \u2190 "Ada"', "OUTPUT Best"].join("\n"),
+                note: "\u8FD9\u4E00\u6B21\u8FD0\u884C\u91CC\u7528\u8D77\u6765\u4E00\u70B9\u95EE\u9898\u90FD\u6CA1\u6709\u3002\u4F46\u7A0B\u5E8F\u4E00\u7ED3\u675F\uFF0C`Best` \u5C31\u4E0D\u5B58\u5728\u4E86\uFF0C\u4E0B\u6B21\u8FD0\u884C\u5F97\u91CD\u65B0\u8F93\u5165\u4E00\u904D\u3002"
+              },
+              {
+                label: "\u6587\u4EF6",
+                language: "pseudocode",
+                code: [
+                  'OPENFILE "Best.txt" FOR WRITE',
+                  'WRITEFILE "Best.txt", "Ada"',
+                  'CLOSEFILE "Best.txt"',
+                  'OUTPUT "Saved"'
+                ].join("\n"),
+                note: "\u5C4F\u5E55\u4E0A\u53EA\u591A\u4E86\u4E00\u53E5 `Saved`\uFF0C\u770B\u4E0D\u89C1 `Ada`\u2014\u2014\u5B83\u4E0D\u5728\u5C4F\u5E55\u4E0A\uFF0C\u5728 `Best.txt` \u91CC\uFF0C\u4E0B\u6B21\u8FD0\u884C\u8FD8\u80FD\u8BFB\u51FA\u6765\u3002"
+              },
+              {
+                label: "Python",
+                language: "python",
+                code: ['with open("best.txt", "w") as f:', '    f.write("Ada\\n")'].join("\n"),
+                note: "\u4E09\u6B65\u662F\u4E00\u6837\u7684\uFF1A\u6253\u5F00\u3001\u5199\u3001\u5173\u6389\u3002Python \u7684 `with` \u53EA\u662F\u628A\u300C\u5173\u6389\u300D\u8FD9\u4E00\u6B65\u81EA\u52A8\u5316\u4E86\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E0B\u9762\u54EA\u4EF6\u4E8B**\u53EA\u6709**\u6587\u4EF6\u505A\u5F97\u5230\uFF0C\u53D8\u91CF\u548C\u6570\u7EC4\u505A\u4E0D\u5230\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u5B58\u653E\u4E0D\u540C\u7C7B\u578B\u7684\u6570\u636E",
+                correct: false,
+                explanation: "\u90A3\u662F\u8BB0\u5F55\u7684\u6D3B\u3002\u6587\u672C\u6587\u4EF6\u53CD\u800C\u53EA\u8BA4\u6587\u5B57\uFF0C\u4EC0\u4E48\u8FDB\u53BB\u90FD\u53D8\u6210\u6587\u5B57\u3002"
+              },
+              {
+                key: "B",
+                label: "\u628A\u6570\u636E\u663E\u793A\u7ED9\u7528\u6237\u770B",
+                correct: false,
+                explanation: "\u663E\u793A\u7528 `OUTPUT`\u3002\u5199\u8FDB\u6587\u4EF6\u6070\u6070\u662F**\u4E0D**\u663E\u793A\u2014\u2014\u5C4F\u5E55\u4E0A\u770B\u4E0D\u89C1\u5B83\u3002"
+              },
+              {
+                key: "C",
+                label: "\u4E00\u6B21\u5B58\u5F88\u591A\u6761\u6570\u636E",
+                correct: false,
+                explanation: "\u6570\u7EC4\u5C31\u80FD\u505A\u5230\uFF0C\u800C\u4E14\u53D6\u7528\u6BD4\u6587\u4EF6\u65B9\u4FBF\u5F97\u591A\u3002\u6761\u6570\u591A\u4E0D\u662F\u7528\u6587\u4EF6\u7684\u7406\u7531\u3002"
+              },
+              {
+                key: "D",
+                label: "\u628A\u8FD9\u6B21\u8FD0\u884C\u8F93\u5165\u7684\u4E1C\u897F\u7559\u7ED9\u4E0B\u4E00\u6B21\u8FD0\u884C\u7528",
+                correct: true,
+                explanation: "\u5BF9\u3002\u7A0B\u5E8F\u4E00\u7ED3\u675F\uFF0C\u53D8\u91CF\u548C\u6570\u7EC4\u8FDE\u540C\u91CC\u9762\u7684\u503C\u4E00\u8D77\u6D88\u5931\uFF1B\u6587\u4EF6\u7559\u5728\u7A0B\u5E8F\u5916\u9762\uFF0C\u4E0B\u4E00\u6B21\u8FD0\u884C\u8FD8\u80FD\u6253\u5F00\u5B83\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "14.2",
+        title: "`OPENFILE`\u3001`WRITEFILE`\u3001`CLOSEFILE`",
+        syllabus: ["\xA710.3"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_14_1,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              '\u5199\u4E00\u4E2A\u6587\u4EF6\u8981\u4E09\u53E5\u8BDD\u3002`OPENFILE "Names.txt" FOR WRITE` \u6253\u5F00\u5B83\uFF1A\u6587\u4EF6\u540D\u5199\u6210\u4E00\u6BB5 `STRING`\uFF0C`FOR` \u540E\u9762\u8BF4\u660E\u8FD9\u6B21\u8981\u62FF\u5B83\u5E72\u4EC0\u4E48\u3002',
+              '`WRITEFILE "Names.txt", "Ada"` \u5F80\u91CC\u5199**\u4E00\u6574\u884C**\u3002\u5199\u5B8C\u4F4D\u7F6E\u81EA\u52A8\u5F80\u4E0B\u632A\u4E00\u884C\uFF0C\u6240\u4EE5\u63A5\u7740\u518D\u5199\u4E00\u53E5\u5C31\u662F\u7B2C\u4E8C\u884C\u2014\u2014\u4E0D\u7528\u81EA\u5DF1\u7BA1\u884C\u53F7\u3002',
+              '`CLOSEFILE "Names.txt"` \u5173\u6389\u3002**\u6BCF\u4E00\u53E5\u90FD\u8981\u91CD\u590D\u5199\u4E00\u904D\u6587\u4EF6\u540D**\uFF0C\u56E0\u4E3A\u7A0B\u5E8F\u91CC\u53EF\u4EE5\u540C\u65F6\u5F00\u7740\u597D\u51E0\u4E2A\u6587\u4EF6\uFF0C\u6BCF\u4E00\u53E5\u90FD\u5F97\u8BF4\u6E05\u662F\u54EA\u4E00\u4E2A\u3002',
+              "\u5173\u6389\u8FD9\u4E00\u6B65\u4E0D\u80FD\u7701\u3002\u6587\u4EF6\u5F00\u7740\u7684\u65F6\u5019\u522B\u4EBA\uFF08\u5305\u62EC\u8FD9\u6BB5\u7A0B\u5E8F\u81EA\u5DF1\uFF09\u6CA1\u6CD5\u518D\u6253\u5F00\u5B83\u2014\u2014\u4E0B\u4E00\u8282\u8981\u628A\u521A\u5199\u7684\u4E1C\u897F\u8BFB\u56DE\u6765\uFF0C\u5C31\u5FC5\u987B\u5148\u5173\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u6587\u672C\u6587\u4EF6\u7528 `OPENFILE <\u6587\u4EF6> FOR READ|WRITE|APPEND` \u6253\u5F00\uFF0C`WRITEFILE <\u6587\u4EF6>, <\u6570\u636E>` \u5199\u5165\u4E00\u884C\uFF0C`CLOSEFILE <\u6587\u4EF6>` \u5173\u95ED\uFF08G\xA79.1\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u628A\u4E24\u4E2A\u540D\u5B57\u5199\u51FA\u53BB",
+            fileName: "Example_14_2_a.pseudocode",
+            code: [
+              'OPENFILE "Names.txt" FOR WRITE',
+              'WRITEFILE "Names.txt", "Ada"',
+              'WRITEFILE "Names.txt", "Bob"',
+              'CLOSEFILE "Names.txt"',
+              'OUTPUT "Saved 2 names"'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 1, text: "`FOR WRITE` \u6253\u5F00\u7684\u540C\u65F6\u5C31\u628A\u6587\u4EF6\u6E05\u7A7A\u4E86\u2014\u2014\u4E0B\u4E00\u8282\u4F1A\u770B\u5230\u8FD9\u4E00\u70B9\u7684\u540E\u679C\u3002" },
+              { fromLine: 2, toLine: 3, text: "\u4E24\u53E5\u5199\u51FA\u4E24\u884C\u3002\u4F4D\u7F6E\u81EA\u5DF1\u5F80\u4E0B\u8D70\uFF0C\u4E0D\u7528\u544A\u8BC9\u5B83\u5199\u7B2C\u51E0\u884C\u3002" },
+              { fromLine: 5, toLine: 5, text: "\u5C4F\u5E55\u4E0A\u53EA\u6709\u8FD9\u4E00\u53E5\u3002\u524D\u56DB\u884C\u7684\u6210\u679C\u5728\u6587\u4EF6\u91CC\uFF0C\u770B\u4E0D\u89C1\u2014\u2014\u8FD9\u6B63\u662F\u6587\u4EF6\u548C `OUTPUT` \u7684\u533A\u522B\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["Saved 2 names"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u4E24\u79CD\u6F0F\u4E86 `OPENFILE` \u7684\u5199\u6CD5",
+            cases: [
+              {
+                title: "\u6CA1\u6253\u5F00\u5C31\u5199",
+                code: ['WRITEFILE "Names.txt", "Ada"'].join("\n"),
+                note: "\u6587\u4EF6\u5F97\u5148\u6253\u5F00\u624D\u80FD\u5199\u3002\u8FD9\u4E00\u6761\u8FD0\u884C\u524D\u5C31\u80FD\u67E5\u51FA\u6765\u2014\u2014\u7F16\u8F91\u5668\u987A\u7740\u4EE3\u7801\u770B\u5F97\u5230\u8FD9\u4E2A\u6587\u4EF6\u4ECE\u5934\u5230\u5C3E\u6CA1\u88AB\u6253\u5F00\u8FC7\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "FILE-003", line: 1, text: "\u8FD9\u4E2A\u6587\u4EF6\u8FD8\u6CA1\u6253\u5F00\uFF0C\u5199\u4E0D\u8FDB\u53BB\u3002" }
+                ]
+              },
+              {
+                title: "\u5173\u4E86\u4E24\u904D",
+                code: [
+                  'OPENFILE "Names.txt" FOR WRITE',
+                  'WRITEFILE "Names.txt", "Ada"',
+                  'CLOSEFILE "Names.txt"',
+                  'CLOSEFILE "Names.txt"'
+                ].join("\n"),
+                note: "\u7B2C\u4E00\u53E5 `CLOSEFILE` \u4E4B\u540E\u6587\u4EF6\u5DF2\u7ECF\u5173\u4E86\uFF0C\u7B2C\u4E8C\u53E5\u6CA1\u6709\u4E1C\u897F\u53EF\u5173\u3002\u591A\u5199\u4E00\u53E5\u770B\u7740\u65E0\u5BB3\uFF0C\u4F46\u5B83\u8BF4\u660E\u4F60\u5BF9\u300C\u73B0\u5728\u8FD9\u4E2A\u6587\u4EF6\u662F\u5F00\u7740\u8FD8\u662F\u5173\u7740\u300D\u8BB0\u5C94\u4E86\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "FILE-003", line: 4, text: "\u8FD9\u4E2A\u6587\u4EF6\u5DF2\u7ECF\u5173\u6389\u4E86\uFF0C\u4E0D\u80FD\u518D\u5173\u4E00\u6B21\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E3A\u4EC0\u4E48 `WRITEFILE` \u548C `CLOSEFILE` \u90FD\u8981\u628A\u6587\u4EF6\u540D\u518D\u5199\u4E00\u904D\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u56E0\u4E3A `OPENFILE` \u4E4B\u540E\u6587\u4EF6\u540D\u5C31\u5FD8\u4E86",
+                correct: false,
+                explanation: "\u6CA1\u5FD8\uFF0C\u6587\u4EF6\u4E00\u76F4\u5F00\u7740\u3002\u91CD\u5199\u6587\u4EF6\u540D\u662F\u4E3A\u4E86\u6307\u660E\u662F\u54EA\u4E00\u4E2A\uFF0C\u4E0D\u662F\u56E0\u4E3A\u5B83\u4E22\u4E86\u3002"
+              },
+              {
+                key: "B",
+                label: "\u56E0\u4E3A\u7A0B\u5E8F\u91CC\u53EF\u4EE5\u540C\u65F6\u5F00\u7740\u597D\u51E0\u4E2A\u6587\u4EF6\uFF0C\u6BCF\u4E00\u53E5\u90FD\u5F97\u8BF4\u6E05\u662F\u5BF9\u54EA\u4E00\u4E2A",
+                correct: true,
+                explanation: "\u5BF9\u3002\u4E00\u8FB9\u8BFB\u4E00\u4E2A\u6587\u4EF6\u4E00\u8FB9\u5199\u53E6\u4E00\u4E2A\u662F\u5F88\u5E38\u89C1\u7684\u505A\u6CD5\uFF0814.6 \u5C31\u8981\u8FD9\u4E48\u5E72\uFF09\uFF0C\u6240\u4EE5\u6BCF\u4E00\u53E5\u90FD\u5F97\u6307\u540D\u9053\u59D3\u3002"
+              },
+              {
+                key: "C",
+                label: "\u56E0\u4E3A\u6587\u4EF6\u540D\u6BCF\u6B21\u90FD\u53EF\u80FD\u4E0D\u4E00\u6837",
+                correct: false,
+                explanation: "\u540C\u4E00\u4E2A\u6587\u4EF6\u4ECE\u6253\u5F00\u5230\u5173\u6389\u5F53\u7136\u662F\u540C\u4E00\u4E2A\u540D\u5B57\u3002\u80FD\u53D8\u7684\u662F\u4F60\u6253\u5F00\u7684\u662F\u54EA\u4E2A\u6587\u4EF6\uFF0C\u4E0D\u662F\u5B83\u4E2D\u9014\u6539\u540D\u3002"
+              },
+              {
+                key: "D",
+                label: "\u53EA\u662F\u5199\u6CD5\u8981\u6C42\uFF0C\u7701\u6389\u4E5F\u80FD\u8DD1",
+                correct: false,
+                explanation: "\u7701\u4E0D\u6389\u3002\u4E0D\u5199\u6587\u4EF6\u540D\u8FD9\u51E0\u53E5\u5C31\u4E0D\u5B8C\u6574\uFF0C\u7F16\u8F91\u5668\u4F1A\u5F53\u6210\u5199\u9519\u4E86\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "14.3",
+        title: "`READFILE`\uFF1A\u628A\u5B83\u8BFB\u56DE\u6765",
+        syllabus: ["\xA710.3"],
+        estimatedMinutes: 11,
+        taughtFeatures: AFTER_14_3,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              '\u8BFB\u8981\u7528 `FOR READ` \u6253\u5F00\uFF1A`OPENFILE "Names.txt" FOR READ`\u3002\u8FD9\u79CD\u65B9\u5F0F\u4E0D\u6539\u52A8\u6587\u4EF6\u5185\u5BB9\uFF0C\u53EA\u662F\u4ECE\u7B2C 1 \u884C\u5F00\u59CB\u5F80\u4E0B\u770B\u3002',
+              '`READFILE "Names.txt", Line` \u8BFB**\u5F53\u524D\u8FD9\u4E00\u884C**\uFF0C\u653E\u8FDB `Line` \u8FD9\u4E2A\u53D8\u91CF\u91CC\uFF0C\u7136\u540E\u4F4D\u7F6E\u5F80\u4E0B\u632A\u4E00\u884C\u3002\u4E0B\u4E00\u53E5 `READFILE` \u8BFB\u5230\u7684\u5C31\u662F\u4E0B\u4E00\u884C\u2014\u2014\u548C\u5199\u7684\u65F6\u5019\u4E00\u6837\uFF0C\u4F4D\u7F6E\u81EA\u5DF1\u8D70\u3002',
+              "\u63A5\u6536\u7684\u90A3\u4E2A\u53D8\u91CF**\u5FC5\u987B\u662F `STRING`**\u3002\u6587\u4EF6\u91CC\u88C5\u7684\u5C31\u662F\u6587\u5B57\uFF0C\u54EA\u6015\u90A3\u4E00\u884C\u770B\u8D77\u6765\u662F\u4E2A\u6570\u5B57\uFF0C\u8BFB\u56DE\u6765\u4E5F\u662F\u4E00\u6BB5\u6587\u5B57\uFF1B\u5199\u6210 `INTEGER` \u53D8\u91CF\u63A5\uFF0C\u8FD0\u884C\u524D\u5C31\u88AB\u62E6\u4E0B\u6765\u3002",
+              "\u8FD8\u6709\u4E00\u4EF6\u4E8B\u503C\u5F97\u5148\u8BB0\u4F4F\uFF1A**`FOR READ` \u6253\u5F00\u4E00\u4E2A\u4E0D\u5B58\u5728\u7684\u6587\u4EF6\u4F1A\u76F4\u63A5\u505C\u4E0B\u6765**\u3002\u6240\u4EE5\u4E0B\u9762\u6BCF\u4E2A\u4F8B\u5B50\u90FD\u662F\u5148\u5199\u518D\u8BFB\u2014\u2014\u8FD9\u4E00\u6BB5\u7A0B\u5E8F\u81EA\u5DF1\u628A\u6587\u4EF6\u51C6\u5907\u597D\uFF0C\u4E0D\u6307\u671B\u5B83\u672C\u6765\u5C31\u5728\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "`READFILE <\u6587\u4EF6>, <\u53D8\u91CF>` \u7684\u76EE\u6807\u53D8\u91CF\u5E94\u4E3A `STRING`\uFF08G\xA79.1\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u5148\u5199\u4E24\u884C\uFF0C\u518D\u4E00\u884C\u4E00\u884C\u8BFB\u56DE\u6765",
+            fileName: "Example_14_3_a.pseudocode",
+            code: [
+              'OPENFILE "Names.txt" FOR WRITE',
+              'WRITEFILE "Names.txt", "Ada"',
+              'WRITEFILE "Names.txt", "Bob"',
+              'CLOSEFILE "Names.txt"',
+              "DECLARE Line : STRING",
+              'OPENFILE "Names.txt" FOR READ',
+              'READFILE "Names.txt", Line',
+              'OUTPUT "1: ", Line',
+              'READFILE "Names.txt", Line',
+              'OUTPUT "2: ", Line',
+              'CLOSEFILE "Names.txt"'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 4, text: "\u5148\u628A\u6587\u4EF6\u5199\u51FA\u6765\u518D\u5173\u6389\u3002\u4E0D\u5173\u5C31\u8BFB\u4E0D\u4E86\u2014\u2014\u6587\u4EF6\u540C\u4E00\u65F6\u523B\u53EA\u80FD\u5F00\u7740\u4E00\u4E2A\u3002" },
+              { fromLine: 5, toLine: 5, text: "\u63A5\u6536\u7684\u53D8\u91CF\u662F `STRING`\u3002\u8FD9\u4E00\u884C\u5199\u6210 `INTEGER` \u7684\u8BDD\uFF0C\u7B2C 7 \u884C\u5C31\u8FC7\u4E0D\u53BB\u3002" },
+              { fromLine: 7, toLine: 9, text: "\u4E24\u53E5 `READFILE` \u8BFB\u5230\u7684\u662F\u4E24\u884C\u4E0D\u540C\u7684\u5185\u5BB9\uFF1A\u4F4D\u7F6E\u5728\u7B2C\u4E00\u53E5\u4E4B\u540E\u81EA\u5DF1\u5F80\u4E0B\u8D70\u4E86\u4E00\u884C\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["1: Ada", "2: Bob"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u8BFB\u4E0D\u51FA\u6765\u7684\u4E24\u79CD\u60C5\u51B5",
+            cases: [
+              {
+                title: "\u62FF `INTEGER` \u53D8\u91CF\u53BB\u63A5",
+                code: [
+                  "DECLARE N : INTEGER",
+                  'OPENFILE "Nums.txt" FOR WRITE',
+                  'WRITEFILE "Nums.txt", 5',
+                  'CLOSEFILE "Nums.txt"',
+                  'OPENFILE "Nums.txt" FOR READ',
+                  'READFILE "Nums.txt", N',
+                  'CLOSEFILE "Nums.txt"'
+                ].join("\n"),
+                note: "\u5199\u8FDB\u53BB\u7684 `5` \u5728\u6587\u4EF6\u91CC\u5DF2\u7ECF\u662F\u6587\u5B57\u4E86\u3002\u8BFB\u56DE\u6765\u53EA\u80FD\u8FDB `STRING`\u2014\u2014**\u6587\u4EF6\u4E0D\u8BB0\u5F97\u5B83\u539F\u6765\u662F\u4E2A\u6570**\uFF0C\u800C\u4F2A\u4EE3\u7801\u91CC\u6CA1\u6709\u628A\u8FD9\u6BB5\u6587\u5B57\u53D8\u56DE\u6570\u7684\u529E\u6CD5\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "FILE-002", line: 6, text: "\u8BFB\u6587\u4EF6\u53EA\u80FD\u8BFB\u8FDB `STRING` \u53D8\u91CF\u3002" }
+                ]
+              },
+              {
+                title: "\u6253\u5F00\u4E00\u4E2A\u4E0D\u5B58\u5728\u7684\u6587\u4EF6\u6765\u8BFB",
+                code: [
+                  "DECLARE Line : STRING",
+                  'OPENFILE "Ghost.txt" FOR READ',
+                  'READFILE "Ghost.txt", Line',
+                  'CLOSEFILE "Ghost.txt"'
+                ].join("\n"),
+                note: "\u8FD9\u6BB5\u4EE3\u7801\u672C\u8EAB\u6CA1\u6709\u4EFB\u4F55\u5199\u6CD5\u95EE\u9898\uFF0C\u6240\u4EE5\u8FD0\u884C\u524D\u67E5\u4E0D\u51FA\u6765\u2014\u2014\u8981\u7B49\u771F\u7684\u53BB\u627E\u8FD9\u4E2A\u6587\u4EF6\uFF0C\u53D1\u73B0\u6CA1\u6709\uFF0C\u7A0B\u5E8F\u624D\u505C\u5728\u6253\u5F00\u90A3\u4E00\u884C\u3002",
+                expectRuntimeError: {
+                  code: "RT2005",
+                  line: 2,
+                  text: "\u8981\u8BFB\u7684\u8FD9\u4E2A\u6587\u4EF6\u4E0D\u5B58\u5728\uFF0C\u7A0B\u5E8F\u505C\u5728\u6253\u5F00\u5B83\u7684\u90A3\u4E00\u884C\u3002"
+                }
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: '\u8FDE\u7740\u5199\u4E24\u53E5 `READFILE "Names.txt", Line`\uFF0C\u7B2C\u4E8C\u53E5\u8BFB\u5230\u7684\u662F\u4EC0\u4E48\uFF1F',
+            options: [
+              {
+                key: "A",
+                label: "\u8FD8\u662F\u7B2C 1 \u884C\uFF0C\u56E0\u4E3A\u6CA1\u544A\u8BC9\u5B83\u5F80\u4E0B\u8D70",
+                correct: false,
+                explanation: "\u4F4D\u7F6E\u662F\u81EA\u5DF1\u8D70\u7684\u3002\u8BFB\u5B8C\u4E00\u884C\u4E4B\u540E\u5B83\u5C31\u6307\u5411\u4E0B\u4E00\u884C\u4E86\uFF0C\u4E0D\u9700\u8981\u53E6\u5916\u4E00\u53E5\u53BB\u63A8\u5B83\u3002"
+              },
+              {
+                key: "B",
+                label: "\u7B2C 2 \u884C",
+                correct: true,
+                explanation: "\u5BF9\u3002`READFILE` \u8BFB\u5B8C\u5F53\u524D\u884C\u4E4B\u540E\u4F4D\u7F6E\u52A0\u4E00\uFF0C\u6240\u4EE5\u8FDE\u7740\u8BFB\u5C31\u662F\u4E00\u884C\u4E00\u884C\u5F80\u4E0B\u3002\u5199\u7684\u65F6\u5019\u4E5F\u662F\u540C\u4E00\u5957\u89C4\u77E9\u3002"
+              },
+              {
+                key: "C",
+                label: "\u6574\u4E2A\u6587\u4EF6\u7684\u5185\u5BB9\u62FC\u5728\u4E00\u8D77",
+                correct: false,
+                explanation: "`READFILE` \u4E00\u6B21\u53EA\u8BFB\u4E00\u884C\uFF0C\u8BFB\u591A\u5C11\u884C\u5C31\u5F97\u5199\u591A\u5C11\u53E5\uFF08\u6216\u8005\u8BA9\u5FAA\u73AF\u53BB\u5199\uFF09\u3002"
+              },
+              {
+                key: "D",
+                label: "\u6700\u540E\u4E00\u884C",
+                correct: false,
+                explanation: "\u4F4D\u7F6E\u6BCF\u6B21\u53EA\u5F80\u4E0B\u632A\u4E00\u683C\uFF0C\u4E0D\u4F1A\u8DF3\u5230\u672B\u5C3E\u3002"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "14.3.1",
+            title: "\u5B58\u4E0B\u6765\u518D\u5FF5\u4E00\u904D",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 3 \u4E2A\u540D\u5B57\uFF0C\u9010\u4E2A\u5199\u8FDB\u4E00\u4E2A\u6587\u672C\u6587\u4EF6\uFF1B\u5199\u5B8C\u5173\u6389\uFF0C\u518D\u628A\u8FD9\u4E2A\u6587\u4EF6\u6253\u5F00\u8BFB\u56DE\u6765\uFF0C\u4E00\u884C\u4E00\u4E2A\u663E\u793A\u51FA\u6765\u3002\u6587\u4EF6\u540D\u81EA\u5DF1\u5B9A\u3002",
+            ioSpec: {
+              input: ["\u4E09\u884C\uFF0C\u5404\u4E00\u4E2A\u540D\u5B57\uFF08`STRING`\uFF09\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a name`"].join("\n"),
+              output: "\u4E09\u884C\uFF0C\u5C31\u662F\u8BFB\u8FDB\u6765\u7684\u90A3\u4E09\u4E2A\u540D\u5B57\uFF0C\u987A\u5E8F\u4E0D\u53D8\u3002"
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "file.write",
+                  reason: "\u9898\u76EE\u8981\u6C42\u5148\u628A\u540D\u5B57\u5199\u5230\u6587\u4EF6\u91CC\u53BB\uFF0C\u800C\u4E0D\u662F\u7559\u5728\u53D8\u91CF\u91CC\u3002"
+                },
+                {
+                  feature: "file.read",
+                  reason: "\u663E\u793A\u7684\u5185\u5BB9\u5FC5\u987B\u662F\u4ECE\u6587\u4EF6\u8BFB\u56DE\u6765\u7684\uFF0C\u4E0D\u80FD\u76F4\u63A5\u7528\u521A\u624D\u8F93\u5165\u7684\u53D8\u91CF\u3002"
+                },
+                {
+                  feature: "file.close",
+                  reason: "\u5199\u5B8C\u4E0D\u5173\uFF0C\u540C\u4E00\u4E2A\u6587\u4EF6\u5C31\u6253\u4E0D\u5F00\u6765\u8BFB\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u4E09\u6BB5\uFF1A`FOR WRITE` \u5199\u4E09\u884C\u3001`CLOSEFILE`\u3001`FOR READ` \u8BFB\u4E09\u884C\u3002\u4E2D\u95F4\u90A3\u4E00\u53E5\u4E0D\u80FD\u7701\u3002",
+              "\u5199\u548C\u8BFB\u90FD\u53EF\u4EE5\u653E\u5728 `FOR` \u5FAA\u73AF\u91CC\uFF0C\u56E0\u4E3A\u884C\u6570\u662F\u77E5\u9053\u7684\u2014\u2014\u6B63\u597D\u4E09\u884C\u3002",
+              "\u63A5\u6536\u8BFB\u5230\u7684\u5185\u5BB9\u7684\u90A3\u4E2A\u53D8\u91CF\u5FC5\u987B\u662F `STRING`\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["Ada", "Bob", "Cal"],
+                outputs: ["Enter a name", "Enter a name", "Enter a name", "Ada", "Bob", "Cal"]
+              }
+            ],
+            referenceSolution: [
+              "DECLARE Name : STRING",
+              "DECLARE I : INTEGER",
+              'OPENFILE "Names.txt" FOR WRITE',
+              "FOR I \u2190 1 TO 3",
+              '   OUTPUT "Enter a name"',
+              "   INPUT Name",
+              '   WRITEFILE "Names.txt", Name',
+              "NEXT I",
+              'CLOSEFILE "Names.txt"',
+              'OPENFILE "Names.txt" FOR READ',
+              "FOR I \u2190 1 TO 3",
+              '   READFILE "Names.txt", Name',
+              "   OUTPUT Name",
+              "NEXT I",
+              'CLOSEFILE "Names.txt"'
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["Red", "Green", "Blue"], caseHint: "\u4E09\u4E2A\u666E\u901A\u7684\u540D\u5B57\u3002" },
+              { id: "t2", kind: "normal", inputs: ["Two words", "X", "Something longer"], caseHint: "\u6709\u7684\u540D\u5B57\u91CC\u5E26\u7A7A\u683C\uFF0C\u6709\u7684\u53EA\u6709\u4E00\u4E2A\u5B57\u6BCD\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["Same", "Same", "Same"], caseHint: "\u4E09\u4E2A\u540D\u5B57\u5B8C\u5168\u4E00\u6837\uFF0C\u987A\u5E8F\u770B\u4E0D\u51FA\u6765\u4F46\u884C\u6570\u5F97\u5BF9\u3002" },
+              { id: "t4", kind: "boundary", inputs: ["A", "B", "C"], caseHint: "\u4E09\u4E2A\u540D\u5B57\u90FD\u53EA\u6709\u4E00\u4E2A\u5B57\u6BCD\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["QWERTYUIOPASDFGHJKLZXCVBNM", "Z", "Mixed Case Name"], caseHint: "\u4E00\u4E2A\u7279\u522B\u957F\uFF0C\u4E00\u4E2A\u7279\u522B\u77ED\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "14.4",
+        title: "\u4E09\u79CD\u6A21\u5F0F\uFF1A`READ`\u3001`WRITE`\u3001`APPEND`",
+        syllabus: ["\xA710.3"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_14_4,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "`OPENFILE` \u7684 `FOR` \u540E\u9762\u53EA\u6709\u4E09\u4E2A\u8BCD\u53EF\u5199\uFF0C\u5404\u7BA1\u4E00\u4EF6\u4E8B\u3002`READ`\uFF1A\u4ECE\u7B2C 1 \u884C\u5F00\u59CB\u5F80\u4E0B\u8BFB\uFF0C\u4E00\u4E2A\u5B57\u90FD\u4E0D\u6539\u3002`WRITE`\uFF1A**\u6253\u5F00\u7684\u4E00\u77AC\u95F4\u5C31\u628A\u539F\u6709\u5185\u5BB9\u5168\u90E8\u6E05\u7A7A**\uFF0C\u7136\u540E\u4ECE\u7B2C 1 \u884C\u5F00\u59CB\u5199\u3002`APPEND`\uFF1A\u4FDD\u7559\u539F\u6709\u5185\u5BB9\uFF0C\u4ECE\u6700\u540E\u4E00\u884C\u7684\u540E\u9762\u63A5\u7740\u5199\u3002",
+              "`WRITE` \u90A3\u6761\u8981\u7279\u522B\u5C0F\u5FC3\uFF1A\u5B83\u4E0D\u662F\u300C\u51C6\u5907\u5F80\u91CC\u5199\u70B9\u4E1C\u897F\u300D\uFF0C\u800C\u662F\u300C\u8FD9\u4E2A\u6587\u4EF6\u4ECE\u73B0\u5728\u8D77\u91CD\u65B0\u6765\u8FC7\u300D\u3002\u60F3\u5728\u5DF2\u6709\u5185\u5BB9\u540E\u9762\u6DFB\u4E00\u884C\u5374\u5199\u6210\u4E86 `FOR WRITE`\uFF0C**\u539F\u6765\u7684\u4E1C\u897F\u4E00\u53E5\u63D0\u793A\u90FD\u4E0D\u7ED9\u5C31\u6CA1\u4E86**\u3002",
+              "\u9009\u54EA\u4E2A\u7684\u5224\u636E\u5F88\u77ED\uFF1A**\u539F\u6765\u7684\u5185\u5BB9\u8FD8\u8981\u4E0D\u8981\uFF1F**\u4E0D\u8981\u5C31 `WRITE`\uFF0C\u8981\u7559\u7740\u5C31 `APPEND`\uFF0C\u53EA\u662F\u770B\u770B\u5C31 `READ`\u3002",
+              "\u6A21\u5F0F\u4E00\u65E6\u9009\u5B9A\u5C31\u7BA1\u4F4F\u4E86\u8FD9\u6B21\u80FD\u505A\u4EC0\u4E48\uFF1A`FOR READ` \u6253\u5F00\u7684\u6587\u4EF6\u4E0D\u80FD `WRITEFILE`\uFF0C`FOR WRITE` \u6253\u5F00\u7684\u4E0D\u80FD `READFILE`\u3002\u8981\u6362\u7740\u6765\uFF0C\u5C31\u5F97\u5148 `CLOSEFILE` \u518D\u7528\u53E6\u4E00\u79CD\u65B9\u5F0F\u91CD\u65B0\u6253\u5F00\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "`WRITEFILE` \u4EC5\u7528\u4E8E `WRITE` \u6216 `APPEND` \u6A21\u5F0F\uFF1B\u540C\u4E00\u6587\u4EF6\u5E94\u4E00\u6B21\u53EA\u4EE5\u4E00\u79CD\u6A21\u5F0F\u6253\u5F00\uFF08G\xA79.1\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "`APPEND` \u7559\u7740\uFF0C`WRITE` \u62B9\u6389",
+            fileName: "Example_14_4_a.pseudocode",
+            code: [
+              "DECLARE Line : STRING",
+              'OPENFILE "Log.txt" FOR WRITE',
+              'WRITEFILE "Log.txt", "first"',
+              'CLOSEFILE "Log.txt"',
+              'OPENFILE "Log.txt" FOR APPEND',
+              'WRITEFILE "Log.txt", "second"',
+              'CLOSEFILE "Log.txt"',
+              'OPENFILE "Log.txt" FOR READ',
+              'READFILE "Log.txt", Line',
+              'OUTPUT "after append 1: ", Line',
+              'READFILE "Log.txt", Line',
+              'OUTPUT "after append 2: ", Line',
+              'CLOSEFILE "Log.txt"',
+              'OPENFILE "Log.txt" FOR WRITE',
+              'WRITEFILE "Log.txt", "third"',
+              'CLOSEFILE "Log.txt"',
+              'OPENFILE "Log.txt" FOR READ',
+              'READFILE "Log.txt", Line',
+              'OUTPUT "after write 1: ", Line',
+              'CLOSEFILE "Log.txt"'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 5, toLine: 6, text: "`APPEND` \u63A5\u5728\u540E\u9762\u5199\u3002\u6587\u4EF6\u73B0\u5728\u6709\u4E24\u884C\u3002" },
+              { fromLine: 9, toLine: 12, text: "\u8BFB\u51FA\u6765\u786E\u5B9E\u662F\u4E24\u884C\uFF0C`first` \u8FD8\u5728\u3002" },
+              { fromLine: 14, toLine: 15, text: "\u540C\u6837\u662F\u5199\u4E00\u884C\uFF0C\u8FD9\u6B21\u7528 `WRITE`\u2014\u2014\u6253\u5F00\u90A3\u4E00\u77AC\u95F4\u524D\u4E24\u884C\u5C31\u6CA1\u4E86\u3002" },
+              { fromLine: 18, toLine: 19, text: "\u518D\u8BFB\uFF0C\u7B2C 1 \u884C\u5DF2\u7ECF\u662F `third`\u3002\u539F\u6765\u90A3\u4E24\u884C\u627E\u4E0D\u56DE\u6765\u4E86\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["after append 1: first", "after append 2: second", "after write 1: third"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u7528 `FOR READ` \u6253\u5F00\u5374\u60F3\u5F80\u91CC\u5199",
+            cases: [
+              {
+                code: [
+                  'OPENFILE "Log.txt" FOR WRITE',
+                  'CLOSEFILE "Log.txt"',
+                  'OPENFILE "Log.txt" FOR READ',
+                  'WRITEFILE "Log.txt", "x"',
+                  'CLOSEFILE "Log.txt"'
+                ].join("\n"),
+                note: "\u6253\u5F00\u7684\u65B9\u5F0F\u8BF4\u4E86\u8FD9\u6B21\u53EA\u8BFB\uFF0C\u90A3\u8FD9\u6B21\u5C31\u53EA\u80FD\u8BFB\u3002\u60F3\u5199\u5C31\u5148\u5173\u6389\u3001\u518D\u7528 `FOR WRITE` \u6216 `FOR APPEND` \u6253\u5F00\u4E00\u6B21\u3002",
+                expectDiagnostics: [
+                  { severity: "error", ruleId: "FILE-003", line: 4, text: "\u8FD9\u4E2A\u6587\u4EF6\u662F\u6309\u53EA\u8BFB\u65B9\u5F0F\u6253\u5F00\u7684\uFF0C\u5199\u4E0D\u8FDB\u53BB\u3002" }
+                ]
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E00\u4E2A\u6587\u4EF6\u91CC\u5DF2\u7ECF\u6709\u4E09\u884C\u3002\u7528 `FOR WRITE` \u6253\u5F00\u5B83\u3001\u4EC0\u4E48\u90FD\u4E0D\u5199\u5C31 `CLOSEFILE`\uFF0C\u6587\u4EF6\u91CC\u8FD8\u5269\u51E0\u884C\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u56DB\u884C\uFF0C\u591A\u51FA\u4E00\u884C\u7A7A\u7684",
+                correct: false,
+                explanation: "\u6CA1\u5199\u5C31\u4E0D\u4F1A\u591A\u51FA\u884C\u3002`WRITEFILE` \u624D\u4F1A\u6DFB\u884C\u3002"
+              },
+              {
+                key: "B",
+                label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4F4F\u8FD9\u79CD\u6CA1\u610F\u4E49\u7684\u64CD\u4F5C",
+                correct: false,
+                explanation: "\u4E0D\u62E6\u3002\u300C\u6253\u5F00\u51C6\u5907\u5199\uFF0C\u7ED3\u679C\u53D1\u73B0\u6CA1\u4EC0\u4E48\u53EF\u5199\u300D\u5728\u7A0B\u5E8F\u91CC\u5F88\u6B63\u5E38\uFF0C\u7F16\u8F91\u5668\u6CA1\u6CD5\u5224\u65AD\u4F60\u662F\u4E0D\u662F\u771F\u60F3\u6E05\u7A7A\u3002"
+              },
+              {
+                key: "C",
+                label: "\u4E09\u884C\uFF0C\u56E0\u4E3A\u6CA1\u5199\u4E1C\u897F\u8FDB\u53BB",
+                correct: false,
+                explanation: "\u6E05\u7A7A\u53D1\u751F\u5728**\u6253\u5F00**\u7684\u90A3\u4E00\u523B\uFF0C\u4E0D\u662F\u5199\u7684\u65F6\u5019\u3002\u4E00\u53E5 `WRITEFILE` \u90FD\u6CA1\u6709\uFF0C\u90A3\u4E09\u884C\u7167\u6837\u5DF2\u7ECF\u6CA1\u4E86\u3002"
+              },
+              {
+                key: "D",
+                label: "\u96F6\u884C",
+                correct: true,
+                explanation: "\u5BF9\u3002`FOR WRITE` \u4E00\u6253\u5F00\u5C31\u628A\u6587\u4EF6\u6E05\u7A7A\u3002\u8FD9\u4E5F\u662F\u300C\u60F3\u6DFB\u4E00\u884C\u5374\u5199\u6210 `WRITE`\u300D\u7279\u522B\u5371\u9669\u7684\u539F\u56E0\u2014\u2014\u6CA1\u6709\u4EFB\u4F55\u63D0\u793A\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "14.5",
+        title: "`EOF`\uFF1A\u8BFB\u5230\u54EA\u513F\u7B97\u5B8C",
+        syllabus: ["\xA710.3"],
+        estimatedMinutes: 11,
+        taughtFeatures: AFTER_14_5,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u4E0A\u9762\u90A3\u4E9B\u4F8B\u5B50\u90FD\u77E5\u9053\u6587\u4EF6\u91CC\u6709\u51E0\u884C\uFF0C\u6240\u4EE5\u7528 `FOR` \u5C31\u591F\u4E86\u3002\u53EF\u771F\u5B9E\u7684\u6587\u4EF6\u901A\u5E38**\u4E0D\u77E5\u9053\u6709\u51E0\u884C**\u2014\u2014\u90A3\u662F\u522B\u4EBA\u5199\u8FDB\u53BB\u7684\uFF0C\u6216\u8005\u4E0A\u6B21\u8FD0\u884C\u7559\u4E0B\u7684\u3002",
+              '`EOF("Names.txt")` \u56DE\u7B54\u7684\u5C31\u662F\u8FD9\u4E2A\u95EE\u9898\uFF1A\u5F53\u524D\u4F4D\u7F6E\u5DF2\u7ECF\u8D8A\u8FC7\u6700\u540E\u4E00\u884C\u4E86\u5417\uFF1F\u8D8A\u8FC7\u4E86\u8FD8 `TRUE`\uFF0C\u8FD8\u6709\u884C\u53EF\u8BFB\u5C31\u662F `FALSE`\u3002\u540D\u5B57\u6765\u81EA **\u6587\u4EF6\u672B\u5C3E\uFF08end of file\uFF09**\u3002',
+              '\u6240\u4EE5\u8BFB\u6574\u4E2A\u6587\u4EF6\u7684\u6807\u51C6\u5199\u6CD5\u662F `WHILE NOT EOF("Names.txt")`\uFF1A\u8FD8\u6CA1\u5230\u672B\u5C3E\u5C31\u7EE7\u7EED\u8BFB\u4E00\u884C\u3002\u8FD9\u662F\u7B2C 5 \u7AE0\u8BF4\u7684\u300C\u6B21\u6570\u4E8B\u5148\u4E0D\u77E5\u9053\u300D\uFF0C\u800C\u4E14**\u4E00\u884C\u90FD\u6CA1\u6709\u7684\u6587\u4EF6\u5E94\u8BE5\u4E00\u6B21\u90FD\u4E0D\u8BFB**\u2014\u2014\u6B63\u597D\u662F\u524D\u6D4B\u5FAA\u73AF\u3002',
+              "\u5C11\u4E86\u8FD9\u9053\u5224\u65AD\uFF0C\u8BFB\u5230\u672B\u5C3E\u4E4B\u540E\u518D\u8BFB\u4E00\u53E5\uFF0C\u7A0B\u5E8F\u5C31\u505C\u5728\u90A3\u4E00\u884C\u3002\u6587\u4EF6\u91CC\u5230\u5E95\u6709\u51E0\u884C\u4E0D\u662F\u4F60\u80FD\u5047\u8BBE\u7684\u4E8B\uFF0C**\u80FD\u8BFB\u591A\u5C11\u884C\u8981\u95EE `EOF`\uFF0C\u4E0D\u8981\u9760\u8BB0**\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "`EOF(<\u6587\u4EF6>)` \u8FD4\u56DE `BOOLEAN`\uFF0C\u7528\u4E8E\u5224\u65AD\u662F\u5426\u5DF2\u5230\u6587\u4EF6\u672B\u5C3E\uFF08G\xA79.1\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u8BFB\u5B8C\u6574\u4E2A\u6587\u4EF6\uFF0C\u987A\u4FBF\u6570\u6570\u6709\u51E0\u884C",
+            fileName: "Example_14_5_a.pseudocode",
+            code: [
+              "DECLARE Line : STRING",
+              "DECLARE Count : INTEGER",
+              'OPENFILE "Names.txt" FOR WRITE',
+              'WRITEFILE "Names.txt", "Ada"',
+              'WRITEFILE "Names.txt", "Bob"',
+              'WRITEFILE "Names.txt", "Cal"',
+              'CLOSEFILE "Names.txt"',
+              "Count \u2190 0",
+              'OPENFILE "Names.txt" FOR READ',
+              'WHILE NOT EOF("Names.txt")',
+              '   READFILE "Names.txt", Line',
+              "   Count \u2190 Count + 1",
+              '   OUTPUT Count, ": ", Line',
+              "ENDWHILE",
+              'CLOSEFILE "Names.txt"',
+              'OUTPUT "Total: ", Count'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 10, toLine: 14, text: "\u5FAA\u73AF\u7684\u6761\u4EF6\u53EA\u770B `EOF`\u3002\u8FD9\u6BB5\u4EE3\u7801\u4E0D\u77E5\u9053\u4E5F\u4E0D\u9700\u8981\u77E5\u9053\u6587\u4EF6\u91CC\u6709\u4E09\u884C\u2014\u2014\u6362\u6210\u4E09\u5341\u884C\u5B83\u4E00\u4E2A\u5B57\u90FD\u4E0D\u7528\u6539\u3002" },
+              { fromLine: 11, toLine: 11, text: "`READFILE` \u5728\u5FAA\u73AF\u4F53\u7684\u7B2C\u4E00\u53E5\u3002\u4F4D\u7F6E\u6BCF\u8BFB\u4E00\u884C\u5C31\u5F80\u4E0B\u8D70\uFF0C\u6240\u4EE5 `EOF` \u8FDF\u65E9\u4F1A\u53D8\u6210 `TRUE`\u3002" },
+              { fromLine: 16, toLine: 16, text: "\u884C\u6570\u662F\u6570\u51FA\u6765\u7684\uFF0C\u4E0D\u662F\u4E8B\u5148\u77E5\u9053\u7684\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["1: Ada", "2: Bob", "3: Cal", "Total: 3"]
+            }
+          },
+          {
+            kind: "counterExample",
+            title: "\u591A\u8BFB\u4E86\u4E00\u884C",
+            cases: [
+              {
+                code: [
+                  "DECLARE Line : STRING",
+                  'OPENFILE "One.txt" FOR WRITE',
+                  'WRITEFILE "One.txt", "only"',
+                  'CLOSEFILE "One.txt"',
+                  'OPENFILE "One.txt" FOR READ',
+                  'READFILE "One.txt", Line',
+                  "OUTPUT Line",
+                  'READFILE "One.txt", Line',
+                  "OUTPUT Line",
+                  'CLOSEFILE "One.txt"'
+                ].join("\n"),
+                note: "\u6587\u4EF6\u91CC\u53EA\u6709\u4E00\u884C\uFF0C\u5374\u8BFB\u4E86\u4E24\u53E5\u3002\u7B2C\u4E00\u53E5\u597D\u597D\u7684\uFF0C\u7B2C\u4E8C\u53E5\u5DF2\u7ECF\u6CA1\u6709\u884C\u53EF\u8BFB\u2014\u2014**\u7A0B\u5E8F\u4F1A\u5148\u628A\u7B2C\u4E00\u884C\u663E\u793A\u51FA\u6765\u518D\u505C\u4E0B\u6765**\uFF0C\u6240\u4EE5\u5C4F\u5E55\u4E0A\u770B\u5F97\u5230\u4E00\u90E8\u5206\u7ED3\u679C\uFF0C\u5F88\u5BB9\u6613\u8BEF\u4EE5\u4E3A\u6574\u6BB5\u90FD\u8DD1\u5B8C\u4E86\u3002",
+                expectRuntimeError: {
+                  code: "RT2002",
+                  line: 8,
+                  text: "\u5DF2\u7ECF\u8BFB\u5230\u6587\u4EF6\u672B\u5C3E\u4E86\uFF0C\u8FD9\u4E00\u53E5\u6CA1\u6709\u884C\u53EF\u8BFB\u3002"
+                }
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E00\u4E2A\u521A\u7528 `FOR WRITE` \u521B\u5EFA\u3001\u4E00\u884C\u90FD\u6CA1\u5199\u7684\u7A7A\u6587\u4EF6\uFF0C\u7528 `FOR READ` \u6253\u5F00\u4E4B\u540E `EOF` \u662F\u4EC0\u4E48\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "`TRUE`",
+                correct: true,
+                explanation: "\u5BF9\u3002\u6240\u4EE5 `WHILE NOT EOF(...)` \u5BF9\u7A7A\u6587\u4EF6\u4E00\u6B21\u90FD\u4E0D\u4F1A\u8FDB\u5FAA\u73AF\u2014\u2014\u8FD9\u6B63\u662F\u5B83\u8BE5\u7528\u524D\u6D4B\u5FAA\u73AF\u800C\u4E0D\u662F `REPEAT` \u7684\u539F\u56E0\u3002"
+              },
+              {
+                key: "B",
+                label: "\u7A0B\u5E8F\u4F1A\u56E0\u4E3A\u6587\u4EF6\u662F\u7A7A\u7684\u800C\u505C\u4E0B\u6765",
+                correct: false,
+                explanation: "\u7A7A\u6587\u4EF6\u662F\u5B8C\u5168\u6B63\u5E38\u7684\u6587\u4EF6\uFF0C\u6253\u5F00\u5B83\u6CA1\u6709\u4EFB\u4F55\u95EE\u9898\u3002\u505C\u4E0B\u6765\u7684\u662F\u300C\u5DF2\u7ECF\u5230\u672B\u5C3E\u8FD8\u786C\u8BFB\u4E00\u53E5\u300D\u3002"
+              },
+              {
+                key: "C",
+                label: "\u8981\u770B\u8FD9\u4E2A\u6587\u4EF6\u4E4B\u524D\u6709\u6CA1\u6709\u5185\u5BB9",
+                correct: false,
+                explanation: "`FOR WRITE` \u6253\u5F00\u7684\u90A3\u4E00\u523B\u5C31\u628A\u539F\u6709\u5185\u5BB9\u6E05\u7A7A\u4E86\uFF0C\u6240\u4EE5\u73B0\u5728\u5B83\u786E\u5B9E\u4E00\u884C\u90FD\u6CA1\u6709\u3002"
+              },
+              {
+                key: "D",
+                label: "`FALSE`\uFF0C\u8981\u8BFB\u4E00\u6B21\u624D\u77E5\u9053",
+                correct: false,
+                explanation: "\u4E0D\u7528\u8BFB\u5C31\u77E5\u9053\u3002`EOF` \u95EE\u7684\u662F\u300C\u5F53\u524D\u4F4D\u7F6E\u6709\u6CA1\u6709\u8D8A\u8FC7\u6700\u540E\u4E00\u884C\u300D\uFF0C\u7A7A\u6587\u4EF6\u4E00\u6253\u5F00\u5C31\u5DF2\u7ECF\u8D8A\u8FC7\u4E86\u3002"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "14.5.1",
+            title: "\u5B58\u4E0B\u6765\uFF0C\u518D\u7F16\u53F7\u5FF5\u4E00\u904D",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 4 \u884C\u6587\u5B57\uFF0C\u9010\u884C\u5199\u8FDB\u4E00\u4E2A\u6587\u672C\u6587\u4EF6\uFF1B\u5199\u5B8C\u5173\u6389\uFF0C\u518D\u7528 `EOF` \u63A7\u5236\u7684\u5FAA\u73AF\u628A\u6574\u4E2A\u6587\u4EF6\u8BFB\u56DE\u6765\uFF0C\u4E00\u884C\u4E00\u4E2A\u663E\u793A\uFF0C\u6BCF\u884C\u524D\u9762\u52A0\u4E0A\u884C\u53F7\u3002**\u4E0D\u8981\u7528 `FOR` \u5FAA\u73AF\u53BB\u8BFB**\u2014\u2014\u8BFB\u7684\u65F6\u5019\u5C31\u5F53\u4F5C\u4E0D\u77E5\u9053\u6587\u4EF6\u91CC\u6709\u51E0\u884C\u3002",
+            ioSpec: {
+              input: ["\u56DB\u884C\u6587\u5B57\uFF08`STRING`\uFF09\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a line`"].join("\n"),
+              output: ["\u56DB\u884C\uFF0C\u5199\u6210\uFF1A", "`<\u884C\u53F7>: <\u90A3\u4E00\u884C\u7684\u5185\u5BB9>`", "\u884C\u53F7\u4ECE 1 \u5F00\u59CB\uFF0C\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "builtin.eof",
+                  reason: "\u9898\u76EE\u8981\u6C42\u8BFB\u7684\u65F6\u5019\u4E0D\u8BB8\u5047\u8BBE\u6587\u4EF6\u6709\u51E0\u884C\uFF0C\u53EA\u80FD\u95EE `EOF`\u3002"
+                },
+                {
+                  feature: "loop.while",
+                  reason: "\u4E00\u884C\u90FD\u6CA1\u6709\u7684\u6587\u4EF6\u5E94\u8BE5\u4E00\u6B21\u90FD\u4E0D\u8BFB\uFF0C\u6240\u4EE5\u8981\u7528\u5148\u770B\u6761\u4EF6\u7684\u5FAA\u73AF\u3002"
+                },
+                {
+                  feature: "file.read",
+                  reason: "\u663E\u793A\u7684\u5185\u5BB9\u5FC5\u987B\u662F\u4ECE\u6587\u4EF6\u8BFB\u56DE\u6765\u7684\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u5199\u7684\u65F6\u5019\u884C\u6570\u662F\u77E5\u9053\u7684\uFF0C\u53EF\u4EE5\u7528 `FOR`\uFF1B\u8BFB\u7684\u65F6\u5019\u4E0D\u77E5\u9053\uFF0C\u8981\u7528 `WHILE NOT EOF(...)`\u3002",
+              "\u884C\u53F7\u7528\u4E00\u4E2A\u4ECE 0 \u5F00\u59CB\u7684\u8BA1\u6570\u53D8\u91CF\uFF0C\u6BCF\u8BFB\u4E00\u884C\u52A0\u4E00\u3002",
+              "\u5199\u5B8C\u4E00\u5B9A\u8981 `CLOSEFILE`\uFF0C\u5426\u5219\u540C\u4E00\u4E2A\u6587\u4EF6\u6253\u4E0D\u5F00\u6765\u8BFB\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["red", "green", "blue", "white"],
+                outputs: [
+                  "Enter a line",
+                  "Enter a line",
+                  "Enter a line",
+                  "Enter a line",
+                  "1: red",
+                  "2: green",
+                  "3: blue",
+                  "4: white"
+                ]
+              }
+            ],
+            referenceSolution: [
+              "DECLARE Line : STRING",
+              "DECLARE I : INTEGER",
+              "DECLARE Count : INTEGER",
+              'OPENFILE "Notes.txt" FOR WRITE',
+              "FOR I \u2190 1 TO 4",
+              '   OUTPUT "Enter a line"',
+              "   INPUT Line",
+              '   WRITEFILE "Notes.txt", Line',
+              "NEXT I",
+              'CLOSEFILE "Notes.txt"',
+              "Count \u2190 0",
+              'OPENFILE "Notes.txt" FOR READ',
+              'WHILE NOT EOF("Notes.txt")',
+              '   READFILE "Notes.txt", Line',
+              "   Count \u2190 Count + 1",
+              '   OUTPUT Count, ": ", Line',
+              "ENDWHILE",
+              'CLOSEFILE "Notes.txt"'
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["one", "two", "three", "four"], caseHint: "\u56DB\u884C\u666E\u901A\u7684\u6587\u5B57\u3002" },
+              { id: "t2", kind: "normal", inputs: ["a b c", "d", "e f", "g h i j"], caseHint: "\u6709\u7684\u884C\u91CC\u5E26\u7A7A\u683C\uFF0C\u957F\u77ED\u4E0D\u4E00\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["x", "x", "x", "x"], caseHint: "\u56DB\u884C\u5185\u5BB9\u5B8C\u5168\u4E00\u6837\uFF0C\u53EA\u6709\u884C\u53F7\u80FD\u533A\u5206\u3002" },
+              { id: "t4", kind: "boundary", inputs: ["1", "2", "3", "4"], caseHint: "\u5199\u8FDB\u53BB\u7684\u770B\u7740\u50CF\u6570\u5B57\uFF0C\u8BFB\u56DE\u6765\u4ECD\u7136\u662F\u6587\u5B57\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["Q", "WERTYUIOPASDFGHJKLZXCVBNM", "e", "R"], caseHint: "\u4E00\u884C\u7279\u522B\u957F\uFF0C\u5176\u4F59\u90FD\u53EA\u6709\u4E00\u4E2A\u5B57\u6BCD\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "14.6",
+        title: "\u5B8C\u6574\u5904\u7406\u4E00\u4E2A\u6587\u4EF6",
+        syllabus: ["\xA710.3"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_14_5,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u771F\u6B63\u7528\u5F97\u4E0A\u6587\u4EF6\u7684\u7A0B\u5E8F\u591A\u534A\u957F\u6210\u540C\u4E00\u4E2A\u6837\u5B50\uFF1A**\u8BFB\u4E00\u4E2A\u6587\u4EF6 \u2192 \u4E00\u884C\u4E00\u884C\u5904\u7406 \u2192 \u628A\u7ED3\u679C\u5199\u8FDB\u53E6\u4E00\u4E2A\u6587\u4EF6**\u3002\u4E2D\u95F4\u90A3\u4E00\u6B65\u53EF\u4EE5\u662F\u7B5B\u9009\u3001\u7EDF\u8BA1\u3001\u6539\u5199\uFF0C\u5F62\u72B6\u90FD\u4E00\u6837\u3002",
+              "\u5173\u952E\u5728\u4E8E**\u4E24\u4E2A\u6587\u4EF6\u540C\u65F6\u5F00\u7740**\uFF1A\u4E00\u4E2A `FOR READ`\uFF0C\u4E00\u4E2A `FOR WRITE`\u3002\u6BCF\u4E00\u53E5 `READFILE` / `WRITEFILE` \u90FD\u5199\u7740\u81EA\u5DF1\u7684\u6587\u4EF6\u540D\uFF0C\u6240\u4EE5\u4E92\u4E0D\u5E72\u6270\u2014\u2014\u8FD9\u5C31\u662F 14.2 \u91CC\u8BF4\u7684\u300C\u6BCF\u4E00\u53E5\u90FD\u8981\u6307\u540D\u9053\u59D3\u300D\u7684\u7528\u5904\u3002",
+              "**\u4E0D\u8981\u4E00\u8FB9\u8BFB\u4E00\u8FB9\u5F80\u540C\u4E00\u4E2A\u6587\u4EF6\u91CC\u5199\u3002**\u540C\u4E00\u4E2A\u6587\u4EF6\u540C\u4E00\u65F6\u523B\u53EA\u80FD\u5F00\u7740\u4E00\u4E2A\uFF0C\u800C\u4E14 `FOR WRITE` \u4E00\u6253\u5F00\u5C31\u628A\u4F60\u6B63\u8981\u8BFB\u7684\u5185\u5BB9\u6E05\u7A7A\u4E86\u3002\u8981\u6539\u4E00\u4E2A\u6587\u4EF6\uFF0C\u505A\u6CD5\u662F\u300C\u8BFB\u65E7\u7684\u3001\u5199\u65B0\u7684\u300D\u3002",
+              "\u6700\u540E\u522B\u5FD8\u4E86\u4E24\u4E2A\u6587\u4EF6\u90FD\u8981 `CLOSEFILE`\u3002\u5199\u7684\u90A3\u4E2A\u4E0D\u5173\uFF0C\u63A5\u4E0B\u6765\u60F3\u8BFB\u5B83\u5C31\u6253\u4E0D\u5F00\u3002"
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u628A\u957F\u7684\u90A3\u4E9B\u6311\u8FDB\u53E6\u4E00\u4E2A\u6587\u4EF6",
+            fileName: "Example_14_6_a.pseudocode",
+            code: [
+              "DECLARE Line : STRING",
+              'OPENFILE "In.txt" FOR WRITE',
+              'WRITEFILE "In.txt", "ada"',
+              'WRITEFILE "In.txt", "bo"',
+              'WRITEFILE "In.txt", "cathy"',
+              'CLOSEFILE "In.txt"',
+              'OPENFILE "In.txt" FOR READ',
+              'OPENFILE "Out.txt" FOR WRITE',
+              'WHILE NOT EOF("In.txt")',
+              '   READFILE "In.txt", Line',
+              "   IF LENGTH(Line) >= 3 THEN",
+              '      WRITEFILE "Out.txt", Line',
+              "   ENDIF",
+              "ENDWHILE",
+              'CLOSEFILE "In.txt"',
+              'CLOSEFILE "Out.txt"',
+              'OPENFILE "Out.txt" FOR READ',
+              'WHILE NOT EOF("Out.txt")',
+              '   READFILE "Out.txt", Line',
+              "   OUTPUT Line",
+              "ENDWHILE",
+              'CLOSEFILE "Out.txt"'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 7, toLine: 8, text: "\u4E24\u4E2A\u6587\u4EF6\u540C\u65F6\u5F00\u7740\uFF0C\u4E00\u4E2A\u53EA\u8BFB\u4E00\u4E2A\u53EA\u5199\u3002\u540D\u5B57\u4E0D\u540C\uFF0C\u6240\u4EE5\u4E92\u4E0D\u5F71\u54CD\u3002" },
+              { fromLine: 9, toLine: 14, text: "\u6574\u4E2A\u5904\u7406\u5C31\u8FD9\u4E00\u4E2A\u5FAA\u73AF\uFF1A\u8BFB\u4E00\u884C\u3001\u5224\u65AD\u3001\u591F\u683C\u7684\u5199\u51FA\u53BB\u3002`EOF` \u7BA1\u7684\u662F\u8BFB\u7684\u90A3\u4E2A\u6587\u4EF6\u3002" },
+              { fromLine: 15, toLine: 16, text: "\u4E24\u4E2A\u90FD\u8981\u5173\u3002\u4E0B\u9762\u8981\u8BFB `Out.txt`\uFF0C\u4E0D\u5173\u5C31\u6253\u4E0D\u5F00\u3002" },
+              { fromLine: 17, toLine: 22, text: "\u628A\u7ED3\u679C\u5FF5\u51FA\u6765\u53EA\u662F\u4E3A\u4E86\u770B\u5F97\u89C1\u2014\u2014\u771F\u6B63\u7684\u6210\u679C\u662F `Out.txt` \u8FD9\u4E2A\u6587\u4EF6\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["ada", "cathy"]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u60F3\u628A\u4E00\u4E2A\u6587\u4EF6\u91CC\u7684\u6BCF\u4E00\u884C\u90FD\u6539\u6210\u5927\u5199\u518D\u5B58\u56DE\u53BB\u3002\u4E0B\u9762\u54EA\u79CD\u505A\u6CD5\u53EF\u884C\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u5148 `FOR READ` \u8BFB\u5B8C\u5168\u90E8\u5185\u5BB9\uFF0C\u518D `FOR WRITE` \u6253\u5F00\u540C\u4E00\u4E2A\u6587\u4EF6\u5199\u56DE\u53BB",
+                correct: false,
+                explanation: "\u8FD9\u4E2A\u601D\u8DEF\u662F\u5BF9\u7684\uFF0C\u4F46\u5F97\u5148\u628A\u8BFB\u5230\u7684\u5185\u5BB9\u5B58\u8FDB\u6570\u7EC4\u4E4B\u7C7B\u7684\u5730\u65B9\u2014\u2014\u8BFB\u5B8C\u5FC5\u987B\u5148 `CLOSEFILE`\uFF0C\u800C\u6587\u4EF6\u91CC\u7684\u5185\u5BB9\u5728 `FOR WRITE` \u6253\u5F00\u90A3\u4E00\u523B\u5C31\u6CA1\u4E86\u3002"
+              },
+              {
+                key: "B",
+                label: "\u540C\u65F6\u7528 `FOR READ` \u548C `FOR WRITE` \u6253\u5F00\u8FD9\u4E00\u4E2A\u6587\u4EF6\uFF0C\u8FB9\u8BFB\u8FB9\u5199\u56DE\u53BB",
+                correct: false,
+                explanation: "\u540C\u4E00\u4E2A\u6587\u4EF6\u540C\u4E00\u65F6\u523B\u53EA\u80FD\u5F00\u7740\u4E00\u4E2A\uFF0C\u8FD9\u4E00\u6B65\u5C31\u8FC7\u4E0D\u53BB\uFF1B\u5C31\u7B97\u8FC7\u5F97\u53BB\uFF0C`FOR WRITE` \u4E00\u6253\u5F00\u5C31\u628A\u8981\u8BFB\u7684\u5185\u5BB9\u6E05\u7A7A\u4E86\u3002"
+              },
+              {
+                key: "C",
+                label: "\u8BFB\u539F\u6587\u4EF6\u3001\u5199\u4E00\u4E2A\u65B0\u6587\u4EF6\uFF0C\u5904\u7406\u5B8C\u518D\u628A\u65B0\u6587\u4EF6\u5F53\u4F5C\u7ED3\u679C",
+                correct: true,
+                explanation: "\u5BF9\u3002\u300C\u8BFB\u65E7\u7684\u3001\u5199\u65B0\u7684\u300D\u662F\u5904\u7406\u6587\u4EF6\u7684\u6807\u51C6\u5F62\u72B6\uFF0C\u4E24\u4E2A\u6587\u4EF6\u540C\u65F6\u5F00\u7740\uFF0C\u5404\u5E72\u5404\u7684\u3002"
+              },
+              {
+                key: "D",
+                label: "\u7528 `FOR APPEND` \u6253\u5F00\u539F\u6587\u4EF6\uFF0C\u628A\u5927\u5199\u7684\u884C\u63A5\u5728\u540E\u9762",
+                correct: false,
+                explanation: "\u90A3\u6837\u6587\u4EF6\u91CC\u4F1A\u53D8\u6210\u300C\u539F\u6765\u7684\u5C0F\u5199 + \u65B0\u52A0\u7684\u5927\u5199\u300D\uFF0C\u539F\u6765\u90A3\u4E9B\u4E00\u884C\u90FD\u6CA1\u5C11\u3002"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    chapterTasks: [
+      {
+        kind: "chapterTask",
+        id: "14.T1",
+        title: "\u6311\u51FA\u957F\u540D\u5B57",
+        statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 5 \u4E2A\u540D\u5B57\u5199\u8FDB\u4E00\u4E2A\u6587\u672C\u6587\u4EF6\uFF1B\u7136\u540E\u628A\u8FD9\u4E2A\u6587\u4EF6\u8BFB\u56DE\u6765\uFF0C\u628A**\u957F\u5EA6 5 \u4E2A\u5B57\u7B26\u53CA\u4EE5\u4E0A**\u7684\u540D\u5B57\u6311\u51FA\u6765\u5199\u8FDB\u7B2C\u4E8C\u4E2A\u6587\u4EF6\uFF1B\u6700\u540E\u628A\u7B2C\u4E8C\u4E2A\u6587\u4EF6\u8BFB\u51FA\u6765\u663E\u793A\uFF0C\u5E76\u5728\u672B\u5C3E\u62A5\u51FA\u6311\u4E2D\u4E86\u51E0\u4E2A\u3002\u8BFB\u6587\u4EF6\u65F6\u90FD\u4E0D\u8BB8\u5047\u8BBE\u6709\u51E0\u884C\u3002",
+        ioSpec: {
+          input: ["\u4E94\u884C\uFF0C\u5404\u4E00\u4E2A\u540D\u5B57\uFF08`STRING`\uFF09\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a name`"].join("\n"),
+          output: [
+            "\u5148\u662F\u6311\u4E2D\u7684\u90A3\u4E9B\u540D\u5B57\uFF0C\u4E00\u884C\u4E00\u4E2A\uFF0C\u987A\u5E8F\u548C\u8F93\u5165\u65F6\u4E00\u6837\uFF1B\u6700\u540E\u4E00\u884C\u5199\u6210\uFF1A",
+            "`Count: <\u6311\u4E2D\u7684\u4E2A\u6570>`",
+            "\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002\u4E00\u4E2A\u90FD\u6CA1\u6311\u4E2D\u65F6\u5C31\u53EA\u6709\u6700\u540E\u8FD9\u4E00\u884C\u3002"
+          ].join("\n")
+        },
+        suggestedFeatures: [
+          "file.open-write",
+          "file.open-read",
+          "file.write",
+          "file.read",
+          "file.close",
+          "builtin.eof",
+          "builtin.length",
+          "loop.while",
+          "select.if",
+          "io.input",
+          "io.output"
+        ],
+        hints: [
+          "\u4E09\u6BB5\uFF1A\u5199\u7B2C\u4E00\u4E2A\u6587\u4EF6\u3001\u628A\u7B2C\u4E00\u4E2A\u7B5B\u8FDB\u7B2C\u4E8C\u4E2A\u3001\u628A\u7B2C\u4E8C\u4E2A\u5FF5\u51FA\u6765\u3002\u6BCF\u6BB5\u4E4B\u95F4\u90FD\u8981\u628A\u7528\u5B8C\u7684\u6587\u4EF6\u5173\u6389\u3002",
+          "\u7B5B\u9009\u90A3\u4E00\u6BB5\u4E24\u4E2A\u6587\u4EF6\u540C\u65F6\u5F00\u7740\uFF0C\u4E00\u4E2A `FOR READ` \u4E00\u4E2A `FOR WRITE`\uFF0C\u6BCF\u4E00\u53E5\u90FD\u5199\u6E05\u662F\u54EA\u4E00\u4E2A\u3002",
+          "\u4E2A\u6570\u5728\u5FF5\u7B2C\u4E8C\u4E2A\u6587\u4EF6\u7684\u65F6\u5019\u987A\u624B\u6570\u5C31\u884C\uFF0C\u4E0D\u5FC5\u5728\u7B5B\u9009\u7684\u65F6\u5019\u6570\u3002"
+        ],
+        examples: [
+          {
+            inputs: ["Ada", "Belinda", "Cal", "Dorothy", "Eve"],
+            outputs: [
+              "Enter a name",
+              "Enter a name",
+              "Enter a name",
+              "Enter a name",
+              "Enter a name",
+              "Belinda",
+              "Dorothy",
+              "Count: 2"
+            ]
+          }
+        ],
+        referenceSolution: [
+          "DECLARE Name : STRING",
+          "DECLARE I : INTEGER",
+          "DECLARE Count : INTEGER",
+          'OPENFILE "Names.txt" FOR WRITE',
+          "FOR I \u2190 1 TO 5",
+          '   OUTPUT "Enter a name"',
+          "   INPUT Name",
+          '   WRITEFILE "Names.txt", Name',
+          "NEXT I",
+          'CLOSEFILE "Names.txt"',
+          'OPENFILE "Names.txt" FOR READ',
+          'OPENFILE "Long.txt" FOR WRITE',
+          'WHILE NOT EOF("Names.txt")',
+          '   READFILE "Names.txt", Name',
+          "   IF LENGTH(Name) >= 5 THEN",
+          '      WRITEFILE "Long.txt", Name',
+          "   ENDIF",
+          "ENDWHILE",
+          'CLOSEFILE "Names.txt"',
+          'CLOSEFILE "Long.txt"',
+          "Count \u2190 0",
+          'OPENFILE "Long.txt" FOR READ',
+          'WHILE NOT EOF("Long.txt")',
+          '   READFILE "Long.txt", Name',
+          "   Count \u2190 Count + 1",
+          "   OUTPUT Name",
+          "ENDWHILE",
+          'CLOSEFILE "Long.txt"',
+          'OUTPUT "Count: ", Count'
+        ].join("\n"),
+        tests: [
+          { id: "t1", kind: "normal", inputs: ["Alice", "Bo", "Charlie", "Di", "Edward"], caseHint: "\u957F\u77ED\u63BA\u7740\u6765\uFF0C\u6311\u4E2D\u7684\u4E0D\u6B62\u4E00\u4E2A\u3002" },
+          { id: "t2", kind: "boundary", inputs: ["Anna", "Bob", "Cy", "Dee", "Eli"], caseHint: "\u4E00\u4E2A\u90FD\u591F\u4E0D\u7740\u957F\u5EA6\u95E8\u69DB\u3002" },
+          { id: "t3", kind: "boundary", inputs: ["Abcde", "Fghij", "Klmno", "Pqrst", "Uvwxy"], caseHint: "\u4E94\u4E2A\u540D\u5B57\u90FD\u6B63\u597D\u8E29\u5728\u957F\u5EA6\u95E8\u69DB\u4E0A\u3002" },
+          { id: "t4", kind: "normal", inputs: ["Ann", "Two words", "Bo", "Cy", "Di"], caseHint: "\u6311\u4E2D\u7684\u53EA\u6709\u4E00\u4E2A\uFF0C\u800C\u4E14\u91CC\u9762\u5E26\u7A7A\u683C\u3002" },
+          { id: "t5", kind: "extreme", inputs: ["A", "QWERTYUIOPASDFGHJKLZXCVBNM", "B", "C", "D"], caseHint: "\u4E00\u4E2A\u7279\u522B\u957F\uFF0C\u5176\u4F59\u90FD\u53EA\u6709\u4E00\u4E2A\u5B57\u6BCD\u3002" }
+        ]
+      }
+    ]
+  };
+
+  // packages/teaching-content/src/chapter-15.ts
+  var AFTER_CHAPTER_14 = [
+    "io.output",
+    "io.input",
+    "decl.variable",
+    "misc.comment",
+    "type.string",
+    "literal.string",
+    "type.integer",
+    "type.real",
+    "type.char",
+    "type.boolean",
+    "type.date",
+    "literal.integer",
+    "literal.real",
+    "literal.char",
+    "literal.boolean",
+    "literal.date",
+    "assign.simple",
+    "decl.constant",
+    "op.arithmetic",
+    "op.div",
+    "op.mod",
+    "op.relational",
+    "op.and",
+    "op.or",
+    "op.not",
+    "select.if",
+    "select.if-else",
+    "select.nested-if",
+    "select.case",
+    "select.case-range",
+    "select.case-otherwise",
+    "loop.for",
+    "loop.for-step",
+    "loop.while",
+    "loop.repeat",
+    "loop.nested",
+    "builtin.length",
+    "builtin.mid",
+    "builtin.right",
+    "builtin.ucase",
+    "builtin.lcase",
+    "op.concat",
+    "builtin.int",
+    "builtin.rand",
+    "decl.array-1d",
+    "array.index",
+    "decl.array-2d",
+    "array.index-2d",
+    "decl.record-type",
+    "record.field-access",
+    "routine.procedure",
+    "routine.call",
+    "param.byval",
+    "param.byref",
+    "routine.function",
+    "routine.return",
+    "expr.function-call",
+    "file.open-read",
+    "file.open-write",
+    "file.open-append",
+    "file.read",
+    "file.write",
+    "file.close",
+    "builtin.eof"
+  ];
+  var chapter15 = {
+    id: 15,
+    title: "\u62BD\u8C61\u6570\u636E\u7C7B\u578B\u5165\u95E8",
+    level: "AS",
+    syllabus: ["\xA710.4"],
+    prerequisites: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+    sections: [
+      {
+        id: "15.1",
+        title: "\u4EC0\u4E48\u662F\u62BD\u8C61\u6570\u636E\u7C7B\u578B",
+        syllabus: ["\xA710.4"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_CHAPTER_14,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u6570\u7EC4\u548C\u8BB0\u5F55\u8BF4\u7684\u90FD\u662F**\u600E\u4E48\u5B58**\uFF1A\u51E0\u683C\u3001\u4EC0\u4E48\u7C7B\u578B\u3001\u600E\u4E48\u53D6\u3002**\u62BD\u8C61\u6570\u636E\u7C7B\u578B\uFF08abstract data type (ADT)\uFF09**\u6362\u4E86\u4E2A\u89D2\u5EA6\u2014\u2014\u5B83\u5148\u8BF4\u6E05**\u80FD\u5BF9\u8FD9\u6279\u6570\u636E\u505A\u54EA\u51E0\u4EF6\u4E8B**\uFF0C\u81F3\u4E8E\u5E95\u4E0B\u62FF\u4EC0\u4E48\u5B58\uFF0C\u6682\u65F6\u4E0D\u95EE\u3002",
+              "\u300C\u62BD\u8C61\u300D\u7684\u610F\u601D\u5C31\u662F\u8FD9\u4E2A\uFF1A**\u53EA\u627F\u8BFA\u884C\u4E3A\uFF0C\u4E0D\u627F\u8BFA\u5B58\u6CD5**\u3002\u548C\u7B2C 13 \u7AE0\u7684\u63A5\u53E3\u662F\u540C\u4E00\u4E2A\u601D\u8DEF\u2014\u2014\u77E5\u9053\u8981\u7ED9\u4EC0\u4E48\u3001\u4F1A\u8FD8\u56DE\u4EC0\u4E48\u5C31\u591F\u7528\u4E86\uFF0C\u91CC\u9762\u600E\u4E48\u5199\u4E0D\u5FC5\u770B\u3002",
+              "\u8003\u7EB2\u8981\u6C42\u8BA4\u8BC6\u4E09\u79CD\uFF1A**\u6808\uFF08stack\uFF09**\u3001**\u961F\u5217\uFF08queue\uFF09**\u3001**\u94FE\u8868\uFF08linked list\uFF09**\u3002\u5B83\u4EEC\u88C5\u7684\u90FD\u662F\u300C\u4E00\u4E32\u6570\u636E\u300D\uFF0C\u533A\u522B\u5168\u5728\u89C4\u77E9\u4E0A\u2014\u2014**\u4ECE\u54EA\u5934\u8FDB\u3001\u4ECE\u54EA\u5934\u51FA\u3001\u600E\u4E48\u627E\u5230\u4E0B\u4E00\u4E2A**\u3002",
+              "AS \u9636\u6BB5**\u4E0D\u8981\u6C42\u4E3A\u8FD9\u4E09\u79CD\u7ED3\u6784\u5199\u4F2A\u4EE3\u7801**\u3002\u8981\u6C42\u7684\u662F\u4E09\u4EF6\u4E8B\uFF1A\u8BF4\u6E05\u5404\u81EA\u7684\u7279\u70B9\u3001\u5728\u7ED9\u5B9A\u573A\u666F\u91CC\u6311\u4E00\u4E2A\u5E76\u8BF4\u660E\u7406\u7531\u3001**\u63CF\u8FF0**\u600E\u4E48\u7528\u6570\u7EC4\u628A\u5B83\u4EEC\u505A\u51FA\u6765\u3002\u5B8C\u6574\u5B9E\u73B0\u7559\u5230\u7B2C 20 \u7AE0\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u539F\u8BDD\uFF1AADT \u662F\u4E00\u6279\u6570\u636E\u52A0\u4E0A\u5B9A\u4E49\u5728\u8FD9\u6279\u6570\u636E\u4E0A\u7684\u4E00\u7EC4\u64CD\u4F5C\uFF1B\u6808\u3001\u961F\u5217\u3001\u94FE\u8868\u90FD\u662F ADT \u7684\u4F8B\u5B50\uFF1B**\u4E0D\u8981\u6C42\u4E3A\u8FD9\u4E9B\u7ED3\u6784\u5199\u4F2A\u4EE3\u7801**\uFF0C\u4F46\u8981\u80FD\u5F80\u91CC\u9762\u6DFB\u52A0\u3001\u4FEE\u6539\u3001\u5220\u9664\u6570\u636E\uFF08\xA710.4\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "comparison",
+            title: "\u8BF4\u5B58\u6CD5\uFF0C\u8FD8\u662F\u8BF4\u505A\u6CD5",
+            intro: "\u540C\u6837\u662F\u300C\u4E00\u6279\u6574\u6570\u300D\uFF0C\u4E24\u79CD\u8BF4\u660E\u65B9\u5F0F\u7BA1\u7684\u4E8B\u4E0D\u4E00\u6837\u3002",
+            panes: [
+              {
+                label: "\u6570\u7EC4\uFF1A\u8BF4\u7684\u662F\u5B58\u6CD5",
+                language: "pseudocode",
+                code: ["DECLARE Values : ARRAY[1:10] OF INTEGER", "Values[3] \u2190 42", "OUTPUT Values[3]"].join("\n"),
+                note: "\u5341\u683C\u3001\u6574\u6570\u3001\u6309\u4E0B\u6807\u53D6\u3002\u770B\u5B8C\u8FD9\u4E09\u884C\u4F60\u77E5\u9053\u5B83\u957F\u4EC0\u4E48\u6837\uFF0C\u4F46\u4E0D\u77E5\u9053\u8BE5\u6309\u4EC0\u4E48\u987A\u5E8F\u5F80\u91CC\u653E\u3001\u5F80\u5916\u53D6\u2014\u2014\u90A3\u7531\u7528\u5B83\u7684\u4EBA\u968F\u4FBF\u51B3\u5B9A\u3002"
+              },
+              {
+                label: "\u6808\uFF1A\u8BF4\u7684\u662F\u505A\u6CD5",
+                language: "natural",
+                code: [
+                  "\u4E00\u4E2A\u6808\u80FD\u505A\u4E09\u4EF6\u4E8B\uFF1A",
+                  "  \u5F80\u9876\u4E0A\u653E\u4E00\u4E2A\uFF08push\uFF09",
+                  "  \u4ECE\u9876\u4E0A\u53D6\u8D70\u4E00\u4E2A\uFF08pop\uFF09",
+                  "  \u770B\u4E00\u773C\u9876\u4E0A\u662F\u4EC0\u4E48\uFF0C\u4F46\u4E0D\u53D6\u8D70",
+                  "\u89C4\u77E9\uFF1A\u653E\u548C\u53D6\u90FD\u53EA\u5728\u540C\u4E00\u5934\u3002",
+                  "\u81F3\u4E8E\u5E95\u4E0B\u7528\u6570\u7EC4\u8FD8\u662F\u522B\u7684\uFF0C\u4E0D\u5173\u4F7F\u7528\u8005\u7684\u4E8B\u3002"
+                ].join("\n"),
+                note: "\u4E00\u683C\u90FD\u6CA1\u63D0\uFF0C\u5374\u628A\u80FD\u5E72\u4EC0\u4E48\u8BF4\u5168\u4E86\u3002\u8FD9\u5C31\u662F\u300C\u62BD\u8C61\u300D\u2014\u2014**\u5148\u5B9A\u89C4\u77E9\uFF0C\u518D\u8C08\u5B58\u6CD5**\u3002"
+              },
+              {
+                label: "Python",
+                language: "python",
+                code: ["stack = []", "stack.append(42)   # push", "top = stack.pop()  # pop"].join("\n"),
+                note: "Python \u7684 list \u5E95\u4E0B\u662F\u6570\u7EC4\uFF0C\u4F46 `append` / `pop` \u8FD9\u4E00\u5BF9\u7528\u6CD5\u628A\u5B83\u5F53\u6808\u4F7F\u3002\u540C\u4E00\u4EFD\u5B58\u6CD5\uFF0C\u914D\u4E0D\u540C\u7684\u89C4\u77E9\u5C31\u662F\u4E0D\u540C\u7684 ADT\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E0B\u9762\u54EA\u4E00\u53E5\u6700\u51C6\u786E\u5730\u8BF4\u51FA\u4E86\u300C\u62BD\u8C61\u6570\u636E\u7C7B\u578B\u300D\u91CC\u300C\u62BD\u8C61\u300D\u7684\u610F\u601D\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u5B83\u6BD4\u6570\u7EC4\u66F4\u96BE\u7406\u89E3",
+                correct: false,
+                explanation: "\u96BE\u4E0D\u96BE\u548C\u62BD\u8C61\u4E0D\u62BD\u8C61\u6CA1\u5173\u7CFB\u3002\u6808\u7684\u89C4\u77E9\u53EA\u6709\u4E00\u6761\uFF0C\u6BD4\u6570\u7EC4\u7684\u4E0B\u6807\u8FD0\u7B97\u597D\u61C2\u5F97\u591A\u3002"
+              },
+              {
+                key: "B",
+                label: "\u5B83\u53EA\u8BF4\u6E05\u80FD\u505A\u54EA\u51E0\u4EF6\u4E8B\uFF0C\u4E0D\u8BF4\u5E95\u4E0B\u600E\u4E48\u5B58",
+                correct: true,
+                explanation: "\u5BF9\u3002\u4F7F\u7528\u8005\u53EA\u9700\u8981\u77E5\u9053\u90A3\u51E0\u4EF6\u4E8B\u548C\u5B83\u4EEC\u7684\u89C4\u77E9\uFF1B\u6362\u4E00\u79CD\u5B58\u6CD5\u800C\u89C4\u77E9\u4E0D\u53D8\uFF0C\u7528\u5B83\u7684\u4EE3\u7801\u4E00\u4E2A\u5B57\u90FD\u4E0D\u7528\u6539\u3002"
+              },
+              {
+                key: "C",
+                label: "\u5B83\u4E0D\u9700\u8981\u5360\u5B58\u50A8\u7A7A\u95F4",
+                correct: false,
+                explanation: "\u6570\u636E\u603B\u8981\u5B58\u5728\u4EC0\u4E48\u5730\u65B9\u3002ADT \u4E0D\u8BF4\u5B58\u6CD5\uFF0C\u4E0D\u7B49\u4E8E\u4E0D\u7528\u5B58\u3002"
+              },
+              {
+                key: "D",
+                label: "\u5B83\u91CC\u9762\u7684\u6570\u636E\u7C7B\u578B\u53EF\u4EE5\u968F\u65F6\u6539\u53D8",
+                correct: false,
+                explanation: "\u8FD9\u8BF4\u7684\u662F\u6570\u636E\u7C7B\u578B\uFF0C\u4E0D\u662F\u62BD\u8C61\u3002\u6808\u91CC\u88C5\u4EC0\u4E48\u7C7B\u578B\u548C\u5B83\u662F\u4E0D\u662F ADT \u65E0\u5173\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "15.2",
+        title: "\u6808\uFF1A\u540E\u8FDB\u5148\u51FA",
+        syllabus: ["\xA710.4"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_CHAPTER_14,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u6808\u7684\u89C4\u77E9\u53EA\u6709\u4E00\u6761\uFF1A**\u653E\u548C\u53D6\u90FD\u53EA\u5728\u540C\u4E00\u5934**\u3002\u90A3\u4E00\u5934\u53EB\u6808\u9876\u3002\u653E\u8FDB\u53BB\u53EB**\u5165\u6808\uFF08push\uFF09**\uFF0C\u53D6\u51FA\u6765\u53EB**\u51FA\u6808\uFF08pop\uFF09**\uFF0C\u6B64\u5916\u901A\u5E38\u8FD8\u80FD\u300C\u770B\u4E00\u773C\u6808\u9876\u662F\u4EC0\u4E48\u4F46\u4E0D\u53D6\u8D70\u300D\u3002",
+              "\u8FD9\u4E00\u6761\u89C4\u77E9\u5E26\u6765\u7684\u540E\u679C\u662F\uFF1A**\u6700\u540E\u653E\u8FDB\u53BB\u7684\u6700\u5148\u88AB\u53D6\u51FA\u6765**\uFF0C\u7B80\u79F0**\u540E\u8FDB\u5148\u51FA\uFF08LIFO\uFF09**\u3002\u4E00\u645E\u76D8\u5B50\u5C31\u662F\u6808\u2014\u2014\u5F80\u6700\u4E0A\u9762\u645E\uFF0C\u4E5F\u4ECE\u6700\u4E0A\u9762\u62FF\uFF0C\u4E2D\u95F4\u90A3\u5F20\u62BD\u4E0D\u51FA\u6765\u3002",
+              "\u4E24\u79CD\u60C5\u51B5\u8981\u7559\u795E\uFF1A**\u7A7A\u6808\u6CA1\u6CD5 pop**\uFF08\u6CA1\u6709\u4E1C\u897F\u53EF\u53D6\uFF09\uFF0C**\u6EE1\u4E86\u6CA1\u6CD5 push**\uFF08\u6CA1\u6709\u5730\u65B9\u53EF\u653E\uFF09\u3002\u7528\u6570\u7EC4\u505A\u7684\u6808\u603B\u6709\u4E2A\u4E0A\u9650\uFF0C\u6240\u4EE5\u8FD9\u4E24\u4EF6\u4E8B\u90FD\u5F97\u5148\u95EE\u4E00\u53E5\u3002",
+              "\u4EC0\u4E48\u65F6\u5019\u7528\u6808\uFF1A**\u8981\u6309\u76F8\u53CD\u987A\u5E8F\u5904\u7406**\u7684\u65F6\u5019\u3002\u6D4F\u89C8\u5668\u7684\u540E\u9000\u3001\u7F16\u8F91\u5668\u7684\u64A4\u9500\u3001\u68C0\u67E5\u62EC\u53F7\u914D\u4E0D\u914D\u5BF9\uFF0C\u8FD8\u6709\u7B2C 19 \u7AE0\u7684\u9012\u5F52\u2014\u2014\u6BCF\u4E00\u5C42\u8C03\u7528\u90FD\u645E\u5728\u4E0A\u4E00\u5C42\u4E0A\u9762\uFF0C\u8FD4\u56DE\u65F6\u4ECE\u6700\u4E0A\u9762\u5F00\u59CB\u62C6\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u63CF\u8FF0\u6808\u7684\u5173\u952E\u7279\u70B9\uFF0C\u5E76\u4E3A\u7ED9\u5B9A\u573A\u666F\u8BF4\u660E\u7528\u5B83\u7684\u7406\u7531\uFF08\xA710.4\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E00\u4E2A\u7A7A\u6808\uFF0C\u4F9D\u6B21 push \u4E86 `3`\u3001`7`\u3001`5`\uFF0C\u7136\u540E pop \u4E00\u6B21\uFF0C\u518D push `9`\u3002\u73B0\u5728\u6808\u9876\u662F\u4EC0\u4E48\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "`5`",
+                correct: false,
+                explanation: "5 \u5DF2\u7ECF\u88AB\u90A3\u6B21 pop \u53D6\u8D70\u4E86\u3002pop \u53D6\u7684\u6B63\u662F\u5F53\u65F6\u7684\u6808\u9876\u3002"
+              },
+              {
+                key: "B",
+                label: "`9`",
+                correct: true,
+                explanation: "\u5BF9\u3002push \u5B8C\u662F 3\u30017\u30015\uFF085 \u5728\u9876\u4E0A\uFF09\uFF0Cpop \u53D6\u8D70 5 \u5269\u4E0B 3\u30017\uFF0C\u518D push 9 \u645E\u5728\u6700\u4E0A\u9762\u3002\u6808\u9876\u6C38\u8FDC\u662F\u6700\u540E\u653E\u8FDB\u53BB\u7684\u90A3\u4E2A\u3002"
+              },
+              {
+                key: "C",
+                label: "`7`",
+                correct: false,
+                explanation: "pop \u4E4B\u540E\u6808\u9876\u786E\u5B9E\u662F 7\uFF0C\u4F46\u540E\u9762\u8FD8 push \u4E86\u4E00\u4E2A 9\uFF0C\u5B83\u645E\u5728 7 \u4E0A\u9762\u3002"
+              },
+              {
+                key: "D",
+                label: "`3`",
+                correct: false,
+                explanation: "3 \u662F\u6700\u5148\u653E\u8FDB\u53BB\u7684\uFF0C\u5B83\u538B\u5728\u6700\u5E95\u4E0B\u3002\u8981\u53D6\u5230\u5B83\u5F97\u5148\u628A\u4E0A\u9762\u7684\u5168\u90E8\u53D6\u8D70\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "15.3",
+        title: "\u961F\u5217\uFF1A\u5148\u8FDB\u5148\u51FA",
+        syllabus: ["\xA710.4"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_CHAPTER_14,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u961F\u5217\u7684\u89C4\u77E9\u4E5F\u53EA\u6709\u4E00\u6761\uFF0C\u4F46\u548C\u6808\u6B63\u597D\u76F8\u53CD\uFF1A**\u4E00\u5934\u8FDB\uFF0C\u53E6\u4E00\u5934\u51FA**\u3002\u8FDB\u6765\u53EB**\u5165\u961F\uFF08enqueue\uFF09**\uFF0C\u51FA\u53BB\u53EB**\u51FA\u961F\uFF08dequeue\uFF09**\u3002",
+              "\u540E\u679C\u662F**\u6700\u5148\u8FDB\u6765\u7684\u6700\u5148\u51FA\u53BB**\uFF0C\u7B80\u79F0**\u5148\u8FDB\u5148\u51FA\uFF08FIFO\uFF09**\u3002\u8FD9\u5C31\u662F\u6392\u961F\uFF1A\u7AD9\u5230\u961F\u5C3E\uFF0C\u4ECE\u961F\u5934\u8D70\u3002\u63D2\u961F\u5728\u961F\u5217\u91CC\u662F\u4E0D\u5B58\u5728\u7684\u3002",
+              "\u961F\u5217\u8981\u8BB0\u4E24\u4E2A\u4F4D\u7F6E\uFF1A**\u961F\u5934**\uFF08\u4E0B\u4E00\u4E2A\u51FA\u53BB\u7684\u662F\u8C01\uFF09\u548C**\u961F\u5C3E**\uFF08\u4E0B\u4E00\u4E2A\u8FDB\u6765\u7684\u653E\u54EA\u513F\uFF09\u3002\u6808\u53EA\u9700\u8981\u8BB0\u4E00\u4E2A\uFF0C\u56E0\u4E3A\u5B83\u53EA\u6709\u4E00\u5934\u5728\u52A8\u3002",
+              "\u4EC0\u4E48\u65F6\u5019\u7528\u961F\u5217\uFF1A**\u8981\u6309\u5230\u8FBE\u987A\u5E8F\u5904\u7406**\u7684\u65F6\u5019\u3002\u6253\u5370\u4EFB\u52A1\u3001\u5BA2\u670D\u6392\u53F7\u3001\u628A\u5148\u6765\u7684\u5DE5\u4F5C\u5148\u6D3E\u51FA\u53BB\u3002\u5224\u636E\u4E00\u53E5\u8BDD\uFF1A**\u5148\u6765\u7684\u5148\u529E\uFF0C\u5C31\u662F\u961F\u5217\uFF1B\u540E\u6765\u7684\u5148\u529E\uFF0C\u5C31\u662F\u6808\u3002**"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u63CF\u8FF0\u961F\u5217\u7684\u5173\u952E\u7279\u70B9\uFF0C\u5E76\u4E3A\u7ED9\u5B9A\u573A\u666F\u8BF4\u660E\u7528\u5B83\u7684\u7406\u7531\uFF08\xA710.4\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E00\u4E2A\u7A7A\u961F\u5217\uFF0C\u4F9D\u6B21 enqueue \u4E86 `A`\u3001`B`\u3001`C`\uFF0C\u7136\u540E dequeue \u4E24\u6B21\u3002\u8FD9\u4E24\u6B21\u51FA\u6765\u7684\u5206\u522B\u662F\u4EC0\u4E48\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "`A`\uFF0C\u7136\u540E `C`",
+                correct: false,
+                explanation: "\u51FA\u961F\u6C38\u8FDC\u4ECE\u961F\u5934\u6328\u7740\u8D70\uFF0C\u4E0D\u4F1A\u8DF3\u8FC7 `B`\u3002\u961F\u5217\u91CC\u6CA1\u6709\u300C\u6311\u4E00\u4E2A\u51FA\u6765\u300D\u8FD9\u4EF6\u4E8B\u3002"
+              },
+              {
+                key: "B",
+                label: "\u4E24\u6B21\u90FD\u662F `A`",
+                correct: false,
+                explanation: "dequeue \u662F\u53D6\u8D70\uFF0C\u4E0D\u662F\u770B\u4E00\u773C\u3002\u7B2C\u4E00\u6B21\u4E4B\u540E `A` \u5DF2\u7ECF\u4E0D\u5728\u961F\u5217\u91CC\u4E86\u3002"
+              },
+              {
+                key: "C",
+                label: "`C`\uFF0C\u7136\u540E `B`",
+                correct: false,
+                explanation: "\u8FD9\u662F\u6808\u7684\u884C\u4E3A\u2014\u2014\u540E\u8FDB\u5148\u51FA\u3002\u961F\u5217\u4ECE\u53E6\u4E00\u5934\u51FA\uFF0C\u5148\u8FDB\u6765\u7684\u5148\u8D70\u3002"
+              },
+              {
+                key: "D",
+                label: "`A`\uFF0C\u7136\u540E `B`",
+                correct: true,
+                explanation: "\u5BF9\u3002`A` \u6700\u5148\u8FDB\u6765\uFF0C\u6240\u4EE5\u6700\u5148\u51FA\u53BB\uFF1B\u63A5\u7740\u8F6E\u5230 `B`\u3002\u961F\u5217\u91CC\u5269\u4E0B `C`\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "15.4",
+        title: "\u94FE\u8868\uFF1A\u6BCF\u4E2A\u8282\u70B9\u8BB0\u7740\u4E0B\u4E00\u4E2A\u5728\u54EA\u513F",
+        syllabus: ["\xA710.4"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_CHAPTER_14,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u6570\u7EC4\u7684\u683C\u5B50\u662F\u6328\u7740\u6392\u7684\uFF0C\u7B2C\u51E0\u683C\u5728\u54EA\u91CC\u9760\u4E0B\u6807\u7B97\u51FA\u6765\u3002**\u94FE\u8868\uFF08linked list\uFF09**\u6362\u4E86\u4E2A\u529E\u6CD5\uFF1A\u5B83\u7531\u4E00\u4E32**\u8282\u70B9\uFF08node\uFF09**\u7EC4\u6210\uFF0C\u6BCF\u4E2A\u8282\u70B9\u9664\u4E86\u88C5\u6570\u636E\uFF0C\u8FD8\u8BB0\u7740**\u4E0B\u4E00\u4E2A\u8282\u70B9\u5728\u54EA\u513F**\uFF1B\u6700\u540E\u4E00\u4E2A\u8282\u70B9\u8BB0\u7684\u662F\u300C\u6CA1\u6709\u4E0B\u4E00\u4E2A\u4E86\u300D\u3002\u53E6\u5916\u5355\u72EC\u6709\u4E2A\u5730\u65B9\u8BB0\u7740**\u7B2C\u4E00\u4E2A\u8282\u70B9\u5728\u54EA\u513F**\u3002",
+              "\u8FD9\u4E48\u505A\u7684\u597D\u5904\u662F**\u4E2D\u95F4\u63D2\u5220\u5F88\u4FBF\u5B9C**\uFF1A\u5728\u4E24\u4E2A\u8282\u70B9\u4E4B\u95F4\u63D2\u4E00\u4E2A\uFF0C\u53EA\u8981\u6539\u4E24\u5904\u300C\u4E0B\u4E00\u4E2A\u5728\u54EA\u513F\u300D\uFF0C\u522B\u7684\u8282\u70B9\u4E00\u4E2A\u90FD\u4E0D\u7528\u52A8\u3002\u6570\u7EC4\u8981\u5728\u4E2D\u95F4\u63D2\u4E00\u4E2A\uFF0C\u540E\u9762\u6240\u6709\u5143\u7D20\u90FD\u5F97\u5F80\u540E\u632A\u4E00\u683C\u3002",
+              "\u4EE3\u4EF7\u662F**\u6CA1\u6CD5\u76F4\u63A5\u8DF3\u5230\u7B2C 5 \u4E2A**\u3002\u6570\u7EC4\u5199 `A[5]` \u4E00\u6B65\u5230\u4F4D\uFF0C\u94FE\u8868\u53EA\u80FD\u4ECE\u7B2C\u4E00\u4E2A\u5F00\u59CB\u987A\u7740\u8D70\u4E94\u6B65\u2014\u2014\u60F3\u770B\u7B2C\u51E0\u4E2A\uFF0C\u5C31\u5F97\u8D70\u51E0\u6B65\u3002",
+              "\u6240\u4EE5\u5224\u636E\u5F88\u6E05\u695A\uFF1A**\u7ECF\u5E38\u5728\u4E2D\u95F4\u63D2\u5220\uFF0C\u7528\u94FE\u8868\uFF1B\u7ECF\u5E38\u6309\u7F16\u53F7\u76F4\u63A5\u53D6\uFF0C\u7528\u6570\u7EC4\u3002**\u81F3\u4E8E\u8FD9\u4E09\u79CD ADT \u4E4B\u95F4\u600E\u4E48\u4E92\u76F8\u5B9E\u73B0\uFF0C\u662F\u7B2C 20 \u7AE0\u7684\u4E8B\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u63CF\u8FF0\u94FE\u8868\u7684\u5173\u952E\u7279\u70B9\uFF0C\u5E76\u4E3A\u7ED9\u5B9A\u573A\u666F\u8BF4\u660E\u7528\u5B83\u7684\u7406\u7531\uFF08\xA710.4\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u987A\u7740\u300C\u4E0B\u4E00\u4E2A\u5728\u54EA\u513F\u300D\u8D70\u4E00\u904D",
+            fileName: "Example_15_4_a.pseudocode",
+            code: [
+              "DECLARE Data : ARRAY[1:5] OF STRING",
+              "DECLARE NextAt : ARRAY[1:5] OF INTEGER",
+              "DECLARE Start : INTEGER",
+              "DECLARE Here : INTEGER",
+              'Data[1] \u2190 "Ada"',
+              "NextAt[1] \u2190 4",
+              'Data[4] \u2190 "Bob"',
+              "NextAt[4] \u2190 2",
+              'Data[2] \u2190 "Cal"',
+              "NextAt[2] \u2190 0",
+              "Start \u2190 1",
+              "Here \u2190 Start",
+              "WHILE Here <> 0",
+              "   OUTPUT Data[Here]",
+              "   Here \u2190 NextAt[Here]",
+              "ENDWHILE"
+            ].join("\n"),
+            annotations: [
+              { fromLine: 5, toLine: 10, text: "\u4E09\u4E2A\u8282\u70B9\u5206\u522B\u653E\u5728\u7B2C 1\u30014\u30012 \u683C\u2014\u2014**\u5728\u6570\u7EC4\u91CC\u7684\u4F4D\u7F6E\u662F\u4E71\u7684**\uFF0C\u987A\u5E8F\u7531 `NextAt` \u8BF4\u4E86\u7B97\u3002" },
+              { fromLine: 10, toLine: 10, text: "`0` \u8868\u793A\u300C\u6CA1\u6709\u4E0B\u4E00\u4E2A\u4E86\u300D\u3002\u7B2C 0 \u683C\u4E0D\u5B58\u5728\uFF0C\u6B63\u597D\u62FF\u6765\u5F53\u8FD9\u4E2A\u6807\u8BB0\u3002" },
+              { fromLine: 13, toLine: 16, text: "\u8D70\u6CD5\u662F\u300C\u5230\u8FD9\u513F\u3001\u770B\u4E0B\u4E00\u4E2A\u5728\u54EA\u513F\u3001\u8D70\u8FC7\u53BB\u300D\uFF0C\u4E00\u76F4\u8D70\u5230 `0`\u3002\u663E\u793A\u51FA\u6765\u7684\u987A\u5E8F\u662F Ada\u3001Bob\u3001Cal\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["Ada", "Bob", "Cal"]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E0A\u9762\u90A3\u6BB5\u91CC\uFF0C\u8981\u5728 `Ada` \u548C `Bob` \u4E4B\u95F4\u63D2\u4E00\u4E2A\u65B0\u8282\u70B9\uFF08\u6BD4\u5982\u653E\u5728\u7B2C 3 \u683C\uFF09\uFF0C\u81F3\u5C11\u8981\u6539\u52A8\u51E0\u5904\u300C\u4E0B\u4E00\u4E2A\u5728\u54EA\u513F\u300D\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u4E24\u5904\uFF1A`NextAt[1]` \u6539\u6210 3\uFF0C`NextAt[3]` \u8BBE\u6210 4",
+                correct: true,
+                explanation: "\u5BF9\u3002\u524D\u4E00\u4E2A\u6539\u6210\u6307\u5411\u65B0\u8282\u70B9\uFF0C\u65B0\u8282\u70B9\u6307\u5411\u539F\u6765\u7684\u540E\u4E00\u4E2A\u3002`Bob`\u3001`Cal` \u548C\u5B83\u4EEC\u7684\u6570\u636E\u4E00\u4E2A\u5B57\u90FD\u4E0D\u7528\u52A8\u2014\u2014\u8FD9\u6B63\u662F\u94FE\u8868\u4E2D\u95F4\u63D2\u5220\u4FBF\u5B9C\u7684\u539F\u56E0\u3002"
+              },
+              {
+                key: "B",
+                label: "\u4E00\u5904\uFF1A\u628A `NextAt[1]` \u6539\u6210 3 \u5C31\u884C",
+                correct: false,
+                explanation: "\u90A3\u6837\u8D70\u5230\u7B2C 3 \u683C\u5C31\u65AD\u4E86\u2014\u2014\u65B0\u8282\u70B9\u7684\u300C\u4E0B\u4E00\u4E2A\u300D\u8FD8\u6CA1\u8BBE\uFF0C\u94FE\u5B50\u63A5\u4E0D\u56DE `Bob`\u3002"
+              },
+              {
+                key: "C",
+                label: "\u4E09\u5904\uFF0C`NextAt[4]` \u4E5F\u8981\u6539",
+                correct: false,
+                explanation: "`Bob` \u540E\u9762\u8FD8\u662F `Cal`\uFF0C\u6CA1\u6709\u53D8\u3002\u63D2\u5728\u524D\u9762\u4E0D\u5F71\u54CD\u5B83\u6307\u5411\u8C01\u3002"
+              },
+              {
+                key: "D",
+                label: "\u8981\u5148\u628A `Bob` \u548C `Cal` \u5F80\u540E\u632A\u4E00\u683C",
+                correct: false,
+                explanation: "\u90A3\u662F\u6570\u7EC4\u7684\u505A\u6CD5\u3002\u94FE\u8868\u91CC\u8282\u70B9\u653E\u5728\u54EA\u4E00\u683C\u6839\u672C\u4E0D\u91CD\u8981\uFF0C\u6240\u4EE5\u4E0D\u9700\u8981\u642C\u52A8\u4EFB\u4F55\u4E1C\u897F\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "15.5",
+        title: "\u7528\u6570\u7EC4\u63CF\u8FF0\u8FD9\u4E09\u79CD\u7ED3\u6784",
+        syllabus: ["\xA710.4"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_CHAPTER_14,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u8003\u7EB2\u8981\u6C42\u4F60\u80FD**\u63CF\u8FF0**\u600E\u4E48\u7528\u6570\u7EC4\u628A\u8FD9\u4E09\u79CD\u7ED3\u6784\u505A\u51FA\u6765\u2014\u2014\u63CF\u8FF0\uFF0C\u4E0D\u662F\u5199\u51FA\u5B8C\u6574\u5B9E\u73B0\u3002\u4E09\u79CD\u7684\u5957\u8DEF\u662F\u540C\u4E00\u4E2A\uFF1A**\u4E00\u4E2A\u6570\u7EC4\u88C5\u6570\u636E\uFF0C\u5916\u52A0\u4E00\u4E24\u4E2A\u6574\u6570\u53D8\u91CF\u8BB0\u4F4D\u7F6E**\u3002",
+              "**\u6808**\uFF1A\u4E00\u4E2A\u6570\u7EC4 + \u4E00\u4E2A `Top`\uFF0C\u8BB0\u7740\u6808\u9876\u5728\u7B2C\u51E0\u683C\u3002\u653E\u4E00\u4E2A\u5C31\u662F `Top` \u52A0\u4E00\u518D\u5F80\u90A3\u683C\u5199\uFF0C\u53D6\u4E00\u4E2A\u5C31\u662F\u5148\u8BFB\u90A3\u683C\u518D\u628A `Top` \u51CF\u4E00\u3002`Top` \u662F 0 \u8868\u793A\u7A7A\u6808\uFF0C`Top` \u7B49\u4E8E\u4E0A\u754C\u8868\u793A\u6EE1\u4E86\u3002",
+              "**\u961F\u5217**\uFF1A\u4E00\u4E2A\u6570\u7EC4 + `Front` \u548C `Rear` \u4E24\u4E2A\u4F4D\u7F6E\u3002\u51FA\u961F\u65F6 `Front` \u5F80\u540E\u632A\uFF0C\u5165\u961F\u65F6 `Rear` \u5F80\u540E\u632A\u3002\u4E24\u4E2A\u90FD\u53EA\u671D\u4E00\u4E2A\u65B9\u5411\u8D70\uFF0C\u6240\u4EE5\u8D70\u5230\u6570\u7EC4\u5C3D\u5934\u5C31\u5F97\u4ECE\u5934\u7ED5\u56DE\u6765\u2014\u2014\u90A3\u53EB\u73AF\u5F62\u961F\u5217\uFF0C\u7B2C 20 \u7AE0\u8BB2\u3002",
+              "**\u94FE\u8868**\uFF1A\u6570\u636E\u653E\u4E00\u4E2A\u6570\u7EC4\uFF0C\u300C\u4E0B\u4E00\u4E2A\u5728\u54EA\u513F\u300D\u653E\u53E6\u4E00\u4E2A\u6570\u7EC4\uFF08\u6216\u8005\u505A\u6210\u8BB0\u5F55\u6570\u7EC4\u7684\u4E00\u4E2A\u5B57\u6BB5\uFF09\uFF0C\u518D\u52A0\u4E00\u4E2A\u53D8\u91CF\u8BB0\u7740\u7B2C\u4E00\u4E2A\u8282\u70B9\u5728\u7B2C\u51E0\u683C\u3002**\u8FD9\u91CC\u5B58\u7684\u300C\u4E0B\u4E00\u4E2A\u5728\u54EA\u513F\u300D\u662F\u6570\u7EC4\u4E0B\u6807\uFF0C\u4E0D\u662F\u5185\u5B58\u5730\u5740\u3002**"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "Content under development"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u6808\uFF1A\u4E00\u4E2A\u6570\u7EC4\u52A0\u4E00\u4E2A `Top`",
+            fileName: "Example_15_5_a.pseudocode",
+            code: [
+              "DECLARE Stack : ARRAY[1:5] OF INTEGER",
+              "DECLARE Top : INTEGER",
+              "Top \u2190 0",
+              "Top \u2190 Top + 1",
+              "Stack[Top] \u2190 10",
+              "Top \u2190 Top + 1",
+              "Stack[Top] \u2190 20",
+              "Top \u2190 Top + 1",
+              "Stack[Top] \u2190 30",
+              'OUTPUT "Top is at ", Top',
+              'OUTPUT "Top holds ", Stack[Top]',
+              "Top \u2190 Top - 1",
+              'OUTPUT "After one pop, top holds ", Stack[Top]',
+              'OUTPUT "Slot 3 still holds ", Stack[3]'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 3, toLine: 3, text: "`Top` \u662F 0 \u8868\u793A\u7A7A\u6808\u3002\u7B2C 0 \u683C\u4E0D\u5B58\u5728\uFF0C\u6240\u4EE5\u8FD9\u4E2A\u503C\u4E0D\u4F1A\u548C\u4EFB\u4F55\u4E00\u4E2A\u771F\u5B9E\u7684\u4F4D\u7F6E\u6DF7\u8D77\u6765\u3002" },
+              { fromLine: 4, toLine: 9, text: "\u653E\u4E09\u4E2A\uFF1A\u6BCF\u6B21\u90FD\u662F\u300C`Top` \u52A0\u4E00\u3001\u5F80\u90A3\u4E00\u683C\u5199\u300D\u3002\u6570\u7EC4\u7684\u683C\u5B50\u4E00\u683C\u90FD\u4E0D\u7528\u632A\u3002" },
+              { fromLine: 12, toLine: 14, text: "\u53D6\u4E00\u4E2A\u53EA\u662F\u628A `Top` \u51CF\u4E00\u3002**\u7B2C 3 \u683C\u91CC\u7684 30 \u5176\u5B9E\u8FD8\u5728**\u2014\u2014\u5B83\u53EA\u662F\u4E0D\u518D\u7B97\u6570\u4E86\uFF0C\u4E0B\u6B21\u653E\u4E1C\u897F\u4F1A\u76D6\u6389\u5B83\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["Top is at 3", "Top holds 30", "After one pop, top holds 20", "Slot 3 still holds 30"]
+            }
+          },
+          {
+            kind: "example",
+            title: "\u961F\u5217\uFF1A\u4E00\u4E2A\u6570\u7EC4\u52A0\u4E24\u4E2A\u4F4D\u7F6E",
+            fileName: "Example_15_5_b.pseudocode",
+            code: [
+              "DECLARE Queue : ARRAY[1:5] OF STRING",
+              "DECLARE Front : INTEGER",
+              "DECLARE Rear : INTEGER",
+              "Front \u2190 1",
+              "Rear \u2190 0",
+              "Rear \u2190 Rear + 1",
+              'Queue[Rear] \u2190 "Ada"',
+              "Rear \u2190 Rear + 1",
+              'Queue[Rear] \u2190 "Bob"',
+              "Rear \u2190 Rear + 1",
+              'Queue[Rear] \u2190 "Cal"',
+              'OUTPUT "Next out: ", Queue[Front]',
+              "Front \u2190 Front + 1",
+              'OUTPUT "Next out: ", Queue[Front]',
+              'OUTPUT "Front is ", Front, ", Rear is ", Rear'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 4, toLine: 5, text: "\u4E24\u4E2A\u4F4D\u7F6E\u5404\u7BA1\u4E00\u5934\u3002`Rear` \u4ECE 0 \u8D77\uFF0C\u56E0\u4E3A\u8FD8\u6CA1\u6709\u4EBA\u6392\u8FDB\u6765\u3002" },
+              { fromLine: 12, toLine: 14, text: "\u51FA\u961F\u5C31\u662F\u8BFB `Front` \u90A3\u4E00\u683C\u518D\u628A `Front` \u5F80\u540E\u632A\u3002**\u961F\u4F0D\u91CC\u7684\u4EBA\u4E00\u4E2A\u90FD\u4E0D\u7528\u5F80\u524D\u8D70**\u2014\u2014\u632A\u7684\u662F\u6807\u8BB0\uFF0C\u4E0D\u662F\u6570\u636E\u3002" },
+              { fromLine: 15, toLine: 15, text: "\u4E24\u4E2A\u4F4D\u7F6E\u90FD\u5728\u5F80\u540E\u722C\u3002\u722C\u5230\u7B2C 5 \u683C\u4E4B\u540E\u5C31\u5F97\u60F3\u529E\u6CD5\u7ED5\u56DE\u7B2C 1 \u683C\uFF0C\u90A3\u662F\u7B2C 20 \u7AE0\u7684\u4E8B\u3002" }
+            ],
+            sampleRun: {
+              inputs: [],
+              outputs: ["Next out: Ada", "Next out: Bob", "Front is 2, Rear is 3"]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u7528\u6570\u7EC4\u505A\u7684\u961F\u5217\uFF0C\u51FA\u961F\u65F6\u4E3A\u4EC0\u4E48\u4E0D\u9700\u8981\u628A\u540E\u9762\u7684\u4EBA\u6574\u4F53\u5F80\u524D\u632A\u4E00\u683C\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u56E0\u4E3A\u6570\u7EC4\u672C\u6765\u5C31\u4F1A\u81EA\u52A8\u5F80\u524D\u6536\u7F29",
+                correct: false,
+                explanation: "\u6570\u7EC4\u4E0D\u4F1A\u81EA\u52A8\u505A\u4EFB\u4F55\u4E8B\u3002\u6BCF\u4E00\u683C\u91CC\u7684\u503C\u53EA\u6709\u88AB\u8D4B\u503C\u624D\u4F1A\u53D8\u3002"
+              },
+              {
+                key: "B",
+                label: "\u56E0\u4E3A\u51FA\u961F\u7684\u90A3\u4E2A\u503C\u4F1A\u88AB\u81EA\u52A8\u6E05\u6389",
+                correct: false,
+                explanation: "\u5B83\u4E0D\u4F1A\u88AB\u6E05\u6389\uFF0C\u8FD8\u7559\u5728\u539F\u6765\u90A3\u4E00\u683C\u91CC\u2014\u2014\u53EA\u662F `Front` \u5DF2\u7ECF\u8D8A\u8FC7\u5B83\uFF0C\u4E0D\u518D\u7B97\u6570\u4E86\u3002"
+              },
+              {
+                key: "C",
+                label: "\u56E0\u4E3A\u961F\u5934\u662F\u9760 `Front` \u8BB0\u7740\u7684\uFF0C\u632A\u4E00\u4E0B\u8FD9\u4E2A\u53D8\u91CF\u5C31\u7B49\u4E8E\u961F\u4F0D\u5F80\u524D\u8D70\u4E86\u4E00\u4F4D",
+                correct: true,
+                explanation: "\u5BF9\u3002\u961F\u5934\u5728\u54EA\u513F\u7531\u4E00\u4E2A\u53D8\u91CF\u8BF4\u4E86\u7B97\uFF0C\u6539\u5B83\u6BD4\u642C\u6570\u636E\u4FBF\u5B9C\u5F97\u591A\u3002\u6808\u7684 `Top` \u4E5F\u662F\u540C\u4E00\u4E2A\u9053\u7406\u3002"
+              },
+              {
+                key: "D",
+                label: "\u56E0\u4E3A\u961F\u5217\u7684\u957F\u5EA6\u662F\u56FA\u5B9A\u7684",
+                correct: false,
+                explanation: "\u6570\u7EC4\u7684\u957F\u5EA6\u56FA\u5B9A\uFF0C\u4F46\u961F\u5217\u91CC\u5B9E\u9645\u6392\u7740\u51E0\u4E2A\u4EBA\u662F\u53D8\u7684\u2014\u2014`Front` \u548C `Rear` \u4E4B\u95F4\u90A3\u4E00\u6BB5\u624D\u662F\u961F\u4F0D\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "15.6",
+        title: "\u7ED9\u4E00\u4E2A\u573A\u666F\u6311\u7ED3\u6784",
+        syllabus: ["\xA710.4"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_CHAPTER_14,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u6311\u7ED3\u6784\u7684\u5224\u636E\u5C31\u4E00\u53E5\u8BDD\uFF1A**\u8FD9\u6279\u6570\u636E\u8981\u6309\u4EC0\u4E48\u987A\u5E8F\u53D6\u51FA\u6765\uFF1F**\u6309\u76F8\u53CD\u987A\u5E8F\u53D6 \u2192 \u6808\uFF1B\u6309\u5230\u8FBE\u987A\u5E8F\u53D6 \u2192 \u961F\u5217\uFF1B\u6309\u7F16\u53F7\u76F4\u63A5\u53D6 \u2192 \u6570\u7EC4\uFF1B\u987A\u5E8F\u5E38\u53D8\u3001\u7ECF\u5E38\u5728\u4E2D\u95F4\u63D2\u5220 \u2192 \u94FE\u8868\u3002",
+              "\u8003\u7EB2\u8981\u6C42\u7684\u4E0D\u53EA\u662F\u6311\u5BF9\uFF0C\u8FD8\u8981**\u8BF4\u5F97\u51FA\u7406\u7531**\u3002\u7406\u7531\u8981\u843D\u5728\u300C\u8FD9\u4E2A\u573A\u666F\u91CC\u6570\u636E\u662F\u600E\u4E48\u8FDB\u3001\u600E\u4E48\u51FA\u7684\u300D\u4E0A\u2014\u2014\u300C\u56E0\u4E3A\u64A4\u9500\u8981\u4ECE\u6700\u8FD1\u4E00\u6B21\u5F00\u59CB\u9000\u300D\u662F\u7406\u7531\uFF0C\u300C\u56E0\u4E3A\u6808\u6BD4\u8F83\u5FEB\u300D\u4E0D\u662F\u3002",
+              "\u6311\u9519\u4E86\u4E0D\u4F1A\u7ACB\u523B\u51FA\u9519\uFF0C\u8FD9\u662F\u6700\u5BB9\u6613\u5FFD\u7565\u7684\u4E00\u70B9\u3002\u62FF\u6570\u7EC4\u786C\u505A\u4E00\u4E2A\u961F\u5217\u4E5F\u8DD1\u5F97\u52A8\uFF0C\u53EA\u662F\u6BCF\u6B21\u51FA\u961F\u90FD\u8981\u628A\u540E\u9762\u7684\u4EBA\u5168\u632A\u4E00\u683C\uFF1B\u6570\u636E\u4E00\u591A\u5C31\u6162\uFF0C\u800C\u4E14\u591A\u51FA\u6765\u7684\u642C\u8FD0\u4EE3\u7801\u5168\u662F\u51FA\u9519\u7684\u673A\u4F1A\u3002",
+              "**\u7ED3\u6784\u6311\u5BF9\u4E86\uFF0C\u4EE3\u7801\u5C31\u4E0D\u7528\u505A\u591A\u4F59\u7684\u642C\u8FD0**\u2014\u2014\u8FD9\u548C\u7B2C 9 \u7AE0\u300C\u5F62\u72B6\u5BF9\u4E0A\u4E86\u5C31\u4E0D\u7528\u505A\u6362\u7B97\u300D\u3001\u7B2C 11 \u7AE0\u300C\u7ED1\u6210\u4E00\u4EFD\u5C31\u62C6\u4E0D\u6563\u300D\u662F\u540C\u4E00\u4EF6\u4E8B\u7684\u4E09\u79CD\u8BF4\u6CD5\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u4E3A\u7ED9\u5B9A\u573A\u666F\u8BF4\u660E\u9009\u62E9\u67D0\u79CD ADT \u7684\u7406\u7531\uFF08\xA710.4\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E00\u4E2A\u7A0B\u5E8F\u8981\u8BB0\u4E0B\u7528\u6237\u505A\u8FC7\u7684\u6BCF\u4E00\u6B65\u64CD\u4F5C\uFF0C\u597D\u8BA9\u300C\u64A4\u9500\u300D\u6309\u94AE\u4E00\u6B21\u9000\u56DE\u4E00\u6B65\u3002\u8BE5\u7528\u54EA\u79CD\u7ED3\u6784\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u94FE\u8868\uFF0C\u56E0\u4E3A\u64CD\u4F5C\u7684\u6570\u91CF\u4E0D\u56FA\u5B9A",
+                correct: false,
+                explanation: "\u6570\u91CF\u4E0D\u56FA\u5B9A\u8FD9\u4E00\u70B9\u6808\u4E5F\u6EE1\u8DB3\u3002\u6311\u7ED3\u6784\u770B\u7684\u662F\u53D6\u51FA\u987A\u5E8F\uFF0C\u4E0D\u662F\u6570\u91CF\u3002"
+              },
+              {
+                key: "B",
+                label: "\u4E8C\u7EF4\u6570\u7EC4\uFF0C\u56E0\u4E3A\u6BCF\u4E00\u6B65\u64CD\u4F5C\u6709\u597D\u51E0\u9879\u4FE1\u606F",
+                correct: false,
+                explanation: "\u4E00\u6B65\u64CD\u4F5C\u6709\u51E0\u9879\u4FE1\u606F\u662F\u300C\u4E00\u4EFD\u6570\u636E\u600E\u4E48\u5B58\u300D\u7684\u95EE\u9898\uFF08\u8BB0\u5F55\u66F4\u5408\u9002\uFF09\uFF0C\u548C\u300C\u6309\u4EC0\u4E48\u987A\u5E8F\u9000\u56DE\u300D\u662F\u4E24\u4EF6\u4E8B\u3002"
+              },
+              {
+                key: "C",
+                label: "\u6808\uFF0C\u56E0\u4E3A\u64A4\u9500\u8981\u4ECE\u6700\u8FD1\u4E00\u6B21\u5F00\u59CB\u5F80\u56DE\u9000",
+                correct: true,
+                explanation: "\u5BF9\u3002\u6700\u540E\u505A\u7684\u90A3\u4E00\u6B65\u6700\u5148\u88AB\u64A4\u9500\uFF0C\u6B63\u662F\u540E\u8FDB\u5148\u51FA\u3002\u7406\u7531\u843D\u5728\u300C\u53D6\u51FA\u987A\u5E8F\u300D\u4E0A\uFF0C\u8FD9\u4E5F\u662F\u8003\u7EB2\u8981\u7684\u8BF4\u6CD5\u3002"
+              },
+              {
+                key: "D",
+                label: "\u961F\u5217\uFF0C\u56E0\u4E3A\u64CD\u4F5C\u662F\u6309\u65F6\u95F4\u5148\u540E\u53D1\u751F\u7684",
+                correct: false,
+                explanation: "\u53D1\u751F\u987A\u5E8F\u786E\u5B9E\u662F\u5148\u540E\u7684\uFF0C\u4F46\u64A4\u9500\u8981\u9000\u7684\u662F**\u6700\u8FD1**\u90A3\u4E00\u6B65\u3002\u961F\u5217\u5148\u51FA\u6765\u7684\u662F\u6700\u65E9\u90A3\u4E00\u6B65\uFF0C\u6B63\u597D\u9000\u53CD\u4E86\u3002"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    chapterTasks: []
+  };
+
+  // packages/teaching-content/src/chapter-16.ts
+  var AFTER_CHAPTER_15 = [
+    "io.output",
+    "io.input",
+    "decl.variable",
+    "misc.comment",
+    "type.string",
+    "literal.string",
+    "type.integer",
+    "type.real",
+    "type.char",
+    "type.boolean",
+    "type.date",
+    "literal.integer",
+    "literal.real",
+    "literal.char",
+    "literal.boolean",
+    "literal.date",
+    "assign.simple",
+    "decl.constant",
+    "op.arithmetic",
+    "op.div",
+    "op.mod",
+    "op.relational",
+    "op.and",
+    "op.or",
+    "op.not",
+    "select.if",
+    "select.if-else",
+    "select.nested-if",
+    "select.case",
+    "select.case-range",
+    "select.case-otherwise",
+    "loop.for",
+    "loop.for-step",
+    "loop.while",
+    "loop.repeat",
+    "loop.nested",
+    "builtin.length",
+    "builtin.mid",
+    "builtin.right",
+    "builtin.ucase",
+    "builtin.lcase",
+    "op.concat",
+    "builtin.int",
+    "builtin.rand",
+    "decl.array-1d",
+    "array.index",
+    "decl.array-2d",
+    "array.index-2d",
+    "decl.record-type",
+    "record.field-access",
+    "routine.procedure",
+    "routine.call",
+    "param.byval",
+    "param.byref",
+    "routine.function",
+    "routine.return",
+    "expr.function-call",
+    "file.open-read",
+    "file.open-write",
+    "file.open-append",
+    "file.read",
+    "file.write",
+    "file.close",
+    "builtin.eof"
+  ];
+  var chapter16 = {
+    id: 16,
+    title: "\u7EFC\u5408\uFF1A\u4ECE\u95EE\u9898\u5230\u5B8C\u6574\u7A0B\u5E8F",
+    level: "AS",
+    syllabus: ["\xA79.2", "\xA712.2"],
+    prerequisites: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    sections: [
+      {
+        id: "16.1",
+        title: "\u5148\u628A\u9898\u76EE\u8BFB\u660E\u767D",
+        syllabus: ["\xA79.2"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_CHAPTER_15,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u524D\u9762\u5341\u4E94\u7AE0\u6559\u7684\u662F**\u600E\u4E48\u5199**\u3002\u8FD9\u4E00\u7AE0\u8BB2\u7684\u662F\u62FF\u5230\u4E00\u9053\u9898\u4E4B\u540E\u3001\u52A8\u624B\u5199\u4E4B\u524D\u8BE5\u505A\u4EC0\u4E48\u2014\u2014\u56E0\u4E3A\u5199\u4E0D\u51FA\u6765\u7684\u65F6\u5019\uFF0C\u95EE\u9898\u5F80\u5F80\u4E0D\u5728\u8BED\u6CD5\u4E0A\uFF0C\u800C\u5728\u8FD8\u6CA1\u60F3\u6E05\u695A\u8981\u505A\u4EC0\u4E48\u3002",
+              "\u7B2C\u4E00\u6B65\u662F\u628A\u9898\u9762\u62C6\u6210\u4E09\u6837\u4E1C\u897F\uFF1A**\u5DF2\u77E5**\uFF08\u7ED9\u4E86\u4EC0\u4E48\uFF09\u3001**\u8981\u6C42**\uFF08\u8981\u4EA4\u51FA\u4EC0\u4E48\uFF09\u3001**\u7EA6\u675F**\uFF08\u6709\u4EC0\u4E48\u9650\u5236\uFF09\u3002\u4E09\u6837\u90FD\u5199\u4E0B\u6765\uFF0C\u7F3A\u54EA\u6837\u4E00\u773C\u5C31\u770B\u5F97\u89C1\u3002",
+              "\u672C\u7AE0\u4ECE\u5934\u5230\u5C3E\u53EA\u7528\u4E00\u9053\u9898\uFF1A*\u4E00\u4E2A\u73ED\u6709 5 \u4E2A\u5B66\u751F\uFF0C\u6BCF\u4EBA\u6709\u59D3\u540D\u548C\u4E00\u4E2A\u5206\u6570\u3002\u8BFB\u5165\u8FD9\u4E9B\u6570\u636E\uFF0C\u663E\u793A\u5E73\u5747\u5206\uFF08\u53D6\u6574\u6570\u5546\uFF09\uFF0C\u518D\u5217\u51FA\u5206\u6570\u9AD8\u4E8E\u5E73\u5747\u5206\u7684\u5B66\u751F\u59D3\u540D\u3002* \u4E09\u6837\u5206\u522B\u662F\u2014\u2014\u5DF2\u77E5\uFF1A5 \u4E2A\u5B66\u751F\u7684\u59D3\u540D\u548C\u5206\u6570\uFF1B\u8981\u6C42\uFF1A\u5E73\u5747\u5206\u4E00\u884C\u3001\u9AD8\u4E8E\u5E73\u5747\u7684\u59D3\u540D\u82E5\u5E72\u884C\uFF1B\u7EA6\u675F\uFF1A\u4EBA\u6570\u56FA\u5B9A 5 \u4E2A\uFF0C\u5E73\u5747\u5206\u53D6\u6574\u6570\u5546\u3002",
+              "**\u7EA6\u675F\u6700\u5BB9\u6613\u6F0F\uFF0C\u800C\u5B83\u5E38\u5E38\u51B3\u5B9A\u6574\u4E2A\u505A\u6CD5\u3002**\u300C\u9AD8\u4E8E\u5E73\u5747\u5206\u300D\u8FD9\u4E00\u6761\u5C31\u662F\uFF1A\u5E73\u5747\u5206\u8981\u5168\u90E8\u8BFB\u5B8C\u624D\u7B97\u5F97\u51FA\u6765\uFF0C\u800C\u5224\u65AD\u53C8\u8981\u56DE\u5934\u770B\u6BCF\u4E00\u4E2A\u4EBA\u2014\u2014\u6240\u4EE5\u6570\u636E\u975E\u5B58\u4E0B\u6765\u4E0D\u53EF\uFF08\u7B2C 8 \u7AE0\u8BB2\u8FC7\u8FD9\u4EF6\u4E8B\uFF09\u3002\u8FD9\u4E00\u53E5\u8981\u662F\u6CA1\u8BFB\u51FA\u6765\uFF0C\u5199\u5230\u4E00\u534A\u624D\u53D1\u73B0\u5F97\u63A8\u5012\u91CD\u6765\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u628A\u7B97\u6CD5\u7406\u89E3\u4E3A\u300C\u4E00\u4E2A\u95EE\u9898\u7684\u89E3\uFF0C\u5199\u6210\u4E00\u4E32\u786E\u5B9A\u7684\u6B65\u9AA4\u300D\uFF0C\u5E76\u80FD\u4E3A\u95EE\u9898\u91CC\u7684\u6570\u636E\u8D77\u5408\u9002\u7684\u6807\u8BC6\u7B26\u540D\uFF08\xA79.2\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "comparison",
+            title: "\u540C\u4E00\u9053\u9898\uFF0C\u8BFB\u5230\u4EC0\u4E48\u7A0B\u5EA6\u624D\u7B97\u8BFB\u660E\u767D",
+            intro: "\u9898\u9762\uFF1A\u8BFB\u5165\u4E00\u4E2A\u623F\u95F4\u7684\u957F\u548C\u5BBD\uFF0C\u663E\u793A\u5B83\u7684\u9762\u79EF\u3002",
+            panes: [
+              {
+                label: "\u53EA\u8BFB\u4E86\u4E2A\u5927\u6982",
+                language: "natural",
+                code: ["\u300C\u7B97\u9762\u79EF\u3002\u300D", "\u2014\u2014\u90A3\u957F\u548C\u5BBD\u4ECE\u54EA\u513F\u6765\uFF1F\u7B97\u5B8C\u7ED9\u8C01\u770B\uFF1F", "\u5199\u5230\u4E00\u534A\u5C31\u5F97\u505C\u4E0B\u6765\u56DE\u5934\u731C\u3002"].join("\n"),
+                note: "\u4E0D\u662F\u8BFB\u5F97\u4E0D\u8BA4\u771F\uFF0C\u662F\u6CA1\u6709\u628A\u9898\u9762\u62C6\u6210\u4E09\u6837\u3002\u5269\u4E0B\u7684\u4E24\u6837\u4E00\u76F4\u7A7A\u7740\uFF0C\u52A8\u624B\u7684\u65F6\u5019\u624D\u53D1\u73B0\u3002"
+              },
+              {
+                label: "\u62C6\u6210\u4E09\u6837",
+                language: "natural",
+                code: [
+                  "\u5DF2\u77E5\uFF1A\u4E00\u4E2A\u957F\u3001\u4E00\u4E2A\u5BBD\uFF0C\u90FD\u4ECE\u952E\u76D8\u8BFB\u5165\u3002",
+                  "\u8981\u6C42\uFF1A\u663E\u793A\u9762\u79EF\uFF0C\u4E00\u884C\u3002",
+                  "\u7EA6\u675F\uFF1A\u957F\u548C\u5BBD\u90FD\u662F\u6574\u6570\u3002"
+                ].join("\n"),
+                note: "\u4E09\u6837\u9F50\u4E86\uFF0C\u4EE3\u7801\u7684\u5F62\u72B6\u5DF2\u7ECF\u5B9A\u4E0B\u6765\u4E86\uFF1A\u4E24\u6B21\u8BFB\u5165\u3001\u4E00\u6B21\u8BA1\u7B97\u3001\u4E00\u6B21\u663E\u793A\u2014\u2014\u4E5F\u5C31\u662F\u4E0B\u4E00\u8282\u7684 IPO \u4E09\u6BB5\u3002"
+              },
+              {
+                label: "\u5199\u6210\u4F2A\u4EE3\u7801",
+                language: "pseudocode",
+                code: [
+                  "DECLARE Width : INTEGER",
+                  "DECLARE Height : INTEGER",
+                  'OUTPUT "Enter the width"',
+                  "INPUT Width",
+                  'OUTPUT "Enter the height"',
+                  "INPUT Height",
+                  'OUTPUT "Area: ", Width * Height'
+                ].join("\n"),
+                note: "\u4E00\u884C\u90FD\u4E0D\u7528\u72B9\u8C6B\u2014\u2014\u4E0A\u9762\u90A3\u4E09\u884C\u5DF2\u7ECF\u628A\u8BE5\u6709\u4EC0\u4E48\u8BF4\u5B8C\u4E86\uFF0C\u8FD9\u91CC\u53EA\u662F\u6362\u6210\u4F2A\u4EE3\u7801\u7684\u5199\u6CD5\u3002"
+              },
+              {
+                label: "Python",
+                language: "python",
+                code: ["width = int(input())", "height = int(input())", 'print("Area:", width * height)'].join("\n"),
+                note: "\u6362\u6210\u53E6\u4E00\u79CD\u8BED\u8A00\uFF0C\u4E09\u6837\u4E1C\u897F\u4E00\u4E2A\u4E0D\u53D8\u3002**\u8BFB\u660E\u767D\u9898\u76EE\u8FD9\u4E00\u6B65\u548C\u7528\u4EC0\u4E48\u8BED\u8A00\u65E0\u5173\u3002**"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u672C\u7AE0\u90A3\u9053\u9898\u91CC\uFF0C\u300C\u5217\u51FA\u5206\u6570**\u9AD8\u4E8E\u5E73\u5747\u5206**\u7684\u5B66\u751F\u59D3\u540D\u300D\u8FD9\u4E00\u6761\uFF0C\u6700\u5148\u5F71\u54CD\u7684\u662F\u4EC0\u4E48\u51B3\u5B9A\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u7528\u4EC0\u4E48\u540D\u5B57\u7ED9\u53D8\u91CF",
+                correct: false,
+                explanation: "\u540D\u5B57\u8981\u8D77\u597D\uFF0C\u4F46\u8FD9\u4E00\u6761\u7EA6\u675F\u6362\u6210\u300C\u4F4E\u4E8E\u5E73\u5747\u5206\u300D\u540D\u5B57\u4E5F\u4E0D\u7528\u53D8\u3002\u5B83\u5F71\u54CD\u7684\u662F\u66F4\u9760\u524D\u7684\u51B3\u5B9A\u3002"
+              },
+              {
+                key: "B",
+                label: "\u6570\u636E\u5FC5\u987B\u5148\u5168\u90E8\u5B58\u4E0B\u6765\uFF0C\u4E0D\u80FD\u8FB9\u8BFB\u8FB9\u7B97\u5B8C\u5C31\u6254",
+                correct: true,
+                explanation: "\u5BF9\u3002\u5E73\u5747\u5206\u8981\u8BFB\u5B8C\u5168\u90E8\u624D\u7B97\u5F97\u51FA\u6765\uFF0C\u800C\u300C\u8C01\u9AD8\u4E8E\u5B83\u300D\u53C8\u8981\u56DE\u5934\u770B\u6BCF\u4E00\u4E2A\u4EBA\u2014\u2014\u7B2C 8 \u7AE0\u5C31\u662F\u62FF\u8FD9\u4EF6\u4E8B\u8BF4\u660E\u6570\u7EC4\u4E3A\u4EC0\u4E48\u975E\u8981\u4E0D\u53EF\u3002"
+              },
+              {
+                key: "C",
+                label: "\u7528 `FOR` \u8FD8\u662F `WHILE`",
+                correct: false,
+                explanation: "\u5FAA\u73AF\u600E\u4E48\u9009\u7531\u300C\u6B21\u6570\u77E5\u4E0D\u77E5\u9053\u300D\u51B3\u5B9A\uFF0C\u8FD9\u91CC\u4EBA\u6570\u56FA\u5B9A\u662F 5\uFF0C\u7528 `FOR`\u3002\u8FD9\u4E00\u6761\u7EA6\u675F\u7BA1\u7684\u662F\u522B\u7684\u4E8B\u3002"
+              },
+              {
+                key: "D",
+                label: "\u5E73\u5747\u5206\u8981\u4E0D\u8981\u53D6\u6574",
+                correct: false,
+                explanation: "\u53D6\u6574\u662F\u53E6\u4E00\u6761\u7EA6\u675F\uFF08\u9898\u9762\u5355\u72EC\u8BF4\u4E86\u300C\u53D6\u6574\u6570\u5546\u300D\uFF09\uFF0C\u4E24\u6761\u5404\u7BA1\u5404\u7684\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "16.2",
+        title: "input / process / output \u4E0E\u6807\u8BC6\u7B26\u8868",
+        syllabus: ["\xA79.2"],
+        estimatedMinutes: 11,
+        taughtFeatures: AFTER_CHAPTER_15,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u8BFB\u660E\u767D\u4E4B\u540E\uFF0C\u628A\u9898\u76EE\u6446\u6210\u4E09\u6BB5\uFF1A**\u8F93\u5165\u4EC0\u4E48\u3001\u4E2D\u95F4\u505A\u4EC0\u4E48\u3001\u8F93\u51FA\u4EC0\u4E48**\u3002\u7B2C 1 \u7AE0\u5C31\u7528\u8FC7\u8FD9\u4E2A\u8BF4\u6CD5\uFF0C\u73B0\u5728\u5B83\u6210\u4E86\u56FA\u5B9A\u7684\u4E00\u6B65\u2014\u2014\u56E0\u4E3A**\u4EFB\u4F55\u4E00\u6BB5\u7A0B\u5E8F\u90FD\u88C5\u5F97\u8FDB\u8FD9\u4E09\u6BB5**\u3002",
+              "\u672C\u7AE0\u90A3\u9053\u9898\u7684\u4E09\u6BB5\u662F\uFF1A\u8F93\u5165 5 \u7EC4\u59D3\u540D\u548C\u5206\u6570\uFF1B\u4E2D\u95F4\u7B97\u51FA\u603B\u5206\u3001\u518D\u7B97\u5E73\u5747\u5206\u3001\u518D\u6311\u51FA\u9AD8\u4E8E\u5E73\u5747\u7684\u4EBA\uFF1B\u8F93\u51FA\u5E73\u5747\u5206\u4E00\u884C\u3001\u59D3\u540D\u82E5\u5E72\u884C\u3002",
+              "\u63A5\u4E0B\u6765\u7ED9\u6BCF\u4E00\u6837\u6570\u636E\u8D77\u540D\u5B57\uFF0C\u5217\u6210\u4E00\u5F20**\u6807\u8BC6\u7B26\u8868\uFF08identifier table\uFF09**\uFF1A\u540D\u5B57\u3001\u7C7B\u578B\u3001\u5B83\u4EE3\u8868\u4EC0\u4E48\u3002\u8003\u7EB2\u660E\u786E\u8981\u6C42\u4F1A\u5217\u8FD9\u5F20\u8868\u3002\u5B83\u4E0D\u662F\u683C\u5F0F\u529F\u8BFE\u2014\u2014**\u540D\u5B57\u8D77\u4E0D\u51FA\u6765\uFF0C\u591A\u534A\u662F\u90A3\u6837\u4E1C\u897F\u4F60\u8FD8\u6CA1\u60F3\u6E05\u695A**\u3002",
+              "\u8D77\u540D\u7684\u8001\u89C4\u77E9\u8FD8\u5728\uFF08\u7B2C 2 \u7AE0\uFF09\uFF1A\u5B57\u6BCD\u5F00\u5934\u3001\u89C1\u540D\u77E5\u610F\u3001\u522B\u548C\u5173\u952E\u5B57\u6216\u5185\u7F6E\u51FD\u6570\u649E\uFF08`Length` \u8FD9\u79CD\u5C31\u4E0D\u80FD\u7528\uFF0C\u5B83\u662F\u5185\u7F6E\u51FD\u6570\u540D\uFF09\u3002\u8868\u91CC\u4E00\u884C\u4E00\u6837\u4E1C\u897F\uFF0C\u4E34\u65F6\u7684\u5FAA\u73AF\u53D8\u91CF\u4E5F\u7B97\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u5199\u51FA\u5305\u542B input\u3001process\u3001output \u7684\u4F2A\u4EE3\u7801\uFF0C\u5E76\u7528\u6807\u8BC6\u7B26\u8868\u8868\u793A\u95EE\u9898\u91CC\u7528\u5230\u7684\u6570\u636E\uFF08\xA79.2\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u6700\u5C0F\u7684\u4E00\u4EFD IPO",
+            fileName: "Example_16_2_a.pseudocode",
+            code: [
+              "DECLARE Width : INTEGER",
+              "DECLARE Height : INTEGER",
+              'OUTPUT "Enter the width"',
+              "INPUT Width",
+              'OUTPUT "Enter the height"',
+              "INPUT Height",
+              'OUTPUT "Area: ", Width * Height',
+              'OUTPUT "Perimeter: ", 2 * (Width + Height)'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 2, text: "\u6807\u8BC6\u7B26\u8868\u843D\u5230\u4EE3\u7801\u4E0A\u5C31\u662F\u8FD9\u4E24\u884C\uFF1A\u540D\u5B57\u3001\u7C7B\u578B\uFF0C\u5404\u4EE3\u8868\u4EC0\u4E48\u5199\u5728\u540D\u5B57\u91CC\u3002" },
+              { fromLine: 3, toLine: 6, text: "input \u6BB5\u3002\u4E24\u6837\u8F93\u5165\uFF0C\u5404\u914D\u4E00\u53E5\u63D0\u793A\u3002" },
+              { fromLine: 7, toLine: 8, text: "process \u548C output \u6324\u5728\u540C\u4E00\u884C\u4E86\u2014\u2014\u7B97\u5F0F\u7B80\u5355\u7684\u65F6\u5019\u53EF\u4EE5\uFF0C\u590D\u6742\u4E86\u5C31\u8BE5\u5148\u7B97\u8FDB\u4E00\u4E2A\u53D8\u91CF\u518D\u663E\u793A\u3002" }
+            ],
+            sampleRun: {
+              inputs: ["3", "4"],
+              outputs: ["Enter the width", "Enter the height", "Area: 12", "Perimeter: 14"]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u5217\u6807\u8BC6\u7B26\u8868\u7684\u65F6\u5019\uFF0C\u4E0B\u9762\u54EA\u4E00\u6837**\u4E5F\u5E94\u8BE5**\u5217\u8FDB\u53BB\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u6BCF\u4E00\u53E5 `OUTPUT` \u91CC\u7684\u63D0\u793A\u8BED",
+                correct: false,
+                explanation: "\u63D0\u793A\u8BED\u662F\u5199\u6B7B\u5728\u4EE3\u7801\u91CC\u7684\u6587\u5B57\uFF0C\u4E0D\u662F\u8981\u5B58\u8D77\u6765\u7684\u6570\u636E\uFF0C\u6CA1\u6709\u540D\u5B57\u4E5F\u6CA1\u6709\u7C7B\u578B\u3002"
+              },
+              {
+                key: "B",
+                label: "\u7528\u5230\u7684\u6BCF\u4E00\u4E2A\u8FD0\u7B97\u7B26",
+                correct: false,
+                explanation: "\u6807\u8BC6\u7B26\u8868\u767B\u8BB0\u7684\u662F\u6570\u636E\uFF0C\u4E0D\u662F\u8FD0\u7B97\u3002\u8FD0\u7B97\u5C5E\u4E8E process \u90A3\u4E00\u6BB5\u7684\u63CF\u8FF0\u3002"
+              },
+              {
+                key: "C",
+                label: "\u7A0B\u5E8F\u4E00\u5171\u6709\u591A\u5C11\u884C",
+                correct: false,
+                explanation: "\u884C\u6570\u548C\u6570\u636E\u6CA1\u6709\u5173\u7CFB\uFF0C\u800C\u4E14\u5199\u7740\u5199\u7740\u5C31\u53D8\u4E86\u3002"
+              },
+              {
+                key: "D",
+                label: "\u53EA\u5728\u5FAA\u73AF\u91CC\u7528\u6765\u6570\u6570\u7684\u90A3\u4E2A\u63A7\u5236\u53D8\u91CF",
+                correct: true,
+                explanation: "\u5BF9\u3002\u5B83\u4E5F\u662F\u4E00\u4EFD\u8981\u5360\u5730\u65B9\u7684\u6570\u636E\uFF0C\u4E5F\u8981 `DECLARE`\uFF0C\u4E5F\u8981\u8D77\u4E2A\u8BF4\u5F97\u6E05\u7684\u540D\u5B57\u3002\u8868\u91CC\u4E00\u884C\u4E00\u6837\u4E1C\u897F\uFF0C\u4E0D\u5206\u91CD\u8981\u4E0D\u91CD\u8981\u3002"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "16.2.1",
+            title: "\u623F\u95F4\u7684\u9762\u79EF\u548C\u5468\u957F",
+            statement: "\u6309 IPO \u4E09\u6BB5\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165\u4E00\u4E2A\u623F\u95F4\u7684\u957F\u548C\u5BBD\uFF08\u90FD\u662F\u6574\u6570\uFF09\uFF0C\u663E\u793A\u5B83\u7684\u9762\u79EF\u548C\u5468\u957F\u3002\u5148\u60F3\u6E05\u695A\u8981\u51E0\u4E2A\u53D8\u91CF\u3001\u5404\u53EB\u4EC0\u4E48\uFF0C\u518D\u52A8\u624B\u3002",
+            ioSpec: {
+              input: [
+                "\u4E24\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF1A\u5148\u957F\u540E\u5BBD\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
+                "\u957F\u4E4B\u524D\u662F `Enter the length`\uFF0C\u5BBD\u4E4B\u524D\u662F `Enter the width`"
+              ].join("\n"),
+              output: ["\u4E24\u884C\uFF0C\u5199\u6210\uFF1A", "`Area: <\u9762\u79EF>`", "`Perimeter: <\u5468\u957F>`", "\u5468\u957F\u662F\u300C\u957F\u52A0\u5BBD\u518D\u4E58\u4E8C\u300D\u3002\u6BCF\u4E2A\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "io.input",
+                  reason: "\u957F\u548C\u5BBD\u90FD\u8981\u4ECE\u952E\u76D8\u8BFB\u8FDB\u6765\uFF0C\u4E0D\u80FD\u5199\u6B7B\u5728\u4EE3\u7801\u91CC\u3002"
+                },
+                {
+                  feature: "op.arithmetic",
+                  reason: "\u9762\u79EF\u548C\u5468\u957F\u90FD\u5F97\u7B97\u51FA\u6765\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u4E24\u6837\u8F93\u5165\u5C31\u662F\u4E24\u4E2A\u53D8\u91CF\u3002\u540D\u5B57\u522B\u7528 `Length`\u2014\u2014\u90A3\u662F\u5185\u7F6E\u51FD\u6570\u7684\u540D\u5B57\uFF0C\u5360\u4E86\u3002",
+              "\u5468\u957F\u662F\u300C(\u957F + \u5BBD) \xD7 2\u300D\uFF0C\u62EC\u53F7\u522B\u6F0F\uFF0C\u4E58\u6CD5\u6BD4\u52A0\u6CD5\u5148\u7B97\u3002",
+              "\u4E24\u53E5 `OUTPUT` \u7684\u6B21\u5E8F\u7167\u9898\u76EE\u5199\u7684\u6765\uFF1A\u5148\u9762\u79EF\u540E\u5468\u957F\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["7", "4"],
+                outputs: ["Enter the length", "Enter the width", "Area: 28", "Perimeter: 22"]
+              }
+            ],
+            referenceSolution: [
+              "DECLARE RoomLength : INTEGER",
+              "DECLARE RoomWidth : INTEGER",
+              'OUTPUT "Enter the length"',
+              "INPUT RoomLength",
+              'OUTPUT "Enter the width"',
+              "INPUT RoomWidth",
+              'OUTPUT "Area: ", RoomLength * RoomWidth',
+              'OUTPUT "Perimeter: ", 2 * (RoomLength + RoomWidth)'
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["5", "3"], caseHint: "\u4E00\u4E2A\u666E\u901A\u7684\u957F\u65B9\u5F62\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["6", "6"], caseHint: "\u957F\u548C\u5BBD\u4E00\u6837\u5927\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["1", "1"], caseHint: "\u6700\u5C0F\u7684\u90A3\u79CD\uFF0C\u9762\u79EF\u548C\u5468\u957F\u5DEE\u5F97\u5F88\u8FDC\u3002" },
+              { id: "t4", kind: "boundary", inputs: ["9", "0"], caseHint: "\u6709\u4E00\u8FB9\u662F\u96F6\uFF0C\u9762\u79EF\u4E5F\u5C31\u6CA1\u4E86\uFF0C\u5468\u957F\u8FD8\u5728\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["9999", "9999"], caseHint: "\u4E24\u8FB9\u90FD\u5F88\u5927\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "16.3",
+        title: "\u5206\u89E3\u4E0E\u7ED3\u6784\u56FE",
+        syllabus: ["\xA79.2", "\xA712.2"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_CHAPTER_15,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u4E09\u6BB5\u6446\u597D\u4E4B\u540E\uFF0Cprocess \u90A3\u4E00\u6BB5\u5F80\u5F80\u8FD8\u662F\u4E00\u5927\u5757\u3002**\u5206\u89E3**\u5C31\u662F\u628A\u8FD9\u4E00\u5927\u5757\u62C6\u6210\u51E0\u4EF6\u5404\u81EA\u8BF4\u5F97\u6E05\u7684\u4E8B\uFF0C\u6BCF\u4EF6\u4E8B\u5C06\u6765\u662F\u4E00\u4E2A\u8FC7\u7A0B\u6216\u8005\u4E00\u4E2A\u51FD\u6570\uFF08\u7B2C 12\u300113 \u7AE0\uFF09\u3002",
+              "\u672C\u7AE0\u90A3\u9053\u9898\u62C6\u6210\u4E09\u4EF6\uFF1A**\u8BFB\u5165\u4E00\u4E2A\u73ED**\u3001**\u7B97\u5E73\u5747\u5206**\u3001**\u5217\u51FA\u9AD8\u4E8E\u5E73\u5747\u7684\u4EBA**\u3002\u4E09\u4EF6\u4E8B\u5404\u81EA\u90FD\u80FD\u7528\u4E00\u53E5\u8BDD\u8BF4\u6E05\u695A\uFF0C\u800C\u4E14\u5404\u81EA\u90FD\u80FD\u5355\u72EC\u68C0\u67E5\u5BF9\u4E0D\u5BF9\u2014\u2014\u8FD9\u662F\u62C6\u5F97\u597D\u4E0D\u597D\u7684\u5224\u636E\u3002",
+              "\u62C6\u5B8C\u4E4B\u540E\u753B\u4E00\u5F20**\u7ED3\u6784\u56FE\uFF08structure chart\uFF09**\uFF1A\u4E0A\u9762\u4E00\u4E2A\u65B9\u6846\u662F\u4E3B\u7A0B\u5E8F\uFF0C\u4E0B\u9762\u4E00\u6392\u65B9\u6846\u662F\u62C6\u51FA\u6765\u7684\u51E0\u4EF6\u4E8B\uFF0C\u7BAD\u5934\u4E0A\u6807\u7740\u5B83\u4EEC\u4E4B\u95F4**\u4F20\u7684\u662F\u4EC0\u4E48**\u3002\u8003\u7EB2\u8981\u6C42\u4F1A\u770B\u3001\u4F1A\u753B\uFF0C\u8FD8\u8981\u6C42\u80FD\u4ECE\u7ED3\u6784\u56FE\u5012\u63A8\u51FA\u4F2A\u4EE3\u7801\u3002",
+              "\u7ED3\u6784\u56FE\u4E0A\u6700\u503C\u94B1\u7684\u662F\u7BAD\u5934\u4E0A\u90A3\u51E0\u4E2A\u540D\u5B57\u3002\u5B83\u4EEC\u76F4\u63A5\u5BF9\u5E94\u53C2\u6570\u8868\uFF1A\u5F80\u4E0B\u4F20\u7684\u662F\u5B9E\u53C2\uFF0C\u5F80\u4E0A\u4F20\u7684\u662F\u8FD4\u56DE\u503C\u6216\u8005 `BYREF` \u53C2\u6570\u6539\u56DE\u6765\u7684\u4E1C\u897F\u3002**\u56FE\u753B\u5BF9\u4E86\uFF0C\u8FC7\u7A0B\u7684\u5934\u90E8\u5C31\u5DF2\u7ECF\u5199\u597D\u4E86\u3002**"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u7528\u7ED3\u6784\u56FE\u628A\u95EE\u9898\u5206\u89E3\u6210\u5B50\u4EFB\u52A1\uFF0C\u8BF4\u660E\u5404\u6A21\u5757\u4E4B\u95F4\u4F20\u9012\u7684\u53C2\u6570\uFF0C\u5E76\u80FD\u7531\u7ED3\u6784\u56FE\u63A8\u51FA\u7B49\u4EF7\u7684\u4F2A\u4EE3\u7801\uFF08\xA712.2\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "comparison",
+            title: "\u4E00\u5F20\u7ED3\u6784\u56FE\u548C\u5B83\u5BF9\u5E94\u7684\u5934\u90E8",
+            intro: "\u672C\u7AE0\u90A3\u9053\u9898\u62C6\u6210\u4E09\u4EF6\u4E8B\u4E4B\u540E\u7684\u6837\u5B50\u3002",
+            panes: [
+              {
+                label: "\u7ED3\u6784\u56FE",
+                language: "diagram",
+                code: [
+                  "                    +-------------+",
+                  "                    |    main     |",
+                  "                    +-------------+",
+                  "                           |",
+                  "        +------------------+------------------+",
+                  "        |                  |                  |",
+                  "+---------------+  +---------------+  +---------------+",
+                  "|   ReadClass   |  |   AverageOf   |  |   ShowAbove   |",
+                  "+---------------+  +---------------+  +---------------+",
+                  "    \u2191 Form             \u2193 Total            \u2193 Form",
+                  "    \u2191 Total            \u2193 Count            \u2193 Mean",
+                  "                       \u2191 average"
+                ].join("\n"),
+                note: "\u65B9\u6846\u91CC\u5199\u7684\u5C31\u662F\u5C06\u6765\u90A3\u51E0\u4E2A\u8FC7\u7A0B\u548C\u51FD\u6570\u7684\u540D\u5B57\uFF0C\u7BAD\u5934\u4E0A\u5199\u7684\u662F\u53C2\u6570\u540D\u3002**\u671D\u4E0B\u7684\u7BAD\u5934\u662F\u4E3B\u7A0B\u5E8F\u9012\u4E0B\u53BB\u7684\uFF0C\u671D\u4E0A\u7684\u662F\u4EA4\u56DE\u4E3B\u7A0B\u5E8F\u7684**\u2014\u2014`ReadClass` \u8981\u4EA4\u56DE\u73ED\u7EA7\u548C\u603B\u5206\u4E24\u6837\uFF0C\u6240\u4EE5\u5B83\u4E0B\u9762\u6302\u7740\u4E24\u4E2A\u671D\u4E0A\u7684\u7BAD\u5934\u3002\uFF08\u56FE\u91CC\u4E00\u5F8B\u7528\u6807\u8BC6\u7B26\u540D\uFF0C\u4E0D\u7528\u4E2D\u6587\u3002\uFF09"
+              },
+              {
+                label: "\u7528\u8BDD\u8BF4\u4E00\u904D",
+                language: "natural",
+                code: [
+                  "\u4E3B\u7A0B\u5E8F\u8981\u505A\u4E09\u4EF6\u4E8B\uFF1A",
+                  "  \u4E00\u3001\u8BFB\u5165\u4E00\u4E2A\u73ED\uFF08ReadClass\uFF09\u2014\u2014\u505A\u5B8C\u4E4B\u540E\u8981\u628A\u73ED\u7EA7 Form \u548C\u603B\u5206 Total \u4EA4\u56DE\u4E3B\u7A0B\u5E8F\u3002",
+                  "  \u4E8C\u3001\u7B97\u5E73\u5747\u5206\uFF08AverageOf\uFF09\u2014\u2014\u7ED9\u5B83\u603B\u5206 Total \u548C\u4EBA\u6570 Count\uFF0C\u5B83\u4EA4\u56DE\u5E73\u5747\u5206\u3002",
+                  "  \u4E09\u3001\u5217\u51FA\u9AD8\u4E8E\u5E73\u5747\u7684\u4EBA\uFF08ShowAbove\uFF09\u2014\u2014\u7ED9\u5B83\u73ED\u7EA7 Form \u548C\u5E73\u5747\u5206 Mean\uFF0C\u5B83\u81EA\u5DF1\u663E\u793A\uFF0C\u4E0D\u7528\u4EA4\u56DE\u4EC0\u4E48\u3002"
+                ].join("\n"),
+                note: "\u6BCF\u4EF6\u4E8B\u540E\u9762\u90A3\u534A\u53E5\u5C31\u662F\u7BAD\u5934\uFF1A**\u300C\u4EA4\u56DE\u300D\u7684\u662F\u671D\u4E0A\u7684\uFF0C\u300C\u7ED9\u5B83\u300D\u7684\u662F\u671D\u4E0B\u7684**\u3002\u8BDD\u8BF4\u6E05\u695A\u4E86\uFF0C\u56FE\u548C\u5934\u90E8\u90FD\u662F\u7167\u6284\u3002"
+              },
+              {
+                label: "\u7167\u7740\u56FE\u5199\u51FA\u6765\u7684\u5934\u90E8",
+                language: "pseudocode",
+                code: [
+                  "TYPE TStudent",
+                  "   DECLARE Name : STRING",
+                  "   DECLARE Mark : INTEGER",
+                  "ENDTYPE",
+                  "PROCEDURE ReadClass(BYREF Form : ARRAY[1:5] OF TStudent, BYREF Total : INTEGER)",
+                  "   Total \u2190 0",
+                  "ENDPROCEDURE",
+                  "FUNCTION AverageOf(Total : INTEGER, Count : INTEGER) RETURNS INTEGER",
+                  "   RETURN Total DIV Count",
+                  "ENDFUNCTION",
+                  "PROCEDURE ShowAbove(Form : ARRAY[1:5] OF TStudent, Mean : INTEGER)",
+                  "   OUTPUT Mean",
+                  "ENDPROCEDURE"
+                ].join("\n"),
+                note: "\u56FE\u4E0A\u7684\u7BAD\u5934\u9010\u6761\u53D8\u6210\u4E86\u62EC\u53F7\u91CC\u7684\u4E1C\u897F\uFF1A\u671D\u4E0B\u7684\u6210\u4E86\u53C2\u6570\uFF0C\u671D\u4E0A\u7684\u6210\u4E86 `BYREF` \u53C2\u6570\u6216\u8005\u8FD4\u56DE\u503C\u3002\u4E09\u4E2A\u4F53\u5148\u7A7A\u7740\uFF0C\u4E0B\u4E00\u8282\u518D\u586B\u2014\u2014**\u5934\u90E8\u5DF2\u7ECF\u5B9A\u6B7B\u4E86\uFF0C\u586B\u4F53\u7684\u65F6\u5019\u4E0D\u4F1A\u518D\u52A8\u5B83**\u3002"
+              },
+              {
+                label: "Python",
+                language: "python",
+                code: ["def read_marks(): ...", "def average_of(total, count): ...", "def show_above(marks, mean): ..."].join("\n"),
+                note: "\u6362\u4E2A\u8BED\u8A00\uFF0C\u56FE\u4E00\u4E2A\u5B57\u90FD\u4E0D\u7528\u6539\u3002\u7ED3\u6784\u56FE\u8BF4\u7684\u662F\u300C\u8C01\u8C03\u7528\u8C01\u3001\u4E4B\u95F4\u4F20\u4EC0\u4E48\u300D\uFF0C\u548C\u8BED\u6CD5\u65E0\u5173\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u7ED3\u6784\u56FE\u4E0A\uFF0C\u4ECE\u300C\u7B97\u5E73\u5747\u5206\u300D\u8FD9\u4E2A\u65B9\u6846\u6307\u5411\u4E3B\u7A0B\u5E8F\u7684\u90A3\u4E2A**\u671D\u4E0A**\u7684\u7BAD\u5934\uFF0C\u5BF9\u5E94\u4F2A\u4EE3\u7801\u91CC\u7684\u4EC0\u4E48\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u5B83\u7684\u8FD4\u56DE\u503C",
+                correct: true,
+                explanation: "\u5BF9\u3002\u671D\u4E0A\u7684\u7BAD\u5934\u662F\u300C\u4EA4\u56DE\u7ED9\u8C03\u7528\u8005\u7684\u4E1C\u897F\u300D\uFF1B\u4E00\u4EF6\u4E8B\u53EA\u9700\u8981\u4EA4\u56DE\u4E00\u4E2A\u503C\uFF0C\u5199\u6210\u51FD\u6570\u7684\u8FD4\u56DE\u503C\u6700\u76F4\u63A5\u3002"
+              },
+              {
+                key: "B",
+                label: "\u5B83\u7684\u53C2\u6570",
+                correct: false,
+                explanation: "\u53C2\u6570\u662F\u4E3B\u7A0B\u5E8F\u9012\u4E0B\u53BB\u7684\uFF0C\u7BAD\u5934\u671D\u4E0B\u3002\u65B9\u5411\u53CD\u4E86\u3002"
+              },
+              {
+                key: "C",
+                label: "\u5B83\u7684\u540D\u5B57",
+                correct: false,
+                explanation: "\u540D\u5B57\u5199\u5728\u65B9\u6846\u91CC\uFF0C\u4E0D\u5728\u7BAD\u5934\u4E0A\u3002\u7BAD\u5934\u4E0A\u6807\u7684\u662F\u4F20\u7684\u6570\u636E\u3002"
+              },
+              {
+                key: "D",
+                label: "\u5B83\u88AB\u8C03\u7528\u4E86\u51E0\u6B21",
+                correct: false,
+                explanation: "\u7ED3\u6784\u56FE\u4E0D\u8BF4\u6B21\u6570\uFF0C\u53EA\u8BF4\u8C01\u8C03\u7528\u8C01\u3001\u4E4B\u95F4\u4F20\u4EC0\u4E48\u3002\u6B21\u6570\u7531\u8C03\u7528\u5B83\u7684\u90A3\u6BB5\u4EE3\u7801\u51B3\u5B9A\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "16.4",
+        title: "\u9010\u6B65\u6C42\u7CBE",
+        syllabus: ["\xA79.2"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_CHAPTER_15,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u62C6\u51FA\u6765\u7684\u6BCF\u4E00\u4EF6\u4E8B\u8FD8\u662F\u4E00\u53E5\u4E2D\u6587\u3002**\u9010\u6B65\u6C42\u7CBE\uFF08stepwise refinement\uFF09**\u5C31\u662F\u628A\u8FD9\u4E00\u53E5\u8BDD\u4E00\u5C42\u4E00\u5C42\u5199\u7EC6\uFF0C**\u7EC6\u5230\u6BCF\u4E00\u884C\u90FD\u80FD\u76F4\u63A5\u6362\u6210\u4F2A\u4EE3\u7801\u4E3A\u6B62**\u3002\u8003\u7EB2\u70B9\u540D\u8981\u6C42\u8FD9\u4E2A\u8FC7\u7A0B\u3002",
+              "\u62FF\u300C\u8BFB\u5165\u4E00\u4E2A\u73ED\u5E76\u7B97\u51FA\u603B\u5206\u300D\u4E3A\u4F8B\u3002\u7B2C\u4E00\u5C42\uFF1A*\u8BFB\u5165 5 \u4E2A\u5B66\u751F\u7684\u59D3\u540D\u548C\u5206\u6570\uFF0C\u540C\u65F6\u628A\u5206\u6570\u52A0\u8D77\u6765\u3002* \u7B2C\u4E8C\u5C42\uFF1A*\u603B\u5206\u6E05\u96F6\uFF1B\u91CD\u590D 5 \u6B21\uFF1A\u63D0\u793A\u5E76\u8BFB\u59D3\u540D\u3001\u63D0\u793A\u5E76\u8BFB\u5206\u6570\u3001\u628A\u8FD9\u4E2A\u5206\u6570\u52A0\u5230\u603B\u5206\u4E0A\u3002* \u5230\u8FD9\u4E00\u5C42\uFF0C\u6BCF\u4E00\u53E5\u90FD\u5BF9\u5F97\u4E0A\u4E00\u4E2A\u5199\u6CD5\u4E86\u3002",
+              "\u6BCF\u5F80\u4E0B\u4E00\u5C42\uFF0C\u53EA\u56DE\u7B54\u4E00\u4E2A\u95EE\u9898\uFF1A**\u8FD9\u4E00\u53E5\u5177\u4F53\u600E\u4E48\u505A\uFF1F**\u522B\u5728\u540C\u4E00\u5C42\u91CC\u65E2\u5199\u300C\u91CD\u590D 5 \u6B21\u300D\u53C8\u5199 `FOR I \u2190 1 TO 5`\u2014\u2014**\u4E00\u5C42\u53EA\u8BF4\u4E00\u4EF6\u4E8B\u7684\u7C92\u5EA6**\uFF0C\u6DF7\u7740\u5199\u5C31\u5206\u4E0D\u6E05\u54EA\u4E9B\u5DF2\u7ECF\u5B9A\u4E0B\u6765\u4E86\u3002",
+              "\u4EC0\u4E48\u65F6\u5019\u505C\uFF1F**\u5F53\u6BCF\u4E00\u53E5\u90FD\u80FD\u4E00\u5BF9\u4E00\u5730\u6362\u6210\u4E00\u884C\u4F2A\u4EE3\u7801\u7684\u65F6\u5019\u3002**\u518D\u7EC6\u5C31\u662F\u5728\u5199\u4EE3\u7801\u4E86\uFF0C\u518D\u7C97\u5C31\u8FD8\u6709\u60F3\u4E0D\u6E05\u695A\u7684\u5730\u65B9\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u63CF\u8FF0\u5E76\u4F7F\u7528\u9010\u6B65\u6C42\u7CBE\uFF0C\u628A\u7B97\u6CD5\u7EC6\u5316\u5230\u53EF\u4EE5\u76F4\u63A5\u7F16\u7A0B\u7684\u7A0B\u5EA6\uFF08\xA79.2\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u7B2C\u4E8C\u5C42\u5199\u5B8C\u4E4B\u540E\u76F4\u63A5\u6362\u6210\u4F2A\u4EE3\u7801",
+            fileName: "Example_16_4_a.pseudocode",
+            code: [
+              "DECLARE Marks : ARRAY[1:5] OF INTEGER",
+              "DECLARE I : INTEGER",
+              "DECLARE Total : INTEGER",
+              "Total \u2190 0",
+              "FOR I \u2190 1 TO 5",
+              '   OUTPUT "Enter a mark"',
+              "   INPUT Marks[I]",
+              "   Total \u2190 Total + Marks[I]",
+              "NEXT I",
+              'OUTPUT "Average: ", Total DIV 5'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 4, toLine: 4, text: "\u5BF9\u5E94\u7B2C\u4E8C\u5C42\u7684\u300C\u603B\u5206\u6E05\u96F6\u300D\u3002\u4F4D\u7F6E\u5728\u5FAA\u73AF\u4E4B\u524D\u2014\u2014\u7B2C 6 \u7AE0\u53CD\u590D\u8BB2\u8FC7\u8FD9\u4EF6\u4E8B\u3002" },
+              { fromLine: 5, toLine: 9, text: "\u5BF9\u5E94\u300C\u91CD\u590D 5 \u6B21\uFF1A\u2026\u2026\u300D\u3002\u6B21\u6570\u5DF2\u7ECF\u77E5\u9053\uFF0C\u6240\u4EE5\u662F `FOR`\u3002" },
+              { fromLine: 8, toLine: 8, text: "\u5BF9\u5E94\u300C\u628A\u8FD9\u4E2A\u5206\u6570\u52A0\u5230\u603B\u5206\u4E0A\u300D\u3002\u4E00\u53E5\u8BDD\u6362\u4E00\u884C\uFF0C\u8FD9\u5C31\u662F\u6C42\u7CBE\u8BE5\u505C\u4E0B\u6765\u7684\u4FE1\u53F7\u3002" }
+            ],
+            sampleRun: {
+              inputs: ["80", "70", "90", "60", "100"],
+              outputs: [
+                "Enter a mark",
+                "Enter a mark",
+                "Enter a mark",
+                "Enter a mark",
+                "Enter a mark",
+                "Average: 80"
+              ]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u9010\u6B65\u6C42\u7CBE\u8BE5\u5728\u4EC0\u4E48\u65F6\u5019\u505C\u4E0B\u6765\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u5F53\u6BCF\u4E00\u53E5\u90FD\u4E0D\u8D85\u8FC7\u5341\u4E2A\u5B57\u7684\u65F6\u5019",
+                correct: false,
+                explanation: "\u300C\u628A\u8FD9\u4E2A\u73ED\u6309\u5206\u6570\u6392\u597D\u300D\u53EA\u6709\u4E5D\u4E2A\u5B57\uFF0C\u4F46\u5B83\u79BB\u4E00\u884C\u4F2A\u4EE3\u7801\u8FD8\u8FDC\u7740\u3002\u957F\u77ED\u8BF4\u660E\u4E0D\u4E86\u7C92\u5EA6\u3002"
+              },
+              {
+                key: "B",
+                label: "\u5199\u6EE1\u4E09\u5C42\u5C31\u505C",
+                correct: false,
+                explanation: "\u5C42\u6570\u7531\u9898\u76EE\u7684\u590D\u6742\u7A0B\u5EA6\u51B3\u5B9A\u3002\u7B80\u5355\u7684\u4E00\u5C42\u5C31\u591F\uFF0C\u590D\u6742\u7684\u56DB\u4E94\u5C42\u4E5F\u6B63\u5E38\uFF0C\u6CA1\u6709\u56FA\u5B9A\u7684\u6570\u3002"
+              },
+              {
+                key: "C",
+                label: "\u5F53\u6BCF\u4E00\u53E5\u90FD\u80FD\u4E00\u5BF9\u4E00\u6362\u6210\u4E00\u884C\u4F2A\u4EE3\u7801\u7684\u65F6\u5019",
+                correct: true,
+                explanation: "\u5BF9\u3002\u518D\u7EC6\u5C31\u7B49\u4E8E\u5728\u5199\u4EE3\u7801\u4E86\uFF0C\u518D\u7C97\u5C31\u8FD8\u6709\u53E5\u5B50\u8BF4\u4E0D\u6E05\u8BE5\u600E\u4E48\u505A\u3002\u8FD9\u662F\u552F\u4E00\u80FD\u64CD\u4F5C\u7684\u5224\u636E\u3002"
+              },
+              {
+                key: "D",
+                label: "\u5F53\u6240\u6709\u53D8\u91CF\u90FD\u8D77\u597D\u540D\u5B57\u7684\u65F6\u5019",
+                correct: false,
+                explanation: "\u540D\u5B57\u5728\u6807\u8BC6\u7B26\u8868\u90A3\u4E00\u6B65\u5C31\u8D77\u4E86\u3002\u540D\u5B57\u9F50\u4E86\uFF0C\u53E5\u5B50\u4ECD\u7136\u53EF\u80FD\u7C97\u5F97\u6CA1\u6CD5\u76F4\u63A5\u5199\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "16.5",
+        title: "\u4ECE\u7ED3\u6784\u5316\u82F1\u8BED\u548C\u6D41\u7A0B\u56FE\u5199\u51FA\u4F2A\u4EE3\u7801",
+        syllabus: ["\xA79.2"],
+        estimatedMinutes: 11,
+        taughtFeatures: AFTER_CHAPTER_15,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u6C42\u7CBE\u5199\u51FA\u6765\u7684\u90A3\u51E0\u5C42\uFF0C\u5199\u89C4\u6574\u4E00\u70B9\u5C31\u662F**\u7ED3\u6784\u5316\u82F1\u8BED\uFF08structured English\uFF09**\uFF1A\u7528\u65E5\u5E38\u7684\u8BCD\u63CF\u8FF0\u6B65\u9AA4\uFF0C\u4F46\u7F29\u8FDB\u548C\u300C\u91CD\u590D\u300D\u300C\u5982\u679C\u300D\u8FD9\u4E9B\u7ED3\u6784\u8BCD\u548C\u4F2A\u4EE3\u7801\u5BF9\u5F97\u4E0A\u3002\u5B83\u6BD4\u4F2A\u4EE3\u7801\u677E\uFF0C\u6BD4\u5927\u767D\u8BDD\u4E25\u3002",
+              "\u540C\u6837\u7684\u4E1C\u897F\u8FD8\u53EF\u4EE5\u753B\u6210**\u6D41\u7A0B\u56FE\uFF08flowchart\uFF09**\uFF1A\u4E00\u4E2A\u4E2A\u65B9\u6846\u6309\u6267\u884C\u987A\u5E8F\u8FDE\u8D77\u6765\uFF0C\u5224\u65AD\u753B\u6210\u4E00\u4E2A\u6709\u4E24\u6761\u51FA\u53E3\u7684\u83F1\u5F62\uFF0C\u5FAA\u73AF\u5C31\u662F\u4E00\u6761\u7ED5\u56DE\u53BB\u7684\u7EBF\u3002\u8003\u7EB2\u8981\u6C42\u80FD\u4ECE\u8FD9\u4E24\u79CD\u63CF\u8FF0**\u5199\u51FA\u4F2A\u4EE3\u7801**\u3002",
+              "\u8F6C\u5199\u7684\u65F6\u5019\u53EA\u505A\u4E00\u4EF6\u4E8B\uFF1A**\u628A\u7ED3\u6784\u8BCD\u6362\u6210\u5173\u952E\u5B57**\u3002\u300C\u91CD\u590D 5 \u6B21\u300D\u6362\u6210 `FOR ... TO ... NEXT`\uFF0C\u300C\u5982\u679C\u2026\u2026\u90A3\u4E48\u300D\u6362\u6210 `IF ... THEN ... ENDIF`\uFF0C\u300C\u663E\u793A\u300D\u6362\u6210 `OUTPUT`\u3002\u7F29\u8FDB\u7167\u6284\u2014\u2014\u5B83\u672C\u6765\u5C31\u6807\u7740\u8C01\u5305\u7740\u8C01\u3002",
+              "\u6709\u4E00\u5904\u8981\u7559\u795E\uFF1A**\u8FD9\u4E24\u79CD\u63CF\u8FF0\u91CC\u90FD\u4E0D\u5199\u53D8\u91CF\u58F0\u660E**\u3002\u8F6C\u6210\u4F2A\u4EE3\u7801\u65F6\u8981\u81EA\u5DF1\u628A `DECLARE` \u8865\u9F50\u2014\u2014\u7167\u7740\u6807\u8BC6\u7B26\u8868\u8865\uFF0C\u4E00\u4E2A\u90FD\u4E0D\u4F1A\u6F0F\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u80FD\u4ECE\u7ED3\u6784\u5316\u82F1\u8BED\u63CF\u8FF0\u6216\u6D41\u7A0B\u56FE\u5199\u51FA\u4F2A\u4EE3\u7801\uFF0C\u5E76\u80FD\u53CD\u8FC7\u6765\u7531\u4F2A\u4EE3\u7801\u753B\u51FA\u6D41\u7A0B\u56FE\uFF08\xA79.2\uFF09\u3002\u672C\u6A21\u5757\u53EA\u505A\u300C\u8BFB\u61C2\u5E76\u8F6C\u6210\u4F2A\u4EE3\u7801\u300D\u8FD9\u4E2A\u65B9\u5411\u3002"
+              }
+            ]
+          },
+          {
+            kind: "comparison",
+            title: "\u540C\u4E00\u4E2A\u7B97\u6CD5\u7684\u4E09\u79CD\u5199\u6CD5",
+            intro: "\u7EDF\u8BA1\u4E09\u5929\u91CC\u6709\u51E0\u5929\u6C14\u6E29\u4F4E\u4E8E\u96F6\u5EA6\u3002",
+            panes: [
+              {
+                label: "\u6D41\u7A0B\u56FE",
+                language: "diagram",
+                code: [
+                  "             ( start )",
+                  "                 |",
+                  "          [ Count \u2190 0 ]",
+                  "                 |",
+                  "            [ I \u2190 1 ]",
+                  "                 |",
+                  "     +---------->+",
+                  "     |           |",
+                  "     |     < I <= 3 ? >--- no --->[ output Count ]--->( stop )",
+                  "     |           |",
+                  "     |          yes",
+                  "     |           |",
+                  "     |     [ input Temperature ]",
+                  "     |           |",
+                  "     |     < Temperature < 0 ? >--- no ---+",
+                  "     |           |                        |",
+                  "     |          yes                       |",
+                  "     |           |                        |",
+                  "     |     [ Count \u2190 Count + 1 ]          |",
+                  "     |           |                        |",
+                  "     |           +<-----------------------+",
+                  "     |           |",
+                  "     |     [ I \u2190 I + 1 ]",
+                  "     |           |",
+                  "     +-----------+"
+                ].join("\n"),
+                note: "\u65B9\u6846\u662F\u4E00\u6B65\u52A8\u4F5C\uFF0C\u83F1\u5F62\u662F\u5224\u65AD\u3001\u4E24\u6761\u51FA\u53E3\u5404\u8D70\u4E00\u652F\uFF1B\u6700\u5DE6\u8FB9\u90A3\u6761\u7ED5\u56DE\u53BB\u7684\u7EBF\u5C31\u662F\u5FAA\u73AF\u3002\u4FE1\u606F\u548C\u53F3\u8FB9\u90A3\u680F\u4E00\u6A21\u4E00\u6837\uFF0C\u53EA\u662F\u753B\u51FA\u6765\u4E86\u3002"
+              },
+              {
+                label: "\u7ED3\u6784\u5316\u82F1\u8BED",
+                language: "natural",
+                code: [
+                  "set the count to zero",
+                  "repeat 3 times",
+                  "    ask for a temperature and read it",
+                  "    if the temperature is below zero",
+                  "        add one to the count",
+                  "output the count"
+                ].join("\n"),
+                note: "\u6BCF\u4E00\u884C\u90FD\u5BF9\u5F97\u4E0A\u4E00\u4E2A\u5199\u6CD5\uFF0C\u7F29\u8FDB\u6807\u51FA\u4E86\u8C01\u5305\u7740\u8C01\u3002\u7F3A\u7684\u53EA\u6709\u58F0\u660E\u2014\u2014\u90A3\u51E0\u884C\u5F97\u81EA\u5DF1\u8865\u3002"
+              },
+              {
+                label: "\u4F2A\u4EE3\u7801",
+                language: "pseudocode",
+                code: [
+                  "DECLARE Count : INTEGER",
+                  "DECLARE Temperature : INTEGER",
+                  "DECLARE I : INTEGER",
+                  "Count \u2190 0",
+                  "FOR I \u2190 1 TO 3",
+                  '   OUTPUT "Enter a temperature"',
+                  "   INPUT Temperature",
+                  "   IF Temperature < 0 THEN",
+                  "      Count \u2190 Count + 1",
+                  "   ENDIF",
+                  "NEXT I",
+                  'OUTPUT "Frost days: ", Count'
+                ].join("\n"),
+                note: "\u7ED3\u6784\u8BCD\u6362\u6210\u5173\u952E\u5B57\u3001\u7F29\u8FDB\u7167\u6284\uFF0C\u518D\u628A\u524D\u4E09\u884C `DECLARE` \u8865\u4E0A\u3002\u63D0\u793A\u8BED\u4E5F\u5F97\u81EA\u5DF1\u52A0\u2014\u2014\u90A3\u4E24\u680F\u90FD\u6CA1\u5199\u5B83\u3002"
+              },
+              {
+                label: "Python",
+                language: "python",
+                code: [
+                  "count = 0",
+                  "for _ in range(3):",
+                  "    t = int(input())",
+                  "    if t < 0:",
+                  "        count += 1",
+                  'print("Frost days:", count)'
+                ].join("\n"),
+                note: "\u540C\u4E00\u4E2A\u7B97\u6CD5\u6362\u7B2C\u56DB\u79CD\u5199\u6CD5\u3002**\u7B97\u6CD5\u548C\u8BB0\u6CD5\u662F\u4E24\u4EF6\u4E8B**\u2014\u2014\u8FD9\u6B63\u662F\u7B2C 1 \u7AE0\u8BF4\u8FC7\u7684\uFF0C\u4E3A\u4EC0\u4E48\u8981\u6709\u4F2A\u4EE3\u7801\u8FD9\u79CD\u56FA\u5B9A\u5199\u6CD5\u3002"
+              }
+            ]
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u628A\u7ED3\u6784\u5316\u82F1\u8BED\u8F6C\u6210\u4F2A\u4EE3\u7801\u65F6\uFF0C\u4E0B\u9762\u54EA\u4E00\u6837**\u5FC5\u987B\u81EA\u5DF1\u8865\u4E0A**\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u8BED\u53E5\u7684\u5148\u540E\u987A\u5E8F",
+                correct: false,
+                explanation: "\u987A\u5E8F\u6B63\u662F\u8FD9\u4E24\u79CD\u63CF\u8FF0\u6700\u4E3B\u8981\u7684\u5185\u5BB9\u2014\u2014\u4E00\u4E2A\u9760\u884C\u7684\u5148\u540E\uFF0C\u4E00\u4E2A\u9760\u7BAD\u5934\u3002"
+              },
+              {
+                key: "B",
+                label: "\u5FAA\u73AF\u7684\u6B21\u6570",
+                correct: false,
+                explanation: "\u6B21\u6570\u5728\u63CF\u8FF0\u91CC\u5199\u7740\uFF08\u300Crepeat 3 times\u300D\uFF09\uFF0C\u7167\u6284\u5C31\u884C\u3002"
+              },
+              {
+                key: "C",
+                label: "\u53D8\u91CF\u7684\u58F0\u660E",
+                correct: true,
+                explanation: "\u5BF9\u3002\u7ED3\u6784\u5316\u82F1\u8BED\u548C\u6D41\u7A0B\u56FE\u90FD\u4E0D\u5199 `DECLARE`\uFF0C\u8F6C\u8FC7\u6765\u65F6\u8981\u7167\u7740\u6807\u8BC6\u7B26\u8868\u628A\u58F0\u660E\u8865\u9F50\u3002\u987A\u5E26\u8FD8\u6709 `INPUT` \u524D\u7684\u63D0\u793A\u8BED\uFF0C\u90A3\u4E24\u79CD\u63CF\u8FF0\u91CC\u901A\u5E38\u4E5F\u4E0D\u5199\u3002"
+              },
+              {
+                key: "D",
+                label: "\u5224\u65AD\u7684\u6761\u4EF6",
+                correct: false,
+                explanation: "\u6761\u4EF6\u5199\u5728\u300Cif the temperature is below zero\u300D\u548C\u83F1\u5F62\u91CC\uFF0C\u4E24\u8FB9\u90FD\u6709\uFF0C\u53EA\u9700\u8981\u6362\u6210\u7B26\u53F7\u3002"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "16.5.1",
+            title: "\u7167\u7740\u63CF\u8FF0\u5199\u51FA\u6765",
+            statement: [
+              "\u4E0B\u9762\u662F\u4E00\u6BB5\u7ED3\u6784\u5316\u82F1\u8BED\u3002\u628A\u5B83**\u539F\u6837**\u8F6C\u6210\u4F2A\u4EE3\u7801\uFF08\u58F0\u660E\u548C\u8F93\u5165\u63D0\u793A\u8BED\u8981\u81EA\u5DF1\u8865\u4E0A\uFF09\uFF1A",
+              "",
+              "`set the count to zero`",
+              "`repeat 5 times`",
+              "`\u3000\u3000ask for a temperature and read it`",
+              "`\u3000\u3000if the temperature is below zero`",
+              "`\u3000\u3000\u3000\u3000add one to the count`",
+              "`output the count`"
+            ].join("\n"),
+            ioSpec: {
+              input: ["\u4E94\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a temperature`"].join("\n"),
+              output: ["\u4E00\u884C\uFF0C\u5199\u6210\uFF1A", "`Frost days: <\u4F4E\u4E8E\u96F6\u5EA6\u7684\u5929\u6570>`", "\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "loop.for",
+                  reason: "\u63CF\u8FF0\u91CC\u5199\u7740\u300C\u91CD\u590D 5 \u6B21\u300D\uFF0C\u6B21\u6570\u4E8B\u5148\u5C31\u77E5\u9053\u3002"
+                },
+                {
+                  feature: "select.if",
+                  reason: "\u300C\u5982\u679C\u4F4E\u4E8E\u96F6\u5EA6\u300D\u90A3\u4E00\u53E5\u8981\u6362\u6210\u4E00\u4E2A\u5224\u65AD\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u7F29\u8FDB\u7167\u6284\uFF1A\u63CF\u8FF0\u91CC\u7F29\u8FDB\u7684\u90A3\u4E24\u884C\uFF0C\u5728\u4F2A\u4EE3\u7801\u91CC\u5C31\u5728 `FOR` \u548C `IF` \u91CC\u9762\u3002",
+              "\u300C\u4F4E\u4E8E\u96F6\u5EA6\u300D\u662F `< 0`\uFF0C\u4E0D\u542B\u96F6\u2014\u2014\u96F6\u5EA6\u90A3\u5929\u4E0D\u7B97\u3002",
+              "\u63CF\u8FF0\u91CC\u6CA1\u5199\u7684\u4E24\u6837\u8981\u81EA\u5DF1\u8865\uFF1A\u4E09\u884C `DECLARE`\uFF0C\u8FD8\u6709\u6BCF\u6B21\u8BFB\u5165\u524D\u7684\u63D0\u793A\u8BED\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["5", "-2", "0", "-7", "12"],
+                outputs: [
+                  "Enter a temperature",
+                  "Enter a temperature",
+                  "Enter a temperature",
+                  "Enter a temperature",
+                  "Enter a temperature",
+                  "Frost days: 2"
+                ]
+              }
+            ],
+            referenceSolution: [
+              "DECLARE Count : INTEGER",
+              "DECLARE Temperature : INTEGER",
+              "DECLARE I : INTEGER",
+              "Count \u2190 0",
+              "FOR I \u2190 1 TO 5",
+              '   OUTPUT "Enter a temperature"',
+              "   INPUT Temperature",
+              "   IF Temperature < 0 THEN",
+              "      Count \u2190 Count + 1",
+              "   ENDIF",
+              "NEXT I",
+              'OUTPUT "Frost days: ", Count'
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["3", "-1", "-4", "8", "-6"], caseHint: "\u4E94\u5929\u91CC\u6709\u51E0\u5929\u5728\u96F6\u5EA6\u4EE5\u4E0B\uFF0C\u6709\u51E0\u5929\u5728\u96F6\u5EA6\u4EE5\u4E0A\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["0", "0", "0", "0", "0"], caseHint: "\u4E94\u5929\u5168\u662F\u96F6\u5EA6\u2014\u2014\u96F6\u5EA6\u4E0D\u7B97\u5728\u96F6\u5EA6\u4EE5\u4E0B\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["-1", "-1", "-1", "-1", "-1"], caseHint: "\u4E94\u5929\u5168\u5728\u96F6\u5EA6\u4EE5\u4E0B\u3002" },
+              { id: "t4", kind: "boundary", inputs: ["1", "1", "1", "1", "1"], caseHint: "\u4E94\u5929\u5168\u5728\u96F6\u5EA6\u4EE5\u4E0A\uFF0C\u4E00\u5929\u90FD\u4E0D\u8BE5\u6570\u4E0A\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["-9999", "9999", "0", "-1", "1"], caseHint: "\u6DF7\u7740\u6781\u51B7\u548C\u6781\u70ED\u7684\u5929\u6C14\uFF0C\u8FD8\u6709\u6B63\u597D\u96F6\u5EA6\u7684\u4E00\u5929\u3002" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "16.6",
+        title: "\u9009\u6570\u636E\u7ED3\u6784\uFF0C\u9009\u63A7\u5236\u7ED3\u6784",
+        syllabus: ["\xA79.2", "\xA710.1"],
+        estimatedMinutes: 9,
+        taughtFeatures: AFTER_CHAPTER_15,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u6C42\u7CBE\u5230\u67D0\u4E00\u5C42\uFF0C\u5C31\u5F97\u56DE\u7B54\u4E24\u4E2A\u95EE\u9898\uFF1A**\u6570\u636E\u88C5\u5728\u4EC0\u4E48\u91CC\uFF1F\u5FAA\u73AF\u7528\u54EA\u4E00\u79CD\uFF1F**\u8FD9\u4E24\u4E2A\u5224\u636E\u524D\u9762\u90FD\u7ED9\u8FC7\uFF0C\u8FD9\u91CC\u53EA\u662F\u628A\u5B83\u4EEC\u6446\u5230\u4E00\u8D77\u7528\u3002",
+              "**\u6570\u636E\u7ED3\u6784**\uFF1A\u4E00\u4E2A\u503C\u7528\u53D8\u91CF\uFF1B\u4E00\u4E32\u540C\u7C7B\u578B\u7684\u3001\u4E00\u4E2A\u7F16\u53F7\u6307\u5F97\u51C6\u7684\u7528\u4E00\u7EF4\u6570\u7EC4\uFF1B\u8981\u4E24\u4E2A\u7F16\u53F7\u7684\u7528\u4E8C\u7EF4\u6570\u7EC4\uFF1B\u51E0\u6837\u4E0D\u540C\u7C7B\u578B\u51D1\u6210\u4E00\u4EFD\u7684\u7528\u8BB0\u5F55\uFF1B\u5F88\u591A\u4EFD\u8FD9\u6837\u7684\u7528\u8BB0\u5F55\u6570\u7EC4\uFF1B\u8981\u6D3B\u8FC7\u8FD9\u6B21\u8FD0\u884C\u7684\u5199\u6587\u4EF6\u3002\u672C\u7AE0\u90A3\u9053\u9898\u662F\u300C5 \u4E2A\u4EBA\uFF0C\u6BCF\u4EBA\u59D3\u540D + \u5206\u6570\u300D\u2014\u2014**\u51E0\u6837\u4E0D\u540C\u7C7B\u578B\u51D1\u6210\u4E00\u4EFD\u3001\u6709\u5F88\u591A\u4EFD**\uFF0C\u6240\u4EE5\u662F\u8BB0\u5F55\u6570\u7EC4\u3002",
+              "**\u63A7\u5236\u7ED3\u6784**\uFF1A\u6B21\u6570\u4E8B\u5148\u77E5\u9053\u7528 `FOR`\uFF1B\u4E0D\u77E5\u9053\u3001\u800C\u4E14\u53EF\u80FD\u4E00\u6B21\u90FD\u4E0D\u505A\u7528 `WHILE`\uFF1B\u4E0D\u77E5\u9053\u3001\u4F46\u81F3\u5C11\u505A\u4E00\u6B21\u7528 `REPEAT`\uFF1B\u4ECE\u51E0\u6761\u8DEF\u91CC\u6311\u4E00\u6761\u7528 `IF` \u4E32\u63A5\uFF0C\u62FF\u540C\u4E00\u4E2A\u4E1C\u897F\u6BD4\u4E0D\u540C\u7684\u503C\u7528 `CASE`\u3002\u672C\u7AE0\u90A3\u9053\u9898\u4EBA\u6570\u56FA\u5B9A\u662F 5\uFF0C\u4E24\u5904\u5FAA\u73AF\u90FD\u662F `FOR`\u3002",
+              "\u4E24\u4E2A\u5224\u636E\u90FD\u6709\u540C\u4E00\u53E5\u8BDD\u57AB\u5E95\uFF1A**\u9009\u5BF9\u4E86\uFF0C\u4EE3\u7801\u5C31\u4E0D\u7528\u505A\u591A\u4F59\u7684\u4E8B\u3002**\u9009\u9519\u4E0D\u4F1A\u7ACB\u523B\u62A5\u9519\u2014\u2014\u7528\u5E73\u884C\u6570\u7EC4\u4E5F\u80FD\u5B58\u8FD9\u4E2A\u73ED\uFF0C\u53EA\u662F\u6392\u5E8F\u65F6\u8981\u8BB0\u5F97\u4E24\u4E2A\u6570\u7EC4\u4E00\u8D77\u6362\uFF08\u7B2C 11 \u7AE0\uFF09\uFF1B\u7528 `REPEAT` \u8BFB\u4E00\u4E2A\u53EF\u80FD\u4E00\u884C\u90FD\u6CA1\u6709\u7684\u6587\u4EF6\u4E5F\u80FD\u5199\uFF0C\u53EA\u662F\u7A7A\u6587\u4EF6\u4F1A\u88AB\u591A\u8BFB\u4E00\u6B21\uFF08\u7B2C 14 \u7AE0\uFF09\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u4E3A\u95EE\u9898\u89E3\u6CD5\u9009\u62E9\u5E76\u4F7F\u7528\u5408\u9002\u7684\u6570\u636E\u7C7B\u578B\u4E0E\u6570\u636E\u7ED3\u6784\uFF08\xA710.1\u3001\xA710.2\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u9009\u5B9A\u4E4B\u540E\uFF0C\u8BFB\u5165\u90A3\u4E00\u6BB5\u7684\u6837\u5B50",
+            fileName: "Example_16_6_a.pseudocode",
+            code: [
+              "TYPE TStudent",
+              "   DECLARE Name : STRING",
+              "   DECLARE Mark : INTEGER",
+              "ENDTYPE",
+              "DECLARE Form : ARRAY[1:5] OF TStudent",
+              "DECLARE I : INTEGER",
+              "DECLARE Total : INTEGER",
+              "Total \u2190 0",
+              "FOR I \u2190 1 TO 5",
+              '   OUTPUT "Enter a name"',
+              "   INPUT Form[I].Name",
+              '   OUTPUT "Enter a mark"',
+              "   INPUT Form[I].Mark",
+              "   Total \u2190 Total + Form[I].Mark",
+              "NEXT I",
+              'OUTPUT "Average: ", Total DIV 5'
+            ].join("\n"),
+            annotations: [
+              { fromLine: 1, toLine: 5, text: "\u6570\u636E\u7ED3\u6784\u7684\u51B3\u5B9A\u843D\u5728\u8FD9\u4E94\u884C\u4E0A\uFF1A\u4E00\u4EFD\u662F\u4E00\u6761\u8BB0\u5F55\uFF0C\u4E94\u4EFD\u662F\u4E00\u4E2A\u8BB0\u5F55\u6570\u7EC4\u3002" },
+              { fromLine: 9, toLine: 15, text: "\u63A7\u5236\u7ED3\u6784\u7684\u51B3\u5B9A\u843D\u5728\u8FD9\u4E00\u884C\u4E0A\uFF1A\u4EBA\u6570\u56FA\u5B9A\uFF0C\u6240\u4EE5\u662F `FOR`\u3002" },
+              { fromLine: 14, toLine: 14, text: "\u603B\u5206\u8FB9\u8BFB\u8FB9\u52A0\u3002\u5B83\u4E0D\u8FDD\u53CD\u300C\u975E\u5B58\u4E0B\u6765\u4E0D\u53EF\u300D\u2014\u2014\u5B58\u7684\u662F\u6BCF\u4E2A\u4EBA\u7684\u5206\u6570\uFF0C\u603B\u5206\u53EA\u662F\u987A\u624B\u6512\u7684\u3002" }
+            ],
+            sampleRun: {
+              inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
+              outputs: [
+                "Enter a name",
+                "Enter a mark",
+                "Enter a name",
+                "Enter a mark",
+                "Enter a name",
+                "Enter a mark",
+                "Enter a name",
+                "Enter a mark",
+                "Enter a name",
+                "Enter a mark",
+                "Average: 80"
+              ]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E00\u4E2A\u7A0B\u5E8F\u8981\u4E00\u884C\u4E00\u884C\u8BFB\u5B8C\u4E00\u4E2A\u6587\u4EF6\uFF0C\u6587\u4EF6\u91CC\u6709\u51E0\u884C\u4E8B\u5148\u4E0D\u77E5\u9053\u3002\u8BE5\u7528\u54EA\u79CD\u5FAA\u73AF\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "`WHILE ... ENDWHILE`",
+                correct: true,
+                explanation: "\u5BF9\u3002\u6B21\u6570\u4E0D\u77E5\u9053\uFF0C\u800C\u4E14\u7A7A\u6587\u4EF6\u5E94\u8BE5\u4E00\u6B21\u90FD\u4E0D\u8BFB\u2014\u2014\u5148\u770B\u6761\u4EF6\u7684\u5FAA\u73AF\u6B63\u597D\u4E24\u6761\u90FD\u6EE1\u8DB3\uFF0C\u8FD9\u5C31\u662F\u7B2C 14 \u7AE0\u90A3\u4E2A `WHILE NOT EOF(...)`\u3002"
+              },
+              {
+                key: "B",
+                label: "\u4E24\u5C42\u5D4C\u5957\u5FAA\u73AF",
+                correct: false,
+                explanation: "\u5D4C\u5957\u662F\u7ED9\u300C\u6BCF\u4E00\u884C\u91CC\u8FD8\u8981\u518D\u8D70\u4E00\u904D\u300D\u51C6\u5907\u7684\u3002\u4E00\u884C\u4E00\u884C\u8BFB\u5B8C\u53EA\u9700\u8981\u4E00\u5C42\u3002"
+              },
+              {
+                key: "C",
+                label: "`REPEAT ... UNTIL`",
+                correct: false,
+                explanation: "\u5B83\u81F3\u5C11\u505A\u4E00\u6B21\u3002\u78B0\u4E0A\u4E00\u884C\u90FD\u6CA1\u6709\u7684\u7A7A\u6587\u4EF6\uFF0C\u7B2C\u4E00\u6B21\u8BFB\u5C31\u6CA1\u6709\u884C\u53EF\u8BFB\uFF0C\u7A0B\u5E8F\u4F1A\u505C\u4E0B\u6765\u3002"
+              },
+              {
+                key: "D",
+                label: "`FOR ... TO ... NEXT`",
+                correct: false,
+                explanation: "`FOR` \u8981\u4E8B\u5148\u5199\u51FA\u6B21\u6570\uFF0C\u800C\u8FD9\u91CC\u6B63\u662F\u4E0D\u77E5\u9053\u6709\u51E0\u884C\u3002\u5199\u6B7B\u4E00\u4E2A\u6570\u5C31\u7B49\u4E8E\u5728\u5047\u8BBE\u6587\u4EF6\u6709\u591A\u957F\u3002"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "16.7",
+        title: "\u5199\u51FA\u4E00\u4E2A\u5B8C\u6574\u89E3",
+        syllabus: ["\xA79.2", "\xA712.2"],
+        estimatedMinutes: 10,
+        taughtFeatures: AFTER_CHAPTER_15,
+        blocks: [
+          {
+            kind: "explanation",
+            paragraphs: [
+              "\u524D\u9762\u516D\u6B65\u8D70\u5B8C\uFF0C\u4EE3\u7801\u57FA\u672C\u662F\u6284\u51FA\u6765\u7684\uFF1A\u7ED3\u6784\u56FE\u4E0A\u7684\u4E09\u4E2A\u65B9\u6846\u53D8\u6210\u4E09\u4E2A\u5934\u90E8\uFF0C\u7BAD\u5934\u53D8\u6210\u53C2\u6570\u548C\u8FD4\u56DE\u503C\uFF0C\u6C42\u7CBE\u7684\u6700\u540E\u4E00\u5C42\u53D8\u6210\u5404\u81EA\u7684\u4F53\uFF0C\u6807\u8BC6\u7B26\u8868\u53D8\u6210 `DECLARE`\u3002",
+              "\u4E3B\u7A0B\u5E8F\u6B64\u65F6\u5E94\u8BE5\u5F88\u77ED\u2014\u2014\u51E0\u884C\u58F0\u660E\u52A0\u4E00\u4E32\u8C03\u7528\u3002**\u4E3B\u7A0B\u5E8F\u4E00\u957F\uFF0C\u8BF4\u660E\u6709\u4EF6\u4E8B\u6CA1\u62C6\u51FA\u53BB\u3002**\u8FD9\u662F\u68C0\u67E5\u5206\u89E3\u505A\u5F97\u597D\u4E0D\u597D\u6700\u5FEB\u7684\u529E\u6CD5\u3002",
+              "\u6709\u4E00\u5904\u662F\u7B2C 12 \u7AE0\u7684\u89C4\u77E9\u5728\u8D77\u4F5C\u7528\uFF1A\u300C\u8BFB\u5165\u4E00\u4E2A\u73ED\u300D\u8981\u628A\u73ED\u7EA7\u548C\u603B\u5206\u90FD\u4EA4\u56DE\u4E3B\u7A0B\u5E8F\uFF0C\u800C\u51FD\u6570\u53EA\u8FD8\u4E00\u4E2A\u503C\uFF0C\u6240\u4EE5\u5B83\u5199\u6210\u8FC7\u7A0B\u3001\u4E24\u6837\u90FD\u8D70 `BYREF`\uFF1B\u300C\u7B97\u5E73\u5747\u5206\u300D\u53EA\u4EA4\u56DE\u4E00\u4E2A\u6570\uFF0C\u5199\u6210\u51FD\u6570\u6700\u7701\u4E8B\u3002",
+              "\u5199\u5B8C\u522B\u5FD8\u4E86\u81EA\u5DF1\u8DD1\u4E00\u904D\uFF0C\u800C\u4E14\u8981\u4E13\u95E8\u8BD5**\u8FB9\u754C**\uFF1A\u5168\u73ED\u540C\u5206\u65F6\u8C01\u90FD\u4E0D\u9AD8\u4E8E\u5E73\u5747\uFF0C\u96F6\u5206\u548C\u6EE1\u5206\u6DF7\u5728\u4E00\u8D77\u65F6\u6570\u5B57\u5BF9\u4E0D\u5BF9\u3002**\u8FD9\u4E00\u6B65\u8C01\u90FD\u66FF\u4E0D\u4E86\u4F60**\u2014\u2014\u524D\u9762\u516D\u6B65\u4FDD\u8BC1\u7684\u662F\u300C\u60F3\u6E05\u695A\u4E86\u300D\uFF0C\u8DD1\u4E00\u904D\u624D\u77E5\u9053\u300C\u5199\u5BF9\u4E86\u300D\u3002"
+            ],
+            callouts: [
+              {
+                source: "CAIE",
+                text: "\u8003\u7EB2\u8981\u6C42\u628A\u95EE\u9898\u5206\u89E3\u4E3A\u5B50\u95EE\u9898\uFF0C\u8FDB\u800C\u5F62\u6210\u7A0B\u5E8F\u6A21\u5757\uFF08\u8FC7\u7A0B / \u51FD\u6570\uFF09\uFF0C\u5E76\u5199\u51FA\u5B8C\u6574\u7684\u89E3\uFF08\xA79.2\u3001\xA712.2\uFF09\u3002"
+              }
+            ]
+          },
+          {
+            kind: "example",
+            title: "\u672C\u7AE0\u90A3\u9053\u9898\u7684\u5B8C\u6574\u89E3",
+            fileName: "Example_16_7_a.pseudocode",
+            code: [
+              "TYPE TStudent",
+              "   DECLARE Name : STRING",
+              "   DECLARE Mark : INTEGER",
+              "ENDTYPE",
+              "PROCEDURE ReadClass(BYREF Form : ARRAY[1:5] OF TStudent, BYREF Total : INTEGER)",
+              "   DECLARE I : INTEGER",
+              "   Total \u2190 0",
+              "   FOR I \u2190 1 TO 5",
+              '      OUTPUT "Enter a name"',
+              "      INPUT Form[I].Name",
+              '      OUTPUT "Enter a mark"',
+              "      INPUT Form[I].Mark",
+              "      Total \u2190 Total + Form[I].Mark",
+              "   NEXT I",
+              "ENDPROCEDURE",
+              "FUNCTION AverageOf(Total : INTEGER, Count : INTEGER) RETURNS INTEGER",
+              "   RETURN Total DIV Count",
+              "ENDFUNCTION",
+              "PROCEDURE ShowAbove(Form : ARRAY[1:5] OF TStudent, Mean : INTEGER)",
+              "   DECLARE I : INTEGER",
+              "   FOR I \u2190 1 TO 5",
+              "      IF Form[I].Mark > Mean THEN",
+              "         OUTPUT Form[I].Name",
+              "      ENDIF",
+              "   NEXT I",
+              "ENDPROCEDURE",
+              "DECLARE Group : ARRAY[1:5] OF TStudent",
+              "DECLARE Sum : INTEGER",
+              "DECLARE Mean : INTEGER",
+              "CALL ReadClass(Group, Sum)",
+              "Mean \u2190 AverageOf(Sum, 5)",
+              'OUTPUT "Average: ", Mean',
+              "CALL ShowAbove(Group, Mean)"
+            ].join("\n"),
+            annotations: [
+              { fromLine: 5, toLine: 5, text: "\u4E24\u6837\u90FD\u8981\u4EA4\u56DE\u4E3B\u7A0B\u5E8F\uFF0C\u6240\u4EE5\u662F\u8FC7\u7A0B\u52A0\u4E24\u4E2A `BYREF`\u2014\u2014\u7ED3\u6784\u56FE\u4E0A\u90A3\u4E24\u4E2A\u671D\u4E0A\u7684\u7BAD\u5934\u3002" },
+              { fromLine: 19, toLine: 19, text: "\u53EA\u5F80\u4E0B\u4F20\uFF0C\u4EC0\u4E48\u90FD\u4E0D\u4EA4\u56DE\uFF0C\u800C\u4E14\u6570\u7EC4\u662F\u62FF\u6765\u770B\u7684\uFF0C\u6240\u4EE5\u7528\u9ED8\u8BA4\u7684\u4F20\u503C\u3002" },
+              { fromLine: 27, toLine: 33, text: "\u4E3B\u7A0B\u5E8F\u53EA\u5269\u4E03\u884C\uFF1A\u4E09\u884C\u58F0\u660E\u3001\u4E09\u6B21\u8C03\u7528\u3001\u4E00\u53E5\u663E\u793A\u3002\u62C6\u5F97\u5BF9\u7684\u65F6\u5019\u5B83\u5C31\u8BE5\u8FD9\u4E48\u77ED\u3002" }
+            ],
+            sampleRun: {
+              inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
+              outputs: [
+                "Enter a name",
+                "Enter a mark",
+                "Enter a name",
+                "Enter a mark",
+                "Enter a name",
+                "Enter a mark",
+                "Enter a name",
+                "Enter a mark",
+                "Enter a name",
+                "Enter a mark",
+                "Average: 80",
+                "Cal",
+                "Eve"
+              ]
+            }
+          },
+          {
+            kind: "quiz",
+            type: "single-choice",
+            prompt: "\u4E0A\u9762\u90A3\u4E2A\u5B8C\u6574\u89E3\u91CC\uFF0C\u5168\u73ED\u4E94\u4E2A\u4EBA\u5206\u6570\u5B8C\u5168\u76F8\u540C\u65F6\uFF0C\u5C4F\u5E55\u4E0A\u4F1A\u6709\u51E0\u884C\uFF1F",
+            options: [
+              {
+                key: "A",
+                label: "\u7A0B\u5E8F\u4F1A\u505C\u4E0B\u6765\uFF0C\u56E0\u4E3A\u6CA1\u6709\u4EBA\u9AD8\u4E8E\u5E73\u5747\u5206",
+                correct: false,
+                explanation: "\u4E00\u4E2A\u90FD\u6311\u4E0D\u51FA\u6765\u662F\u5B8C\u5168\u6B63\u5E38\u7684\u7ED3\u679C\uFF0C\u4E0D\u662F\u9519\u8BEF\u3002\u5FAA\u73AF\u8D70\u5B8C\u5C31\u7ED3\u675F\u4E86\u3002"
+              },
+              {
+                key: "B",
+                label: "\u4E24\u884C\uFF1A\u5E73\u5747\u5206\uFF0C\u52A0\u4E00\u884C\u300C\u6CA1\u6709\u4EBA\u9AD8\u4E8E\u5E73\u5747\u5206\u300D",
+                correct: false,
+                explanation: "\u4EE3\u7801\u91CC\u6CA1\u6709\u8FD9\u4E48\u4E00\u53E5\u3002\u60F3\u8981\u5B83\u5C31\u5F97\u81EA\u5DF1\u52A0\u2014\u2014\u8FD9\u4E5F\u8BF4\u660E\u4E3A\u4EC0\u4E48\u5199\u5B8C\u8981\u7167\u7740\u9898\u76EE\u518D\u6838\u4E00\u904D\u8F93\u51FA\u683C\u5F0F\u3002"
+              },
+              {
+                key: "C",
+                label: "\u516D\u884C\uFF1A\u5E73\u5747\u5206\u4E00\u884C\uFF0C\u4E94\u4E2A\u4EBA\u5404\u4E00\u884C",
+                correct: false,
+                explanation: "\u6761\u4EF6\u662F\u300C\u9AD8\u4E8E\u5E73\u5747\u5206\u300D\u3002\u5206\u6570\u90FD\u4E00\u6837\u65F6\u5E73\u5747\u5206\u5C31\u7B49\u4E8E\u6BCF\u4E2A\u4EBA\u7684\u5206\u6570\uFF0C\u8C01\u90FD\u4E0D\u6BD4\u5B83\u9AD8\u3002"
+              },
+              {
+                key: "D",
+                label: "\u4E00\u884C\uFF1A\u53EA\u6709\u5E73\u5747\u5206",
+                correct: true,
+                explanation: "\u5BF9\u3002`Form[I].Mark > Mean` \u4E00\u6B21\u90FD\u4E0D\u6210\u7ACB\uFF0C`ShowAbove` \u91CC\u4E00\u53E5 `OUTPUT` \u90FD\u4E0D\u6267\u884C\u3002**\u8FD9\u6B63\u662F\u5199\u5B8C\u8981\u4E13\u95E8\u8BD5\u7684\u90A3\u79CD\u8FB9\u754C\u3002**"
+              }
+            ]
+          },
+          {
+            kind: "task",
+            id: "16.7.1",
+            title: "\u53CA\u683C\u540D\u5355\u5B58\u8FDB\u6587\u4EF6",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 6 \u4E2A\u5206\u6570\uFF0C\u6BCF\u8BFB\u4E00\u4E2A\u5C31\u5F80\u6587\u4EF6\u91CC\u5199\u4E00\u884C\u2014\u2014\u53CA\u683C\uFF0850 \u5206\u53CA\u4EE5\u4E0A\uFF09\u5199 `pass`\uFF0C\u4E0D\u53CA\u683C\u5199 `fail`\uFF1B\u516D\u4E2A\u8BFB\u5B8C\u5173\u6389\u6587\u4EF6\uFF0C\u518D\u628A\u6587\u4EF6\u8BFB\u56DE\u6765\u7EDF\u8BA1\u53CA\u683C\u548C\u4E0D\u53CA\u683C\u5404\u6709\u51E0\u4E2A\uFF0C\u663E\u793A\u51FA\u6765\u3002\u8BFB\u6587\u4EF6\u65F6\u4E0D\u8BB8\u5047\u8BBE\u6709\u51E0\u884C\u3002",
+            ioSpec: {
+              input: ["\u516D\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a mark`"].join("\n"),
+              output: [
+                "\u8BFB\u5B8C\u7EDF\u8BA1\u5B8C\u4E4B\u540E\u663E\u793A\u4E24\u884C\uFF1A",
+                "`Passes: <\u53CA\u683C\u4E2A\u6570>`",
+                "`Fails: <\u4E0D\u53CA\u683C\u4E2A\u6570>`",
+                "\u6BCF\u4E2A\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"
+              ].join("\n")
+            },
+            constraints: {
+              require: [
+                {
+                  feature: "file.write",
+                  reason: "\u5224\u8FC7\u4E4B\u540E\u7684\u7ED3\u679C\u8981\u5199\u8FDB\u6587\u4EF6\uFF0C\u4E0D\u80FD\u53EA\u7559\u5728\u53D8\u91CF\u91CC\u3002"
+                },
+                {
+                  feature: "builtin.eof",
+                  reason: "\u9898\u76EE\u8981\u6C42\u8BFB\u7684\u65F6\u5019\u4E0D\u8BB8\u5047\u8BBE\u6587\u4EF6\u6709\u51E0\u884C\u3002"
+                },
+                {
+                  feature: "select.if-else",
+                  reason: "\u53CA\u683C\u548C\u4E0D\u53CA\u683C\u5404\u5199\u4E00\u79CD\u6587\u5B57\uFF0C\u4E24\u6761\u8DEF\u90FD\u8981\u6709\u3002"
+                }
+              ]
+            },
+            hints: [
+              "\u5199\u7684\u65F6\u5019\u6B21\u6570\u77E5\u9053\uFF08\u516D\u4E2A\uFF09\uFF0C\u8BFB\u7684\u65F6\u5019\u4E0D\u77E5\u9053\u2014\u2014\u4E24\u6BB5\u7528\u7684\u5FAA\u73AF\u4E0D\u4E00\u6837\u3002",
+              "\u5199\u8FDB\u6587\u4EF6\u7684\u662F `pass` \u6216 `fail` \u8FD9\u4E24\u6BB5\u6587\u5B57\uFF1B\u8BFB\u56DE\u6765\u6BD4\u7684\u4E5F\u662F\u6587\u5B57\uFF0C\u4E0D\u662F\u5206\u6570\u3002",
+              "\u4E24\u4E2A\u8BA1\u6570\u53EA\u7528\u6570\u4E00\u4E2A\uFF0C\u53E6\u4E00\u4E2A\u51CF\u51FA\u6765\u5C31\u884C\uFF1B\u5199\u5B8C\u4E00\u5B9A\u8981 `CLOSEFILE` \u624D\u8BFB\u5F97\u4E86\u3002"
+            ],
+            examples: [
+              {
+                inputs: ["55", "40", "60", "50", "49", "90"],
+                outputs: [
+                  "Enter a mark",
+                  "Enter a mark",
+                  "Enter a mark",
+                  "Enter a mark",
+                  "Enter a mark",
+                  "Enter a mark",
+                  "Passes: 4",
+                  "Fails: 2"
+                ]
+              }
+            ],
+            referenceSolution: [
+              "DECLARE Mark : INTEGER",
+              "DECLARE I : INTEGER",
+              "DECLARE Line : STRING",
+              "DECLARE Passes : INTEGER",
+              'OPENFILE "Marks.txt" FOR WRITE',
+              "FOR I \u2190 1 TO 6",
+              '   OUTPUT "Enter a mark"',
+              "   INPUT Mark",
+              "   IF Mark >= 50 THEN",
+              '      WRITEFILE "Marks.txt", "pass"',
+              "   ELSE",
+              '      WRITEFILE "Marks.txt", "fail"',
+              "   ENDIF",
+              "NEXT I",
+              'CLOSEFILE "Marks.txt"',
+              "Passes \u2190 0",
+              'OPENFILE "Marks.txt" FOR READ',
+              'WHILE NOT EOF("Marks.txt")',
+              '   READFILE "Marks.txt", Line',
+              '   IF Line = "pass" THEN',
+              "      Passes \u2190 Passes + 1",
+              "   ENDIF",
+              "ENDWHILE",
+              'CLOSEFILE "Marks.txt"',
+              'OUTPUT "Passes: ", Passes',
+              'OUTPUT "Fails: ", 6 - Passes'
+            ].join("\n"),
+            tests: [
+              { id: "t1", kind: "normal", inputs: ["71", "32", "88", "45", "50", "63"], caseHint: "\u53CA\u683C\u548C\u4E0D\u53CA\u683C\u90FD\u6709\uFF0C\u63BA\u7740\u6765\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["50", "50", "50", "50", "50", "50"], caseHint: "\u516D\u4E2A\u90FD\u6B63\u597D\u8E29\u5728\u53CA\u683C\u7EBF\u4E0A\u2014\u2014\u90A3\u6761\u7EBF\u662F\u300C\u53CA\u4EE5\u4E0A\u300D\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["49", "49", "49", "49", "49", "49"], caseHint: "\u516D\u4E2A\u90FD\u5DEE\u4E00\u5206\uFF0C\u4E00\u4E2A\u90FD\u4E0D\u53CA\u683C\u3002" },
+              { id: "t4", kind: "boundary", inputs: ["100", "100", "100", "100", "100", "100"], caseHint: "\u516D\u4E2A\u90FD\u6EE1\u5206\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["99999", "-99999", "0", "50", "49", "1"], caseHint: "\u6DF7\u7740\u5927\u5F97\u79BB\u8C31\u548C\u5F88\u5C0F\u7684\u8D1F\u6570\uFF0C\u8FD8\u6709\u6B63\u597D\u8E29\u7EBF\u7684\u3002" }
+            ]
+          }
+        ]
+      }
+    ],
+    chapterTasks: [
+      {
+        kind: "chapterTask",
+        id: "16.T1",
+        title: "\u501F\u9605\u7EDF\u8BA1",
+        statement: "\u6309\u8FD9\u4E00\u7AE0\u7684\u6B65\u9AA4\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 5 \u672C\u4E66\u7684\u4E66\u540D\u548C\u501F\u51FA\u6B21\u6570\uFF0C\u663E\u793A\u501F\u51FA\u603B\u6B21\u6570\u3001\u5E73\u5747\u6B21\u6570\uFF08\u53D6\u6574\u6570\u5546\uFF09\uFF0C\u4EE5\u53CA\u501F\u51FA\u6B21\u6570\u6700\u591A\u7684\u90A3\u672C\u4E66\u7684\u4E66\u540D\u3002\u4FDD\u8BC1\u6700\u591A\u7684\u90A3\u672C\u53EA\u6709\u4E00\u672C\u3002\u5148\u628A\u4E09\u6837\uFF08\u5DF2\u77E5\u3001\u8981\u6C42\u3001\u7EA6\u675F\uFF09\u548C\u6807\u8BC6\u7B26\u8868\u60F3\u6E05\u695A\uFF0C\u518D\u5206\u89E3\u3001\u6C42\u7CBE\u3001\u52A8\u624B\u3002",
+        ioSpec: {
+          input: [
+            "\u5341\u884C\uFF0C\u4E00\u672C\u4E66\u4E24\u884C\uFF1A\u5148\u4E66\u540D\uFF08`STRING`\uFF09\uFF0C\u518D\u501F\u51FA\u6B21\u6570\uFF08`INTEGER`\uFF09\uFF0C\u4E94\u672C\u4F9D\u6B21\u8BFB\u5B8C\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
+            "\u4E66\u540D\u524D\u662F `Enter a title`\uFF0C\u6B21\u6570\u524D\u662F `Enter a loan count`"
+          ].join("\n"),
+          output: [
+            "\u8BFB\u5B8C\u4E4B\u540E\u663E\u793A\u4E09\u884C\uFF1A",
+            "`Total loans: <\u603B\u6B21\u6570>`",
+            "`Average loans: <\u5E73\u5747\u6B21\u6570>`",
+            "`Most borrowed: <\u4E66\u540D>`",
+            "\u6BCF\u4E2A\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"
+          ].join("\n")
+        },
+        suggestedFeatures: [
+          "decl.record-type",
+          "record.field-access",
+          "decl.array-1d",
+          "routine.procedure",
+          "routine.function",
+          "routine.call",
+          "routine.return",
+          "param.byref",
+          "param.byval",
+          "loop.for",
+          "select.if",
+          "op.div",
+          "io.input",
+          "io.output"
+        ],
+        hints: [
+          "\u4E66\u540D\u548C\u6B21\u6570\u662F\u540C\u4E00\u672C\u4E66\u7684\u4E24\u6837\u4E1C\u897F\u2014\u2014\u7B2C 11 \u7AE0\u8BF4\u8FC7\u8FD9\u79CD\u8BE5\u7ED1\u6210\u4E00\u4EFD\u3002",
+          "\u300C\u6700\u591A\u7684\u90A3\u672C\u300D\u8BB0\u4F4F\u5B83\u5728\u7B2C\u51E0\u683C\u5C31\u591F\u4E86\uFF0C\u4E66\u540D\u548C\u6B21\u6570\u90FD\u80FD\u4ECE\u90A3\u4E00\u683C\u53D6\u5230\u3002",
+          "\u8BFB\u5165\u3001\u627E\u6700\u591A\u3001\u663E\u793A\uFF0C\u53EF\u4EE5\u5404\u5199\u6210\u4E00\u4EF6\u4E8B\uFF1B\u4E3B\u7A0B\u5E8F\u5E94\u8BE5\u53EA\u5269\u51E0\u884C\u58F0\u660E\u548C\u4E00\u4E32\u8C03\u7528\u3002"
+        ],
+        examples: [
+          {
+            inputs: ["Dune", "12", "Emma", "3", "Hamlet", "20", "Ivanhoe", "5", "Jaws", "7"],
+            outputs: [
+              "Enter a title",
+              "Enter a loan count",
+              "Enter a title",
+              "Enter a loan count",
+              "Enter a title",
+              "Enter a loan count",
+              "Enter a title",
+              "Enter a loan count",
+              "Enter a title",
+              "Enter a loan count",
+              "Total loans: 47",
+              "Average loans: 9",
+              "Most borrowed: Hamlet"
+            ]
+          }
+        ],
+        referenceSolution: [
+          "TYPE TBook",
+          "   DECLARE Title : STRING",
+          "   DECLARE Loans : INTEGER",
+          "ENDTYPE",
+          "PROCEDURE ReadBooks(BYREF Shelf : ARRAY[1:5] OF TBook, BYREF Total : INTEGER)",
+          "   DECLARE I : INTEGER",
+          "   Total \u2190 0",
+          "   FOR I \u2190 1 TO 5",
+          '      OUTPUT "Enter a title"',
+          "      INPUT Shelf[I].Title",
+          '      OUTPUT "Enter a loan count"',
+          "      INPUT Shelf[I].Loans",
+          "      Total \u2190 Total + Shelf[I].Loans",
+          "   NEXT I",
+          "ENDPROCEDURE",
+          "FUNCTION BestOf(Shelf : ARRAY[1:5] OF TBook) RETURNS INTEGER",
+          "   DECLARE I : INTEGER",
+          "   DECLARE Best : INTEGER",
+          "   Best \u2190 1",
+          "   FOR I \u2190 2 TO 5",
+          "      IF Shelf[I].Loans > Shelf[Best].Loans THEN",
+          "         Best \u2190 I",
+          "      ENDIF",
+          "   NEXT I",
+          "   RETURN Best",
+          "ENDFUNCTION",
+          "DECLARE Books : ARRAY[1:5] OF TBook",
+          "DECLARE Total : INTEGER",
+          "DECLARE Top : INTEGER",
+          "CALL ReadBooks(Books, Total)",
+          "Top \u2190 BestOf(Books)",
+          'OUTPUT "Total loans: ", Total',
+          'OUTPUT "Average loans: ", Total DIV 5',
+          'OUTPUT "Most borrowed: ", Books[Top].Title'
+        ].join("\n"),
+        tests: [
+          { id: "t1", kind: "normal", inputs: ["Alpha", "4", "Beta", "9", "Gamma", "2", "Delta", "6", "Sigma", "1"], caseHint: "\u4E94\u672C\u6B21\u6570\u5404\u4E0D\u76F8\u540C\uFF0C\u6700\u591A\u7684\u90A3\u672C\u5728\u4E2D\u95F4\u3002" },
+          { id: "t2", kind: "boundary", inputs: ["Alpha", "9", "Beta", "1", "Gamma", "2", "Delta", "3", "Sigma", "4"], caseHint: "\u6700\u591A\u7684\u6B63\u597D\u662F\u7B2C\u4E00\u672C\u8BFB\u8FDB\u6765\u7684\u3002" },
+          { id: "t3", kind: "boundary", inputs: ["Alpha", "1", "Beta", "2", "Gamma", "3", "Delta", "4", "Sigma", "9"], caseHint: "\u6700\u591A\u7684\u6B63\u597D\u662F\u6700\u540E\u4E00\u672C\u8BFB\u8FDB\u6765\u7684\u3002" },
+          { id: "t4", kind: "boundary", inputs: ["Alpha", "0", "Beta", "0", "Gamma", "0", "Delta", "0", "Sigma", "1"], caseHint: "\u51E0\u4E4E\u5168\u662F\u96F6\uFF0C\u5E73\u5747\u6570\u4F1A\u88AB\u6574\u9664\u622A\u6389\u3002" },
+          { id: "t5", kind: "normal", inputs: ["Two words here", "5", "Beta", "5", "Gamma", "5", "Delta", "5", "Sigma", "6"], caseHint: "\u4E66\u540D\u91CC\u5E26\u7A7A\u683C\uFF0C\u5176\u4F59\u51E0\u672C\u6B21\u6570\u5B8C\u5168\u76F8\u540C\u3002" },
+          { id: "t6", kind: "extreme", inputs: ["Alpha", "99999", "Beta", "0", "Gamma", "0", "Delta", "0", "Sigma", "1"], caseHint: "\u4E00\u672C\u5927\u5F97\u79BB\u8C31\uFF0C\u5176\u4F59\u51E0\u4E4E\u662F\u96F6\u3002" }
         ]
       }
     ]
@@ -8127,6 +12385,596 @@ var CAIETeaching = (() => {
       "Ivy 0",
       "Hal -99999",
       "Jon -99999"
+    ],
+    "12.3.1/t1": [
+      "Enter a label",
+      "Enter a count",
+      "Red **",
+      "Enter a label",
+      "Enter a count",
+      "Green ****",
+      "Enter a label",
+      "Enter a count",
+      "Blue ******"
+    ],
+    "12.3.1/t2": [
+      "Enter a label",
+      "Enter a count",
+      "Red ",
+      "Enter a label",
+      "Enter a count",
+      "Green *",
+      "Enter a label",
+      "Enter a count",
+      "Blue **"
+    ],
+    "12.3.1/t3": [
+      "Enter a label",
+      "Enter a count",
+      "A *",
+      "Enter a label",
+      "Enter a count",
+      "B *",
+      "Enter a label",
+      "Enter a count",
+      "C *"
+    ],
+    "12.3.1/t4": [
+      "Enter a label",
+      "Enter a count",
+      "Two words ***",
+      "Enter a label",
+      "Enter a count",
+      "X **",
+      "Enter a label",
+      "Enter a count",
+      "Y ****"
+    ],
+    "12.3.1/t5": [
+      "Enter a label",
+      "Enter a count",
+      "Big ****************************************",
+      "Enter a label",
+      "Enter a count",
+      "Small ",
+      "Enter a label",
+      "Enter a count",
+      "Mid *******"
+    ],
+    "12.5.1/t1": [
+      "Enter a number",
+      "Enter a number",
+      "3 8"
+    ],
+    "12.5.1/t2": [
+      "Enter a number",
+      "Enter a number",
+      "3 8"
+    ],
+    "12.5.1/t3": [
+      "Enter a number",
+      "Enter a number",
+      "7 7"
+    ],
+    "12.5.1/t4": [
+      "Enter a number",
+      "Enter a number",
+      "-1 0"
+    ],
+    "12.5.1/t5": [
+      "Enter a number",
+      "Enter a number",
+      "-99999 99999"
+    ],
+    "12.T1/t1": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "1",
+      "3",
+      "5"
+    ],
+    "12.T1/t2": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "1",
+      "2",
+      "3"
+    ],
+    "12.T1/t3": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "1",
+      "2",
+      "3"
+    ],
+    "12.T1/t4": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "6",
+      "6",
+      "6"
+    ],
+    "12.T1/t5": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "-99999",
+      "0",
+      "99999"
+    ],
+    "13.3.1/t1": [
+      "Enter a mark",
+      "95 A",
+      "Enter a mark",
+      "72 B",
+      "Enter a mark",
+      "55 C"
+    ],
+    "13.3.1/t2": [
+      "Enter a mark",
+      "80 A",
+      "Enter a mark",
+      "60 B",
+      "Enter a mark",
+      "40 C"
+    ],
+    "13.3.1/t3": [
+      "Enter a mark",
+      "79 B",
+      "Enter a mark",
+      "59 C",
+      "Enter a mark",
+      "39 F"
+    ],
+    "13.3.1/t4": [
+      "Enter a mark",
+      "0 F",
+      "Enter a mark",
+      "100 A",
+      "Enter a mark",
+      "0 F"
+    ],
+    "13.3.1/t5": [
+      "Enter a mark",
+      "99999 A",
+      "Enter a mark",
+      "-99999 F",
+      "Enter a mark",
+      "41 C"
+    ],
+    "13.5.1/t1": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Largest: 8"
+    ],
+    "13.5.1/t2": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Largest: 9"
+    ],
+    "13.5.1/t3": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Largest: 9"
+    ],
+    "13.5.1/t4": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Largest: 5"
+    ],
+    "13.5.1/t5": [
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Enter a number",
+      "Largest: -99996"
+    ],
+    "13.T1/t1": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Average: 65",
+      "Grade: B"
+    ],
+    "13.T1/t2": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Average: 80",
+      "Grade: A"
+    ],
+    "13.T1/t3": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Average: 0",
+      "Grade: F"
+    ],
+    "13.T1/t4": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Average: 40",
+      "Grade: C"
+    ],
+    "13.T1/t5": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Average: 19999",
+      "Grade: A"
+    ],
+    "14.3.1/t1": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Red",
+      "Green",
+      "Blue"
+    ],
+    "14.3.1/t2": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Two words",
+      "X",
+      "Something longer"
+    ],
+    "14.3.1/t3": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Same",
+      "Same",
+      "Same"
+    ],
+    "14.3.1/t4": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "A",
+      "B",
+      "C"
+    ],
+    "14.3.1/t5": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "QWERTYUIOPASDFGHJKLZXCVBNM",
+      "Z",
+      "Mixed Case Name"
+    ],
+    "14.5.1/t1": [
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "1: one",
+      "2: two",
+      "3: three",
+      "4: four"
+    ],
+    "14.5.1/t2": [
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "1: a b c",
+      "2: d",
+      "3: e f",
+      "4: g h i j"
+    ],
+    "14.5.1/t3": [
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "1: x",
+      "2: x",
+      "3: x",
+      "4: x"
+    ],
+    "14.5.1/t4": [
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "1: 1",
+      "2: 2",
+      "3: 3",
+      "4: 4"
+    ],
+    "14.5.1/t5": [
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "Enter a line",
+      "1: Q",
+      "2: WERTYUIOPASDFGHJKLZXCVBNM",
+      "3: e",
+      "4: R"
+    ],
+    "14.T1/t1": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Alice",
+      "Charlie",
+      "Edward",
+      "Count: 3"
+    ],
+    "14.T1/t2": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Count: 0"
+    ],
+    "14.T1/t3": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Abcde",
+      "Fghij",
+      "Klmno",
+      "Pqrst",
+      "Uvwxy",
+      "Count: 5"
+    ],
+    "14.T1/t4": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Two words",
+      "Count: 1"
+    ],
+    "14.T1/t5": [
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "Enter a name",
+      "QWERTYUIOPASDFGHJKLZXCVBNM",
+      "Count: 1"
+    ],
+    "16.2.1/t1": [
+      "Enter the length",
+      "Enter the width",
+      "Area: 15",
+      "Perimeter: 16"
+    ],
+    "16.2.1/t2": [
+      "Enter the length",
+      "Enter the width",
+      "Area: 36",
+      "Perimeter: 24"
+    ],
+    "16.2.1/t3": [
+      "Enter the length",
+      "Enter the width",
+      "Area: 1",
+      "Perimeter: 4"
+    ],
+    "16.2.1/t4": [
+      "Enter the length",
+      "Enter the width",
+      "Area: 0",
+      "Perimeter: 18"
+    ],
+    "16.2.1/t5": [
+      "Enter the length",
+      "Enter the width",
+      "Area: 99980001",
+      "Perimeter: 39996"
+    ],
+    "16.5.1/t1": [
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Frost days: 3"
+    ],
+    "16.5.1/t2": [
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Frost days: 0"
+    ],
+    "16.5.1/t3": [
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Frost days: 5"
+    ],
+    "16.5.1/t4": [
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Frost days: 0"
+    ],
+    "16.5.1/t5": [
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Enter a temperature",
+      "Frost days: 2"
+    ],
+    "16.7.1/t1": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Passes: 4",
+      "Fails: 2"
+    ],
+    "16.7.1/t2": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Passes: 6",
+      "Fails: 0"
+    ],
+    "16.7.1/t3": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Passes: 0",
+      "Fails: 6"
+    ],
+    "16.7.1/t4": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Passes: 6",
+      "Fails: 0"
+    ],
+    "16.7.1/t5": [
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Passes: 2",
+      "Fails: 4"
+    ],
+    "16.T1/t1": [
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Total loans: 22",
+      "Average loans: 4",
+      "Most borrowed: Beta"
+    ],
+    "16.T1/t2": [
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Total loans: 19",
+      "Average loans: 3",
+      "Most borrowed: Alpha"
+    ],
+    "16.T1/t3": [
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Total loans: 19",
+      "Average loans: 3",
+      "Most borrowed: Sigma"
+    ],
+    "16.T1/t4": [
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Total loans: 1",
+      "Average loans: 0",
+      "Most borrowed: Sigma"
+    ],
+    "16.T1/t5": [
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Total loans: 26",
+      "Average loans: 5",
+      "Most borrowed: Sigma"
+    ],
+    "16.T1/t6": [
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Enter a title",
+      "Enter a loan count",
+      "Total loans: 100000",
+      "Average loans: 20000",
+      "Most borrowed: Alpha"
     ]
   };
   var sampleTranscripts = {
@@ -8813,6 +13661,480 @@ var CAIETeaching = (() => {
         "kind": "output",
         "text": "Cal passed"
       }
+    ],
+    "12.2/Example_12_2_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Report"
+      },
+      {
+        "kind": "output",
+        "text": "----------"
+      },
+      {
+        "kind": "output",
+        "text": "Total: 42"
+      },
+      {
+        "kind": "output",
+        "text": "----------"
+      }
+    ],
+    "12.3/Example_12_3_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "------"
+      },
+      {
+        "kind": "output",
+        "text": "Total: 42"
+      },
+      {
+        "kind": "output",
+        "text": "---"
+      }
+    ],
+    "12.4/Example_12_4_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "inside: 105"
+      },
+      {
+        "kind": "output",
+        "text": "outside: 5"
+      }
+    ],
+    "12.5/Example_12_5_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "before: 1 2"
+      },
+      {
+        "kind": "output",
+        "text": "after: 2 1"
+      }
+    ],
+    "12.6/Example_12_6_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "inside: 100"
+      },
+      {
+        "kind": "output",
+        "text": "outside: 7"
+      }
+    ],
+    "13.2/Example_13_2_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "10"
+      },
+      {
+        "kind": "output",
+        "text": "14"
+      },
+      {
+        "kind": "output",
+        "text": "hello!"
+      }
+    ],
+    "13.3/Example_13_3_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "positive"
+      },
+      {
+        "kind": "output",
+        "text": "negative"
+      },
+      {
+        "kind": "output",
+        "text": "zero"
+      }
+    ],
+    "13.4/Example_13_4_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "42"
+      },
+      {
+        "kind": "output",
+        "text": "12"
+      },
+      {
+        "kind": "output",
+        "text": "84"
+      }
+    ],
+    "13.5/Example_13_5_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "called with 3"
+      },
+      {
+        "kind": "output",
+        "text": "called with 4"
+      },
+      {
+        "kind": "output",
+        "text": "14"
+      }
+    ],
+    "14.2/Example_14_2_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Saved 2 names"
+      }
+    ],
+    "14.3/Example_14_3_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "1: Ada"
+      },
+      {
+        "kind": "output",
+        "text": "2: Bob"
+      }
+    ],
+    "14.4/Example_14_4_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "after append 1: first"
+      },
+      {
+        "kind": "output",
+        "text": "after append 2: second"
+      },
+      {
+        "kind": "output",
+        "text": "after write 1: third"
+      }
+    ],
+    "14.5/Example_14_5_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "1: Ada"
+      },
+      {
+        "kind": "output",
+        "text": "2: Bob"
+      },
+      {
+        "kind": "output",
+        "text": "3: Cal"
+      },
+      {
+        "kind": "output",
+        "text": "Total: 3"
+      }
+    ],
+    "14.6/Example_14_6_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "ada"
+      },
+      {
+        "kind": "output",
+        "text": "cathy"
+      }
+    ],
+    "15.4/Example_15_4_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Ada"
+      },
+      {
+        "kind": "output",
+        "text": "Bob"
+      },
+      {
+        "kind": "output",
+        "text": "Cal"
+      }
+    ],
+    "15.5/Example_15_5_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Top is at 3"
+      },
+      {
+        "kind": "output",
+        "text": "Top holds 30"
+      },
+      {
+        "kind": "output",
+        "text": "After one pop, top holds 20"
+      },
+      {
+        "kind": "output",
+        "text": "Slot 3 still holds 30"
+      }
+    ],
+    "15.5/Example_15_5_b.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Next out: Ada"
+      },
+      {
+        "kind": "output",
+        "text": "Next out: Bob"
+      },
+      {
+        "kind": "output",
+        "text": "Front is 2, Rear is 3"
+      }
+    ],
+    "16.2/Example_16_2_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Enter the width"
+      },
+      {
+        "kind": "input",
+        "text": "3"
+      },
+      {
+        "kind": "output",
+        "text": "Enter the height"
+      },
+      {
+        "kind": "input",
+        "text": "4"
+      },
+      {
+        "kind": "output",
+        "text": "Area: 12"
+      },
+      {
+        "kind": "output",
+        "text": "Perimeter: 14"
+      }
+    ],
+    "16.4/Example_16_4_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "80"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "70"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "90"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "60"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "100"
+      },
+      {
+        "kind": "output",
+        "text": "Average: 80"
+      }
+    ],
+    "16.6/Example_16_6_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Ada"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "80"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Bob"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "70"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Cal"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "90"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Dee"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "60"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Eve"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "100"
+      },
+      {
+        "kind": "output",
+        "text": "Average: 80"
+      }
+    ],
+    "16.7/Example_16_7_a.pseudocode": [
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Ada"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "80"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Bob"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "70"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Cal"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "90"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Dee"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "60"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a name"
+      },
+      {
+        "kind": "input",
+        "text": "Eve"
+      },
+      {
+        "kind": "output",
+        "text": "Enter a mark"
+      },
+      {
+        "kind": "input",
+        "text": "100"
+      },
+      {
+        "kind": "output",
+        "text": "Average: 80"
+      },
+      {
+        "kind": "output",
+        "text": "Cal"
+      },
+      {
+        "kind": "output",
+        "text": "Eve"
+      }
     ]
   };
 
@@ -8862,7 +14184,12 @@ var CAIETeaching = (() => {
       toPublicChapter(chapter08, expectedOutputs, sampleTranscripts),
       toPublicChapter(chapter09, expectedOutputs, sampleTranscripts),
       toPublicChapter(chapter10, expectedOutputs, sampleTranscripts),
-      toPublicChapter(chapter11, expectedOutputs, sampleTranscripts)
+      toPublicChapter(chapter11, expectedOutputs, sampleTranscripts),
+      toPublicChapter(chapter12, expectedOutputs, sampleTranscripts),
+      toPublicChapter(chapter13, expectedOutputs, sampleTranscripts),
+      toPublicChapter(chapter14, expectedOutputs, sampleTranscripts),
+      toPublicChapter(chapter15, expectedOutputs, sampleTranscripts),
+      toPublicChapter(chapter16, expectedOutputs, sampleTranscripts)
     ]
   };
   return __toCommonJS(browser_exports);

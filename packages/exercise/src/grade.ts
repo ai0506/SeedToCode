@@ -1,7 +1,7 @@
 import { analyzeSource, type AnalyzeOptions, type Diagnostic } from "@caie-pseudocode/language";
 import { executeSource, type ExecutionOptions } from "@caie-pseudocode/runtime";
 import { compareOutputs, type ComparisonOptions, type DiffKind } from "./compare.js";
-import { extractFeatures, type FeatureId } from "./features.js";
+import { AHEAD_EXEMPT_FEATURES, extractFeatures, type FeatureId } from "./features.js";
 import { findCodeNotes, type CodeNote } from "./notes.js";
 
 /**
@@ -99,19 +99,39 @@ const EMPTY: GradeResult = {
   codeNotes: []
 };
 
+/**
+ * L0 失败时，把「排在第一条阻断错误之前」的规范提示一起交出去。
+ *
+ * 撞到的情形：写完文件忘了 `CLOSEFILE` 就 `OPENFILE ... FOR READ`。真正的原因
+ * （同一个文件还开着，而且是按写的方式开的）只是一条 `caie`，被这里滤掉了；
+ * 学生看见的是它的两个下游后果——`EOF` 和 `READFILE` 说「必须处于 READ 模式」，
+ * 而那两行本身一点毛病都没有。
+ *
+ * 排在错误后面的规范提示不带出来：那些是改完这一条之后才轮得到看的。
+ * 格式类（`FMT-*`）也不带：缩进和大写从来不会是某个错误的成因，它们属于 L3。
+ */
+function withEarlierCauses(blocking: Diagnostic[], others: Diagnostic[]): Diagnostic[] {
+  const firstLine = Math.min(...blocking.map((diagnostic) => diagnostic.range.start.line));
+  const causes = others.filter(
+    (diagnostic) => diagnostic.range.start.line < firstLine && !diagnostic.ruleId.startsWith("FMT-")
+  );
+  if (causes.length === 0) return blocking;
+  return [...causes, ...blocking].sort((left, right) => left.range.start.line - right.range.start.line);
+}
+
 export async function grade(input: GradeInput): Promise<GradeResult> {
   const analysis = analyzeSource(input.source, input.analyze);
   const blocking = analysis.diagnostics.filter((diagnostic) => diagnostic.severity === "error");
   const styleNotes = analysis.diagnostics.filter((diagnostic) => diagnostic.severity !== "error");
 
   if (blocking.length > 0) {
-    return { ...EMPTY, failedLayer: "L0", diagnostics: blocking };
+    return { ...EMPTY, failedLayer: "L0", diagnostics: withEarlierCauses(blocking, styleNotes) };
   }
 
   const features = extractFeatures(analysis.program);
   const codeNotes = findCodeNotes(analysis.program);
   const aheadFeatures = input.taughtFeatures
-    ? [...features].filter((feature) => !input.taughtFeatures!.includes(feature))
+    ? [...features].filter((feature) => !AHEAD_EXEMPT_FEATURES.has(feature) && !input.taughtFeatures!.includes(feature))
     : [];
 
   const constraintResults = evaluateConstraints(features, input.constraints);

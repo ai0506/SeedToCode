@@ -22,6 +22,7 @@ export const FEATURE_IDS = [
   // 输入输出
   "io.input",
   "io.output",
+  "io.output-variable",
   // 声明
   "decl.variable",
   "decl.constant",
@@ -111,6 +112,12 @@ export const FEATURE_IDS = [
 
 export type FeatureId = (typeof FEATURE_IDS)[number];
 
+/**
+ * 这些特征只是构造约束用的检测信号（比如「OUTPUT 有没有读变量」），不是哪节课教的语法，
+ * 所以不参与「用到了本章还没教的写法」的判断，免得几乎每道用了变量的题都跳出这条提示。
+ */
+export const AHEAD_EXEMPT_FEATURES: ReadonlySet<FeatureId> = new Set(["io.output-variable"]);
+
 const BUILTIN_FEATURES: Record<string, FeatureId> = {
   length: "builtin.length",
   mid: "builtin.mid",
@@ -180,6 +187,7 @@ function walkStatement(statement: Statement, add: (id: FeatureId) => void, loopD
       break;
     case "OutputStatement":
       add("io.output");
+      if (statement.values.some((value) => expressionReadsIdentifier(value))) add("io.output-variable");
       for (const value of statement.values) walkExpression(value, add);
       break;
     case "DeclareStatement":
@@ -352,6 +360,26 @@ function addTypeFeatures(reference: TypeReference, add: (id: FeatureId) => void)
   }
   add("decl.variable");
   if (reference.kind === "PrimitiveTypeReference") add(TYPE_FEATURES[reference.name]);
+}
+
+/** OUTPUT 里是不是至少读了一个变量/常量的值，而不是只写死的字面量。 */
+function expressionReadsIdentifier(expression: Expression): boolean {
+  switch (expression.kind) {
+    case "NameExpression":
+      return true;
+    case "BinaryExpression":
+      return expressionReadsIdentifier(expression.left) || expressionReadsIdentifier(expression.right);
+    case "UnaryExpression":
+      return expressionReadsIdentifier(expression.operand);
+    case "CallExpression":
+      return expression.arguments.some((argument) => expressionReadsIdentifier(argument));
+    case "IndexExpression":
+      return true;
+    case "MemberExpression":
+      return true;
+    default:
+      return false;
+  }
 }
 
 function walkExpression(expression: Expression, add: (id: FeatureId) => void): void {

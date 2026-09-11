@@ -78,27 +78,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
+              label: "什么都没有",
+              correct: false,
+              explanation: "跳过的只是 `IF` 管着的那一行。`OUTPUT \"Done\"` 没有缩进，不归它管。"
+            },
+            {
+              key: "B",
               label: "只有 Passed",
               correct: false,
               explanation: "正好反了：条件不成立时跳过的恰恰是 `Passed` 那一行。"
             },
             {
-              key: "B",
+              key: "C",
               label: "只有 Done",
               correct: true,
               explanation: "对。`40 >= 50` 算出 `FALSE`，`THEN` 和 `ENDIF` 之间那一行被整个跳过；`OUTPUT \"Done\"` 不在 `IF` 的范围里，照常执行。"
             },
             {
-              key: "C",
+              key: "D",
               label: "Passed 和 Done",
               correct: false,
               explanation: "`Passed` 只在条件成立时才显示。40 不到 50，条件算出来是 `FALSE`。"
-            },
-            {
-              key: "D",
-              label: "什么都没有",
-              correct: false,
-              explanation: "跳过的只是 `IF` 管着的那一行。`OUTPUT \"Done\"` 没有缩进，不归它管。"
             }
           ]
         }
@@ -182,27 +182,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
+              label: "Small",
+              correct: true,
+              explanation: "对。`10 > 10` 算出 `FALSE`——`>` 要求严格大于，相等不算。条件不成立，走 `ELSE`。"
+            },
+            {
+              key: "B",
               label: "Big",
               correct: false,
               explanation: "要显示 `Big`，`A` 得比 10 大。正好等于 10 时 `>` 给出的是 `FALSE`。"
             },
             {
-              key: "B",
+              key: "C",
               label: "两个都显示",
               correct: false,
               explanation: "`ELSE` 的两条分支恰好走一条。走了上面那条就不会再走下面那条。"
             },
             {
-              key: "C",
+              key: "D",
               label: "什么都不显示",
               correct: false,
               explanation: "有 `ELSE` 时不存在「两条都不走」：条件的结果不是 `TRUE` 就是 `FALSE`，总有一条要走。"
-            },
-            {
-              key: "D",
-              label: "Small",
-              correct: true,
-              explanation: "对。`10 > 10` 算出 `FALSE`——`>` 要求严格大于，相等不算。条件不成立，走 `ELSE`。"
             }
           ]
         },
@@ -305,27 +305,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
-              label: "Pass",
-              correct: true,
-              explanation: "对。串接是按顺序试的：90 撞上第一个 `Score >= 50` 就成立了，显示 `Pass` 之后整个结构结束，`>= 80` 那一条根本没机会被试到。"
-            },
-            {
-              key: "B",
               label: "A",
               correct: false,
               explanation: "`>= 80` 被放进了 `ELSE` 里，只有第一个条件不成立时才轮得到它。90 让第一个条件成立了。"
             },
             {
-              key: "C",
+              key: "B",
               label: "A 和 Pass 都显示",
               correct: false,
               explanation: "一串 `IF … ELSE` 只会走一条路。走了 `THEN` 就不会再走 `ELSE`。"
             },
             {
-              key: "D",
+              key: "C",
               label: "Fail",
               correct: false,
               explanation: "`Fail` 在最里面的 `ELSE` 里，要两个条件都不成立才走得到。"
+            },
+            {
+              key: "D",
+              label: "Pass",
+              correct: true,
+              explanation: "对。串接是按顺序试的：90 撞上第一个 `Score >= 50` 就成立了，显示 `Pass` 之后整个结构结束，`>= 80` 那一条根本没机会被试到。"
             }
           ]
         }
@@ -382,27 +382,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
-              label: "显示 Monday",
-              correct: false,
-              explanation: "没有「对不上就用第一条」这种规则。标签必须真的对上才会执行。"
-            },
-            {
-              key: "B",
               label: "三条分支都执行",
               correct: false,
               explanation: "正相反：`CASE` 最多只执行对上的那一条，执行完就结束。"
             },
             {
-              key: "C",
+              key: "B",
               label: "只显示 Checked",
               correct: true,
               explanation: "对。一条标签都没对上，这个 `CASE` 什么也不做，程序从 `ENDCASE` 后面接着走。"
             },
             {
-              key: "D",
+              key: "C",
               label: "程序停下来报错",
               correct: false,
               explanation: "没有匹配不是错误。要让「其它情况」也有着落，得自己写 `OTHERWISE`。"
+            },
+            {
+              key: "D",
+              label: "显示 Monday",
+              correct: false,
+              explanation: "没有「对不上就用第一条」这种规则。标签必须真的对上才会执行。"
             }
           ]
         }
@@ -482,27 +482,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
-              label: "Fail",
-              correct: false,
-              explanation: "`OTHERWISE` 只在所有标签都没对上时才走。90 会先对上某一条。"
-            },
-            {
-              key: "B",
               label: "编辑器会拦下来",
               correct: false,
               explanation: "分支的先后顺序没有规定，只有 `OTHERWISE` 的位置有规定。"
             },
             {
-              key: "C",
+              key: "B",
               label: "A",
               correct: true,
               explanation: "对。90 不落在 `50 TO 79` 里，所以第一条不成立，继续往下试，对上了 `80 TO 100`。这一次调换顺序没出问题，是因为两个区间不重叠——重叠时才会出现「后面那条永远轮不到」。"
             },
             {
-              key: "D",
+              key: "C",
               label: "Pass",
               correct: false,
               explanation: "90 不在 50 到 79 里。范围标签要真的落在区间内才算对上，顺序影响的是「谁先被试」，不是「谁能被对上」。"
+            },
+            {
+              key: "D",
+              label: "Fail",
+              correct: false,
+              explanation: "`OTHERWISE` 只在所有标签都没对上时才走。90 会先对上某一条。"
             }
           ]
         },
@@ -587,27 +587,27 @@ export const chapter04: Chapter = {
           options: [
             {
               key: "A",
-              label: "年龄够 18 岁并且买了票才放行",
-              correct: true,
-              explanation: "对。这个条件用到了两个不同的东西，还得用 `AND` 拼起来。`CASE` 的标签只能是值或区间，装不下一个完整的条件。"
-            },
-            {
-              key: "B",
               label: "按 1 到 12 的月份编号显示月份名",
               correct: false,
               explanation: "同一个变量比十二个不同的值，`CASE` 正合适，比十二层 `IF` 清楚得多。"
             },
             {
-              key: "C",
+              key: "B",
               label: "按 0 到 100 的分数分成四档",
               correct: false,
               explanation: "同一个变量比四个区间，用范围标签的 `CASE` 写得下。"
             },
             {
-              key: "D",
+              key: "C",
               label: "按三个字母分别显示不同的话",
               correct: false,
               explanation: "同一个变量比三个字符字面量，`CASE` 写得下——标签写成 `'A' :` 就行。"
+            },
+            {
+              key: "D",
+              label: "年龄够 18 岁并且买了票才放行",
+              correct: true,
+              explanation: "对。这个条件用到了两个不同的东西，还得用 `AND` 拼起来。`CASE` 的标签只能是值或区间，装不下一个完整的条件。"
             }
           ]
         }

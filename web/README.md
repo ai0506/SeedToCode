@@ -20,7 +20,8 @@ python3 -m http.server 8777 --directory web
 | `js/runtime-engine.js` | 从 `packages/runtime` 生成的 IIFE 阶段 4 解释器 |
 | `js/lang.js` | 不改变源代码的轻量语法高亮 |
 | `js/samples.js` | 初始源文件和运行时虚拟文件 |
-| `js/app.js` | 界面逻辑：编辑器、文件管理、诊断展示、真实运行 |
+| `js/app.js` | 界面逻辑：项目、编辑器、文件管理、诊断展示、真实运行 |
+| `js/storage.js` | `CAIEStorage` 浏览器存储 facade：旧 key 兼容读取、IndexedDB 初始化、迁移镜像和 device id |
 | `teaching.html` + `js/teaching-app.js` | 教学页：课文、关卡、进度；题目位置只放入口卡 |
 | `task.html` + `js/task-page.js` + `css/task.css` | 独立做题页：左题面 / 右作答，左右各自滚动 |
 | `js/teaching-task.js` | 两个教学页共用的题目实现：题面、作答区、判题、进度、草稿 |
@@ -50,12 +51,13 @@ python3 -m http.server 8777 --directory web
 - 运行：存在阻断错误时拦截并打开问题面板；阶段 4 在阶段 3C 的过程、函数和调用栈之上，真实执行 READ/WRITE/APPEND 文本文件、EOF，以及 1-based RANDOM 文件的 SEEK/GETRECORD/PUTRECORD。运行基于文件快照，只有正常结束才提交；停止、错误和资源超限均完整回滚。
 - 结果面板四标签：输出 / 问题 / 变量（含调用栈）/ 文件（运行时虚拟文件与打开的 handle）。
 - 代码文件的新建、切换、重命名、删除（二次确认 + 短时撤销）、导入、下载（可选 `.pseudocode` 或 `.txt`）、批量导出。
+- 项目：左侧栏顶部显示当前项目；支持新建、切换、重命名和删除项目；每个项目独立保存代码文件与运行时虚拟文件；课文带入的代码集中在专用“课文文件”项目中。
 - 重名保护：文件名比较不区分大小写；**代码文件连后缀一起忽略**（`Main.pseudocode` 与 `Main.txt` 视为同一个名字），运行时数据文件按全名比较（伪代码用 `"Names.txt"` 这样的完整字面量打开文件，`.txt` 与 `.dat` 是两个文件）。新建与重命名在弹框内联提示，导入与拖拽自动编号为 `Name (2).ext`。
 - 两个文件面板的标题栏都有「导入」与「新建」两个按钮，导入按钮各自限定后缀（代码 `.pseudocode/.txt`，运行时 `.txt/.dat`）。
 - 拖拽导入按落点区分：拖到**左侧代码文件栏**直接作为代码文件，拖到**右侧结果面板**作为运行时数据文件（`.txt` 按行、`.dat` 按每行一条 JSON 记录），拖到**中间编辑器**弹二级窗口询问按哪种处理。支持多文件同时拖入，浮层文案与目标区域高亮随落点实时切换。
 - 运行时虚拟文件：点击文件行打开二级界面，默认「预览」按行号列出内容（随机文件按记录位置），切到「编辑」再修改；新建、删除（二次确认）、重置。文件名在运行时不区分大小写并拒绝路径/URL；handle 表实时显示模式与位置。
 - 设置：主题、字号、行号、`<-` 转换、自动缩进、自动配对、清除本地数据。设置与语法检测开关属于偏好，静默写入本地，不触发文档的「保存中」状态。
-- 本地持久化（`localStorage`，阶段 2 起改为 IndexedDB）；刷新恢复。
+- 本地持久化：页面通过 `CAIEStorage` 访问；旧 `localStorage` key 作为兼容来源并镜像到 IndexedDB，刷新后恢复。最终纯 IndexedDB entity 读取仍在计划中。
 
 ## 全局交互原则的落实
 
@@ -80,3 +82,5 @@ python3 -m http.server 8777 --directory web
 
 - Advanced 特性的运行时执行（枚举、指针、集合、OOP）。
 - 单步调试与 Dry Run。
+- 页面完全切换到 IndexedDB entity 读取。
+- 用户系统、云端同步和云端运行。

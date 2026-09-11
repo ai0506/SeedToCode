@@ -4,6 +4,19 @@
 
 const $ = function (id) { return document.getElementById(id); };
 const STORE_KEY = 'caie9618.editor.v1';
+const PROJECTS_KEY = 'seedtocode.projects.v1';
+/*
+ * 课文文件有自己的项目。
+ * 在这之前它们是落进「当时正好打开的那个项目」的——在「考前刷题」里点课文的
+ * 「在编辑器中打开」，课文文件就进了「考前刷题」，跟自己写的代码混在一起。
+ * 这个名字对用户保留：新建和重命名都不允许用，不管这个项目当下存不存在。
+ * 否则改完名就把名字释放了，可以再建一个同名的，之后课文文件该进哪个就说不清。
+ */
+const LESSON_PROJECT_NAME = '课文文件';
+function normalizeProjectName(value) { return String(value == null ? '' : value).trim().toLowerCase(); }
+function isReservedProjectName(value) { return normalizeProjectName(value) === normalizeProjectName(LESSON_PROJECT_NAME); }
+function isLessonProject(project) { return !!(project && project.lesson); }
+const STORAGE = window.CAIEStorage;
 const LANGUAGE = window.LANGUAGE_ADAPTER;
 const RUNTIME = window.CAIERuntime;
 
@@ -11,13 +24,15 @@ const RUNTIME = window.CAIERuntime;
 const defaultSettings = {
    theme: 'light', fontSize: 14, lineNumbers: true,
    arrowConvert: true, autoIndent: true, autoPair: true, lint: false,
-   // 课文文件分组：默认展开；归档的默认不显示
-   lessonGroupOpen: true, showArchivedLessons: false
+   // 归档的课文文件默认不显示在列表里
+   showArchivedLessons: false
 };
 
 let state = {
    docs: [], activeId: null, runtimeFiles: [], settings: Object.assign({}, defaultSettings)
 };
+let projects = [];
+let currentProjectId = 'project-default';
 
 let diagnostics = [];
 let run = { active: false, controller: null, pending: false, fileTouched: false };
@@ -26,8 +41,21 @@ let run = { active: false, controller: null, pending: false, fileTouched: false 
 function clone(x) { return JSON.parse(JSON.stringify(x)); }
 
 function load() {
-   let saved = null;
-   try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { saved = null; }
+   const registry = STORAGE.get(PROJECTS_KEY, null);
+   if (registry && Array.isArray(registry.projects) && registry.projects.length) {
+      projects = registry.projects;
+      currentProjectId = registry.activeProjectId || projects[0].id;
+      const current = projects.find(function (p) { return p.id === currentProjectId; }) || projects[0];
+      currentProjectId = current.id;
+      state = {
+         docs: current.docs || [],
+         activeId: current.activeId || (current.docs && current.docs[0] && current.docs[0].id),
+         runtimeFiles: current.runtimeFiles || clone(SAMPLES.runtimeFiles),
+         settings: Object.assign({}, defaultSettings, registry.settings || {})
+      };
+      return;
+   }
+   let saved = STORAGE.get(STORE_KEY, null);
    if (saved && saved.docs && saved.docs.length) {
       state = {
          docs: saved.docs,
@@ -40,10 +68,217 @@ function load() {
       state.runtimeFiles = clone(SAMPLES.runtimeFiles);
       state.activeId = state.docs[0].id;
    }
+   projects = [{ id: currentProjectId, name: '我的项目', docs: clone(state.docs), activeId: state.activeId, runtimeFiles: clone(state.runtimeFiles) }];
+   persistProjects();
 }
 
 function persist() {
-   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+   STORAGE.set(STORE_KEY, state);
+   persistProjects();
+}
+
+function persistProjects() {
+   const current = projects.find(function (p) { return p.id === currentProjectId; });
+   if (current) {
+      current.docs = clone(state.docs);
+      current.activeId = state.activeId;
+      current.runtimeFiles = clone(state.runtimeFiles);
+   }
+   STORAGE.set(PROJECTS_KEY, { schemaVersion: 1, activeProjectId: currentProjectId, settings: clone(state.settings), projects: projects });
+}
+
+function projectName() {
+   const p = projects.find(function (x) { return x.id === currentProjectId; });
+   return p ? p.name : '我的项目';
+}
+
+function renderProjectLabel() {
+   const label = $('projectNameLabel');
+   if (label) label.textContent = projectName();
+   const list = $('projectPickerList');
+   if (list) list.innerHTML = projects.map(function (p) {
+      // 名字和勾各占一个槽位：勾靠右对齐，名字再长也只是自己被省略号截断，不会把勾挤掉
+      var current = p.id === currentProjectId;
+      return '<button class="project-picker-item' + (current ? ' current' : '') +
+         '" data-project-id="' + escapeHtml(p.id) + '"' + (current ? ' aria-current="true"' : '') + '>' +
+         '<span class="project-picker-name">' + escapeHtml(p.name) + '</span>' +
+         (isLessonProject(p) ? '<span class="project-picker-tag">课文</span>' : '') +
+         '<span class="project-picker-check">' + (current ? '✓' : '') + '</span></button>';
+   }).join('');
+   syncProjectActionState();
+}
+
+/* 课文项目不能改名，两个入口的「重命名」都置灰，不要等点下去才弹提示 */
+function syncProjectActionState() {
+   const lesson = isLessonProject(projects.find(function (p) { return p.id === currentProjectId; }));
+   const picker = document.querySelector('[data-project-action="rename"]');
+   if (picker) picker.disabled = lesson;
+   const menu = document.querySelector('[data-action="renameProject"]');
+   if (menu) menu.disabled = lesson;
+}
+
+function switchProject(id) {
+   const next = projects.find(function (p) { return p.id === id; });
+   if (!next || next.id === currentProjectId) return;
+   persistProjects();
+   currentProjectId = next.id;
+   state.docs = clone(next.docs || []);
+   state.runtimeFiles = clone(next.runtimeFiles || []);
+   state.activeId = next.activeId || (state.docs[0] && state.docs[0].id);
+   if (!state.docs.length) {
+      const doc = { id: 'doc-' + Date.now(), name: 'Main.pseudocode', source: '// Main.pseudocode\n', updatedAt: Date.now() };
+      state.docs = [doc]; state.activeId = doc.id;
+   }
+   persist();
+   code.value = activeDoc().source;
+   $('docName').value = activeDoc().name;
+   renderProjectLabel(); renderFiles(); renderRuntimeFiles(); renderEditor(); runLint(); resetRunPanel();
+}
+
+/**
+ * 认 `lesson` 标记而不是认名字：名字虽然禁止改，但这条改动之前的数据里
+ * 可能已经有人手建了一个叫「课文文件」的普通项目，按名字认到就顺手补上标记，
+ * 不然会并排出现两个同名项目。
+ */
+function lessonProject() {
+   return projects.find(isLessonProject)
+      || projects.find(function (p) { return isReservedProjectName(p.name); })
+      || null;
+}
+
+/** 懒创建：第一次真有课文文件要放进来时才建，没用过课程的人列表里不会多一个空项目。 */
+function ensureLessonProject() {
+   const existing = lessonProject();
+   if (existing) { existing.lesson = true; existing.name = LESSON_PROJECT_NAME; return existing; }
+   const project = {
+      id: 'project-lesson-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      name: LESSON_PROJECT_NAME,
+      lesson: true,
+      docs: [],
+      activeId: null,
+      runtimeFiles: clone(SAMPLES.runtimeFiles)
+   };
+   projects.push(project);
+   return project;
+}
+
+/** projects 被直接改过之后，把当前项目的内容重新读回 state。 */
+function syncStateFromCurrentProject() {
+   const current = projects.find(function (p) { return p.id === currentProjectId; }) || projects[0];
+   currentProjectId = current.id;
+   state.docs = clone(current.docs || []);
+   state.runtimeFiles = clone(current.runtimeFiles || []);
+   state.activeId = current.activeId || (state.docs[0] && state.docs[0].id);
+}
+
+/**
+ * 一次性搬迁：把这条改动之前散落在各个普通项目里的课文文件收拢到课文项目。
+ * 不做的话它们会一直留在原处，和新进来的课文文件分两地，谁也说不清哪份是哪份。
+ */
+function migrateLessonDocsIntoLessonProject() {
+   const strays = projects.filter(function (p) {
+      return !isLessonProject(p) && (p.docs || []).some(function (d) { return d.lesson; });
+   });
+   if (!strays.length) return false;
+
+   const lesson = ensureLessonProject();
+   lesson.docs = lesson.docs || [];
+   strays.forEach(function (project) {
+      const keep = [];
+      (project.docs || []).forEach(function (doc) {
+         if (!doc.lesson) { keep.push(doc); return; }
+         // 同一段课文代码在多个项目里各打开过一次，这里只留一份
+         const duplicate = lesson.docs.find(function (d) {
+            return d.origin === doc.origin && normalizeProjectName(d.name) === normalizeProjectName(doc.name);
+         });
+         if (duplicate) return;
+         doc.name = uniqueName(lesson.docs, doc.name, true);
+         lesson.docs.push(doc);
+      });
+      project.docs = keep;
+      // 搬空了的项目补一个空白文件：编辑器依赖 activeDoc() 一定有值
+      if (!project.docs.length) {
+         project.docs = [{ id: 'doc-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), name: 'Main.pseudocode', source: '// Main.pseudocode\n', updatedAt: Date.now() }];
+      }
+      if (!project.docs.some(function (d) { return d.id === project.activeId; })) {
+         project.activeId = project.docs[0].id;
+      }
+   });
+   if (!lesson.activeId || !lesson.docs.some(function (d) { return d.id === lesson.activeId; })) {
+      lesson.activeId = lesson.docs[0] && lesson.docs[0].id;
+   }
+   return true;
+}
+
+function createProject(name) {
+   const project = {
+      id: 'project-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      name: name,
+      docs: [{ id: 'doc-' + Date.now(), name: 'Main.pseudocode', source: '// Main.pseudocode\n', updatedAt: Date.now() }],
+      activeId: null,
+      runtimeFiles: clone(SAMPLES.runtimeFiles)
+   };
+   project.activeId = project.docs[0].id;
+   projects.push(project);
+   persist();
+   switchProject(project.id);
+}
+
+/**
+ * 「切换项目」原先是弹一个输入框，让人把眼前就列着的项目名再精确打一遍，
+ * 打错还要报「请输入已有项目名称」——侧栏里本来就有一个点一下就能选的列表。
+ * 菜单项现在只负责把那个列表打开，两个入口共用同一份 UI，不再有第二套切换方式。
+ */
+function openProjectPicker() {
+   // 侧栏收起来的时候列表不可见，先展开
+   $('sidebar').classList.remove('collapsed');
+   renderProjectLabel();
+   $('projectPicker').hidden = false;
+   $('projectSwitcher').setAttribute('aria-expanded', 'true');
+   // 键盘进来的人要能直接在列表里走，所以焦点落到当前项而不是触发按钮
+   const current = $('projectPicker').querySelector('.project-picker-item.current')
+      || $('projectPicker').querySelector('.project-picker-item');
+   (current || $('projectSwitcher')).focus();
+}
+
+function closeProjectPicker() {
+   $('projectPicker').hidden = true;
+   $('projectSwitcher').setAttribute('aria-expanded', 'false');
+}
+
+/* 「课文文件」是保留名：不管这个项目当下存不存在都不让占，先于重名检查报错。 */
+function validateNewProjectName(value) {
+   if (isReservedProjectName(value)) return '「' + LESSON_PROJECT_NAME + '」是保留名称，课文带过来的文件专用。';
+   return projects.some(function (p) { return normalizeProjectName(p.name) === normalizeProjectName(value); }) ? '已存在同名项目。' : null;
+}
+
+function renameCurrentProject() {
+   const project = projects.find(function (p) { return p.id === currentProjectId; });
+   // 课文项目本身不能改名：改完就把保留名释放了，之后课文文件该进哪个项目说不清
+   if (isLessonProject(project)) { toast('「' + LESSON_PROJECT_NAME + '」是课文专用项目，不能改名。'); return; }
+   askText({ title: '重命名项目', desc: '项目名称只用于本地识别，不会改变代码文件名。', value: projectName(), validate: function (value) {
+      if (isReservedProjectName(value)) return '「' + LESSON_PROJECT_NAME + '」是保留名称，课文带过来的文件专用。';
+      return projects.some(function (p) { return p.id !== currentProjectId && normalizeProjectName(p.name) === normalizeProjectName(value); }) ? '已存在同名项目。' : null;
+   } }).then(function (name) {
+      if (!name) return;
+      const target = projects.find(function (p) { return p.id === currentProjectId; });
+      if (target) { target.name = name; persist(); renderProjectLabel(); }
+   });
+}
+
+function deleteCurrentProject() {
+   if (projects.length <= 1) { toast('至少需要保留一个项目。'); return; }
+   askConfirm({ title: '删除当前项目', body: '项目“' + projectName() + '”中的代码文件和运行时文件都会被删除，且无法撤销。', okLabel: '删除' }).then(function (ok) {
+      if (!ok) return;
+      const removed = currentProjectId;
+      projects = projects.filter(function (p) { return p.id !== removed; });
+      const next = projects[0];
+      currentProjectId = next.id;
+      state.docs = clone(next.docs || []); state.runtimeFiles = clone(next.runtimeFiles || []); state.activeId = next.activeId || (state.docs[0] && state.docs[0].id);
+      persist();
+      code.value = activeDoc().source; $('docName').value = activeDoc().name;
+      renderProjectLabel(); renderFiles(); renderRuntimeFiles(); renderEditor(); runLint(); resetRunPanel(); toast('项目已删除。');
+   });
 }
 
 /* 设置与偏好的写入：不属于文档修改，不改变「已保存 / 保存中」状态 */
@@ -555,41 +790,40 @@ function renderFiles() {
       ? lessons
       : lessons.filter(function (d) { return !d.archived; });
 
-   let html = ownDocs().map(docRow).join('');
+   // 课文文件现在自己就是一个项目，再在里面套一层「课文文件」分组等于把同一个名字说两遍，
+   // 而且那层分组唯一还在做事的只有归档开关——开关挪到面板头，列表拉平。
+   $('fileList').innerHTML = ownDocs().map(docRow).join('') + visibleLessons.map(docRow).join('');
+   renderArchivedToggle(archived.length);
+   // 课文项目里的文件都是课文带过来的，不是自己攒的代码库：不该能往里导入别的文件。
+   const onLessonProject = isLessonProject(projects.find(function (p) { return p.id === currentProjectId; }));
+   const importBtn = $('importDocBtn');
+   if (importBtn) importBtn.hidden = onLessonProject;
 
-   if (lessons.length) {
-      const open = state.settings.lessonGroupOpen !== false;
-      html +=
-         '<li class="file-group' + (open ? ' open' : '') + '" data-group="lesson">' +
-         '<button class="file-group-head" data-act="toggle-lesson">' +
-         '<span class="caret">›</span><span class="file-group-name">课文文件</span>' +
-         '<span class="file-group-count">' + visibleLessons.length + '</span></button>' +
-         (archived.length
-            ? '<button class="file-group-archived" data-act="toggle-archived">' +
-              (state.settings.showArchivedLessons ? '隐藏已归档' : '已归档 ' + archived.length) + '</button>'
-            : '') +
-         '</li>';
-      if (open) html += visibleLessons.map(docRow).join('');
-   }
-
-   $('fileList').innerHTML = html;
    $('docName').value = activeDoc().name;
    $('docName').readOnly = !!activeDoc().lesson;
    $('docName').title = activeDoc().lesson ? '课文带过来的文件不能改名' : '';
 }
 
+/** 归档只服务课文文件，所以入口只在课文项目里给；别的项目连这个按钮都不该看见。 */
+function renderArchivedToggle(archivedCount) {
+   const btn = $('archivedToggle');
+   if (!btn) return;
+   const onLessonProject = isLessonProject(projects.find(function (p) { return p.id === currentProjectId; }));
+   btn.hidden = !onLessonProject || !archivedCount;
+   if (btn.hidden) return;
+   btn.textContent = state.settings.showArchivedLessons ? '隐藏已归档' : '已归档 ' + archivedCount;
+   btn.dataset.tip = state.settings.showArchivedLessons
+      ? '把已归档的课文文件重新收起来'
+      : '显示 ' + archivedCount + ' 个已归档的课文文件';
+}
+
+$('archivedToggle').addEventListener('click', function () {
+   state.settings.showArchivedLessons = !state.settings.showArchivedLessons;
+   renderFiles();
+   savePrefs();
+});
+
 $('fileList').addEventListener('click', function (ev) {
-   const groupAct = ev.target.closest('[data-act="toggle-lesson"], [data-act="toggle-archived"]');
-   if (groupAct) {
-      if (groupAct.dataset.act === 'toggle-lesson') {
-         state.settings.lessonGroupOpen = state.settings.lessonGroupOpen === false;
-      } else {
-         state.settings.showArchivedLessons = !state.settings.showArchivedLessons;
-      }
-      renderFiles();
-      savePrefs();
-      return;
-   }
    const li = ev.target.closest('li[data-id]');
    if (!li) return;
    const doc = state.docs.find(function (d) { return d.id === li.dataset.id; });
@@ -658,9 +892,11 @@ $('fileList').addEventListener('click', function (ev) {
          state.docs.splice(index, 1);
          if (state.activeId === removed.id) state.activeId = state.docs[0].id;
          openDoc(state.activeId);
+         save();
          toast('已删除 ' + removed.name, '撤销', function () {
             state.docs.splice(index, 0, removed);
             openDoc(removed.id);
+            save();
          });
       });
       return;
@@ -716,7 +952,8 @@ function openDoc(id) {
    renderEditor();
    runLint();
    resetRunPanel();
-   save();
+   // 切换文件本身不是「改了内容」，只是换了当前打开哪个——不该让「保存中…」跟着闪一下。
+   savePrefs();
 }
 
 $('newDocBtn').addEventListener('click', function () {
@@ -733,6 +970,7 @@ $('newDocBtn').addEventListener('click', function () {
          const doc = { id: 'doc-' + Date.now(), name: ensureExt(name), source: '// ' + ensureExt(name) + '\n', updatedAt: Date.now() };
          state.docs.push(doc);
          openDoc(doc.id);
+         save();
       });
 });
 
@@ -1252,6 +1490,7 @@ function insertSnippet(sn) {
 document.addEventListener('click', function (ev) {
    if (!ev.target.closest('#snippetPop') && !ev.target.closest('[data-action="snippets"]')) $('snippetPop').hidden = true;
    if (!ev.target.closest('.menu-wrap')) $('moreMenu').hidden = true;
+   if (!ev.target.closest('.project-switcher-wrap')) closeProjectPicker();
 });
 
 /* ---------------- 更多菜单 ---------------- */
@@ -1271,6 +1510,10 @@ $('moreMenu').addEventListener('click', function (ev) {
    if (a === 'downloadPseudocode') downloadText(withExt(activeDoc().name, '.pseudocode'), code.value);
    if (a === 'downloadTxt') downloadText(withExt(activeDoc().name, '.txt'), code.value);
    if (a === 'exportAll') exportAll();
+   if (a === 'newProject') askText({ title: '新建项目', desc: '项目之间的代码文件和运行时文件彼此独立。', value: '未命名项目', validate: validateNewProjectName }).then(function (name) { if (name) createProject(name); });
+   if (a === 'switchProject') { ev.stopPropagation(); $('snippetPop').hidden = true; openProjectPicker(); }
+   if (a === 'renameProject') renameCurrentProject();
+   if (a === 'deleteProject') deleteCurrentProject();
    if (a === 'settings') { syncSettingsUI(); showDialog('settingsDialog'); }
    if (a === 'resetRuntime') {
       state.runtimeFiles = clone(SAMPLES.runtimeFiles);
@@ -1280,6 +1523,25 @@ $('moreMenu').addEventListener('click', function (ev) {
       toast('运行环境已重置为演示数据');
    }
    if (a === 'about') showDialog('aboutDialog');
+});
+
+$('projectSwitcher').addEventListener('click', function (ev) {
+   ev.stopPropagation();
+   const picker = $('projectPicker');
+   const open = picker.hidden;
+   picker.hidden = !open;
+   this.setAttribute('aria-expanded', String(open));
+   if (open) renderProjectLabel();
+});
+$('projectPicker').addEventListener('click', function (ev) {
+   const item = ev.target.closest('[data-project-id]');
+   if (item) { switchProject(item.dataset.projectId); closeProjectPicker(); return; }
+   const action = ev.target.closest('[data-project-action]');
+   if (!action) return;
+   closeProjectPicker();
+   if (action.dataset.projectAction === 'new') $('moreMenu').querySelector('[data-action="newProject"]').click();
+   if (action.dataset.projectAction === 'rename') renameCurrentProject();
+   if (action.dataset.projectAction === 'delete') deleteCurrentProject();
 });
 
 let importTarget = 'source';
@@ -1352,6 +1614,7 @@ function importFiles(files, target) {
          save();
       } else if (lastDocId) {
          openDoc(lastDocId);
+         save();
       }
       const n = accepted.length;
       toast('已导入 ' + n + ' 个文件'
@@ -1536,7 +1799,7 @@ $('clearData').addEventListener('click', function () {
       okLabel: '清除'
    }).then(function (ok) {
       if (!ok) return;
-      localStorage.removeItem(STORE_KEY);
+      STORAGE.remove(STORE_KEY);
       location.reload();
    });
 });
@@ -1571,7 +1834,7 @@ function closeDialogs() {
 $('overlay').addEventListener('click', closeDialogs);
 document.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeDialogs); });
 document.addEventListener('keydown', function (ev) {
-   if (ev.key === 'Escape') { closeDialogs(); $('snippetPop').hidden = true; $('moreMenu').hidden = true; }
+   if (ev.key === 'Escape') { closeDialogs(); $('snippetPop').hidden = true; $('moreMenu').hidden = true; closeProjectPicker(); }
 });
 
 let toastTimer = null;
@@ -1734,6 +1997,8 @@ function escapeHtml(s) {
 
 /* ---------------- 启动 ---------------- */
 load();
+// 旧数据里课文文件散落在各个普通项目，收拢到课文项目；改过才需要写回
+if (migrateLessonDocsIntoLessonProject()) { syncStateFromCurrentProject(); persistProjects(); }
 
 /*
  * 教学页的「在编辑器中打开」。
@@ -1753,23 +2018,34 @@ load();
    try { payload = JSON.parse(raw); } catch (e) { payload = { source: raw }; }
    if (!payload || !payload.source) return;
 
-   const wanted = ensureExt(payload.name || 'FromLesson');
-   const existing = state.docs.find(function (d) {
-      return d.lesson && d.origin === payload.source && d.name.toLowerCase() === wanted.toLowerCase();
-   });
-   if (existing) { existing.archived = false; state.activeId = existing.id; return; }
+   // 先把当前项目的状态落盘，再整个切到课文项目去——课文文件不进用户自己的项目
+   persistProjects();
+   const lesson = ensureLessonProject();
+   lesson.docs = lesson.docs || [];
 
-   const doc = {
-      id: 'doc-' + Date.now(),
-      name: uniqueName(state.docs, wanted, true),
-      source: payload.source,
-      origin: payload.source,
-      lesson: true,
-      lessonLabel: payload.label || '来自课文',
-      updatedAt: Date.now()
-   };
-   state.docs.push(doc);
-   state.activeId = doc.id;
+   const wanted = ensureExt(payload.name || 'FromLesson');
+   const existing = lesson.docs.find(function (d) {
+      return d.lesson && d.origin === payload.source && normalizeProjectName(d.name) === normalizeProjectName(wanted);
+   });
+   if (existing) {
+      existing.archived = false;
+      lesson.activeId = existing.id;
+   } else {
+      lesson.docs.push({
+         id: 'doc-' + Date.now(),
+         name: uniqueName(lesson.docs, wanted, true),
+         source: payload.source,
+         origin: payload.source,
+         lesson: true,
+         lessonLabel: payload.label || '来自课文',
+         updatedAt: Date.now()
+      });
+      lesson.activeId = lesson.docs[lesson.docs.length - 1].id;
+   }
+
+   currentProjectId = lesson.id;
+   syncStateFromCurrentProject();
+   persistProjects();
 })();
 
 applyTheme();
@@ -1783,6 +2059,7 @@ renderHandles([]);
 code.value = activeDoc().source;
 renderEditor();
 runLint();
+renderProjectLabel();
 $('saveState').textContent = '已保存';
 code.focus();
 })();

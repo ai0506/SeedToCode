@@ -83,30 +83,6 @@
 /* 这里是页面的主角，编辑区按可用高度撑开，不再是课文里那个 168px 的小格子 */
 .task-pane-right .mini-editor { display: flex; flex-direction: column; }
 .task-pane-right .mini-editor-body:not(.locked-body) { min-height: 380px; }
-.mini-editor-body { display: flex; min-height: 168px; }
-.mini-editor-body textarea {
-   flex: 1; min-width: 0;
-   height: auto; align-self: stretch;
-   padding: 10px 12px 10px 6px;
-   resize: none;
-}
-/* 行号：诊断按行号说话，作答区没有行号等于让学生自己数 */
-.mini-gutter {
-   flex: 0 0 44px; width: 44px;
-   padding: 10px 8px 10px 0;
-   overflow: hidden;
-   border-right: 1px solid var(--border);
-   background: var(--bg-sunken);
-   font-family: var(--font-mono); font-size: 12.5px; line-height: 21px;
-   color: var(--text-faint); text-align: right;
-   font-variant-numeric: tabular-nums;
-   user-select: none;
-}
-.mini-gutter span { display: block; }
-/* 锁定片段的行号接着往下数到作答区，两段合起来就是提交上去的那份源码 */
-.locked-body { min-height: 0; margin-top: 2px; }
-.locked-body .mini-gutter { padding-top: 0; padding-bottom: 0; background: transparent; border-right: 0; }
-.locked-body pre { flex: 1; min-width: 0; padding-left: 6px; }
 
 .save-slot {
    width: 46px; flex: 0 0 46px; text-align: right;

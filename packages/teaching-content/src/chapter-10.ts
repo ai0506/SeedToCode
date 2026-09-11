@@ -87,27 +87,27 @@ export const chapter10: Chapter = {
           options: [
             {
               key: "A",
-              label: "编辑器在运行前就拦下来",
-              correct: false,
-              explanation: "这段代码的写法完全正确。编辑器不知道数组里将来会放什么值，也就无从判断找不找得到。"
-            },
-            {
-              key: "B",
               label: "什么都没有，程序正常结束",
               correct: true,
               explanation: "对。`IF` 一次都没成立，`OUTPUT` 就一次都没执行。程序跑完了，只是什么也没说——「没找到」和「程序没跑」在屏幕上长得一模一样。"
             },
             {
-              key: "C",
+              key: "B",
               label: "显示 `Found at 0`",
               correct: false,
               explanation: "不会。`OUTPUT` 只写在 `IF` 里面，条件没成立它就不执行，不存在一个「表示没找到」的默认输出。"
             },
             {
-              key: "D",
+              key: "C",
               label: "程序在运行时停下来报错",
               correct: false,
               explanation: "没有任何一步出错：下标始终在 1 到 5 之间，比较也合法。找不到不是错误，只是结果。"
+            },
+            {
+              key: "D",
+              label: "编辑器在运行前就拦下来",
+              correct: false,
+              explanation: "这段代码的写法完全正确。编辑器不知道数组里将来会放什么值，也就无从判断找不找得到。"
             }
           ]
         }
@@ -177,27 +177,27 @@ export const chapter10: Chapter = {
           options: [
             {
               key: "A",
-              label: "结果不变，只是多走一步",
-              correct: false,
-              explanation: "循环确实立刻就停了，但停下来时 `Position` 的值已经被改过，而这个值正是要报出来的答案。"
-            },
-            {
-              key: "B",
               label: "会变成找不到",
               correct: false,
               explanation: "`Found` 照样被设成 `TRUE`，所以走的还是「找到了」那一支，只是报出来的格子不对。"
             },
             {
-              key: "C",
+              key: "B",
               label: "运行时越界停下来",
               correct: false,
               explanation: "多加的那一次发生在循环体的末尾，加完循环就判断条件并退出，不会再拿这个下标去取格子。"
             },
             {
-              key: "D",
+              key: "C",
               label: "报出来的位置比真实位置大一",
               correct: true,
               explanation: "对。比中的那一轮把标志立起来之后又多加了一次，`Position` 已经越过命中的格子。第 3 格命中会报成第 4 格。"
+            },
+            {
+              key: "D",
+              label: "结果不变，只是多走一步",
+              correct: false,
+              explanation: "循环确实立刻就停了，但停下来时 `Position` 的值已经被改过，而这个值正是要报出来的答案。"
             }
           ]
         },
@@ -368,27 +368,27 @@ export const chapter10: Chapter = {
           options: [
             {
               key: "A",
-              label: "最大的那个数已经在最后一格",
-              correct: true,
-              explanation: "对。最大的数无论从哪一格出发，每一次比较都会赢，于是被一路往右换到头。这是一趟唯一能保证的事。"
-            },
-            {
-              key: "B",
-              label: "最小的那个数已经在第一格",
-              correct: false,
-              explanation: "不一定。小的数每趟最多往左挪一格：它只有在跟左邻居比的那一次才会被换过去。"
-            },
-            {
-              key: "C",
               label: "整排已经排好了",
               correct: false,
               explanation: "只有碰巧的时候才会。一趟安顿的是末尾那一个，前面的顺序仍然可能是乱的。"
             },
             {
-              key: "D",
+              key: "B",
               label: "至少发生了一次交换",
               correct: false,
               explanation: "本来就已经排好的一排，走一趟一次也不会换。下一节末尾正是利用这一点提前收工。"
+            },
+            {
+              key: "C",
+              label: "最大的那个数已经在最后一格",
+              correct: true,
+              explanation: "对。最大的数无论从哪一格出发，每一次比较都会赢，于是被一路往右换到头。这是一趟唯一能保证的事。"
+            },
+            {
+              key: "D",
+              label: "最小的那个数已经在第一格",
+              correct: false,
+              explanation: "不一定。小的数每趟最多往左挪一格：它只有在跟左邻居比的那一次才会被换过去。"
             }
           ]
         }
@@ -460,27 +460,27 @@ export const chapter10: Chapter = {
           options: [
             {
               key: "A",
-              label: "编辑器在运行前就拦下来",
-              correct: false,
-              explanation: "下标是 `J + 1`，是个算出来的值。要等 `J` 真的取到 5 才知道越界，运行前看不出来。"
-            },
-            {
-              key: "B",
-              label: "最后一格会被当成 0 参与比较",
-              correct: false,
-              explanation: "不存在的格子不会被当成 0。越界就是越界，程序会停下来而不是编一个值出来。"
-            },
-            {
-              key: "C",
               label: "第一趟走到最后一对时越界，程序停下来",
               correct: true,
               explanation: "对。`J` 走到 5 时要取 `Values[J + 1]`，也就是第 6 格，而数组只有 5 格。程序停在比较那一行。"
             },
             {
-              key: "D",
+              key: "B",
               label: "排序结果正确，只是多比了几次",
               correct: false,
               explanation: "多比几次本身不影响结果，但这里多出来的那一次要读一个不存在的格子，程序根本走不到最后。"
+            },
+            {
+              key: "C",
+              label: "编辑器在运行前就拦下来",
+              correct: false,
+              explanation: "下标是 `J + 1`，是个算出来的值。要等 `J` 真的取到 5 才知道越界，运行前看不出来。"
+            },
+            {
+              key: "D",
+              label: "最后一格会被当成 0 参与比较",
+              correct: false,
+              explanation: "不存在的格子不会被当成 0。越界就是越界，程序会停下来而不是编一个值出来。"
             }
           ]
         },
@@ -631,27 +631,27 @@ export const chapter10: Chapter = {
           options: [
             {
               key: "A",
+              label: "0",
+              correct: false,
+              explanation: "`REPEAT` 至少执行一次——不先走一趟，根本无从知道要不要交换。"
+            },
+            {
+              key: "B",
               label: "4",
               correct: false,
               explanation: "4 是上一节那种固定趟数的写法。加了标志之后，走满 4 趟只会发生在最坏的情况。"
             },
             {
-              key: "B",
+              key: "C",
               label: "2",
               correct: false,
               explanation: "不需要第二趟。第一趟结束时标志还是 `FALSE`，`UNTIL` 已经成立，不会再进循环。"
             },
             {
-              key: "C",
+              key: "D",
               label: "1",
               correct: true,
               explanation: "对。第一趟把每一对都比了一遍，一次也没换，`Swapped` 保持 `FALSE`，`UNTIL` 的条件成立，循环就结束了。"
-            },
-            {
-              key: "D",
-              label: "0",
-              correct: false,
-              explanation: "`REPEAT` 至少执行一次——不先走一趟，根本无从知道要不要交换。"
             }
           ]
         }

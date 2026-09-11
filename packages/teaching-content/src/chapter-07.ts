@@ -166,27 +166,27 @@ export const chapter07: Chapter = {
           options: [
             {
               key: "A",
-              label: "seud",
-              correct: false,
-              explanation: "这是从第 2 个字符开始取的结果。`MID` 的起点从 1 数起，第 3 个不是 `s`。"
-            },
-            {
-              key: "B",
-              label: "udoc",
-              correct: false,
-              explanation: "这是从第 4 个开始取的。把起点当成「跳过 3 个」就会错一位。"
-            },
-            {
-              key: "C",
               label: "Pseu",
               correct: false,
               explanation: "这是 `MID(S, 1, 4)`，也就是开头四个字符。第二个参数是起点，不是个数。"
             },
             {
-              key: "D",
+              key: "B",
               label: "eudo",
               correct: true,
               explanation: "对。从第 3 个字符开始数：`P` 是 1、`s` 是 2、`e` 是 3。从 `e` 起取 4 个，是 `e`、`u`、`d`、`o`。"
+            },
+            {
+              key: "C",
+              label: "seud",
+              correct: false,
+              explanation: "这是从第 2 个字符开始取的结果。`MID` 的起点从 1 数起，第 3 个不是 `s`。"
+            },
+            {
+              key: "D",
+              label: "udoc",
+              correct: false,
+              explanation: "这是从第 4 个开始取的。把起点当成「跳过 3 个」就会错一位。"
             }
           ]
         },
@@ -308,27 +308,27 @@ export const chapter07: Chapter = {
           options: [
             {
               key: "A",
-              label: "OUTPUT UCASE('h')",
-              correct: true,
-              explanation: "对。`'h'` 是单引号写的 `CHAR` 字面量，正是 `UCASE` 要的东西。"
-            },
-            {
-              key: "B",
               label: "OUTPUT UCASE(S)",
               correct: false,
               explanation: "`S` 是 `STRING`，而 `UCASE` 只收 `CHAR`。"
             },
             {
-              key: "C",
+              key: "B",
               label: "OUTPUT UCASE(MID(S, 1, 1))",
               correct: false,
               explanation: "看着像绕开了，其实没有：`MID` 还回来的是 `STRING`，哪怕只有一个字符。"
             },
             {
-              key: "D",
+              key: "C",
               label: 'OUTPUT UCASE("h")',
               correct: false,
               explanation: "双引号里的是 `STRING`。这一处差别在这两个函数上是硬性的。"
+            },
+            {
+              key: "D",
+              label: "OUTPUT UCASE('h')",
+              correct: true,
+              explanation: "对。`'h'` 是单引号写的 `CHAR` 字面量，正是 `UCASE` 要的东西。"
             }
           ]
         }
@@ -406,27 +406,27 @@ export const chapter07: Chapter = {
           options: [
             {
               key: "A",
-              label: 'OUTPUT "Score: " & "N"',
-              correct: false,
-              explanation: "这能通过检查，但显示的是 `Score: N` 这几个字母——引号里的 `N` 是文字本身，不是变量的值。"
-            },
-            {
-              key: "B",
-              label: 'OUTPUT "Score: " + N',
-              correct: false,
-              explanation: "`+` 是加法，不是连接。接文字用 `&`，而这里连 `&` 都不该用。"
-            },
-            {
-              key: "C",
               label: 'OUTPUT "Score: ", N',
               correct: true,
               explanation: "对。`OUTPUT` 的逗号形式对类型没有要求，数字直接显示出来。"
             },
             {
-              key: "D",
+              key: "B",
               label: 'OUTPUT "Score: " & N',
               correct: false,
               explanation: "`&` 两边都得是 `STRING`，而 `N` 是 `INTEGER`。"
+            },
+            {
+              key: "C",
+              label: 'OUTPUT "Score: " & "N"',
+              correct: false,
+              explanation: "这能通过检查，但显示的是 `Score: N` 这几个字母——引号里的 `N` 是文字本身，不是变量的值。"
+            },
+            {
+              key: "D",
+              label: 'OUTPUT "Score: " + N',
+              correct: false,
+              explanation: "`+` 是加法，不是连接。接文字用 `&`，而这里连 `&` 都不该用。"
             }
           ]
         }
@@ -550,27 +550,27 @@ export const chapter07: Chapter = {
           options: [
             {
               key: "A",
-              label: "LENGTH(Word) 单独占一行",
-              correct: true,
-              explanation: "对。函数算出了一个值，但没有赋给谁、也没有显示出来，这个值无处可去，所以它不能单独成为一条语句。"
-            },
-            {
-              key: "B",
-              label: "FOR I ← 1 TO LENGTH(Word)",
-              correct: false,
-              explanation: "成立。`LENGTH` 算出 `INTEGER`，正好能当循环的终点。"
-            },
-            {
-              key: "C",
               label: 'IF MID(Code, 1, 1) = "A" THEN',
               correct: false,
               explanation: "成立。`MID` 还回来的是 `STRING`，右边 `\"A\"` 也是 `STRING`，两边类型对得上。"
             },
             {
-              key: "D",
+              key: "B",
               label: "OUTPUT MID(Code, 1, LENGTH(Code) - 2)",
               correct: false,
               explanation: "成立。参数可以是算式，先算完再交给函数。"
+            },
+            {
+              key: "C",
+              label: "LENGTH(Word) 单独占一行",
+              correct: true,
+              explanation: "对。函数算出了一个值，但没有赋给谁、也没有显示出来，这个值无处可去，所以它不能单独成为一条语句。"
+            },
+            {
+              key: "D",
+              label: "FOR I ← 1 TO LENGTH(Word)",
+              correct: false,
+              explanation: "成立。`LENGTH` 算出 `INTEGER`，正好能当循环的终点。"
             }
           ]
         }

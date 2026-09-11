@@ -2644,7 +2644,7 @@ var CAIERuntime = (() => {
           }
           const isEof = expression.callee.kind === "NameExpression" && expression.callee.normalizedName === "EOF";
           const ruleId = isEof ? "FILE-002" : expression.callee.kind === "NameExpression" && isBuiltin(expression.callee.normalizedName) ? "BUILTIN-001" : "PROC-002";
-          validateArguments(expression.arguments, argumentTypes, calleeType.parameters, ruleId, report, references);
+          validateArguments(expression.arguments, argumentTypes, calleeType.parameters, ruleId, report, references, expression.range);
           if (isEof && expression.arguments[0])
             checkKnownFileMode(expression.arguments[0], ["READ"], "FILE-002", "type.file.eofRequiresReadMode");
           return record(expression, calleeType.returns);
@@ -2658,7 +2658,7 @@ var CAIERuntime = (() => {
           }
           const constructor = classType.members.find(({ normalizedName, kind }) => normalizedName === "NEW" && kind === "procedure");
           if (constructor?.type.kind === "procedure") {
-            validateArguments(expression.arguments, argumentTypes, constructor.type.parameters, "OOP-003", report, references);
+            validateArguments(expression.arguments, argumentTypes, constructor.type.parameters, "OOP-003", report, references, expression.range);
           } else if (expression.arguments.length > 0) {
             report("PC4010", "OOP-003", "type.call.argumentCount", expression.range, "CAIE", {
               expected: 0,
@@ -2835,10 +2835,10 @@ var CAIERuntime = (() => {
             const calleeType = infer(statement.call.callee);
             const argumentTypes = statement.call.arguments.map(infer);
             if (calleeType.kind === "procedure") {
-              validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references);
+              validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references, statement.call.range);
             } else if (calleeType.kind === "function") {
               report("PC4020", "OOP-004", "type.function.cannotBeStatement", statement.call.callee.range);
-              validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references);
+              validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references, statement.call.range);
             } else if (calleeType.kind !== "unknown") {
               report("PC4035", "OOP-004", "type.call.notCallable", statement.call.callee.range);
             }
@@ -3007,9 +3007,9 @@ var CAIERuntime = (() => {
             const argumentTypes = statement.arguments.map(infer);
             if (targetType.kind === "function") {
               report("PC4020", "FUNC-002", "type.function.cannotUseCall", statement.target.range);
-              validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references);
+              validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references, statement.range);
             } else if (targetType.kind === "procedure") {
-              validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references);
+              validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references, statement.range);
             }
             break;
           }
@@ -3130,8 +3130,8 @@ var CAIERuntime = (() => {
     }
     return false;
   }
-  function validateArguments(expressions, types, parameters, ruleId, report, references) {
-    const callRange = expressions.length > 0 ? { start: expressions[0].range.start, end: expressions.at(-1).range.end } : { start: { offset: 0, line: 1, column: 1 }, end: { offset: 0, line: 1, column: 1 } };
+  function validateArguments(expressions, types, parameters, ruleId, report, references, callSiteRange) {
+    const callRange = expressions.length > 0 ? { start: expressions[0].range.start, end: expressions.at(-1).range.end } : callSiteRange;
     if (expressions.length !== parameters.length) {
       report("PC4010", ruleId, "type.call.argumentCount", callRange, "CAIE", { expected: parameters.length, actual: expressions.length });
     }

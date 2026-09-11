@@ -101,8 +101,10 @@
 | 中文 | English | 出现章节 |
 |---|---|---|
 | 分解 | decomposition | 12 |
+| 模块化 | modularity | 12 |
 | 过程 | procedure | 12 |
 | 参数（形参） | parameter | 12 |
+| 参数 | parameter | 12 |
 | 实参 | argument | 12 |
 | 传值 | by value | 12 |
 | 传引用 | by reference | 12 |
@@ -118,6 +120,7 @@
 | 标识符表 | identifier table | 16 |
 | 结构化英语 | structured English | 16 |
 | 流程图 | flowchart | 16 |
+| 结构图 | structure chart | 16 |
 
 ## G. 文件
 

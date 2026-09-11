@@ -109,27 +109,27 @@ export const chapter11: Chapter = {
           options: [
             {
               key: "A",
+              label: "一句要显示给用户的提示语",
+              correct: false,
+              explanation: "这只是一个值，一个 `STRING` 变量就够，没有几样东西需要绑在一起。"
+            },
+            {
+              key: "B",
               label: "5 个班各 4 个小组的人数",
               correct: false,
               explanation: "全是人数，类型相同，要指准一个数得说清「第几班第几组」——这是二维数组。"
             },
             {
-              key: "B",
+              key: "C",
               label: "一件商品的编号、名称和单价",
               correct: true,
               explanation: "对。三样东西类型各不相同，却描述的是同一件商品——正是记录要绑的那种一份数据。"
             },
             {
-              key: "C",
+              key: "D",
               label: "一个班 30 个学生的总分",
               correct: false,
               explanation: "三十个同类型的数，一个编号就指得准。这是数组的活，不是记录的。"
-            },
-            {
-              key: "D",
-              label: "一句要显示给用户的提示语",
-              correct: false,
-              explanation: "这只是一个值，一个 `STRING` 变量就够，没有几样东西需要绑在一起。"
             }
           ]
         }
@@ -313,27 +313,27 @@ export const chapter11: Chapter = {
           options: [
             {
               key: "A",
-              label: "记录里的那个字段",
-              correct: false,
-              explanation: "指不到。字段永远要经由某个记录变量才指得到，单写字段名不行。"
-            },
-            {
-              key: "B",
               label: "两个一起改",
               correct: false,
               explanation: "它们是两个各自独立的存放位置，一句赋值只能改一个。"
             },
             {
-              key: "C",
+              key: "B",
               label: "编辑器会因为重名报错",
               correct: false,
               explanation: "不重名。字段名只在它所属的类型里有意义，不占用程序里普通变量的名字。"
             },
             {
-              key: "D",
+              key: "C",
               label: "那个独立的变量",
               correct: true,
               explanation: "对。不带点号就是那个独立的变量。要改记录里的那个，必须写成 `Current.Year`——点号左边指明了是谁的。"
+            },
+            {
+              key: "D",
+              label: "记录里的那个字段",
+              correct: false,
+              explanation: "指不到。字段永远要经由某个记录变量才指得到，单写字段名不行。"
             }
           ]
         },
@@ -593,27 +593,27 @@ export const chapter11: Chapter = {
           options: [
             {
               key: "A",
+              label: "编辑器会拦下来",
+              correct: false,
+              explanation: "编辑器只看得到两个各自独立的数组，看不出你心里认为它们的第 `I` 格说的是同一个人。"
+            },
+            {
+              key: "B",
               label: "运行时会越界停下来",
               correct: false,
               explanation: "交换只在已有的格子之间搬值，下标一个都没越界。数据错了，但程序没出错。"
             },
             {
-              key: "B",
+              key: "C",
               label: "换成记录数组也一样会出这个问题",
               correct: false,
               explanation: "不一样。记录数组里姓名和分数在同一格，交换整格时它们只能一起走，没有「只换了一半」这种写法。"
             },
             {
-              key: "C",
+              key: "D",
               label: "程序照常跑完，但姓名和分数对不上了",
               correct: true,
               explanation: "对。两个数组各自都是合法的，下标也都在范围里，没有任何一步出错——错的只是那句没写进程序的约定。"
-            },
-            {
-              key: "D",
-              label: "编辑器会拦下来",
-              correct: false,
-              explanation: "编辑器只看得到两个各自独立的数组，看不出你心里认为它们的第 `I` 格说的是同一个人。"
             }
           ]
         }

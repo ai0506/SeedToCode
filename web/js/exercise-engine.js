@@ -21,6 +21,7 @@ var CAIEExercise = (() => {
   // packages/exercise/src/index.ts
   var index_exports = {};
   __export(index_exports, {
+    AHEAD_EXEMPT_FEATURES: () => AHEAD_EXEMPT_FEATURES,
     FEATURE_IDS: () => FEATURE_IDS,
     compareOutputs: () => compareOutputs,
     extractFeatures: () => extractFeatures,
@@ -35,6 +36,7 @@ var CAIEExercise = (() => {
     // 输入输出
     "io.input",
     "io.output",
+    "io.output-variable",
     // 声明
     "decl.variable",
     "decl.constant",
@@ -121,6 +123,7 @@ var CAIEExercise = (() => {
     // 其它
     "misc.comment"
   ];
+  var AHEAD_EXEMPT_FEATURES = /* @__PURE__ */ new Set(["io.output-variable"]);
   var BUILTIN_FEATURES = {
     length: "builtin.length",
     mid: "builtin.mid",
@@ -182,6 +185,7 @@ var CAIEExercise = (() => {
         break;
       case "OutputStatement":
         add("io.output");
+        if (statement.values.some((value) => expressionReadsIdentifier(value))) add("io.output-variable");
         for (const value of statement.values) walkExpression(value, add);
         break;
       case "DeclareStatement":
@@ -345,6 +349,24 @@ var CAIEExercise = (() => {
     }
     add("decl.variable");
     if (reference.kind === "PrimitiveTypeReference") add(TYPE_FEATURES[reference.name]);
+  }
+  function expressionReadsIdentifier(expression) {
+    switch (expression.kind) {
+      case "NameExpression":
+        return true;
+      case "BinaryExpression":
+        return expressionReadsIdentifier(expression.left) || expressionReadsIdentifier(expression.right);
+      case "UnaryExpression":
+        return expressionReadsIdentifier(expression.operand);
+      case "CallExpression":
+        return expression.arguments.some((argument) => expressionReadsIdentifier(argument));
+      case "IndexExpression":
+        return true;
+      case "MemberExpression":
+        return true;
+      default:
+        return false;
+    }
   }
   function walkExpression(expression, add) {
     switch (expression.kind) {
@@ -3166,7 +3188,7 @@ var CAIEExercise = (() => {
           }
           const isEof = expression.callee.kind === "NameExpression" && expression.callee.normalizedName === "EOF";
           const ruleId = isEof ? "FILE-002" : expression.callee.kind === "NameExpression" && isBuiltin(expression.callee.normalizedName) ? "BUILTIN-001" : "PROC-002";
-          validateArguments(expression.arguments, argumentTypes, calleeType.parameters, ruleId, report, references);
+          validateArguments(expression.arguments, argumentTypes, calleeType.parameters, ruleId, report, references, expression.range);
           if (isEof && expression.arguments[0])
             checkKnownFileMode(expression.arguments[0], ["READ"], "FILE-002", "type.file.eofRequiresReadMode");
           return record(expression, calleeType.returns);
@@ -3180,7 +3202,7 @@ var CAIEExercise = (() => {
           }
           const constructor = classType.members.find(({ normalizedName, kind }) => normalizedName === "NEW" && kind === "procedure");
           if (constructor?.type.kind === "procedure") {
-            validateArguments(expression.arguments, argumentTypes, constructor.type.parameters, "OOP-003", report, references);
+            validateArguments(expression.arguments, argumentTypes, constructor.type.parameters, "OOP-003", report, references, expression.range);
           } else if (expression.arguments.length > 0) {
             report("PC4010", "OOP-003", "type.call.argumentCount", expression.range, "CAIE", {
               expected: 0,
@@ -3357,10 +3379,10 @@ var CAIEExercise = (() => {
             const calleeType = infer(statement.call.callee);
             const argumentTypes = statement.call.arguments.map(infer);
             if (calleeType.kind === "procedure") {
-              validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references);
+              validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references, statement.call.range);
             } else if (calleeType.kind === "function") {
               report("PC4020", "OOP-004", "type.function.cannotBeStatement", statement.call.callee.range);
-              validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references);
+              validateArguments(statement.call.arguments, argumentTypes, calleeType.parameters, "OOP-004", report, references, statement.call.range);
             } else if (calleeType.kind !== "unknown") {
               report("PC4035", "OOP-004", "type.call.notCallable", statement.call.callee.range);
             }
@@ -3529,9 +3551,9 @@ var CAIEExercise = (() => {
             const argumentTypes = statement.arguments.map(infer);
             if (targetType.kind === "function") {
               report("PC4020", "FUNC-002", "type.function.cannotUseCall", statement.target.range);
-              validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references);
+              validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references, statement.range);
             } else if (targetType.kind === "procedure") {
-              validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references);
+              validateArguments(statement.arguments, argumentTypes, targetType.parameters, "PROC-002", report, references, statement.range);
             }
             break;
           }
@@ -3652,8 +3674,8 @@ var CAIEExercise = (() => {
     }
     return false;
   }
-  function validateArguments(expressions, types, parameters, ruleId, report, references) {
-    const callRange = expressions.length > 0 ? { start: expressions[0].range.start, end: expressions.at(-1).range.end } : { start: { offset: 0, line: 1, column: 1 }, end: { offset: 0, line: 1, column: 1 } };
+  function validateArguments(expressions, types, parameters, ruleId, report, references, callSiteRange) {
+    const callRange = expressions.length > 0 ? { start: expressions[0].range.start, end: expressions.at(-1).range.end } : callSiteRange;
     if (expressions.length !== parameters.length) {
       report("PC4010", ruleId, "type.call.argumentCount", callRange, "CAIE", { expected: parameters.length, actual: expressions.length });
     }
@@ -5455,16 +5477,24 @@ var CAIEExercise = (() => {
     aheadFeatures: [],
     codeNotes: []
   };
+  function withEarlierCauses(blocking, others) {
+    const firstLine = Math.min(...blocking.map((diagnostic) => diagnostic.range.start.line));
+    const causes = others.filter(
+      (diagnostic) => diagnostic.range.start.line < firstLine && !diagnostic.ruleId.startsWith("FMT-")
+    );
+    if (causes.length === 0) return blocking;
+    return [...causes, ...blocking].sort((left, right) => left.range.start.line - right.range.start.line);
+  }
   async function grade(input) {
     const analysis = analyzeSource(input.source, input.analyze);
     const blocking = analysis.diagnostics.filter((diagnostic) => diagnostic.severity === "error");
     const styleNotes = analysis.diagnostics.filter((diagnostic) => diagnostic.severity !== "error");
     if (blocking.length > 0) {
-      return { ...EMPTY, failedLayer: "L0", diagnostics: blocking };
+      return { ...EMPTY, failedLayer: "L0", diagnostics: withEarlierCauses(blocking, styleNotes) };
     }
     const features = extractFeatures(analysis.program);
     const codeNotes = findCodeNotes(analysis.program);
-    const aheadFeatures = input.taughtFeatures ? [...features].filter((feature) => !input.taughtFeatures.includes(feature)) : [];
+    const aheadFeatures = input.taughtFeatures ? [...features].filter((feature) => !AHEAD_EXEMPT_FEATURES.has(feature) && !input.taughtFeatures.includes(feature)) : [];
     const constraintResults = evaluateConstraints(features, input.constraints);
     if (constraintResults.some((result) => !result.satisfied)) {
       return { ...EMPTY, failedLayer: "L1", constraintResults, styleNotes, usedFeatures: [...features], aheadFeatures, codeNotes };
