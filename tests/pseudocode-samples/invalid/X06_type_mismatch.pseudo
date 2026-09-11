@@ -1,0 +1,12 @@
+// X06 [类型] 赋值与运算的类型不匹配
+DECLARE Age : INTEGER
+DECLARE Price : REAL
+DECLARE Title : STRING
+DECLARE Letter : CHAR
+DECLARE Flag : BOOLEAN
+
+Age ← "twenty"          // STRING 赋给 INTEGER
+Title ← 3.5             // REAL 赋给 STRING
+Letter ← "AB"           // 多字符赋给 CHAR
+Flag ← 1                // INTEGER 赋给 BOOLEAN
+Price ← Title + Age     // STRING 与 INTEGER 相加

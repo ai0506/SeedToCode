@@ -1,0 +1,11 @@
+// X23 [表达式] 运算符缺失/多余、空的语句成分
+DECLARE A : INTEGER
+DECLARE B : INTEGER
+
+A ← 5 +
+B ← * 3
+A ← 5 5
+A ← 10 / 0
+OUTPUT
+INPUT
+A ←

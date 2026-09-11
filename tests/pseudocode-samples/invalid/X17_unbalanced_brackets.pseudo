@@ -1,0 +1,9 @@
+// X17 [语法] 括号/方括号不配对
+DECLARE A : INTEGER
+DECLARE B : INTEGER
+DECLARE L : ARRAY[1:5] OF INTEGER
+
+A ← ((B + 2) * 3
+B ← (A + 1))
+L[2 ← 7
+L 3] ← 8

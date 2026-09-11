@@ -1,0 +1,20 @@
+// V12 - 注释、空行、缩进与长表达式的合法排版
+// 本文件用于测试格式化器 / 词法分析器的宽容度
+
+DECLARE A : INTEGER   // 行尾注释
+DECLARE B : INTEGER
+DECLARE C : REAL
+DECLARE Flag : BOOLEAN
+
+// 空行 + 多层括号表达式
+
+A ← 5
+B ← 12
+
+C ← ((A + B) * (B - A)) / (A * 2.0)
+
+Flag ← (A < B) AND ((B MOD 2 = 0) OR NOT (A = 5))
+
+IF Flag = TRUE THEN
+    OUTPUT "C = ", C
+ENDIF

@@ -1,0 +1,15 @@
+// X20 [结构] 块结束关键字交叉错配 / 多余的结束关键字
+DECLARE i : INTEGER
+
+FOR i ← 1 TO 3
+    IF i = 2 THEN
+        OUTPUT "two"
+    NEXT i
+ENDIF
+
+WHILE i > 0
+    i ← i - 1
+ENDFOR
+
+ENDIF
+ENDWHILE

@@ -1,0 +1,6 @@
+// X14 [语义] 重复声明、声明缺类型、类型名非法
+DECLARE Count : INTEGER
+DECLARE Count : REAL      // 重复声明
+DECLARE Total              // 缺少 : 与类型
+DECLARE Name : TEXT        // TEXT 不是合法数据类型
+DECLARE Score : int        // 类型名大小写/拼写非法

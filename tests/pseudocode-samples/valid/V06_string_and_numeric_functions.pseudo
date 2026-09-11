@@ -1,0 +1,27 @@
+// V06 - 内建字符串/数值函数与运算符
+DECLARE Text : STRING
+DECLARE Part : STRING
+DECLARE Letter : CHAR
+DECLARE Len : INTEGER
+DECLARE Number : INTEGER
+DECLARE Value : REAL
+
+Text ← "Computer Science"
+
+Len ← LENGTH(Text)
+Part ← RIGHT(Text, 7)
+Part ← MID(Text, 10, 7)
+Letter ← UCASE('a')
+Letter ← LCASE(Letter)
+
+Number ← 17
+OUTPUT Number DIV 5
+OUTPUT Number MOD 5
+
+Value ← 3.9
+Number ← INT(Value)
+Value ← RAND(10)
+
+Text ← "Result: " & Part
+
+OUTPUT Text, " length=", Len, " part=", Part, " letter=", Letter, " value=", Value

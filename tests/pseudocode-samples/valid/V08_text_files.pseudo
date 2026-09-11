@@ -1,0 +1,24 @@
+// V08 - 顺序文件读写
+DECLARE LineOfText : STRING
+DECLARE Name : STRING
+
+OPENFILE "FileA.txt" FOR WRITE
+WRITEFILE "FileA.txt", "First line of text"
+WRITEFILE "FileA.txt", "Second line of text"
+CLOSEFILE "FileA.txt"
+
+OPENFILE "FileA.txt" FOR APPEND
+WRITEFILE "FileA.txt", "Appended line"
+CLOSEFILE "FileA.txt"
+
+OPENFILE "FileA.txt" FOR READ
+WHILE NOT EOF("FileA.txt")
+    READFILE "FileA.txt", LineOfText
+    OUTPUT LineOfText
+ENDWHILE
+CLOSEFILE "FileA.txt"
+
+OPENFILE "Names.txt" FOR READ
+READFILE "Names.txt", Name
+OUTPUT "First name: ", Name
+CLOSEFILE "Names.txt"

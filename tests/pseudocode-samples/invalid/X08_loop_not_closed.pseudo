@@ -1,0 +1,11 @@
+// X08 [结构] WHILE 缺 ENDWHILE；REPEAT 缺 UNTIL
+DECLARE i : INTEGER
+i ← 0
+
+WHILE i < 5
+    i ← i + 1
+    OUTPUT i
+
+REPEAT
+    i ← i - 1
+    OUTPUT i

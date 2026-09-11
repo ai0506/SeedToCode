@@ -1,0 +1,23 @@
+// X22 [循环] FOR 循环头部错误
+DECLARE i : INTEGER
+DECLARE x : REAL
+DECLARE Name : STRING
+
+FOR i ← 1 10               // 缺少 TO
+    OUTPUT i
+NEXT i
+
+FOR x ← 1.0 TO 5.0         // 控制变量必须是 INTEGER
+    OUTPUT x
+NEXT x
+
+FOR Name ← "A" TO "Z"      // 控制变量类型非法
+    OUTPUT Name
+NEXT Name
+
+FOR i ← 1 TO 10 STEP 0     // 步长为 0，死循环
+    OUTPUT i
+NEXT i
+
+FOR i ← 1 TO 10 STEP 0.5   // 步长必须是 INTEGER
+NEXT i

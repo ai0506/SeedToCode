@@ -1,0 +1,10 @@
+// X04 [结构] NEXT 的计数器与 FOR 不一致；第二个循环 NEXT 完全缺失
+DECLARE i : INTEGER
+DECLARE j : INTEGER
+
+FOR i ← 1 TO 10
+    OUTPUT i
+NEXT j
+
+FOR j ← 1 TO 5
+    OUTPUT j

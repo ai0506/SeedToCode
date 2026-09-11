@@ -1,0 +1,7 @@
+// X13 [语义] 常量被重新赋值；常量声明使用了变量表达式
+CONSTANT Pi = 3.142
+DECLARE R : REAL
+
+R ← 2.0
+CONSTANT Area = Pi * R * R   // 常量必须是字面量
+Pi ← 3.14159                 // 不能修改常量

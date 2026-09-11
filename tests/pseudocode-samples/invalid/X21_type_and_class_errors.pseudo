@@ -1,0 +1,19 @@
+// X21 [OOP/记录] TYPE 与 CLASS 结构错误
+TYPE Student
+    DECLARE Surname : STRING
+    DECLARE Year : INTEGER
+// 缺少 ENDTYPE
+
+CLASS Pet
+    PRIVATE Name : STRING
+
+    PUBLIC FUNCTION GetName() RETURNS STRING
+        RETURN Name
+    ENDPROCEDURE          // 与 FUNCTION 不配对
+ENDCLASS
+
+DECLARE P : Pet
+P ← NEW Pet()
+OUTPUT P.Name             // 访问 PRIVATE 属性
+OUTPUT P.GetAge()         // 未定义的方法
+DECLARE S : Studnet       // 未定义的类型（拼写错误）

@@ -1,0 +1,6 @@
+// X16 [词法] 非法标识符：数字开头、含空格、含非法字符、使用保留字
+DECLARE 1stValue : INTEGER
+DECLARE My Value : INTEGER
+DECLARE Total$ : REAL
+DECLARE WHILE : INTEGER
+DECLARE my-count : INTEGER

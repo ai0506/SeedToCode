@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>做题 · CAIE 9618 伪代码</title>
+<link rel="stylesheet" href="css/styles.css?v=13">
+<link rel="stylesheet" href="css/teaching.css?v=10">
+<link rel="stylesheet" href="css/task.css?v=3">
+</head>
+<body>
+
+<!--
+   独立做题页外壳。
+   题目和作答区左右并排，各自滚动——原来两者上下排布，写一行代码要往上翻一次题面。
+   进入方式是课文里的入口卡，参数从查询串来：task.html?c=1&s=1.2&t=1.2.1
+   题面、作答、判题全部来自 js/teaching-task.js，与课文页共用同一份实现。
+-->
+
+<header class="topbar">
+   <div class="topbar-left">
+      <a class="btn btn-ghost" id="backToLesson" href="teaching.html">‹ 返回课文</a>
+      <span class="brand">Pseudocode<span class="brand-dim">Learn</span></span>
+      <span class="badge" data-tip="本工具非 Cambridge 官方产品">非官方</span>
+   </div>
+
+   <div class="topbar-center">
+      <div class="learn-title">
+         <span class="lt-ch" id="ltCh"></span>
+         <span class="lt-sec" id="ltSec"></span>
+      </div>
+   </div>
+
+   <div class="topbar-right">
+      <span class="task-state-slot" id="taskState" data-state="todo"></span>
+      <a class="btn btn-ghost fixed-btn wide" href="index.html">编辑器</a>
+   </div>
+</header>
+
+<main class="task-split" id="split">
+   <section class="task-pane task-pane-left" id="paneLeft">
+      <div class="pane-head">
+         <span class="pane-kicker" id="paneKicker">伪代码题</span>
+         <span class="spacer"></span>
+         <span class="small muted" id="paneSource"></span>
+      </div>
+      <div class="pane-scroll" id="statementScroll">
+         <h1 class="task-h1" id="taskTitle"></h1>
+         <div id="statement"></div>
+      </div>
+   </section>
+
+   <div class="split-handle" id="splitHandle" role="separator" aria-orientation="vertical"
+        aria-label="调整题目与作答区的宽度" tabindex="0"></div>
+
+   <section class="task-pane task-pane-right" id="paneRight">
+      <div class="pane-head">
+         <span class="pane-kicker">作答</span>
+         <span class="spacer"></span>
+         <span class="small muted">提交后按语法 → 题目要求 → 运行结果 → 书写规范逐层判</span>
+      </div>
+      <div class="pane-scroll" id="workspaceScroll">
+         <div id="workspace"></div>
+      </div>
+   </section>
+</main>
+
+<div class="task-missing" id="missing" hidden>
+   <h1>没有找到这道题</h1>
+   <p class="muted">链接里的题号在当前课程数据里不存在。回到课文，从小节里的入口重新进来。</p>
+   <p><a class="btn btn-primary" href="teaching.html">回到课文</a></p>
+</div>
+
+<footer class="statusbar">
+   <span id="statusLevel">AS Level</span>
+   <span class="dot">·</span>
+   <span id="statusSection"></span>
+   <span class="dot">·</span>
+   <span class="mono" id="statusSyllabus"></span>
+   <span class="spacer"></span>
+   <span class="status-slot">进度与课文同步</span>
+   <span class="dot">·</span>
+   <span>CAIE 9618 (2027–2029)</span>
+</footer>
+
+<script src="js/caie-spec.js"></script>
+<script src="js/lang.js?v=11"></script>
+<script src="js/language-engine.js?v=11"></script>
+<script src="js/language-adapter.js?v=9"></script>
+<script src="js/runtime-engine.js?v=9"></script>
+<script src="js/runtime-messages.js?v=3"></script>
+<script src="js/exercise-engine.js?v=11"></script>
+<script src="js/teaching-content.js?v=11"></script>
+<script src="js/teaching-task.js?v=3"></script>
+<script src="js/task-page.js?v=2"></script>
+</body>
+</html>

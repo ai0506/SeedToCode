@@ -1,0 +1,27 @@
+// V07 - 项目自拟：包裹记录、版本枚举和整数引用
+TYPE Revision = (Draft, Published)
+TYPE IntReference = ^INTEGER
+TYPE Parcel
+    DECLARE Tag : CHAR
+    DECLARE Cost : INTEGER
+    DECLARE Sent : DATE
+    DECLARE Note : STRING
+ENDTYPE
+DECLARE Pack : Parcel
+DECLARE Copies : ARRAY[1:2] OF Parcel
+DECLARE Stage : Revision
+DECLARE Ref : IntReference
+DECLARE Total : INTEGER
+Pack.Tag ← 'Q'
+Pack.Cost ← 10
+Pack.Sent ← 03/02/2028
+Pack.Note ← "local fixture"
+Copies[1] ← Pack
+Copies[2] ← Pack
+FOR Slot ← 1 TO 2
+    Copies[Slot].Cost ← Copies[Slot].Cost + Slot
+NEXT Slot
+Stage ← Published
+Total ← Copies[1].Cost + Copies[2].Cost
+Ref ← ^Total
+OUTPUT Ref^

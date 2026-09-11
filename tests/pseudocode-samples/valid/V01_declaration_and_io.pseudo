@@ -1,0 +1,22 @@
+// V01 - 基本声明、常量、赋值、输入输出
+CONSTANT Pi = 3.142
+
+DECLARE Radius : REAL
+DECLARE Area : REAL
+DECLARE Name : STRING
+DECLARE Initial : CHAR
+DECLARE Passed : BOOLEAN
+DECLARE Birthday : DATE
+DECLARE Count : INTEGER
+
+Count ← 0
+Passed ← TRUE
+Initial ← 'A'
+Name ← "Ada Lovelace"
+Birthday ← 10/12/1815
+
+OUTPUT "Enter the radius: "
+INPUT Radius
+Area ← Pi * Radius * Radius
+OUTPUT "Area of circle with radius ", Radius, " is: ", Area
+OUTPUT Name, " ", Initial, " ", Passed, " ", Count

@@ -1,0 +1,7 @@
+// X19 [文件] 模式非法、未打开就读写、重复打开、缺少 CLOSEFILE
+DECLARE Line : STRING
+
+OPENFILE "Data.txt" FOR READWRITE      // 非法模式
+READFILE "Other.txt", Line             // 未打开就读取
+OPENFILE "Data.txt" FOR READ           // 重复打开同一文件
+WRITEFILE "Data.txt", "hello"          // 以 READ 模式打开却写入

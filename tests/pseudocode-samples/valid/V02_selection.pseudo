@@ -1,0 +1,35 @@
+// V02 - IF / ELSE IF 嵌套 与 CASE OF
+DECLARE Mark : INTEGER
+DECLARE Grade : CHAR
+DECLARE Move : CHAR
+
+INPUT Mark
+
+IF Mark >= 80 THEN
+    Grade ← 'A'
+ELSE
+    IF Mark >= 70 AND Mark < 80 THEN
+        Grade ← 'B'
+    ELSE
+        IF Mark >= 60 OR Mark = 55 THEN
+            Grade ← 'C'
+        ELSE
+            IF NOT (Mark < 0) THEN
+                Grade ← 'F'
+            ELSE
+                Grade ← 'X'
+            ENDIF
+        ENDIF
+    ENDIF
+ENDIF
+
+OUTPUT "Grade: ", Grade
+
+INPUT Move
+CASE OF Move
+    'W' : OUTPUT "Up"
+    'S' : OUTPUT "Down"
+    'A' : OUTPUT "Left"
+    'D' : OUTPUT "Right"
+    OTHERWISE : OUTPUT "Invalid key"
+ENDCASE

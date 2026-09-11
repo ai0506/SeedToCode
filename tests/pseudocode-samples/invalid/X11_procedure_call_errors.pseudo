@@ -1,0 +1,12 @@
+// X11 [子程序] 调用过程时缺 CALL；实参个数/类型不符；对过程使用返回值
+PROCEDURE Greet(Name : STRING, Times : INTEGER)
+    OUTPUT Name, Times
+ENDPROCEDURE
+
+DECLARE R : INTEGER
+
+Greet("Bob", 2)          // 缺少 CALL
+CALL Greet("Bob")        // 参数太少
+CALL Greet("Bob", 2, 3)  // 参数太多
+CALL Greet(5, "two")     // 参数类型颠倒
+R ← Greet("Bob", 2)      // PROCEDURE 无返回值

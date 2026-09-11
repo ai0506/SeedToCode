@@ -1,0 +1,6 @@
+// X03 [语法] 用 = 代替赋值符号 ←，且使用了 C 风格 == 比较
+DECLARE Count : INTEGER
+Count = 0
+IF Count == 0 THEN
+    OUTPUT "Zero"
+ENDIF

@@ -1,0 +1,12 @@
+// X07 [数组] 越界、维度不符、非整数下标、缺少上界
+DECLARE List : ARRAY[1:10] OF INTEGER
+DECLARE Grid : ARRAY[1:3, 1:3] OF CHAR
+DECLARE Bad : ARRAY[1:] OF INTEGER
+DECLARE Index : REAL
+
+List[0] ← 5           // 下界为 1，0 越界
+List[11] ← 7          // 上界为 10，11 越界
+Grid[2] ← 'X'         // 二维数组只给了一个下标
+List[1, 2] ← 3        // 一维数组给了两个下标
+Index ← 2.5
+List[Index] ← 1       // 下标不是 INTEGER

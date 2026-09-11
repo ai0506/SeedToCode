@@ -1,0 +1,27 @@
+// V10 - 项目自拟：计量器、继承与方法更新
+CLASS Gauge
+    PRIVATE Reading : INTEGER
+    PUBLIC PROCEDURE NEW(Seed : INTEGER, Offset : INTEGER)
+        Reading ← Seed + Offset
+    ENDPROCEDURE
+    PUBLIC PROCEDURE Add(Delta : INTEGER)
+        Reading ← Reading + Delta
+    ENDPROCEDURE
+    PUBLIC FUNCTION GetReading() RETURNS INTEGER
+        RETURN Reading
+    ENDFUNCTION
+ENDCLASS
+CLASS ScaledGauge INHERITS Gauge
+    PRIVATE Scale : INTEGER
+    PUBLIC PROCEDURE NEW(Seed : INTEGER, Offset : INTEGER, Multiplier : INTEGER)
+        SUPER.NEW(Seed, Offset)
+        Scale ← Multiplier
+    ENDPROCEDURE
+    PUBLIC FUNCTION GetScaled() RETURNS INTEGER
+        RETURN GetReading() * Scale
+    ENDFUNCTION
+ENDCLASS
+DECLARE Sample : ScaledGauge
+Sample ← NEW ScaledGauge(4, 1, 3)
+Sample.Add(2)
+OUTPUT Sample.GetReading(), ":", Sample.GetScaled()

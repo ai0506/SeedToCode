@@ -1,0 +1,9 @@
+// X15 [字面量] 引号使用错误与未闭合字符串
+DECLARE S : STRING
+DECLARE C : CHAR
+DECLARE D : DATE
+
+S ← 'single quoted string'   // STRING 必须用双引号
+C ← "x"                      // CHAR 必须用单引号
+S ← "unterminated string
+D ← 2005-01-02               // DATE 应为 dd/mm/yyyy

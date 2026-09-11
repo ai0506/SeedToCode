@@ -1,0 +1,8 @@
+// X01 [结构] 缺少 ENDIF —— 块未闭合，到文件结束仍在 IF 内
+DECLARE X : INTEGER
+INPUT X
+IF X > 0 THEN
+    OUTPUT "Positive"
+ELSE
+    OUTPUT "Non-positive"
+OUTPUT "Done"

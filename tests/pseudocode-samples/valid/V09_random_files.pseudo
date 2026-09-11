@@ -1,0 +1,20 @@
+// V09 - 随机文件 SEEK / GETRECORD / PUTRECORD
+TYPE Employee
+    DECLARE StaffID : INTEGER
+    DECLARE FullName : STRING
+ENDTYPE
+
+DECLARE Rec : Employee
+DECLARE Position : INTEGER
+
+Position ← 3
+
+OPENFILE "Staff.dat" FOR RANDOM
+SEEK "Staff.dat", Position
+GETRECORD "Staff.dat", Rec
+OUTPUT Rec.StaffID, " ", Rec.FullName
+
+Rec.FullName ← "Updated Name"
+SEEK "Staff.dat", Position
+PUTRECORD "Staff.dat", Rec
+CLOSEFILE "Staff.dat"

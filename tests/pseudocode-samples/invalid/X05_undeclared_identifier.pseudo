@@ -1,0 +1,5 @@
+// X05 [语义] 使用未声明的变量 Total 和 Nmae（拼写错误）
+DECLARE Name : STRING
+Name ← "Alice"
+Total ← Total + 1
+OUTPUT Nmae

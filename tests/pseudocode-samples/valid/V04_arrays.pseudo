@@ -1,0 +1,44 @@
+// V04 - 一维/二维数组，遍历与线性查找
+DECLARE StudentNames : ARRAY[1:30] OF STRING
+DECLARE NoughtsAndCrosses : ARRAY[1:3, 1:3] OF CHAR
+DECLARE Scores : ARRAY[0:9] OF INTEGER
+DECLARE Index : INTEGER
+DECLARE Row : INTEGER
+DECLARE Col : INTEGER
+DECLARE Found : BOOLEAN
+DECLARE Target : STRING
+
+FOR Index ← 1 TO 30
+    StudentNames[Index] ← ""
+NEXT Index
+
+FOR Index ← 0 TO 9
+    Scores[Index] ← Index * 10
+NEXT Index
+
+FOR Row ← 1 TO 3
+    FOR Col ← 1 TO 3
+        NoughtsAndCrosses[Row, Col] ← ' '
+    NEXT Col
+NEXT Row
+
+NoughtsAndCrosses[2, 2] ← 'X'
+StudentNames[1] ← "Alice"
+StudentNames[2] ← "Bob"
+
+Found ← FALSE
+Index ← 1
+Target ← "Bob"
+WHILE Index <= 30 AND Found = FALSE
+    IF StudentNames[Index] = Target THEN
+        Found ← TRUE
+    ELSE
+        Index ← Index + 1
+    ENDIF
+ENDWHILE
+
+IF Found = TRUE THEN
+    OUTPUT "Found at position ", Index
+ELSE
+    OUTPUT "Not found"
+ENDIF

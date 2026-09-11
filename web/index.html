@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pseudocode Editor · CAIE 9618</title>
+<link rel="stylesheet" href="css/styles.css?v=13">
+</head>
+<body>
+
+<header class="topbar">
+   <div class="topbar-left">
+      <button class="icon-btn" id="toggleFiles" data-tip="显示或隐藏代码文件 (Ctrl+B)" aria-label="代码文件">
+         <svg class="icon-panel" viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="1.5" y="2.5" width="13" height="11" rx="2.5"></rect>
+            <line x1="6.5" y1="2.5" x2="6.5" y2="13.5"></line>
+         </svg>
+      </button>
+      <span class="brand">Pseudocode<span class="brand-dim">Editor</span></span>
+      <span class="badge" data-tip="本工具非 Cambridge 官方产品">非官方</span>
+   </div>
+
+   <div class="topbar-center">
+      <input id="docName" class="doc-name" value="Main.pseudocode" spellcheck="false" aria-label="文档名">
+      <span id="saveState" class="save-state">已保存</span>
+   </div>
+
+   <div class="topbar-right">
+      <div class="switch-field" data-tip="关闭时不显示任何诊断信息">
+         <button class="switch-ctl" id="lintToggle" role="switch" aria-checked="false" aria-label="语法检测">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+         </button>
+         <span class="switch-label">语法检测</span>
+         <span id="problemCount" class="problem-count is-empty">0</span>
+      </div>
+      <div class="run-slot">
+         <button id="runBtn" class="btn btn-primary run-btn">▶ 运行</button>
+         <button id="stopBtn" class="btn btn-danger run-btn" hidden>■ 停止</button>
+      </div>
+      <div class="menu-wrap">
+         <button id="moreBtn" class="btn btn-ghost more-btn" aria-haspopup="true">更多 ▾</button>
+         <div id="moreMenu" class="menu" hidden>
+            <button data-action="format"><span class="menu-label">格式化</span><kbd>Ctrl+Alt+F</kbd></button>
+            <button data-action="snippets"><span class="menu-label">插入结构…</span><kbd>Ctrl+Space</kbd></button>
+            <button data-action="find"><span class="menu-label">查找和替换</span><kbd>Ctrl+F</kbd></button>
+            <hr>
+            <button data-action="import"><span class="menu-label">导入代码文件…</span><kbd></kbd></button>
+            <button data-action="downloadPseudocode"><span class="menu-label">下载为 .pseudocode</span><kbd></kbd></button>
+            <button data-action="downloadTxt"><span class="menu-label">下载为 .txt</span><kbd></kbd></button>
+            <button data-action="exportAll"><span class="menu-label">导出全部文件</span><kbd></kbd></button>
+            <hr>
+            <button data-action="settings"><span class="menu-label">设置</span><kbd></kbd></button>
+            <button data-action="resetRuntime"><span class="menu-label">清空运行环境</span><kbd></kbd></button>
+            <button data-action="about"><span class="menu-label">关于与规则来源</span><kbd></kbd></button>
+         </div>
+      </div>
+   </div>
+</header>
+
+<main class="workspace">
+
+   <!-- 左：代码文件 -->
+   <aside class="sidebar" id="sidebar">
+      <div class="panel-head">
+         <span>代码文件</span>
+         <span class="head-actions">
+            <button class="icon-btn small" id="importDocBtn" data-tip="导入 .pseudocode / .txt 为代码文件" aria-label="导入代码文件">
+               <svg class="icon-import" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M4 11V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1"></path>
+                  <path d="M14 2v5a1 1 0 0 0 1 1h5"></path>
+                  <path d="M2 15h10"></path><path d="m9 18 3-3-3-3"></path>
+               </svg>
+            </button>
+            <button class="icon-btn small" id="newDocBtn" data-tip="新建 .pseudocode 文件" aria-label="新建代码文件">＋</button>
+         </span>
+      </div>
+      <ul class="file-list" id="fileList"></ul>
+      <div class="panel-foot">
+         <p class="muted small">源文件保存在浏览器本地。<br>运行时数据文件在右侧「文件」标签。</p>
+      </div>
+   </aside>
+
+   <!-- 中：编辑器 -->
+   <section class="editor-area">
+      <div class="find-bar" id="findBar" hidden>
+         <input id="findInput" class="text-field" placeholder="查找" spellcheck="false" aria-label="查找">
+         <input id="replaceInput" class="text-field" placeholder="替换为" spellcheck="false" aria-label="替换为">
+         <span id="findCount" class="find-count">0 / 0</span>
+         <button class="btn btn-ghost small fixed-btn" id="findPrev">上一个</button>
+         <button class="btn btn-ghost small fixed-btn" id="findNext">下一个</button>
+         <button class="btn btn-ghost small fixed-btn" id="replaceOne">替换</button>
+         <button class="btn btn-ghost small fixed-btn wide" id="replaceAll">全部替换</button>
+         <button class="icon-btn small" id="findClose" aria-label="关闭查找">✕</button>
+      </div>
+
+      <div class="editor-scroll" id="editorScroll">
+         <div class="gutter" id="gutter"></div>
+         <div class="code-area" id="codeArea">
+            <div class="active-line" id="activeLine"></div>
+            <div class="line-marks" id="lineMarks"></div>
+            <div class="find-marks" id="findMarks"></div>
+            <div class="selection-marks" id="selectionMarks"></div>
+            <pre class="highlight" id="highlight" aria-hidden="true"><code></code></pre>
+            <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="伪代码编辑器"></textarea>
+         </div>
+      </div>
+
+      <div class="snippet-pop" id="snippetPop" hidden>
+         <div class="snippet-head">插入 CAIE 结构</div>
+         <ul id="snippetList"></ul>
+      </div>
+   </section>
+
+   <!-- 右：结果 -->
+   <aside class="results" id="results">
+      <div class="tabs" role="tablist">
+         <button class="tab" data-tab="output" role="tab">输出<span class="tab-badge" id="tabOutputBadge"></span></button>
+         <button class="tab" data-tab="problems" role="tab">问题<span class="tab-badge" id="tabProblemBadge"></span></button>
+         <button class="tab" data-tab="vars" role="tab">变量<span class="tab-badge"></span></button>
+         <button class="tab" data-tab="files" role="tab">文件<span class="tab-badge"></span></button>
+         <button class="icon-btn small collapse-results" id="toggleResults" data-tip="收起或展开结果面板" aria-label="收起结果面板">›</button>
+      </div>
+
+      <div class="tab-panel" id="panel-output">
+         <div class="run-status" id="runStatus">尚未运行。点击「运行」查看输出。</div>
+         <div class="console" id="console"></div>
+         <div class="input-row" id="inputRow" data-waiting="false">
+            <span class="input-label" id="inputLabel">INPUT</span>
+            <input id="inputBox" class="text-field" spellcheck="false" autocomplete="off" disabled
+                   placeholder="运行到 INPUT 时在此输入" aria-label="程序输入">
+            <button class="btn btn-primary small fixed-btn" id="inputSend" disabled>提交</button>
+         </div>
+      </div>
+
+      <div class="tab-panel" id="panel-problems">
+         <div class="problem-summary" id="problemSummary" hidden>
+            <button class="pchip is-on" data-filter="all">全部<span class="pchip-n" id="pcAll">0</span></button>
+            <button class="pchip pchip-error" data-filter="error">错误<span class="pchip-n" id="pcError">0</span></button>
+            <button class="pchip pchip-caie" data-filter="caie">规范<span class="pchip-n" id="pcCaie">0</span></button>
+            <button class="pchip pchip-hint" data-filter="hint">建议<span class="pchip-n" id="pcHint">0</span></button>
+         </div>
+         <div class="problems-empty" id="problemsEmpty">语法检测已关闭。写作时不显示任何诊断。</div>
+         <ul class="problem-list" id="problemList"></ul>
+      </div>
+
+      <div class="tab-panel" id="panel-vars">
+         <div class="muted small pad" id="varsEmpty">运行或单步执行时显示变量、数组与调用栈。</div>
+         <table class="data-table" id="varTable" hidden>
+            <thead><tr><th>名称</th><th>种类</th><th>类型</th><th>值</th></tr></thead>
+            <tbody></tbody>
+         </table>
+         <div class="stack-box" id="stackBox" hidden>
+            <div class="sub-head">调用栈</div>
+            <ol id="stackList"></ol>
+         </div>
+      </div>
+
+      <div class="tab-panel" id="panel-files">
+         <div class="panel-sub">
+            <span>运行时虚拟文件</span>
+            <span class="head-actions">
+               <button class="icon-btn small" id="importRuntimeBtn" data-tip="导入 .txt / .dat 为运行时数据文件" aria-label="导入运行时文件">
+                  <svg class="icon-import" viewBox="0 0 16 16" aria-hidden="true">
+                     <path d="M4 11V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1"></path>
+                     <path d="M14 2v5a1 1 0 0 0 1 1h5"></path>
+                     <path d="M2 15h10"></path><path d="m9 18 3-3-3-3"></path>
+                  </svg>
+               </button>
+               <button class="icon-btn small" id="newRuntimeFile" data-tip="新建运行时数据文件" aria-label="新建运行时文件">＋</button>
+            </span>
+         </div>
+         <ul class="rt-file-list" id="rtFileList"></ul>
+         <div class="sub-head">打开的 handle</div>
+         <div class="handle-region">
+            <table class="data-table" id="handleTable" hidden>
+               <thead><tr><th>文件</th><th>模式</th><th>位置</th></tr></thead>
+               <tbody></tbody>
+            </table>
+            <div class="muted small pad" id="handleEmpty">当前没有打开的文件。</div>
+         </div>
+      </div>
+   </aside>
+</main>
+
+<footer class="statusbar">
+   <span id="cursorPos" class="status-slot">行 1，列 1</span>
+   <span class="dot">·</span>
+   <span>CAIE 9618 (2027–2029)</span>
+   <span class="dot">·</span>
+   <span>三空格缩进</span>
+   <span class="dot">·</span>
+   <span id="autosaveState">本地自动保存</span>
+   <span class="spacer"></span>
+   <span class="muted" id="engineNote">真实语法检测 · 阶段 4 虚拟文件执行</span>
+</footer>
+
+<!-- 遮罩与对话框 -->
+<div class="overlay" id="overlay" hidden></div>
+
+<div class="dialog" id="settingsDialog" hidden role="dialog" aria-label="设置">
+   <div class="dialog-head">设置<button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <div class="setting">
+         <span class="setting-label" id="lbl-theme">主题</span>
+         <div class="segmented" id="setTheme" role="radiogroup" aria-labelledby="lbl-theme">
+            <button role="radio" data-value="light" aria-checked="true">浅色</button>
+            <button role="radio" data-value="dark" aria-checked="false">深色</button>
+            <button role="radio" data-value="system" aria-checked="false">跟随系统</button>
+         </div>
+      </div>
+      <div class="setting">
+         <span class="setting-label">字号</span>
+         <div class="stepper" id="setFontSize">
+            <button data-step="-1" aria-label="减小字号">−</button>
+            <span class="stepper-value" id="fontSizeVal">14 px</span>
+            <button data-step="1" aria-label="增大字号">＋</button>
+         </div>
+      </div>
+      <div class="setting">
+         <span class="setting-label">显示行号</span>
+         <button class="switch-ctl" id="setLineNumbers" role="switch" aria-checked="true" aria-label="显示行号">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+         </button>
+      </div>
+      <div class="setting">
+         <span class="setting-label">输入 <code>&lt;-</code> 自动转换为 ←</span>
+         <button class="switch-ctl" id="setArrow" role="switch" aria-checked="true" aria-label="箭头自动转换">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+         </button>
+      </div>
+      <div class="setting">
+         <span class="setting-label">回车后自动缩进与补全块结束符</span>
+         <button class="switch-ctl" id="setAutoIndent" role="switch" aria-checked="true" aria-label="自动缩进">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+         </button>
+      </div>
+      <div class="setting">
+         <span class="setting-label">自动配对括号与引号</span>
+         <button class="switch-ctl" id="setAutoPair" role="switch" aria-checked="true" aria-label="自动配对">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+         </button>
+      </div>
+      <hr>
+      <button class="btn btn-danger small" id="clearData">清除本地项目数据</button>
+      <p class="muted small">清除后所有代码文件、运行时文件与设置都会丢失，且无法撤销。</p>
+   </div>
+</div>
+
+<div class="dialog" id="aboutDialog" hidden role="dialog" aria-label="关于">
+   <div class="dialog-head">关于与规则来源<button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p>本编辑器面向 CAIE International AS &amp; A Level Computer Science <strong>9618</strong>，语法依据 <em>Pseudocode Guide for Teachers</em>（适用于 2027、2028、2029 考试）。</p>
+      <p><strong>本产品不是 Cambridge 官方产品，也未获得官方授权。</strong></p>
+      <p>诊断信息分为两类来源：</p>
+      <ul>
+         <li><span class="origin-tag caie">CAIE</span> 指南明确规定，例如关键字大写、三空格缩进、← 赋值、常量只能是字面量。</li>
+         <li><span class="origin-tag rt">Editor Runtime</span> 指南未定义、由本编辑器约定的运行行为，例如随机文件 1-based 记录位置、步数上限。</li>
+      </ul>
+      <p class="muted small">当前版本已接入真实 Tokenizer、Parser、绑定、类型检查、CAIE 格式化器与阶段 4 解释器；可执行基本类型、控制结构、数组、记录、过程/函数，以及带事务回滚的文本与随机虚拟文件。</p>
+   </div>
+</div>
+
+<div class="dialog" id="fileDialog" hidden role="dialog" aria-label="运行时文件">
+   <div class="dialog-head"><span id="fileDialogTitle">文件内容</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p class="muted small dialog-meta" id="fileDialogMeta"></p>
+      <div class="file-mode-row">
+         <div class="segmented" id="fileMode" role="radiogroup" aria-label="查看模式">
+            <button role="radio" data-value="preview" aria-checked="true">预览</button>
+            <button role="radio" data-value="edit" aria-checked="false">编辑</button>
+         </div>
+         <span class="muted small" id="fileDialogCount"></span>
+      </div>
+      <div class="file-preview" id="filePreview"></div>
+      <textarea id="fileDialogBody" class="plain-area" spellcheck="false" aria-label="文件内容" hidden></textarea>
+      <div class="field-error" id="fileDialogError"></div>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-primary small fixed-btn" id="fileDialogSave">保存</button>
+      </div>
+   </div>
+</div>
+
+<div class="dialog dialog-sm" id="promptDialog" hidden role="dialog" aria-label="输入">
+   <div class="dialog-head"><span id="promptTitle">输入</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p class="muted small dialog-meta" id="promptDesc"></p>
+      <input id="promptInput" class="text-field block" spellcheck="false" autocomplete="off" aria-label="输入内容">
+      <div class="field-error" id="promptError"></div>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-primary small fixed-btn" id="promptOk">确定</button>
+      </div>
+   </div>
+</div>
+
+<div class="dialog dialog-sm" id="choiceDialog" hidden role="dialog" aria-label="选择导入方式">
+   <div class="dialog-head"><span id="choiceTitle">导入方式</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p class="muted small dialog-meta" id="choiceDesc"></p>
+      <div class="choice-list" id="choiceList"></div>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn small fixed-btn wide" id="choiceRuntime">作为数据文件</button>
+         <button class="btn btn-primary small fixed-btn wide" id="choiceSource">作为代码文件</button>
+      </div>
+   </div>
+</div>
+
+<div class="dialog dialog-sm" id="confirmDialog" hidden role="dialog" aria-label="确认">
+   <div class="dialog-head"><span id="confirmTitle">确认</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p id="confirmBody" class="confirm-body"></p>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-danger small fixed-btn" id="confirmOk">删除</button>
+      </div>
+   </div>
+</div>
+
+<div class="drop-overlay" id="dropOverlay" hidden>
+   <div class="drop-card">
+      <div class="drop-title" id="dropTitle">松开以导入为代码文件</div>
+      <div class="drop-hint" id="dropHint">支持 .pseudocode 与 .txt；拖到右侧「文件」标签可导入为运行时数据文件。</div>
+   </div>
+</div>
+
+<div class="toast" id="toast" hidden><span id="toastText"></span><button id="toastAction" hidden></button></div>
+<div class="tooltip" id="tooltip" hidden></div>
+<input type="file" id="importInput" hidden multiple accept=".pseudocode,.txt">
+
+<script src="js/caie-spec.js"></script>
+<script src="js/samples.js"></script>
+<script src="js/language-engine.js?v=11"></script>
+<script src="js/language-adapter.js?v=9"></script>
+<script src="js/runtime-engine.js?v=9"></script>
+<script src="js/lang.js?v=11"></script>
+<script src="js/runtime-messages.js?v=3"></script>
+<script src="js/app.js?v=22"></script>
+</body>
+</html>

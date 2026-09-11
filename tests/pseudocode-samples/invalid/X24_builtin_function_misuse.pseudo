@@ -1,0 +1,12 @@
+// X24 [内建函数] 参数个数/类型错误、函数名拼写错误
+DECLARE S : STRING
+DECLARE N : INTEGER
+
+S ← "Hello"
+N ← LENGTH()             // 缺少参数
+N ← LENGTH(S, 2)         // 参数过多
+S ← RIGHT(S)             // RIGHT 需要两个参数
+S ← MID(S, 2)            // MID 需要三个参数
+N ← LENGHT(S)            // 拼写错误
+N ← UCASE(5)             // 参数类型错误
+S ← INT("abc")           // INT 需要数值

@@ -1,0 +1,8 @@
+// X09 [结构] CASE 缺少 ENDCASE，OTHERWISE 不在最后，且 CASE OF 后缺表达式
+DECLARE Key : CHAR
+INPUT Key
+
+CASE OF
+    'A' : OUTPUT "Alpha"
+    OTHERWISE : OUTPUT "Unknown"
+    'B' : OUTPUT "Beta"

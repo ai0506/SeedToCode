@@ -1,0 +1,47 @@
+// V11 - 综合算法：冒泡排序 + 二分查找
+DECLARE List : ARRAY[1:10] OF INTEGER
+DECLARE i : INTEGER
+DECLARE Swapped : BOOLEAN
+DECLARE Temp : INTEGER
+DECLARE Upper : INTEGER
+DECLARE Lower : INTEGER
+DECLARE Middle : INTEGER
+DECLARE SearchItem : INTEGER
+DECLARE FoundAt : INTEGER
+
+FOR i ← 1 TO 10
+    INPUT List[i]
+NEXT i
+
+Upper ← 10
+REPEAT
+    Swapped ← FALSE
+    FOR i ← 1 TO Upper - 1
+        IF List[i] > List[i + 1] THEN
+            Temp ← List[i]
+            List[i] ← List[i + 1]
+            List[i + 1] ← Temp
+            Swapped ← TRUE
+        ENDIF
+    NEXT i
+    Upper ← Upper - 1
+UNTIL Swapped = FALSE OR Upper = 1
+
+INPUT SearchItem
+Lower ← 1
+Upper ← 10
+FoundAt ← -1
+WHILE Lower <= Upper AND FoundAt = -1
+    Middle ← (Lower + Upper) DIV 2
+    IF List[Middle] = SearchItem THEN
+        FoundAt ← Middle
+    ELSE
+        IF List[Middle] < SearchItem THEN
+            Lower ← Middle + 1
+        ELSE
+            Upper ← Middle - 1
+        ENDIF
+    ENDIF
+ENDWHILE
+
+OUTPUT "Position: ", FoundAt

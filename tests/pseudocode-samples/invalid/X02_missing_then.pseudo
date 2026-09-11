@@ -1,0 +1,6 @@
+// X02 [语法] IF 条件后缺少 THEN
+DECLARE X : INTEGER
+INPUT X
+IF X > 0
+    OUTPUT "Positive"
+ENDIF

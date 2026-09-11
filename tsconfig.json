@@ -1,0 +1,23 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/caie-spec"
+    },
+    {
+      "path": "./packages/language"
+    },
+    {
+      "path": "./packages/runtime"
+    },
+    {
+      "path": "./packages/test-cases"
+    },
+    {
+      "path": "./packages/exercise"
+    },
+    {
+      "path": "./packages/teaching-content"
+    }
+  ]
+}
