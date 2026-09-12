@@ -131,4 +131,4 @@
 
 另注意 `sendVerificationLink()` 失败时抛出发生在 users/auth_tokens 写入之后，投递失败会留下一行 `pending_email` 用户和一条未消费 token；它们不影响任何人登录，但会占着那个邮箱直到对方重新注册（重新注册会覆盖同一行并重发）。这次两次探测各留下一行，已从远端 D1 删除。
 
-学生的用户名密码登录和班级码自助注册不依赖邮件。未登录的本地编辑、学习、做题和本地运行在线上完整可用；已部署的云端 API 需先完成生产邮箱配置后才能完整开放。已绑定自定义域名 `https://seedtocode.example.invalid`（与 workers.dev 地址指向同一个 Worker，实测 `/health`、`/lab`、`/assign`、`/classes` 均 200）。**`APP_ORIGIN` 这个 secret 指向哪里尚未确认**：验证邮件里的链接用它拼，若仍指着 workers.dev，注册的人会落在旧域名上，会话 cookie 也种在那个 origin。
+学生的用户名密码登录和班级码自助注册不依赖邮件。未登录的本地编辑、学习、做题和本地运行在线上完整可用；已部署的云端 API 需先完成生产邮箱配置后才能完整开放。已绑定自定义域名 `https://seedtocode.example.invalid`（与 workers.dev 地址指向同一个 Worker，实测 `/health`、`/lab`、`/assign`、`/classes` 均 200）。`APP_ORIGIN` 已确认为 `https://seedtocode.example.invalid`（验证邮件里的链接用它拼，指的是自定义域名，不是 workers.dev）。

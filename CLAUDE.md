@@ -1,0 +1,78 @@
+# CLAUDE.md
+
+给在这个仓库里工作的 Claude Code 看的。**这份文件不复述其它文档**，只做两件事：把「该读哪一份」指清楚，以及把踩过的坑写下来。内容失效时就地改掉，不要往下堆。
+
+## 这是什么
+
+SeedToCode：面向 CAIE 9618（2027–2029）的浏览器伪代码编辑器 + 解释执行器 + 教学平台。本地优先——未登录也能完整编辑、学习、做题、本地运行；登录后才有同步、云端运行和班级教学。已部署在 <https://seedtocode.example.invalid>。
+
+## 常用命令
+
+```bash
+npm test          # build + 服务端 tsc + 教学期望输出校验 + vitest（提交前必跑）
+npm run check     # 全部 workspace 的类型检查
+npm run build     # tsc + esbuild 打出 web/js/*.js
+```
+
+服务端与预览：用 `.claude/launch.json` 里的两个配置，**不要用 Bash 起服务器**。
+
+- `seedtocode-dev`：`wrangler dev`（8787），静态页和 API 同源、本地 D1。要测登录/同步/班级就用它。
+- `web-static`：纯静态（8123）。只测编辑器、教学、本地运行时够用，不需要 D1。
+
+部署：`cd server && npx wrangler deploy`。部署前先 `npx wrangler d1 migrations list seedtocode --remote` 确认要不要迁移。
+
+## 目录
+
+| 路径 | 是什么 |
+|---|---|
+| `packages/*` | TypeScript 源码，**有测试**。语言、运行时、判题、教学内容、存储、作业纯逻辑。 |
+| `web/*.html` + `web/js/*.js` | 手写的页面代码。**没有单元测试**，靠浏览器实测 + `tests/frontend-rules.test.ts` 的静态检查。 |
+| `web/js/*-engine.js`、`teaching-content.js`、`storage.js`、`assignment-core.js` | **esbuild 产物，不要手改**。改 `packages/` 再 `npm run build`。 |
+| `server/` | Cloudflare Worker + D1 migrations。 |
+| `tests/` | 跨 `web/` 的规则检查。 |
+
+## 权威文档：按问题找，别通读
+
+| 你要知道的 | 读这个 |
+|---|---|
+| 现在做到哪了、哪些是 Planned | `PROJECT_STATE.md`（**只记事实，不记计划和历史**） |
+| 改过什么、为什么那样改 | `updates.md`（只追加） |
+| `web/` 的两条硬性规则 | `FRONTEND_RULES.md`（**是验收条件，不是风格偏好**） |
+| 语言契约（token / 语法 / AST / 诊断） | `LANGUAGE_SPEC.md`、`CAIE_RULES.md`、`runtime-conventions.md` |
+| 用户系统、同步、权限、找回密码的取舍 | `CLOUD_ARCHITECTURE.md` |
+| 写教学内容的规格与未决项 | `teaching/07-HANDOFF.md`（先读它，风险和踩过的坑都在这儿）、`teaching/01-CURRICULUM.md` |
+| 页面各自负责什么 | `web/README.md` |
+
+## 每次改完要做的
+
+1. **`npm test`** 必须全绿。
+2. 改了 `web/` 下的东西：**在真浏览器里点一遍**。页面层没有单元测试，这一轮修的几个 bug 全是手点出来的，不是测出来的。
+3. 改了 `web/js/*.js` 或 `web/css/*.css`：**提缓存版本号**。见下面的坑。
+4. 往 `updates.md` 追加一条 `[ClaudeCode][YYMMDDHHmm]`：写清楚**为什么**这么改、**验证了什么**、**什么没做到**。这个仓库的变更记录是技术性的，不是流水账。
+5. 事实变了就同步 `PROJECT_STATE.md`（以及 README / `web/README.md` / `FRONTEND_RULES.md` 的对应处）。
+
+## 坑
+
+**缓存版本号：共用文件要在所有页面一起提。** 页面用 `?v=N` 做缓存失效。`css/styles.css`、`js/sync-engine.js` 这类被多个页面引用的文件，只提一个页面的版本号，其余页面会继续吃旧缓存——而且各页版本号一旦分叉就很难发现。改完用
+`grep -rn "文件名" web/*.html` 核一遍，确认只有一个版本号。
+
+**`web/js/*.js` 是 IIFE，不是模块。** 页面按 `<script src>` 顺序加载，跨文件通信走 `window.XXX`（`CloudClient`、`AuthStore`、`CAIEStorage`、`CAIEAssignment`…）。在浏览器控制台里 `typeof someFunction` 查不到是正常的，函数都在闭包里。
+
+**不要相信文档里的「尚未 / 待办」而不核实。** 这一轮就因为照抄 `PROJECT_STATE.md` 里一句过时的「尚未绑定自定义域名」而对使用者说了错话。涉及线上状态、配置、部署的说法，先用命令或 curl 验一次再讲。
+
+**`FRONTEND_RULES` 现在有自动化检查了**（`tests/frontend-rules.test.ts`），但它**只做静态文本检查**。第 1 条「一次交互只允许改变被操作对象自身的外观」需要真实布局引擎，jsdom 里所有 rect 都是 0——必须用那份文档末尾的 `getBoundingClientRect` 快照法在浏览器里量。存量违规冻在基线数组里，**修好一处删一行，不要往里加**。
+
+**编辑器是「透明 textarea + 高亮层」两层。** 选区、查找高亮、行标记都是自己画的矩形。任何涉及位置的计算都**不能**按「列数 × 字符宽度」推算——中文占两格、Tab 跳制表位，一算就偏；要用 `Range` 去量高亮层。输入法合成期间两层要对调，否则拼音是透明的看不见。
+
+**同步的元数据迁移必须幂等。** `sync-engine.js` 的 meta 迁移每次载入都会跑一遍。曾经它无条件给键加项目前缀，第二次载入就变成 `项目/项目/文件`，导致本地还在的文件被判成「已删」、每次载入都推一批 tombstone（只是碰巧被服务端 revision 校验挡成 409）。改这一段时先想清楚「跑第二遍会怎样」。
+
+**教学内容按章声明执行档**（`Chapter.executionProfile`，省略即 `core-2027`）。AS 章必须是 `core-2027`，A Level 章写 `advanced-2027`，否则 A Level 特性会在预检就被 `RT1106` 拒掉。写新章之前读 `teaching/07-HANDOFF.md` §3.15–3.18。
+
+**改教学题目之后**跑 `npm run teaching:expected` 重新生成期望输出，否则 `npm test` 会红。
+
+## 风格
+
+- 注释和文档写中文，和现有代码一致。
+- 注释写**为什么**，尤其是「为什么不用那个显而易见的做法」。这个仓库里大量注释记录的是踩过的坑，别删。
+- `web/js/` 是 ES5 风格（`var`、`function`）；`packages/` 是现代 TypeScript。跟着所在文件走。
+- 面向使用者的文案用中文，不用「激活码」「班级码」之外的术语堆砌，按对方实际拿到的东西描述。
