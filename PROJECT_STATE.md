@@ -85,7 +85,7 @@
 | 老师手动评分、评语与学生查看 | Complete |
 | 本地数据归属与换人登录保护 | Complete |
 | Cloudflare Workers 与远端 D1 部署 | Complete |
-| Resend 生产邮件配置 | Planned |
+| Resend 生产邮件真实投递验证 | In progress |
 | 找回密码接口（老师/个人学习者） | Planned |
 
 说明：当前页面已经通过 `CAIEStorage` 统一访问本地存储，并将 editor/teaching 旧数据镜像到 IndexedDB；为保证同步启动和 `file://` 兼容，页面读取仍使用兼容快照，尚未完成“完全由 IndexedDB entity 读取”的最终切换。多项目当前由编辑器的 `seedtocode.projects.v1` 注册表保存，教学数据仍按独立旧 key 通过 facade 访问。`deviceId` 是浏览器安装首次生成并持久化的随机 UUID（localStorage 为准，同一个值补写进 IndexedDB meta），不使用设备指纹。
@@ -112,4 +112,4 @@
 
 已部署到 Cloudflare Workers：`https://seedtocode-api.example.invalid`，绑定远端 D1 `seedtocode`（`00000000-0000-0000-0000-000000000000`），9 个 migration 已应用（`0009_email_pending_password` 给 `auth_tokens` 加了待定密码两列）。`ENVIRONMENT` 为 `production`，一次性登录 token 不再回给调用方，会话 cookie 带 `Secure`。静态页由同一个 Worker 用 Workers Assets 同源托管；地址栏是无后缀形式（`/lab`、`/learn`、`/classes`），而页面里的链接仍写成 `learn.html`，因为双击本地 HTML 文件时只有带后缀的相对路径找得到文件。页面改名（编辑器 `/` → `/lab`、`/teaching` → `/learn`、`/teacher` → `/classes`）之后，旧地址由 Worker 做 301：`/`、`/index`、`/index.html` → `/lab`，`/teaching(.html)` → `/learn`，`/teacher(.html)` → `/classes`，查询串原样带走。这些路径能落到 Worker，是因为 `web/` 下已经没有同名文件，资源服务匹配不到才会走过来。
 
-生产邮件尚未配置：`RESEND_API_KEY`、`EMAIL_FROM`、`APP_ORIGIN` 三个 secret 都没设，因此老师和个人学习者首次注册时的邮箱验证返回 `EMAIL_NOT_CONFIGURED`，暂时无法完成新注册；已有账号登录不依赖邮件。学生的用户名密码登录和班级码自助注册不依赖邮件。未登录的本地编辑、学习、做题和本地运行在线上完整可用；已部署的云端 API 需先完成生产邮箱配置后才能完整开放。尚未绑定自定义域名。
+生产邮件：`RESEND_API_KEY`、`EMAIL_FROM`、`APP_ORIGIN` 三个 secret **都已设置**（`wrangler secret list` 可见），但真实投递还没验证成功——线上用一个 `@example.com` 地址试注册返回的是 `EMAIL_DELIVERY_FAILED`（Resend 拒发，可能是发件域未验证，也可能只是收件域不可投递），需要用一个真实邮箱再测一次才能确认。在确认之前，老师和个人学习者的首次注册仍可能走不通；已有账号登录不依赖邮件。另注意 `sendVerificationLink()` 失败时抛出发生在 users/auth_tokens 写入之后，投递失败会留下一行 `pending_email` 用户和一条未消费 token；它们不影响任何人登录，但会占着那个邮箱直到对方重新注册（重新注册会覆盖同一行并重发）。学生的用户名密码登录和班级码自助注册不依赖邮件。未登录的本地编辑、学习、做题和本地运行在线上完整可用；已部署的云端 API 需先完成生产邮箱配置后才能完整开放。尚未绑定自定义域名。
