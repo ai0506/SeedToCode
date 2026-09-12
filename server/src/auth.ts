@@ -464,7 +464,18 @@ async function sendVerificationLink(env: Env, email: string, token: string): Pro
       html: `<p>点击下方链接完成 SeedToCode 注册并登录。链接将在 15 分钟后失效。</p><p><a href="${link}">验证邮箱并登录 SeedToCode</a></p>`
     })
   });
-  if (!response.ok) throw new AuthError("EMAIL_DELIVERY_FAILED", 503, "验证邮件暂时无法发送，请稍后再试。");
+  if (response.ok) return;
+  /*
+   * 给调用方的话仍然含糊——注册接口是匿名可调的，不该把发件域、配额这些
+   * 配置细节说给任何人听。但**我们自己**得知道是怎么回事：在这之前这里
+   * 直接把 Resend 的回应扔掉了，线上发不出信，日志里也只有一个 503，
+   * 没有任何线索可查。原文记进 Worker 日志（observability 已开），
+   * 里面只有 Resend 的错误描述，不含 API key。
+   */
+  let detail = "";
+  try { detail = (await response.text()).slice(0, 500); } catch { detail = "<unreadable>"; }
+  console.error("resend.send_failed", JSON.stringify({ status: response.status, body: detail }));
+  throw new AuthError("EMAIL_DELIVERY_FAILED", 503, "验证邮件暂时无法发送，请稍后再试。");
 }
 
 async function digest(value: string): Promise<string> {

@@ -78,7 +78,7 @@
 | `prompt()` | 自定义 Modal + 输入框 + 常驻高度的内联校验 | `askText()` |
 | `title="..."` 悬浮文字 | 自定义 Tooltip | `data-tip`，`js/tooltip.js` |
 | `<select>` | 分段控件（选项 ≤ 4）或自定义下拉列表 | `.login-choice` / `role="radiogroup"` |
-| `<input type="date">` | 自定义日期选择器 | **待实现** |
+| `<input type="date">` | 自定义日期选择器 | `.datepicker`，`web/assign.html` + `js/assign-page.js` |
 | `<input type="checkbox">` | `role="switch"` 自定义开关 | `.switch-ctl` |
 | `<input type="range">` | 自定义步进器 | 设置里的字号 |
 | `<input type="color">` | 自定义色板 | 暂无需求 |
@@ -118,6 +118,8 @@
 - [ ] 没有新增 `title=` 属性（改用 `data-tip`）
 - [ ] 没有新增 `<select>` / `type="date"` / `type="checkbox"` / `type="range"` / `<details>` / `<dialog>`
 - [ ] 没有依赖 HTML5 表单校验
+
+**这两条现在有自动化检查了**：`tests/frontend-rules.test.ts` 把下面这些 grep 写成了测试，`npm test` 会跑。新增违规直接红；上表里的存量欠债冻在那个文件的基线数组里，修好一处就删一行。注意它只做**静态文本**检查——第 1 条「一次交互只允许改变被操作对象自身的外观」需要真实布局引擎才能量（见文末的快照法），jsdom 里所有 rect 都是 0，那一条仍然靠手动核对。
 
 **全局 grep（应当只命中已知豁免项）**
 
@@ -167,6 +169,7 @@ window.__snap.size;
 
 | 位置 | 问题 | 状态 |
 |---|---|---|
-| `web/classes.html:120` `#taskFilter` | 原生 `<select>` 按题号筛选 | 待修 |
-| `web/classes.html:222` `#assignDue` | 原生 `<input type="date">`，弹浏览器日历 | 待修，随「布置作业独立成页」一并处理 |
-| `web/lab.html:380` `#importInput` | `<input type="file" hidden>` | 符合 2.2 例外，不修 |
+| `web/classes.html` `#taskFilter` | 原生 `<select>` 按题号筛选 | 待修 |
+| `web/lab.html` `#importInput` | `<input type="file" hidden>` | 符合 2.2 例外，不修 |
+| `css/styles.css` `#projectPickerList` / `.file-list` / `.editor-scroll` / `.snippet-pop ul` / `.tab-panel` / `.console` / `.dialog-body`，`css/teaching.css` `.mini-code textarea` | 滚动容器缺 `scrollbar-gutter: stable`（第 1.4 条） | 待修，已冻进基线 |
+| `css/styles.css` `.file-list li.active` / `.tab.active` | 用 `font-weight` 表示选中（第 1.2 条点名禁止） | 待修，已冻进基线 |

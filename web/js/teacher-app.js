@@ -14,6 +14,9 @@
    var CLIENT = window.CloudClient;
    var AUTH = window.AuthStore;
    var course = (window.CAIETeaching && window.CAIETeaching.course) || { chapters: [] };
+   /* 迟交判定和提交汇总在 packages/assignment 里（js/assignment-core.js 打成全局），
+      那边有测试；这里不留副本，副本会和被测的那一份悄悄分叉。 */
+   var CORE = window.CAIEAssignment;
 
    var classes = [];
    var currentClassId = null;
@@ -26,15 +29,20 @@
    var assignments = [];
    var openAssignmentId = null;      // 展开查看提交的那一份作业
    var assignmentSubmissions = [];
-   /* 老师自己写的题。纯文本，没有判题数据——学生写完自己跑，成绩由老师给。 */
-   var customItems = [];
-   /* 旧作业里从课程勾选的题目。现在不再支持新增，但编辑已有作业时要原样带着——
-      直接丢掉的话，学生已经交在那些题上的答案就和作业脱钩了。 */
-   var legacyTasks = [];
    /* 和服务端 MAX_CLASSES_PER_TEACHER 对齐。前端只负责提前把按钮灰掉并说明原因，
       真正的拦截在服务端——前端隐藏按钮从来不算限制。 */
    var MAX_CLASSES = 5;
-   var assignEditingId = null;   // 非空表示在改一份已有作业，而不是新布置
+
+   /* 布置作业在 assign.html，回来时要落回原处：哪个班、哪个标签、展开的是哪份作业。
+      只在首次载入时用一次，之后页内切换以实际操作为准。 */
+   var entry = (function () {
+      var query = new URLSearchParams(window.location.search);
+      return {
+         classId: query.get("class") || "",
+         tab: query.get("tab") || "",
+         assignmentId: query.get("a") || ""
+      };
+   })();
 
    /* ---------------- 文本 ---------------- */
 
@@ -180,6 +188,11 @@
    async function loadClasses() {
       var data = await CLIENT.request("/api/classes");
       classes = data.classes || [];
+      // 从 assign.html 回来时带着班级 id，优先落在那个班上
+      if (entry.classId && classes.some(function (item) { return item.id === entry.classId; })) {
+         currentClassId = entry.classId;
+         entry.classId = "";
+      }
       if (!classes.length) currentClassId = null;
       else if (!classes.some(function (item) { return item.id === currentClassId; })) currentClassId = classes[0].id;
       renderClasses();
@@ -205,6 +218,12 @@
       progressRows = results[1].status === "fulfilled" ? (results[1].value.progress || []) : [];
       submissions = results[2].status === "fulfilled" ? (results[2].value.submissions || []) : [];
       assignments = results[3].status === "fulfilled" ? (results[3].value.assignments || []) : [];
+      // 从 assign.html 回来时带着作业 id，直接展开它的提交情况
+      var wanted = "";
+      if (entry.assignmentId && assignments.some(function (item) { return item.id === entry.assignmentId; })) {
+         wanted = entry.assignmentId;
+      }
+      entry.assignmentId = "";
       // 换班级时不要还停在上一个班的某份作业详情里
       if (!assignments.some(function (item) { return item.id === openAssignmentId; })) {
          openAssignmentId = null;
@@ -213,6 +232,7 @@
       var failed = results.filter(function (item) { return item.status === "rejected"; });
       if (failed.length) toast(describeError(failed[0].reason));
       renderAll();
+      if (wanted) await openAssignment(wanted);
    }
 
    function describeError(error) {
@@ -425,24 +445,26 @@
     * 迟交＝提交时间晚于当前截止时间。现算而不是提交时写死：
     * 老师改了截止时间，之前那些提交的迟交与否也应当跟着变。
     */
-   function isLate(assignment, submission) {
-      return Boolean(assignment && assignment.dueAt && submission && submission.submittedAt > assignment.dueAt);
-   }
+   var isLate = CORE.isLate;
 
    function renderAssignments() {
       $("backToAssignments").hidden = !openAssignmentId;
       $("editAssignmentBtn").hidden = !openAssignmentId;
       $("deleteAssignmentBtn").hidden = !openAssignmentId;
       $("newAssignmentBtn").hidden = Boolean(openAssignmentId);
+      if (openAssignmentId && currentClassId) { renderAssignmentDetail(); return; }
+      /* 详情是左右两栏、各自滚动的，列表是一条一条往下排——两种模式对容器的
+         要求不一样，退回列表时要把容器恢复成普通的纵向滚动。 */
+      $("assignmentsScroll").dataset.mode = "list";
+      $("assignmentsBody").dataset.activeCol = "";
       if (!currentClassId) {
          $("assignmentSubTitle").textContent = "班级作业";
          $("assignmentsBody").innerHTML = emptyBox("先在左边新建一个班级。");
          return;
       }
-      if (openAssignmentId) { renderAssignmentDetail(); return; }
       $("assignmentSubTitle").textContent = "班级作业";
       if (!assignments.length) {
-         $("assignmentsBody").innerHTML = emptyBox("这个班还没有作业。点「布置作业」选题目发给全班。");
+         $("assignmentsBody").innerHTML = emptyBox("这个班还没有作业。点「布置作业」自己写题发给全班。");
          return;
       }
       var now = Date.now();
@@ -450,18 +472,28 @@
          var overdue = item.dueAt && item.dueAt < now;
          return '<li data-assignment-id="' + esc(item.id) + '">' +
             '<span class="assign-title">' + esc(item.title) + "</span>" +
-            '<span class="assign-tasks">' + esc((item.items || []).map(function (entry) {
-               return entry.kind === "custom" ? "自出题" : entry.id;
-            }).join(" ")) + "</span>" +
+            /* 原来这里逐条列 `自出题 自出题`，一个字的信息都没有。题名在详情里看，
+               列表上只需要知道有几道。 */
+            '<span class="assign-tasks">' + (item.items || []).length + " 道题</span>" +
             '<span class="assign-meta assign-due" data-state="' + (overdue ? "over" : "") + '">' + esc(dueLabel(item.dueAt)) + "</span>" +
             "</li>";
       }).join("") + "</ul>";
    }
 
    /**
-    * 一份作业的提交情况。按学生 × 题目排：每个学生每道题只看最近一次，
-    * 服务端已按提交时间倒序返回，第一条就是最新的。
-    * 没交的也要列出来——老师最关心的往往正是这一格。
+    * 一份作业的详情。左右两栏，吃满屏幕的横向空间：
+    *
+    * 左边是这份作业**本身**——每道题的题面和提示原文。在这之前老师根本没有
+    * 地方看自己出的是什么题：列表行上只显示「自出题 自出题」，想看题面只能点
+    * 「编辑」进出题页，那是编辑态，看一眼就有误改的风险。批改时要对照题面看
+    * 学生写得对不对，这一栏就是为那件事在的。
+    *
+    * 右边是提交矩阵：学生 × 题目，每人每题只看最近一次（服务端已按时间倒序，
+    * 第一条就是最新的），没交的也列出来——老师最关心的往往正是那一格。
+    * 题目一多，光有格子数不出「哪道题最多人没交」，所以行尾和表尾各加一道汇总。
+    *
+    * 点左边某道题，右边对应那一列高亮：题目多到要横向滚时，这是唯一能把
+    * 「这道题」和「它那一列」对上的办法。
     */
    function renderAssignmentDetail() {
       var assignment = assignments.filter(function (item) { return item.id === openAssignmentId; })[0];
@@ -474,18 +506,83 @@
          if (!latest[key]) latest[key] = item;
       });
       var tasks = assignment.items || [];
-      if (!students.length) { $("assignmentsBody").innerHTML = emptyBox("这个班还没有学生。"); return; }
+      // 每道题交了几个人 / 每个学生交了几道，左栏、行尾和表尾都要用
+      var counts = CORE.tally(
+         students.map(function (student) { return student.id; }),
+         tasks.map(function (entry) { return entry.id; }),
+         function (studentId, taskId) { return Boolean(latest[studentId + "/" + taskId]); }
+      );
+      var perTask = counts.perTask;
+
+      $("assignmentsScroll").dataset.mode = "detail";
+      $("assignmentsBody").innerHTML =
+         '<div class="assign-detail">' +
+         assignmentAside(assignment, tasks, perTask, counts) +
+         '<div class="ad-main">' + assignmentMatrix(assignment, tasks, counts, latest) + "</div>" +
+         "</div>";
+   }
+
+   function taskLabel(entry) {
+      return entry.kind === "custom" ? (entry.title || "自出题") : entry.id;
+   }
+
+   /** 左栏：这份作业出了什么题。题面和提示按原文显示，换行照旧。 */
+   function assignmentAside(assignment, tasks, perTask, counts) {
+      var overdue = assignment.dueAt && assignment.dueAt < Date.now();
+
+      var head =
+         '<div class="ad-meta">' +
+         '<div class="ad-due" data-state="' + (overdue ? "over" : "") + '">' + esc(dueLabel(assignment.dueAt)) +
+         (overdue ? "（现在提交算迟交，但仍然可以交）" : "") + "</div>" +
+         '<div class="ad-stat">' + tasks.length + " 道题 · " + students.length + " 名学生 · 已交 " +
+         counts.submitted + "/" + counts.total + " 份</div></div>";
+
+      if (!tasks.length) return '<aside class="ad-side">' + head + emptyBox("这份作业里没有题目。") + "</aside>";
+
+      var list = tasks.map(function (entry, index) {
+         var custom = entry.kind === "custom";
+         /* 题面和提示都是老师自己敲的文字，一律 textContent 语义（这里先转义再放进
+            innerHTML），换行交给 CSS 的 pre-wrap——绝不能当标记解析。 */
+         var prompt = custom
+            ? '<div class="ad-task-prompt">' + esc(entry.prompt || "") + "</div>"
+            : '<div class="ad-task-prompt muted">这是课程里的题目（旧数据），题面在课程里。</div>';
+         var guidance = custom && entry.guidance
+            ? '<div class="ad-task-guidance"><span class="ad-g-head">提示</span>' + esc(entry.guidance) + "</div>"
+            : "";
+         return '<article class="ad-task" data-col="' + index + '" tabindex="0" role="button" ' +
+            'aria-label="第 ' + (index + 1) + ' 题 ' + esc(taskLabel(entry)) + '，点一下高亮右边对应的那一列">' +
+            '<div class="ad-task-head">' +
+            '<span class="ad-task-no">第 ' + (index + 1) + " 题</span>" +
+            '<span class="ad-task-name">' + esc(taskLabel(entry)) + "</span>" +
+            '<span class="ad-task-count">' + perTask[index] + "/" + students.length + "</span>" +
+            "</div>" + prompt + guidance + "</article>";
+      }).join("");
+
+      return '<aside class="ad-side">' + head + '<div class="ad-task-list">' + list + "</div></aside>";
+   }
+
+   /** 右栏：学生 × 题目。行尾一列「这个学生交了几道」，表尾一行「这道题交了几个人」。 */
+   function assignmentMatrix(assignment, tasks, counts, latest) {
+      if (!students.length) return emptyBox("这个班还没有学生。");
+      if (!tasks.length) return emptyBox("这份作业里没有题目。");
 
       var head = '<th class="who">学生</th>' +
-         tasks.map(function (entry) {
-            var label = entry.kind === "custom" ? (entry.title || "自出题") : entry.id;
-            return '<th data-tip="' + esc(label) + '">' + esc(label.length > 8 ? label.slice(0, 8) + "…" : label) + "</th>";
-         }).join("") + "<th>最近提交</th>";
-      var body = students.map(function (student) {
+         tasks.map(function (entry, index) {
+            var label = taskLabel(entry);
+            /* 列头两行定高：上行是题号（滚到哪一列都还知道是第几题），
+               下行是题名，超出省略号，完整题名交给悬浮提示。 */
+            return '<th class="task-col" data-col="' + index + '" data-tip="' + esc(label) + '">' +
+               '<span class="tc-no">第 ' + (index + 1) + " 题</span>" +
+               '<span class="tc-name">' + esc(label) + "</span></th>";
+         }).join("") +
+         '<th class="done-col">已交</th><th class="when-col">最近提交</th>';
+
+      var body = students.map(function (student, studentIndex) {
          var newest = 0;
-         var cells = tasks.map(function (entry) {
+         var done = counts.perStudent[studentIndex];
+         var cells = tasks.map(function (entry, index) {
             var item = latest[student.id + "/" + entry.id];
-            if (!item) return '<td class="cell">未交</td>';
+            if (!item) return '<td class="cell" data-col="' + index + '">未交</td>';
             if (item.submittedAt > newest) newest = item.submittedAt;
             // 迟交只是标出来，不改变判分，也从来没有拦过提交。
             var late = isLate(assignment, item);
@@ -500,17 +597,38 @@
                : '<span class="score-chip" data-graded="false">待批</span>';
             var runDot = '<span class="run-dot" data-ok="' + (item.serverPassed ? "yes" : "no") + '"' +
                ' data-tip="' + (item.serverPassed ? "代码跑通了全部用例" : "有用例没跑通") + '（仅供参考，不是成绩）"></span>';
-            return '<td class="cell"><button class="btn btn-ghost small fixed-btn" data-assignment-answer="' + esc(item.id) + '">' +
+            return '<td class="cell" data-col="' + index + '"><button class="btn btn-ghost small fixed-btn" data-assignment-answer="' + esc(item.id) + '">' +
                mark + runDot + (late ? '<span class="state-chip late-chip" data-state="late">迟交</span>' : "") +
                "</button></td>";
          }).join("");
          return "<tr>" +
             '<td class="who"><span class="who-name">' + esc(student.displayName) + '</span><span class="who-id">' + esc(student.username) + "</span></td>" +
-            cells + "<td>" + when(newest) + "</td></tr>";
+            cells +
+            '<td class="done-col total" data-full="' + (done === tasks.length ? "yes" : "no") + '">' + done + "/" + tasks.length + "</td>" +
+            '<td class="when-col">' + when(newest) + "</td></tr>";
       }).join("");
 
-      $("assignmentsBody").innerHTML =
-         '<div class="matrix-wrap"><table class="matrix"><thead><tr>' + head + "</tr></thead><tbody>" + body + "</tbody></table></div>";
+      var foot = '<tr><td class="who">每题已交</td>' +
+         counts.perTask.map(function (count, index) {
+            return '<td class="cell total" data-col="' + index + '" data-full="' + (count === students.length ? "yes" : "no") + '">' +
+               count + "/" + students.length + "</td>";
+         }).join("") +
+         '<td class="done-col total">' + counts.submitted + "/" + counts.total + "</td>" +
+         '<td class="when-col"></td></tr>';
+
+      return '<div class="matrix-wrap"><table class="matrix assign-matrix"><thead><tr>' + head +
+         "</tr></thead><tbody>" + body + "</tbody><tfoot>" + foot + "</tfoot></table></div>";
+   }
+
+   /** 左边点了哪道题，右边那一列就亮起来。只改底色，不动任何几何。 */
+   function highlightColumn(index) {
+      var body = $("assignmentsBody");
+      var next = String(index);
+      var already = body.dataset.activeCol === next;
+      body.dataset.activeCol = already ? "" : next;
+      Array.prototype.forEach.call(body.querySelectorAll("[data-col]"), function (node) {
+         node.dataset.active = !already && node.dataset.col === next ? "yes" : "no";
+      });
    }
 
    async function openAssignment(assignmentId) {
@@ -528,127 +646,6 @@
       } catch (error) {
          toast(describeError(error));
       } finally { setLoading(false); }
-   }
-
-   function renderCustomItems() {
-      $("customList").innerHTML = customItems.map(function (item, index) {
-         return '<div class="custom-item" data-index="' + index + '">' +
-            '<div class="custom-item-head">' +
-            '<input class="text-field custom-title" placeholder="题目标题，例如「统计及格人数」" value="' + esc(item.title || "") + '">' +
-            '<button type="button" class="btn btn-ghost small fixed-btn" data-custom-remove="' + index + '">删除</button>' +
-            "</div>" +
-            '<div class="custom-item-label">题目内容（学生看到的题面）</div>' +
-            '<textarea class="custom-prompt" placeholder="按普通文字写就行，换行会原样显示。">' + esc(item.prompt || "") + "</textarea>" +
-            '<div class="custom-item-label">提示（可选）</div>' +
-            '<textarea class="custom-guidance" placeholder="想给的思路提示，留空就不显示。">' + esc(item.guidance || "") + "</textarea>" +
-            "</div>";
-      }).join("");
-      updateAssignCount();
-   }
-
-   /** 从界面读回老师填的内容——每次校验和提交前都要先同步一次。 */
-   function readCustomItems() {
-      Array.prototype.forEach.call($("customList").children, function (node) {
-         var index = Number(node.dataset.index);
-         if (!customItems[index]) return;
-         customItems[index].title = node.querySelector(".custom-title").value.trim();
-         customItems[index].prompt = node.querySelector(".custom-prompt").value.trim();
-         customItems[index].guidance = node.querySelector(".custom-guidance").value.trim();
-      });
-   }
-
-   function updateAssignCount() {
-      var parts = [];
-      if (customItems.length) parts.push(customItems.length + " 道");
-      if (legacyTasks.length) parts.push("另有 " + legacyTasks.length + " 道课程题（旧）");
-      $("assignCount").textContent = parts.join(" · ");
-   }
-
-   function renderLegacyTasks() {
-      $("assignLegacy").hidden = !legacyTasks.length;
-      $("assignLegacyList").innerHTML = legacyTasks.map(function (taskId, index) {
-         return '<span class="legacy-chip">' + esc(taskId) +
-            '<button type="button" data-legacy-remove="' + index + '" aria-label="移除">✕</button></span>';
-      }).join("");
-      updateAssignCount();
-   }
-
-   /** 把时间戳填进 <input type="date">，要的是本地日期而不是 UTC。 */
-   function dateInputValue(timestamp) {
-      if (!timestamp) return "";
-      var date = new Date(timestamp);
-      var pad = function (n) { return String(n).padStart(2, "0"); };
-      return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate());
-   }
-
-   function openAssignDialog(assignment) {
-      if (!currentClassId) { toast("先选择一个班级。"); return; }
-      assignEditingId = assignment ? assignment.id : null;
-      customItems = [];
-      legacyTasks = [];
-      if (assignment) (assignment.items || []).forEach(function (entry) {
-         if (entry.kind === "custom") customItems.push({ id: entry.id, title: entry.title, prompt: entry.prompt, guidance: entry.guidance || "" });
-         // 旧作业里勾选的课程题目：保留住，编辑时不能凭空丢掉学生已交的那些
-         else legacyTasks.push(entry.id);
-      });
-      $("assignDialogTitle").textContent = assignment ? "编辑作业" : "布置作业";
-      $("assignDialogDesc").textContent = assignment
-         ? "改标题、截止时间或题目。已经交上来的答案不会被删除；被移除的题目，学生之前交的记录仍然保留。"
-         : "自己写题目，一次可以布置多道。学生写完自己运行看结果，分数由你批改。";
-      $("assignOk").textContent = assignment ? "保存" : "布置";
-      $("assignTitle").value = assignment ? assignment.title : "";
-      $("assignDue").value = assignment ? dateInputValue(assignment.dueAt) : "";
-      $("assignError").textContent = "";
-      renderCustomItems();
-      renderLegacyTasks();
-      if (!customItems.length) customItems.push({ id: null, title: "", prompt: "", guidance: "" });
-      renderCustomItems();
-      showDialog("assignDialog");
-      $("assignTitle").focus();
-   }
-
-   async function createAssignment() {
-      var title = $("assignTitle").value.trim();
-      if (!title) { $("assignError").textContent = "请输入作业标题。"; return; }
-      readCustomItems();
-      // 完全空白的那一条不算数：打开弹窗时会预置一条空的，老师没填就当没加
-      customItems = customItems.filter(function (item) { return item.title || item.prompt; });
-      if (!customItems.length && !legacyTasks.length) { $("assignError").textContent = "至少写一道题。"; return; }
-      // 截止日期按当天结束算：老师选「今天」应当是今天下班前都还能交。
-      var dueAt = null;
-      if ($("assignDue").value) {
-         var parsed = new Date($("assignDue").value + "T23:59:59");
-         if (isNaN(parsed.getTime())) { $("assignError").textContent = "截止日期不正确。"; return; }
-         dueAt = parsed.getTime();
-      }
-      var badCustom = customItems.filter(function (item) { return !item.title || !item.prompt; });
-      if (badCustom.length) { $("assignError").textContent = "每道题都要填标题和题目内容。"; return; }
-      // 旧的课程题排在前面保持原顺序，新写的题跟在后面
-      var ordered = legacyTasks.map(function (taskId) { return { kind: "task", taskId: taskId }; })
-         .concat(customItems.map(function (item) {
-            return { kind: "custom", id: item.id, title: item.title, prompt: item.prompt, guidance: item.guidance || null };
-         }));
-      var editing = assignEditingId;
-      try {
-         if (editing) {
-            await CLIENT.request(
-               "/api/classes/" + encodeURIComponent(currentClassId) + "/assignments/" + encodeURIComponent(editing),
-               { method: "PUT", body: { title: title, dueAt: dueAt, items: ordered } }
-            );
-         } else {
-            await CLIENT.request("/api/classes/" + encodeURIComponent(currentClassId) + "/assignments", {
-               method: "POST",
-               body: { title: title, dueAt: dueAt, items: ordered }
-            });
-         }
-         closeDialogs();
-         await refresh(editing ? "保存中…" : "布置中…");
-         // 改完还停在这份作业的详情里，提交情况要按新的题目清单重画
-         if (editing && openAssignmentId === editing) await openAssignment(editing);
-         toast(editing ? "作业「" + title + "」已更新。" : "作业「" + title + "」已布置给全班。");
-      } catch (error) {
-         $("assignError").textContent = describeError(error);
-      }
    }
 
    async function toggleJoinLock() {
@@ -884,6 +881,15 @@
 
    /* ---------------- 事件 ---------------- */
 
+   function selectTab(name) {
+      Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (node) {
+         node.classList.toggle("active", node.dataset.tab === name);
+      });
+      Array.prototype.forEach.call(document.querySelectorAll(".tab-panel"), function (panel) {
+         panel.classList.toggle("active", panel.id === "panel-" + name);
+      });
+   }
+
    function wire() {
       $("classList").addEventListener("click", function (event) {
          var row = event.target.closest("li[data-class-id]");
@@ -925,10 +931,21 @@
       });
 
       $("assignmentsBody").addEventListener("click", function (event) {
+         var task = event.target.closest(".ad-task");
+         if (task) { highlightColumn(Number(task.dataset.col)); return; }
          var answer = event.target.closest("[data-assignment-answer]");
          if (answer) { openAnswer(answer.dataset.assignmentAnswer); return; }
          var row = event.target.closest("li[data-assignment-id]");
          if (row) void openAssignment(row.dataset.assignmentId);
+      });
+
+      // 左栏的题目卡是可聚焦的，键盘上回车/空格要和点击等效
+      $("assignmentsBody").addEventListener("keydown", function (event) {
+         if (event.key !== "Enter" && event.key !== " ") return;
+         var task = event.target.closest(".ad-task");
+         if (!task) return;
+         event.preventDefault();
+         highlightColumn(Number(task.dataset.col));
       });
 
       $("backToAssignments").addEventListener("click", function () {
@@ -937,32 +954,18 @@
          renderAssignments();
       });
 
-      $("newAssignmentBtn").addEventListener("click", function () { openAssignDialog(null); });
+      /* 布置和编辑都走 assign.html：出题要写好几段长文本，弹窗装不下。
+         这一页的状态（哪个班、哪个标签、展开的是哪份作业）由查询串带过去再带回来。 */
+      $("newAssignmentBtn").addEventListener("click", function () {
+         if (!currentClassId) { toast("先选择一个班级。"); return; }
+         window.location.href = "assign.html?class=" + encodeURIComponent(currentClassId);
+      });
       $("editAssignmentBtn").addEventListener("click", function () {
-         openAssignDialog(assignments.filter(function (item) { return item.id === openAssignmentId; })[0] || null);
+         if (!currentClassId || !openAssignmentId) return;
+         window.location.href = "assign.html?class=" + encodeURIComponent(currentClassId) +
+            "&a=" + encodeURIComponent(openAssignmentId);
       });
       $("deleteAssignmentBtn").addEventListener("click", function () { void removeAssignment(); });
-      $("assignOk").addEventListener("click", function () { void createAssignment(); });
-      $("assignLegacyList").addEventListener("click", function (event) {
-         var remove = event.target.closest("[data-legacy-remove]");
-         if (!remove) return;
-         legacyTasks.splice(Number(remove.dataset.legacyRemove), 1);
-         renderLegacyTasks();
-      });
-      $("customAdd").addEventListener("click", function () {
-         readCustomItems();
-         customItems.push({ id: null, title: "", prompt: "", guidance: "" });
-         renderCustomItems();
-         var last = $("customList").lastElementChild;
-         if (last) last.querySelector(".custom-title").focus();
-      });
-      $("customList").addEventListener("click", function (event) {
-         var remove = event.target.closest("[data-custom-remove]");
-         if (!remove) return;
-         readCustomItems();
-         customItems.splice(Number(remove.dataset.customRemove), 1);
-         renderCustomItems();
-      });
 
       $("submissionScope").addEventListener("click", function (event) {
          var button = event.target.closest("button[data-scope]");
@@ -983,14 +986,7 @@
       });
 
       Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (tab) {
-         tab.addEventListener("click", function () {
-            Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (node) {
-               node.classList.toggle("active", node === tab);
-            });
-            Array.prototype.forEach.call(document.querySelectorAll(".tab-panel"), function (panel) {
-               panel.classList.toggle("active", panel.id === "panel-" + tab.dataset.tab);
-            });
-         });
+         tab.addEventListener("click", function () { selectTab(tab.dataset.tab); });
       });
 
       $("toggleClasses").addEventListener("click", function () { $("classSidebar").classList.toggle("collapsed"); });
@@ -1025,6 +1021,16 @@
       wire();
       renderTaskFilter();
       renderAll();
+      if (entry.tab) selectTab(entry.tab);
+      /* assign.html 布置成功之后要说一句话，但那是另一个页面，只能托 sessionStorage 带过来。
+         读完就删，刷新一次不该再弹第二遍。 */
+      try {
+         var message = window.sessionStorage.getItem("caie.flash");
+         if (message) {
+            window.sessionStorage.removeItem("caie.flash");
+            toast(message);
+         }
+      } catch (e) { /* 隐私模式下没有 sessionStorage，少一句提示而已 */ }
       // account-ui 会先恢复会话；它改完 AuthStore 之后上面的订阅会再跑一次。
       if (checkAccess()) void refresh("载入中…");
    }

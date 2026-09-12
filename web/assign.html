@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="SeedToCode_favicon.png">
+<title>布置作业 · SeedToCode</title>
+<link rel="stylesheet" href="css/styles.css?v=26">
+<link rel="stylesheet" href="css/assign.css?v=4">
+</head>
+<body>
+
+<!--
+   布置 / 编辑一份班级作业。
+   原来这是 classes.html 里的一个弹窗：一屏之内要塞标题、截止日期和任意多道题，
+   每道题还有题面和提示两段长文本，写第三题时第一题已经滚出视野。出题是件要
+   坐下来写的事，不该挤在弹窗里，所以独立成页。
+
+   左侧是这份作业的大纲（点一下跳到对应的题），右侧是真正在写的内容。
+   进来时带 ?class=<班级 id>，编辑已有作业再带 &a=<作业 id>。
+
+   写到一半离开不需要挽留：内容一直在往本地草稿里存，回来接着写。
+-->
+
+<header class="topbar">
+   <div class="topbar-left">
+      <a class="btn btn-ghost fixed-btn wide back-btn" id="backBtn" href="classes.html"
+         data-tip="回到班级面板的作业列表，写到一半的内容会存成草稿">‹ 返回班级</a>
+      <div class="brand-lockup">
+         <img class="brand-logo" src="SeedToCode_favicon.png" alt="SeedToCode" width="26" height="26">
+         <div class="brand-block">
+            <span class="brand">SeedToCode</span>
+            <span class="brand-tag">Based on CAIE 9618</span>
+         </div>
+      </div>
+   </div>
+
+   <div class="topbar-center">
+      <div class="learn-title">
+         <span class="lt-ch" id="pageTitle">布置作业</span>
+         <span class="lt-sec" id="pageClass"></span>
+      </div>
+   </div>
+
+   <div class="topbar-right">
+      <span class="draft-slot" id="draftState"></span>
+   </div>
+</header>
+
+<main class="assign-main" id="assignMain" hidden>
+   <aside class="assign-outline">
+      <div class="panel-head">
+         <span>这份作业</span>
+         <span class="ao-count" id="outlineCount"></span>
+      </div>
+      <ul class="ao-list" id="outlineList"></ul>
+      <div class="panel-foot">
+         <button class="btn btn-ghost small fixed-btn wide block-btn" id="addItemSide">＋ 再加一题</button>
+      </div>
+   </aside>
+
+   <section class="assign-sheet">
+      <div class="sheet-scroll" id="sheetScroll">
+         <!-- 草稿相关的话都说在这里：接回了什么、刚丢掉的还能不能找回。
+              以前这句话是一条 6 秒就消失的提示条，上面还挂着一个一点就把内容
+              抹光的按钮——真出事的时候人根本来不及看清。
+              它只在进页面时出现，动作做完之后原地改成结果文字、不收起来，
+              所以页面上的东西不会因为一次点击而跳位。 -->
+         <div class="draft-notice" id="draftNotice" hidden>
+            <span class="dn-text" id="draftNoticeText"></span>
+            <button type="button" class="btn btn-ghost small fixed-btn wide" id="draftNoticeAction" hidden></button>
+         </div>
+
+         <article class="assign-card" id="metaCard">
+            <div class="card-head"><span class="card-kicker">作业信息</span></div>
+            <div class="card-body">
+               <div class="form-field">
+                  <label class="form-label" for="assignTitle">作业标题</label>
+                  <p class="form-note">学生在作业列表里看到的就是这一行，写清楚是哪一次作业最省事，例如「第 3 章 循环练习」。</p>
+                  <input id="assignTitle" class="text-field block" spellcheck="false" autocomplete="off"
+                         placeholder="例如 第 3 章 循环练习">
+               </div>
+               <div class="form-field">
+                  <!-- 这里的控件是按钮不是输入框，读屏时要念出当前选的日期，
+                       所以不用 label-for，改用 aria-labelledby 把标题和值拼起来。 -->
+                  <div class="form-label" id="dueFieldLabel">截止日期</div>
+                  <p class="form-note">按当天 23:59 算。过期<strong>不拦截提交</strong>，学生仍然交得上来，只是两边都会标「迟交」；迟交与否按当前截止时间现算，你改了日期，之前那些提交跟着重算。</p>
+                  <div class="due-row">
+                     <button type="button" class="date-trigger" id="dueTrigger"
+                             aria-haspopup="dialog" aria-expanded="false"
+                             aria-labelledby="dueFieldLabel dueText">
+                        <svg class="date-icon" viewBox="0 0 16 16" aria-hidden="true">
+                           <rect x="2" y="3.5" width="12" height="10" rx="2"></rect>
+                           <line x1="2" y1="6.5" x2="14" y2="6.5"></line>
+                           <line x1="5.5" y1="2" x2="5.5" y2="4.5"></line>
+                           <line x1="10.5" y1="2" x2="10.5" y2="4.5"></line>
+                        </svg>
+                        <span class="date-text" id="dueText">不限时间</span>
+                     </button>
+                     <button type="button" class="btn btn-ghost small fixed-btn" id="dueClear" data-tip="清掉截止日期，这份作业就不限时间">不限时间</button>
+                  </div>
+               </div>
+            </div>
+         </article>
+
+         <!-- 旧作业里从课程勾选的题目。现在不再支持新增，但编辑时要原样带着：
+              直接丢掉的话，学生已经交在那些题上的答案就和这份作业脱钩了。 -->
+         <article class="assign-card" id="legacyCard" hidden>
+            <div class="card-head"><span class="card-kicker">课程题（旧数据）</span></div>
+            <div class="card-body">
+               <p class="form-note">这份作业里还有从课程勾选的题目。现在不再支持新增，保留在这里是为了不丢掉学生已经交在上面的答案。移除之后，那些答案仍然留在服务端，只是不再属于这份作业。</p>
+               <div class="legacy-list" id="legacyList"></div>
+            </div>
+         </article>
+
+         <div id="itemCards"></div>
+
+         <div class="sheet-tail">
+            <button class="btn btn-ghost fixed-btn wide" id="addItemBtn">＋ 再加一题</button>
+            <p class="form-note">
+               自己出的题只有题面和提示，<strong>不会自动判分</strong>：学生写完自己点运行看结果，分数由你批改。
+               排版就按普通文字写，换行会原样显示。
+            </p>
+         </div>
+      </div>
+
+      <div class="sheet-foot">
+         <span class="foot-msg" id="assignError"></span>
+         <button class="btn btn-ghost fixed-btn wide" id="discardBtn"
+                 data-tip="丢掉这次写的内容并回到班级面板。想留着下次接着写，用左上角的「返回班级」。">放弃修改</button>
+         <button class="btn btn-primary fixed-btn wide" id="submitBtn">布置</button>
+      </div>
+   </section>
+</main>
+
+<!-- 未登录 / 不是老师 / 云端未配置 / 班级或作业找不到，都落到这里 -->
+<div class="assign-gate" id="assignGate" hidden>
+   <h1 id="gateTitle"></h1>
+   <p class="muted" id="gateBody"></p>
+   <div class="gate-actions" id="gateActions"></div>
+</div>
+
+<!-- 自定义日期选择器，替代浏览器原生的日期输入框（FRONTEND_RULES 第 2.1 条）。
+     月格固定 6 行，换月时高度不变；浮层 fixed 定位，打开不推动背后的内容。 -->
+<div class="datepicker" id="datePicker" hidden role="dialog" aria-label="选择截止日期">
+   <div class="dp-head">
+      <button type="button" class="icon-btn small" id="dpPrev" aria-label="上个月">‹</button>
+      <span class="dp-month" id="dpMonth"></span>
+      <button type="button" class="icon-btn small" id="dpNext" aria-label="下个月">›</button>
+   </div>
+   <div class="dp-week" aria-hidden="true">
+      <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+   </div>
+   <div class="dp-grid" id="dpGrid" role="grid" aria-label="日期"></div>
+   <div class="dp-foot">
+      <button type="button" class="btn btn-ghost small fixed-btn" id="dpToday">今天</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-ghost small fixed-btn" id="dpNone">不限时间</button>
+   </div>
+</div>
+
+<div class="overlay" id="overlay" hidden></div>
+
+<div class="dialog dialog-sm" id="confirmDialog" hidden role="dialog" aria-label="确认">
+   <div class="dialog-head"><span id="confirmTitle">确认</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p id="confirmBody" class="confirm-body"></p>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-danger small fixed-btn" id="confirmOk">确定</button>
+      </div>
+   </div>
+</div>
+
+<div class="toast" id="toast" hidden><span id="toastText"></span><button id="toastAction" hidden></button></div>
+<div class="tooltip" id="tooltip" hidden></div>
+
+<script src="js/tooltip.js?v=1"></script>
+<script src="js/assignment-core.js?v=1"></script>
+<script src="js/storage.js?v=2"></script>
+<script src="js/auth-store.js?v=1"></script>
+<script src="js/cloud-client.js?v=4"></script>
+<script src="js/assign-page.js?v=7"></script>
+</body>
+</html>
