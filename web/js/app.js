@@ -2515,7 +2515,7 @@ function cloudRunHoldMessage() {
    if (hold && hold.fromGuest) {
       return '这是登录前保留在本机的项目。请先在账户面板选择「并入」，再使用云端运行。';
    }
-   return '这是这台设备上一位用户留下的项目，只能本地运行，不能发送到你的云端账号。';
+   return '这是这台设备上一位用户留下的项目，默认只能本地运行。如果它其实是你的，可以在账户面板选择「并入项目」。';
 }
 
 function cloudRunBlockedByProjectHold() {
