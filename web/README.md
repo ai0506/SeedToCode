@@ -37,7 +37,7 @@ node scripts/dev-proxy.mjs
 | `js/sync-queue.js` | `SyncQueue`：待上传操作的本地持久化、幂等 `operationId`、退避重试与不可重试项 |
 | `js/sync-engine.js` | `SyncEngine`：pull / push / 冲突；项目与教学两个适配器由对应页面注册 |
 | `js/account-ui.js` | 顶栏主导航（实验室 / 学习 / 作业 \| 班级，按身份出）与账户入口：自行插入现有顶栏，身份、同步状态、作业概览、退出 |
-| `css/account.css` | 账户面板与题目草稿冲突提示的样式，不改动既有版式 |
+| `css/account.css` | 账户面板、云端空间提示与题目草稿冲突提示的样式，不改动既有版式 |
 | `learn.html` + `js/teaching-app.js` | 教学页：课文、关卡、进度；题目位置只放入口卡 |
 | `task.html` + `js/task-page.js` + `css/task.css` | 独立做题页：左题面 / 右作答，左右各自滚动 |
 | `js/teaching-task.js` | 两个教学页共用的题目实现：题面、作答区、判题、进度、草稿 |
