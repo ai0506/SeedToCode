@@ -451,10 +451,10 @@ kbd {
    color: transparent;
 }
 /*
- * 输入法合成期间（中文拼音还没选定候选字）两层对调：textarea 自己的文字显出来，
- * 语法着色层藏起来。正在打的拼音是 textarea 那层画的，跟着 `color` 走——
- * 不这么做就是一片空白，直到落字才冒出来，没法用。
- * 这段时间没有语法颜色，但也就是敲一个词的工夫。
+ * 合成期间正常路径**不**对调图层：正在打的拼音由着色层自己画出来，textarea 始终
+ * 透明，语法颜色一个都不丢。下面这三条只在兜底路径生效——某些环境不把合成串放进
+ * `code.value`，着色层就画不出来，那时才退回「显出 textarea、藏起着色层」，
+ * 代价是这次合成期间没有语法颜色（见 app.js 的 compositionupdate 处理）。
  */
 .code-area[data-composing="yes"] #code { color: var(--text); }
 .code-area[data-composing="yes"] #code::selection { background: var(--sel); color: var(--text); }

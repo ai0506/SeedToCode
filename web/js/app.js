@@ -337,11 +337,33 @@ function renderEditor() {
    highlight.innerHTML = LANG.highlight(src);
    const lines = src.split('\n');
    code.style.height = (lines.length * lineHeight()) + 'px';
+   syncCodeWidth();
    renderGutter(lines.length);
    renderLineMarks();
    renderFindMarks();
    renderSelectionMarks();
    updateCursor();
+}
+
+/*
+ * textarea 必须和高亮层一样宽。
+ *
+ * 它是绝对定位、宽度只有容器那么大、而且 overflow:hidden——长行时它会**自己**在
+ * 内部横向滚动（scrollLeft 变大），而高亮层不滚，横向滚动是外层 .editor-scroll 在做。
+ * 两层就此错位：实测一行长代码，textarea.scrollLeft 已经到 715，外层还是 0，
+ * 高亮层里那段文字在屏幕 x=956（可视区只到 340），而选区矩形画在 x=0。
+ * 表现就是「选中的范围对，显示的位置错」，光标也会停在右边缘不动。
+ *
+ * 高度早就同步成「行数 × 行高」了，宽度以前漏了这一步。把 textarea 撑到内容那么宽，
+ * 它就永远不需要自己滚，横向滚动全部交给外层，两层自然锁在一起。
+ */
+function syncCodeWidth() {
+   const pre = $('highlight');
+   const area = $('codeArea');
+   if (!pre || !area) return;
+   code.style.width = Math.max(pre.scrollWidth, area.clientWidth) + 'px';
+   // 之前可能已经自己滚出去了，收回来
+   if (code.scrollLeft !== 0) code.scrollLeft = 0;
 }
 
 function renderGutter(count) {
@@ -613,25 +635,71 @@ function indentSelection(remove) {
 
 let composing = false;
 /*
- * 中文输入法在选定候选字之前会把拼音显示在光标处，那串字是 textarea **自己**
- * 那层文字画的——而 `#code` 为了让下面的语法着色层透出来设了 `color: transparent`，
- * 于是拼音也一并透明了：打字时什么都看不见，直到落字才冒出来。
+ * 中文输入法在选定候选字之前会把拼音显示在光标处。那串字**在 code.value 里**，
+ * 但它是由 textarea 自己那层文字渲染的，而 `#code` 为了让语法着色层透出来设了
+ * `color: transparent`，所以直接看是一片空白。
  *
- * 合成期间把这两层对调：textarea 的文字显出来，语法着色层藏起来。代价是这段时间
- * 没有语法颜色——但那只有敲一个词的工夫，而看不见正在打的拼音是根本没法用。
- * 选区矩形同样要收起来：合成串不在 code.value 里，按它算出来的位置一定是错的。
+ * 第一版的做法是合成期间把两层对调（显出 textarea、藏掉着色层）。拼音是看见了，
+ * 但整篇代码同时退回无样式的纯文本——关键字没颜色、注释不再倾斜，每打一个中文
+ * 全文闪一次，比原来的毛病还难受。
+ *
+ * 现在的做法：**让着色层自己把正在打的拼音画出来**。合成期间照常重画高亮层
+ * （见上面 input 处理里的那一段），textarea 保持透明，语法颜色一个都不丢。
+ * 代价是输入法给合成串加的下划线看不见——那是 textarea 那层的装饰，换不过来；
+ * 但字是实实在在显示出来的，候选窗也照常跟着光标。
  */
 function setComposing(on) {
    composing = on;
-   $('codeArea').dataset.composing = on ? 'yes' : 'no';
-   if (on) $('selectionMarks').innerHTML = '';
+   if (!on) $('codeArea').dataset.composing = 'no';
 }
 
-code.addEventListener('compositionstart', function () { setComposing(true); });
-code.addEventListener('compositionend', function () { setComposing(false); onEdit(); });
+/*
+ * 宽度是写成 px 的，所以容器一变就得重新同步：窗口缩放、收起/展开侧栏和结果面板、
+ * 拖动分隔条都会改变可用宽度。不补这一下，textarea 会保持旧宽度，长行又会回到
+ * 自己内部横向滚动的老样子。
+ */
+window.addEventListener('resize', syncCodeWidth);
+if (window.ResizeObserver) {
+   try { new ResizeObserver(syncCodeWidth).observe($('codeArea')); } catch (e) { /* 不支持就算了，resize 事件兜底 */ }
+}
+
+/*
+ * 上面那套依赖一个前提：合成期间正在打的拼音确实在 `code.value` 里。主流浏览器
+ * 都是这样，但这是**平台行为**，不该赌。所以自己验一次：compositionstart 记下当时
+ * 的值，compositionupdate 时如果值一个字都没变、而输入法明明报了 data，就说明这个
+ * 环境不把合成串放进 value——着色层画不出来，退回「显出 textarea、藏起着色层」
+ * 的老办法（这次合成期间会丢语法颜色，但拼音看得见）。哪条路都不至于让人对着空白打字。
+ */
+let compositionBase = null;
+
+code.addEventListener('compositionstart', function () {
+   setComposing(true);
+   compositionBase = code.value;
+});
+
+/* 有些输入法在合成期间不发 input，只发 compositionupdate，两个都接上 */
+code.addEventListener('compositionupdate', function (ev) {
+   if (!composing) return;
+   if (ev.data && compositionBase !== null && code.value === compositionBase) {
+      $('codeArea').dataset.composing = 'yes';
+      return;
+   }
+   renderEditor();
+});
+
+code.addEventListener('compositionend', function () {
+   setComposing(false);
+   compositionBase = null;
+   onEdit();
+});
 
 code.addEventListener('input', function () {
-   if (composing) return;
+   /*
+    * 合成期间（中文拼音还没选定候选字）只重画，不做诊断、保存和同步——
+    * 那些等 compositionend 再一次做完。重画是必须的：正在打的拼音就在 code.value 里，
+    * 高亮层不跟着更新，屏幕上就什么都没有（textarea 自己那层是透明的）。
+    */
+   if (composing) { renderEditor(); return; }
    if (!programmaticEdit && state.settings.arrowConvert) {
       const pos = code.selectionStart;
       if (code.value.slice(pos - 2, pos) === '<-') {
