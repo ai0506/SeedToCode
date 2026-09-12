@@ -550,3 +550,4 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 缓存版本号：`sync-engine.js` 5→6、`account-ui.js` 10→11、`app.js` 34→35，六个页面一起提。`npm test` 653 项全绿。
 
 `PROJECT_STATE.md`：生产邮件真实投递改为 Complete（**使用者本人确认**收到验证信；这一条不是本仓库的自动化检查能覆盖的，发信要花真实额度也需要真人邮箱）。`AI_ASSISTANT_PLAN.md` 的状态横幅改为「平台限额评审已结束」，并写清剩下的卡点换成了 AI 自己的三件事：全局消费上限（现在只有开关、没有自动封顶，而那才是真花钱的地方）、按账号/班级的独立额度账本、提供方条款的书面确认。
+已合并并部署。PR #9 合进 `main`（`5823106`），远端分支已删；远端 D1 无待应用迁移（仍是 14 个），Worker 部署为 `3fe7113d-fdf1-48e7-b373-0557631721bd`。**线上复验**：六个页面的 `sync-engine.js?v=6` / `account-ui.js?v=11` / `app.js?v=35` 完全一致（`custom-task` 本来就不加载账户脚本）；抓线上脚本确认 `adoptHeldProjects` 在 `sync-engine.js` 和 `account-ui.js` 两侧都在位。`PROJECT_STATE.md` 的 Version ID 同步更新。
