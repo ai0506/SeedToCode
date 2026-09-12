@@ -650,7 +650,6 @@ let composing = false;
  */
 function setComposing(on) {
    composing = on;
-   if (!on) $('codeArea').dataset.composing = 'no';
 }
 
 /*
@@ -664,27 +663,35 @@ if (window.ResizeObserver) {
 }
 
 /*
- * 上面那套依赖一个前提：合成期间正在打的拼音确实在 `code.value` 里。主流浏览器
- * 都是这样，但这是**平台行为**，不该赌。所以自己验一次：compositionstart 记下当时
- * 的值，compositionupdate 时如果值一个字都没变、而输入法明明报了 data，就说明这个
- * 环境不把合成串放进 value——着色层画不出来，退回「显出 textarea、藏起着色层」
- * 的老办法（这次合成期间会丢语法颜色，但拼音看得见）。哪条路都不至于让人对着空白打字。
+ * 上一版还留了一条「退回对调图层」的兜底：万一某个环境不把合成串放进 `code.value`，
+ * 着色层就画不出拼音，只好显出 textarea、藏起着色层。但那条路一旦被触发，就是
+ * 使用者报的那个现象——**整篇代码退回无样式纯文本**。与其赌平台行为，不如把这个
+ * 依赖彻底去掉：合成串在不在 value 里都不要紧，`compositionupdate` 本来就把它放在
+ * `ev.data` 里，我们自己拼一份预览交给着色层画。这样任何环境下都既看得见拼音、
+ * 又保住语法颜色，不存在「哪条路都不好」的选择。
  */
-let compositionBase = null;
+let compositionBase = null;   // 合成开始前的完整内容
+let compositionAt = 0;        // 合成串的插入点
 
 code.addEventListener('compositionstart', function () {
    setComposing(true);
    compositionBase = code.value;
+   compositionAt = code.selectionStart;
 });
 
 /* 有些输入法在合成期间不发 input，只发 compositionupdate，两个都接上 */
 code.addEventListener('compositionupdate', function (ev) {
    if (!composing) return;
-   if (ev.data && compositionBase !== null && code.value === compositionBase) {
-      $('codeArea').dataset.composing = 'yes';
+   if (compositionBase === null || code.value !== compositionBase) {
+      // 合成串已经进了 value，照常重画就是
+      renderEditor();
       return;
    }
-   renderEditor();
+   /* 这个环境不把合成串放进 value：自己拼出「加上正在打的拼音之后」的样子给着色层。
+      只动着色层和宽度，不碰 code.value——碰了会打断输入法。 */
+   const preview = compositionBase.slice(0, compositionAt) + (ev.data || '') + compositionBase.slice(compositionAt);
+   highlight.innerHTML = LANG.highlight(preview);
+   syncCodeWidth();
 });
 
 code.addEventListener('compositionend', function () {
@@ -1435,31 +1442,47 @@ let matches = [], matchIndex = -1, charWidth = 0;
  * （理论上不该发生），退回旧算法总比不画强。
  */
 
-/** 第 offset 个字符落在高亮层的哪个文本节点上。 */
-function locateInHighlight(offset) {
-   const walker = document.createTreeWalker(highlight, NodeFilter.SHOW_TEXT);
+/*
+ * 第 lineIndex 行、第 column 列在高亮层里落在哪个文本节点上。
+ *
+ * **按行定位，不按全文字符数**。高亮器给每一行包一个 `<span class="hl-line">`，
+ * 空行里还会塞一个零宽空格（`\u200b`，否则空行没有高度）。所以高亮层的纯文本
+ * 比 `code.value` 长——每有一个空行就多一个字符。按全文字符走的话，从第一个
+ * 空行开始后面全部错位。
+ *
+ * 这个坑之前是用「两边长度相等才测量」的守卫挡住的，结果更糟：**任何含空行的
+ * 文档都会判定为不同步，整段选区渲染退回按列数推算的老算法**——也就是最早那个
+ * 中文/Tab 会偏的 bug。实测使用者用默认的 Main.pseudocode 选一行中文注释：
+ * 着色层和 textarea 都量得 221px，我画出来却是 143px（17 个字符 × 8.4px 的
+ * ASCII 单字宽），正是兜底分支的产物。而我自己每次测试都手写没有空行的内容，
+ * 所以从来没触发过——教训是别拿构造的输入代替真实文档。
+ */
+function locateInHighlight(lineIndex, column) {
+   const lineEl = highlight.children[lineIndex];
+   if (!lineEl) return null;
+   const walker = document.createTreeWalker(lineEl, NodeFilter.SHOW_TEXT);
    let pos = 0, node, last = null;
    while ((node = walker.nextNode())) {
       last = node;
       const len = node.nodeValue.length;
-      if (offset <= pos + len) return { node: node, offset: offset - pos };
+      if (column <= pos + len) return { node: node, offset: column - pos };
       pos += len;
    }
    return last ? { node: last, offset: last.nodeValue.length } : null;
 }
 
-/** 高亮层的纯文本长度；和 code.value 对不上就说明两层不同步，测量不可信。 */
+/** 高亮层的行数和源码对不上才算不同步——长度不再参与判断，见上面的注释。 */
 function highlightInSync() {
-   return highlight.textContent.length === code.value.length;
+   return highlight.children.length === code.value.split('\n').length;
 }
 
 /**
- * [from, to) 这段文字在 origin 坐标系里的横向范围。
+ * 第 lineIndex 行上 [fromCol, toCol) 这段文字在 origin 坐标系里的横向范围。
  * 同一行内可能落在多个 token span 上，取它们的并集。
  */
-function measureSpan(from, to, origin) {
-   const a = locateInHighlight(from);
-   const b = locateInHighlight(to);
+function measureSpan(lineIndex, fromCol, toCol, origin) {
+   const a = locateInHighlight(lineIndex, fromCol);
+   const b = locateInHighlight(lineIndex, toCol);
    if (!a || !b) return null;
    const range = document.createRange();
    try {
@@ -1520,7 +1543,9 @@ function renderSelectionMarks() {
       const segmentStart = Math.max(start, lineStart);
       const segmentEnd = Math.min(end, lineEnd);
       const includesNewline = lineIndex + 1 < starts.length && end > lineEnd;
-      const span = canMeasure ? measureSpan(segmentStart, segmentEnd, origin) : null;
+      const span = canMeasure
+         ? measureSpan(lineIndex, segmentStart - lineStart, segmentEnd - lineStart, origin)
+         : null;
       let left, width;
       if (span) {
          left = span.left;
@@ -1558,8 +1583,9 @@ function renderFindMarks() {
       // starts 递增，线性扫描足够（单文档规模）
       for (let k = starts.length - 1; k >= 0; k--) { if (starts[k] <= off) { ln = k; break; } }
       // 和选区同一个道理：命中的词或它前面的文字里有中文/Tab 时，按列数推算会偏
-      const span = canMeasure ? measureSpan(off, off + q.length, origin) : null;
-      const left = span ? span.left : 16 + (off - starts[ln]) * charWidth;
+      const col = off - starts[ln];
+      const span = canMeasure ? measureSpan(ln, col, col + q.length, origin) : null;
+      const left = span ? span.left : 16 + col * charWidth;
       const width = span ? Math.max(2, span.width) : Math.max(2, q.length * charWidth);
       html += '<div class="fm' + (i === matchIndex ? ' current' : '') + '" style="top:' + (ln * lh)
          + 'px;left:' + left.toFixed(1) + 'px;width:' + width.toFixed(1) + 'px"></div>';

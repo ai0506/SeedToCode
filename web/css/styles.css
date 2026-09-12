@@ -450,15 +450,9 @@ kbd {
    background: transparent;
    color: transparent;
 }
-/*
- * 合成期间正常路径**不**对调图层：正在打的拼音由着色层自己画出来，textarea 始终
- * 透明，语法颜色一个都不丢。下面这三条只在兜底路径生效——某些环境不把合成串放进
- * `code.value`，着色层就画不出来，那时才退回「显出 textarea、藏起着色层」，
- * 代价是这次合成期间没有语法颜色（见 app.js 的 compositionupdate 处理）。
- */
-.code-area[data-composing="yes"] #code { color: var(--text); }
-.code-area[data-composing="yes"] #code::selection { background: var(--sel); color: var(--text); }
-.code-area[data-composing="yes"] .highlight { visibility: hidden; }
+/* 合成期间不再对调图层。正在打的拼音由着色层自己画出来（合成串在不在 code.value
+   里都行，见 app.js 的 compositionupdate 处理），textarea 始终透明，语法颜色一个
+   都不丢——「显出 textarea、藏起着色层」那条老路已经整个去掉了。 */
 .selection-marks { position: absolute; inset: 10px 0 200px 0; z-index: 2; pointer-events: none; }
 .selection-marks .sm {
    position: absolute; height: var(--editor-line-height);
