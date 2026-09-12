@@ -84,11 +84,29 @@
       saved.teaching.drafts = saved.teaching.drafts || {};
       saved.hold = saved.hold || { previousOwner: null, asked: false, projects: {}, files: {}, progress: {}, drafts: {} };
       /* v1 的 files 曾经以 fileId 为键；迁移到 projectId/fileId，避免旧元数据
-         把两个项目中同名 id 合并成一份。无法判断归属的旧条目保留到首次发现文件时处理。 */
+         把两个项目中同名 id 合并成一份。无法判断归属的旧条目保留到首次发现文件时处理。
+
+         这段每次载入都会跑，所以**必须幂等**。原来它无条件加前缀，第二次载入就把
+         已经是 `项目/文件` 的键变成 `项目/项目/文件`，第三次再长一截。后果不是显性的
+         报错：键一旦对不上，syncLocalProjects 里的 seenFiles 就再也匹配不到 meta.files，
+         于是**每个本地还在的文件都被判成「已删」**，每次载入都排队推一条 tombstone；
+         同时那些文件又被当成没见过的新文件整份重传。实测一次刷新就是 5 条无效 DELETE
+         加全量重传，服务端 revision 被白白推高。删除请求只是碰巧被 revision 校验挡成
+         409——同一批里的 PUT 先把版本号顶上去了——这是运气，不是设计。 */
       var migratedFiles = {};
       Object.keys(saved.files).forEach(function (legacyId) {
          var entry = saved.files[legacyId];
-         var key = entry && entry.projectId ? fileKey(entry.projectId, legacyId) : legacyId;
+         var key;
+         if (legacyId.indexOf("/") < 0) {
+            // 真正的旧键：裸 fileId
+            key = entry && entry.projectId ? fileKey(entry.projectId, legacyId) : legacyId;
+         } else if (entry && entry.projectId) {
+            /* 已经是新形状。顺带修掉此前被重复加前缀的键：真正的 fileId 是最后一段，
+               归属以 entry.projectId 为准。正常键经过这一步原样不变。 */
+            key = fileKey(entry.projectId, legacyId.slice(legacyId.lastIndexOf("/") + 1));
+         } else {
+            key = legacyId;
+         }
          migratedFiles[key] = entry;
       });
       saved.files = migratedFiles;
