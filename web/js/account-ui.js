@@ -228,8 +228,10 @@
          var blocked = status.blocked || [];
          list.hidden = blocked.length === 0;
          list.innerHTML = blocked.map(function (item) {
-            var reason = item.code === "FILE_TOO_LARGE" || item.code === "PROJECT_TOO_LARGE" || item.code === "PROJECT_FILE_LIMIT"
-               ? "文件过大" : item.message;
+            var reason = item.code === "ACCOUNT_PROJECT_LIMIT" ? "云端项目数已达到上限"
+               : item.code === "ACCOUNT_STORAGE_LIMIT" ? "云端空间已满"
+                  : item.code === "FILE_TOO_LARGE" || item.code === "PROJECT_TOO_LARGE" || item.code === "PROJECT_FILE_LIMIT"
+                     ? "文件过大" : item.message;
             return "<li>" + escapeHtml(item.label) + "：" + escapeHtml(reason) + "</li>";
          }).join("");
       }

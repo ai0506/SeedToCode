@@ -109,13 +109,16 @@
          if (state.operations.length !== before) persist();
       },
 
-      /** 可重试失败：记一次尝试并按指数退避推迟，最长 5 分钟。 */
-      retryLater: function (operationId) {
+      /** 可重试失败：指数退避；服务端若给出窗口结束时间，绝不提前重试。 */
+      retryLater: function (operationId, minimumDelayMs) {
          inFlight = null;
          var operation = state.operations.filter(function (op) { return op.operationId === operationId; })[0];
          if (!operation) return;
          operation.attempts += 1;
-         var delay = Math.min(5 * 60 * 1000, 1000 * Math.pow(2, Math.min(8, operation.attempts)));
+         var delay = Math.max(
+            Math.min(5 * 60 * 1000, 1000 * Math.pow(2, Math.min(8, operation.attempts))),
+            Number(minimumDelayMs) || 0
+         );
          operation.nextAttemptAt = Date.now() + delay;
          persist();
       },

@@ -53,11 +53,15 @@ const MAX_DISPLAY_NAME = 120;
 const MAX_ASSIGNMENT_TITLE = 160;
 const MAX_ASSIGNMENT_ITEMS = 30;
 const MAX_PRACTICE_DRAFT_BYTES = 256 * 1024;
+const MAX_STUDENTS_PER_CLASS = 50;
+const MAX_STUDENTS_PER_TEACHER = 200;
 /* 每次提交都要在服务端重新跑一遍判题，所以按用户限速。
    超出时返回统一的繁忙提示，客户端的同步队列稍后重试——
    本地判题和本地作答全程不受影响，记录只是晚一点落库。 */
 const PRACTICE_SUBMISSION_WINDOW_MS = 60 * 60 * 1000;
 const PRACTICE_SUBMISSIONS_PER_WINDOW = 100;
+const ASSIGNMENT_SUBMISSION_WINDOW_MS = 60 * 60 * 1000;
+const ASSIGNMENT_SUBMISSIONS_PER_WINDOW = 30;
 const MAX_PRACTICE_SUBMISSION_LIST = 200;
 const textEncoder = new TextEncoder();
 
@@ -158,7 +162,13 @@ export async function registerStudentWithJoinCode(db: D1Database, env: Env, inpu
     throw new TeachingError("CLASS_JOIN_LOCKED", 403, "这个班级暂时不能加入，跟老师确认一下。");
   }
 
-  const user = await createActiveStudent(db, body.username, body.password, { classId: classRow.id, displayName });
+  await ensureStudentCapacity(db, classRow);
+  let user: AuthenticatedUser;
+  try {
+    user = await createActiveStudent(db, body.username, body.password, { classId: classRow.id, displayName });
+  } catch (caught) {
+    throw capacityError(caught);
+  }
 
   await clearAuthAttempts(db, "student_register", clientIp);
   const setCookie = await startSession(db, env, user.id);
@@ -171,10 +181,16 @@ function stringOrThrow(value: unknown, code: string, message: string): string {
 }
 
 export async function createStudentInClass(db: D1Database, teacher: AuthenticatedUser, classId: string, input: unknown) {
-  await ownedClass(db, teacher, classId);
+  const classRow = await ownedClass(db, teacher, classId);
   const body = objectBody(input);
   const displayName = nameValue(body.displayName, MAX_DISPLAY_NAME, "学生姓名");
-  const created = await createPendingStudent(db, body.username, { classId, displayName });
+  await ensureStudentCapacity(db, classRow);
+  let created: Awaited<ReturnType<typeof createPendingStudent>>;
+  try {
+    created = await createPendingStudent(db, body.username, { classId, displayName });
+  } catch (caught) {
+    throw capacityError(caught);
+  }
   return { student: publicUser(created.user), displayName, activationCode: created.activationCode };
 }
 
@@ -343,6 +359,7 @@ export async function submitAssignment(db: D1Database, student: AuthenticatedUse
     "SELECT task_id, prompt FROM assignment_items WHERE assignment_id = ?1 AND task_id = ?2"
   ).bind(assignmentId, taskId).first<{ task_id: string; prompt: string | null }>();
   if (!item) throw new TeachingError("NOT_FOUND", 404, "作业题目不存在。");
+  await assertSubmissionRate(db, student.id, "assignment_submission", ASSIGNMENT_SUBMISSIONS_PER_WINDOW, ASSIGNMENT_SUBMISSION_WINDOW_MS);
   /*
    * 老师自己出的题没有判题数据，也不该有：这类题只要求学生写完自己跑一跑，
    * 成绩本来就由老师给。所以跳过自动判分，分数留空表示「没有自动结果」，
@@ -353,9 +370,13 @@ export async function submitAssignment(db: D1Database, student: AuthenticatedUse
   const score = gradeResult ? scoreFor(gradeResult.testResults) : null;
   const now = Date.now();
   const id = crypto.randomUUID();
-  await db.prepare(
-    "INSERT INTO assignment_submissions (id, assignment_id, task_id, student_id, answer_content, client_version, server_score, server_passed, submitted_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)"
-  ).bind(id, assignmentId, taskId, student.id, answerContent, clientVersion, score, gradeResult && gradeResult.passed ? 1 : 0, now).run();
+  try {
+    await db.prepare(
+      "INSERT INTO assignment_submissions (id, assignment_id, task_id, student_id, answer_content, client_version, server_score, server_passed, submitted_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)"
+    ).bind(id, assignmentId, taskId, student.id, answerContent, clientVersion, score, gradeResult && gradeResult.passed ? 1 : 0, now).run();
+  } catch (caught) {
+    throw submissionRateError(caught, ASSIGNMENT_SUBMISSION_WINDOW_MS);
+  }
   return {
     id,
     assignmentId,
@@ -500,13 +521,8 @@ export async function submitPracticeTask(db: D1Database, user: AuthenticatedUser
   ).bind(user.id, clientSubmissionId).first<PracticeSubmissionRow>();
   if (existing) return { submission: publicPracticeSubmission(existing), idempotent: true };
 
+  await assertSubmissionRate(db, user.id, "practice_submission", PRACTICE_SUBMISSIONS_PER_WINDOW, PRACTICE_SUBMISSION_WINDOW_MS);
   const now = Date.now();
-  const recent = await db.prepare(
-    "SELECT COUNT(*) AS count FROM practice_submissions WHERE user_id = ?1 AND submitted_at > ?2"
-  ).bind(user.id, now - PRACTICE_SUBMISSION_WINDOW_MS).first<{ count: number }>();
-  if ((recent?.count ?? 0) >= PRACTICE_SUBMISSIONS_PER_WINDOW) {
-    throw new TeachingError("SERVER_BUSY", 503, "服务器繁忙，请稍后再试。");
-  }
 
   const gradeResult = await gradeTask(taskId, answerContent);
   const row: PracticeSubmissionRow = {
@@ -521,12 +537,16 @@ export async function submitPracticeTask(db: D1Database, user: AuthenticatedUser
     failed_layer: gradeResult.failedLayer,
     submitted_at: now
   };
-  await db.prepare(
-    "INSERT INTO practice_submissions (id, user_id, client_submission_id, chapter_id, task_id, answer_content, client_version, server_score, server_passed, failed_layer, submitted_by_device, submitted_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)"
-  ).bind(
-    row.id, user.id, clientSubmissionId, chapterId, taskId, answerContent, clientVersion,
-    row.server_score, row.server_passed, row.failed_layer, deviceId, now
-  ).run();
+  try {
+    await db.prepare(
+      "INSERT INTO practice_submissions (id, user_id, client_submission_id, chapter_id, task_id, answer_content, client_version, server_score, server_passed, failed_layer, submitted_by_device, submitted_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)"
+    ).bind(
+      row.id, user.id, clientSubmissionId, chapterId, taskId, answerContent, clientVersion,
+      row.server_score, row.server_passed, row.failed_layer, deviceId, now
+    ).run();
+  } catch (caught) {
+    throw submissionRateError(caught, PRACTICE_SUBMISSION_WINDOW_MS);
+  }
   return { submission: publicPracticeSubmission(row), idempotent: false };
 }
 
@@ -697,6 +717,34 @@ async function attachItems(db: D1Database, assignments: AssignmentRow[]) {
   return assignments.map((assignment) => ({ ...publicAssignment(assignment), items: itemsByAssignment.get(assignment.id) ?? [] }));
 }
 
+/* 预检把已经到顶的请求挡在 gradeTask() 之前；真正的计数和 INSERT 在 D1
+   触发器的同一事务里，两个并发请求都通过预检时仍不可能一起越过上限。 */
+async function assertSubmissionRate(
+  db: D1Database, userId: string, scope: "assignment_submission" | "practice_submission", maximum: number, windowMs: number
+): Promise<void> {
+  const now = Date.now();
+  const windowStartedAt = Math.floor(now / windowMs) * Math.floor(windowMs / 1000);
+  const row = await db.prepare(
+    "SELECT attempts FROM service_rate_limits WHERE scope = ?1 AND subject_id = ?2 AND window_started_at = ?3"
+  ).bind(scope, userId, windowStartedAt).first<{ attempts: number }>();
+  if ((row?.attempts ?? 0) >= maximum) throw submissionThrottled(windowMs, now);
+}
+
+function submissionRateError(caught: unknown, windowMs: number): TeachingError {
+  const message = caught instanceof Error ? caught.message : "";
+  if (message.includes("ASSIGNMENT_SUBMISSION_THROTTLED") || message.includes("PRACTICE_SUBMISSION_THROTTLED")) {
+    return submissionThrottled(windowMs, Date.now());
+  }
+  if (caught instanceof Error) throw caught;
+  throw new TeachingError("SERVER_DATA_INVALID", 500, "提交未保存。");
+}
+
+function submissionThrottled(windowMs: number, now: number): TeachingError {
+  const windowEnds = (Math.floor(now / windowMs) + 1) * windowMs;
+  const retryAfterSeconds = Math.max(1, Math.ceil((windowEnds - now) / 1000));
+  return new TeachingError("SUBMISSION_THROTTLED", 429, "提交过于频繁，请稍后再试。", { retryAfterSeconds });
+}
+
 async function ownedClass(db: D1Database, user: AuthenticatedUser, classId: string): Promise<ClassRow> {
   requireTeacher(user);
   validateId(classId, "班级");
@@ -705,6 +753,36 @@ async function ownedClass(db: D1Database, user: AuthenticatedUser, classId: stri
   ).bind(classId, user.id).first<ClassRow>();
   if (!row) throw new TeachingError("NOT_FOUND", 404, "班级不存在。");
   return row;
+}
+
+async function ensureStudentCapacity(db: D1Database, classRow: ClassRow): Promise<void> {
+  const classCount = await db.prepare(
+    `SELECT COUNT(*) AS count FROM class_members JOIN users ON users.id = class_members.user_id
+      WHERE class_members.class_id = ?1 AND class_members.status = 'active' AND users.role = 'student'`
+  ).bind(classRow.id).first<{ count: number }>();
+  if ((classCount?.count ?? 0) >= MAX_STUDENTS_PER_CLASS) {
+    throw new TeachingError("CLASS_STUDENT_LIMIT", 409, "每个班级最多只能有 " + MAX_STUDENTS_PER_CLASS + " 名学生。");
+  }
+  const teacherCount = await db.prepare(
+    `SELECT COUNT(DISTINCT class_members.user_id) AS count
+       FROM class_members JOIN classes ON classes.id = class_members.class_id JOIN users ON users.id = class_members.user_id
+      WHERE classes.teacher_id = ?1 AND class_members.status = 'active' AND users.role = 'student'`
+  ).bind(classRow.teacher_id).first<{ count: number }>();
+  if ((teacherCount?.count ?? 0) >= MAX_STUDENTS_PER_TEACHER) {
+    throw new TeachingError("TEACHER_STUDENT_LIMIT", 409, "每位老师最多只能有 " + MAX_STUDENTS_PER_TEACHER + " 名学生。");
+  }
+}
+
+function capacityError(caught: unknown): TeachingError {
+  const message = caught instanceof Error ? caught.message : "";
+  if (message.includes("CLASS_STUDENT_LIMIT")) {
+    return new TeachingError("CLASS_STUDENT_LIMIT", 409, "每个班级最多只能有 " + MAX_STUDENTS_PER_CLASS + " 名学生。");
+  }
+  if (message.includes("TEACHER_STUDENT_LIMIT")) {
+    return new TeachingError("TEACHER_STUDENT_LIMIT", 409, "每位老师最多只能有 " + MAX_STUDENTS_PER_TEACHER + " 名学生。");
+  }
+  if (caught instanceof Error) throw caught;
+  throw new TeachingError("SERVER_DATA_INVALID", 500, "学生账号未创建。");
 }
 
 function publicClass(row: ClassRow, includeJoinCode: boolean) {

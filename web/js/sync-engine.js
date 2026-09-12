@@ -711,7 +711,8 @@
          setStatus({ lastError: { code: code, message: error.message, tooLarge: CLIENT.isTooLarge(error) } });
          return;
       }
-      QUEUE.retryLater(operation.operationId);
+      var retryAfterSeconds = Number(error && error.extra && error.extra.retryAfterSeconds);
+      QUEUE.retryLater(operation.operationId, retryAfterSeconds > 0 ? retryAfterSeconds * 1000 : 0);
       setStatus({ state: "idle", lastError: { code: code || "SERVER_ERROR", message: (error && error.message) || "同步暂时失败。" } });
    }
 
