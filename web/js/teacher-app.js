@@ -140,7 +140,7 @@
 
    function checkAccess() {
       if (!CLIENT.available()) {
-         gate("云端功能暂未连接", "当前站点没有可用的云端接口，班级、学生和提交记录都无法读取。编辑器、课程和本地运行不受影响。");
+         gate("云端功能暂未连接", "这里暂时用不了账号功能，班级、学生和提交记录都读不出来。编辑器、课程和本地运行不受影响。");
          return false;
       }
       if (!AUTH.isSignedIn()) {

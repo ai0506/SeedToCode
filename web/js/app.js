@@ -40,6 +40,20 @@ let run = { active: false, controller: null, pending: false, fileTouched: false 
 /* ---------------- 持久化 ---------------- */
 function clone(x) { return JSON.parse(JSON.stringify(x)); }
 
+function newRuntimeFileId() {
+   if (window.crypto && typeof window.crypto.randomUUID === 'function') return 'rf-' + window.crypto.randomUUID();
+   return 'rf-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+}
+
+/* 演示文件的 id 只适合出厂项目；每个新项目都必须拥有自己的文件命名空间。 */
+function runtimeFilesForNewProject() {
+   return clone(SAMPLES.runtimeFiles).map(function (file) {
+      var copy = clone(file);
+      copy.id = newRuntimeFileId();
+      return copy;
+   });
+}
+
 function load() {
    const registry = STORAGE.get(PROJECTS_KEY, null);
    if (registry && Array.isArray(registry.projects) && registry.projects.length) {
@@ -163,7 +177,7 @@ function ensureLessonProject() {
       lesson: true,
       docs: [],
       activeId: null,
-      runtimeFiles: clone(SAMPLES.runtimeFiles)
+      runtimeFiles: runtimeFilesForNewProject()
    };
    projects.push(project);
    return project;
@@ -223,7 +237,7 @@ function createProject(name) {
       name: name,
       docs: [{ id: 'doc-' + Date.now(), name: 'Main.pseudocode', source: '// Main.pseudocode\n', updatedAt: Date.now() }],
       activeId: null,
-      runtimeFiles: clone(SAMPLES.runtimeFiles)
+      runtimeFiles: runtimeFilesForNewProject()
    };
    project.activeId = project.docs[0].id;
    projects.push(project);
@@ -1527,7 +1541,7 @@ $('moreMenu').addEventListener('click', function (ev) {
       renderRuntimeFiles();
       renderHandles([]);
       save();
-      toast('运行环境已重置为演示数据');
+      toast('运行环境已重置为初始文件');
    }
    if (a === 'cloudRun') requestCloudRun();
    if (a === 'about') showDialog('aboutDialog');
@@ -2050,20 +2064,27 @@ function cloudFilesOf(project) {
  * 对什么都没做过的人就是纯粹的噪音——所以内容与出厂样例完全一致时跳过。
  * 只要动过一个字、改过项目名、加删过文件，就不再是出厂状态，照常询问。
  */
-function isPristineProject(project) {
-   if (project.name !== '我的项目') return false;
+function matchesSampleSet(project, sample) {
    const docs = project.docs || [];
-   if (docs.length !== SAMPLES.docs.length) return false;
-   const sameDocs = SAMPLES.docs.every(function (sample, index) {
+   if (docs.length !== sample.docs.length) return false;
+   const sameDocs = sample.docs.every(function (item, index) {
       const doc = docs[index];
-      return doc && doc.id === sample.id && doc.name === sample.name && doc.source === sample.source;
+      return doc && doc.id === item.id && doc.name === item.name && doc.source === item.source;
    });
    if (!sameDocs) return false;
    const runtimeFiles = project.runtimeFiles || [];
-   if (runtimeFiles.length !== SAMPLES.runtimeFiles.length) return false;
-   return SAMPLES.runtimeFiles.every(function (sample, index) {
-      return JSON.stringify(runtimeFiles[index]) === JSON.stringify(sample);
+   if (runtimeFiles.length !== sample.runtimeFiles.length) return false;
+   return sample.runtimeFiles.every(function (item, index) {
+      return JSON.stringify(runtimeFiles[index]) === JSON.stringify(item);
    });
+}
+
+function isPristineProject(project) {
+   if (project.name !== '我的项目') return false;
+   /* 出厂样例改过版本；老浏览器里存的是旧的那一份，同样是「没动过」。
+      认不出旧快照的话，这些人一登录就会被问一次要不要并入自己什么都没做过的内容。 */
+   const sets = [{ docs: SAMPLES.docs, runtimeFiles: SAMPLES.runtimeFiles }].concat(SAMPLES.legacy || []);
+   return sets.some(function (sample) { return matchesSampleSet(project, sample); });
 }
 
 /* 同步只看代码文件和运行时文件。当前打开的是哪个项目、哪个文件、滚到哪里、
@@ -2163,11 +2184,16 @@ function cloudRemoveFile(projectId, fileId) {
  * 否则每台新设备第一次登录都会凭空多出四五个「（云端副本）」。
  */
 function isUntouchedSample(fileId, localFile) {
-   const sample = SAMPLES.docs.concat(SAMPLES.runtimeFiles).find(function (item) { return item.id === fileId; });
-   if (!sample || !localFile) return false;
-   return localFile.kind === 'source'
-      ? localFile.content === sample.source
-      : JSON.stringify(localFile.content) === JSON.stringify(runtimeContentOf(sample));
+   if (!localFile) return false;
+   /* 出厂样例换过一版，老设备上存的还是旧的那一份；旧的那一份同样是没动过的出厂内容。 */
+   const sets = [{ docs: SAMPLES.docs, runtimeFiles: SAMPLES.runtimeFiles }].concat(SAMPLES.legacy || []);
+   return sets.some(function (set) {
+      const sample = set.docs.concat(set.runtimeFiles).find(function (item) { return item.id === fileId; });
+      if (!sample) return false;
+      return localFile.kind === 'source'
+         ? localFile.content === sample.source
+         : JSON.stringify(localFile.content) === JSON.stringify(runtimeContentOf(sample));
+   });
 }
 
 /*

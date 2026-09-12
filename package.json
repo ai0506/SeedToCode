@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -b && esbuild packages/language/src/index.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=packages/language/dist/browser.js && esbuild packages/language/src/index.ts --bundle --format=iife --global-name=CAIEEngine --platform=browser --target=es2022 --outfile=web/js/language-engine.js && esbuild packages/runtime/src/index.ts --bundle --format=iife --global-name=CAIERuntime --platform=browser --target=es2022 --outfile=web/js/runtime-engine.js && esbuild packages/exercise/src/index.ts --bundle --format=iife --global-name=CAIEExercise --platform=browser --target=es2022 --outfile=web/js/exercise-engine.js && esbuild packages/teaching-content/src/browser.ts --bundle --format=iife --global-name=CAIETeaching --platform=browser --target=es2022 --outfile=web/js/teaching-content.js && esbuild packages/storage/src/browser.ts --bundle --format=iife --global-name=CAIEStorageModule --platform=browser --target=es2022 --outfile=web/js/storage.js",
     "check": "tsc -b --pretty false",
-    "test": "npm run build && node scripts/generate-teaching-expected.mjs --check && vitest run",
+    "test": "npm run build && npm --prefix server test && node scripts/generate-teaching-expected.mjs --check && vitest run",
     "teaching:expected": "node scripts/generate-teaching-expected.mjs",
     "teaching:preview": "node scripts/preview-teaching-chapter.mjs"
   },

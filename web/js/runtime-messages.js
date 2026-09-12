@@ -12,11 +12,11 @@ window.RUNTIME_MESSAGES = {
    'runtime.name.uninitialized': '变量 {name} 还没有值就被读取了——先用 INPUT 读进来，或先给它赋一个值。',
    'runtime.constant.cannotChange': '常量 {name} 不能被修改。',
    'runtime.assignment.typeMismatch': '不能把 {value} 值赋给 {target} 变量。',
-   'runtime.statement.notSupportedInCurrentStage': '该语句将在后续运行阶段实现，当前不会生成模拟结果。',
-   'runtime.type.notSupportedInCurrentStage': '该类型尚未接入真实运行。',
-   'runtime.expression.notSupportedInCurrentStage': '该表达式尚未接入真实运行。',
-   'runtime.target.notSupportedInCurrentStage': '该赋值目标尚未接入真实运行。',
-   'runtime.call.notSupportedInCurrentStage': '当前尚不能真实调用 {name}。',
+   'runtime.statement.notSupportedInCurrentStage': '这条语句不能运行。',
+   'runtime.type.notSupportedInCurrentStage': '这个类型不能运行。',
+   'runtime.expression.notSupportedInCurrentStage': '这个表达式不能运行。',
+   'runtime.target.notSupportedInCurrentStage': '不能给这个位置赋值。',
+   'runtime.call.notSupportedInCurrentStage': '不能调用 {name}。',
    'runtime.expression.invalid': '表达式无效，无法执行。',
    'runtime.math.divisionByZero': '除数不能为 0。',
    'runtime.math.invalidResult': '数值结果超出安全范围或不是有限数。',
@@ -71,7 +71,7 @@ window.RUNTIME_MESSAGES = {
    'runtime.random.invalidStoredRecord': '随机文件中的记录内容与声明类型不一致。',
    'runtime.file.limit.fileBytes': '文件 {file} 超过单文件上限 {maximum} 字节。',
    'runtime.file.limit.projectBytes': '运行时文件总大小超过上限 {maximum} 字节。',
-   'runtime.internalError': '解释器发生内部错误。'
+   'runtime.internalError': '运行时出现了意外错误。'
 };
 
 window.runtimeMessage = function runtimeMessage(error) {
