@@ -145,6 +145,7 @@
          chapterId: chapter.id,
          taskId: task.id,
          taughtFeatures: T.taughtFeaturesFor(chapter, task.id),
+         executionProfile: T.executionProfileOf(chapter),
          onPass: function () {
             T.progress.setDone(chapter.id, stepId);
             paintState(true);

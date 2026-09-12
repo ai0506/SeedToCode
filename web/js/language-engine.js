@@ -2636,6 +2636,10 @@ var CAIEEngine = (() => {
             return record(expression, primitive("STRING"));
           }
           if ([">", "<", ">=", "<=", "=", "<>"].includes(expression.operator)) {
+            if ([">", "<", ">=", "<="].includes(expression.operator) && (left.kind === "enum" || right.kind === "enum")) {
+              report("PC4037", "UDT-001", "type.enum.orderedComparison", expression.range);
+              return record(expression, primitive("BOOLEAN"));
+            }
             if (!areComparable(left, right)) {
               report("PC4002", "OP-003", "type.relation.incompatibleOperands", expression.range, "CAIE", {
                 left: displayType(left),
@@ -2650,6 +2654,8 @@ var CAIEEngine = (() => {
             }
             return record(expression, primitive("INTEGER"));
           }
+          const enumOrdinalArithmetic = left.kind === "enum" && isPrimitive(right, "INTEGER") && (expression.operator === "+" || expression.operator === "-");
+          if (enumOrdinalArithmetic) return record(expression, left);
           if (!isNumeric(left) || !isNumeric(right)) {
             if (left.kind !== "unknown" && right.kind !== "unknown") {
               const looksLikeConcatenation = expression.operator === "+" && (isPrimitive(left, "STRING") || isPrimitive(right, "STRING") || isPrimitive(left, "CHAR") || isPrimitive(right, "CHAR"));

@@ -35,14 +35,18 @@ export const chapter03: Chapter = {
         {
           kind: "explanation",
           paragraphs: [
-            "前两章的程序只会把读到的东西原样摆出来。从这一章起，赋值箭头的右边可以是一段**表达式（expression）**——一个需要算出结果的式子，算完的值才被放进左边的变量。四则运算用 `+`、`-`、`*`、`/`，写法和数学里一样：`Total ← Price * Count` 先把右边算出来，再把结果放进 `Total`。",
-            "算的顺序也和数学一样：先乘除后加减。`2 + 3 * 4` 得到 14，不是 20。想让加法先算，就用括号：`(2 + 3) * 4` 得到 20。",
+            "前两章的程序只会把读到的东西原样摆出来。从这一章起，赋值箭头的右边可以是一段**表达式（expression）**——一个需要算出结果的式子，算完的值才被放进左边的变量。式子里那些表示「要做哪种运算」的符号叫**运算符（operator）**。四则运算的运算符是 `+`、`-`、`*`、`/`，写法和数学里一样：`Total ← Price * Count` 先把右边算出来，再把结果放进 `Total`。",
+            "算的顺序也和数学一样：先乘除后加减。哪个运算先算、哪个后算，这个次序叫**优先级（precedence）**。`2 + 3 * 4` 得到 14，不是 20。想让加法先算，就用括号：`(2 + 3) * 4` 得到 20。",
             "有一处和数学不一样，要特别记住：**`/` 的结果永远是 `REAL`，哪怕除得尽**。`6 / 2` 得到的是 `3.0` 而不是 `3`。所以 `DECLARE Half : INTEGER` 之后写 `Half ← 6 / 2` 是不成立的——右边是个实数，左边只肯收整数。"
           ],
           callouts: [
             {
               source: "CAIE",
               text: "算术运算符是 `+`、`-`、`*`、`/`；`/` 的结果是 `REAL`，即使两个操作数都是整数。乘除的优先级高于加减，复杂的式子建议用括号把顺序写明白（Pseudocode Guide §5.2）。"
+            },
+            {
+              source: "editor",
+              text: "实数显示成什么样，Pseudocode Guide 没有规定。本编辑器的做法是至少保留一位小数，所以 `6 / 2` 显示成 `3.0`，一眼看得出它是实数而不是整数。"
             }
           ]
         },
@@ -277,14 +281,14 @@ export const chapter03: Chapter = {
         {
           kind: "explanation",
           paragraphs: [
-            "算术表达式算出来的是数，**比较**算出来的是「是」或「不是」。六个比较运算符是 `=`、`<>`、`<`、`<=`、`>`、`>=`，其中 `<>` 表示「不等于」。注意 `=` 在这里是比较不是赋值——赋值一直用 `←`，这两个符号在 CAIE 的伪代码里分工明确。",
+            "算术表达式算出来的是数，比较算出来的是「是」或「不是」。做比较的这六个符号叫**关系运算符（relational operator）**，Guide 里也把它们叫作比较运算符，两个说法指的是同一批东西：`=`、`<>`、`<`、`<=`、`>`、`>=`，其中 `<>` 表示「不等于」。注意 `=` 在这里是比较不是赋值——赋值一直用 `←`，这两个符号在 CAIE 的伪代码里分工明确。",
             "比较的结果是一个 `BOOLEAN` 值——只可能是 `TRUE` 或 `FALSE`。所以 `Passed ← Score >= 50` 是完全正常的一次赋值：右边先比出一个布尔值，再放进左边的布尔变量。",
             "数学里可以写 `1 < 2 < 3`，伪代码里不行。比较只能两两进行，连着写编辑器会拦下来。要表达「在两者之间」，得用下一节的 `AND` 把两个比较连起来。"
           ],
           callouts: [
             {
               source: "CAIE",
-              text: "比较运算符是 `=`、`<>`、`<`、`<=`、`>`、`>=`（Pseudocode Guide §5.3）。"
+              text: "关系运算符（也叫比较运算符）是 `=`、`<>`、`<`、`<=`、`>`、`>=`，它们算出来的一定是 `BOOLEAN`（Pseudocode Guide §5.3）。"
             }
           ]
         },
@@ -367,13 +371,18 @@ export const chapter03: Chapter = {
           paragraphs: [
             "一个条件常常不止一句话：「分数及格**并且**出勤够」「周六**或者**周日」。把布尔值组合起来用三个**逻辑运算符（logic operator）**：`AND`、`OR`、`NOT`。",
             "`A AND B` 要两边都为 `TRUE` 才是 `TRUE`；`A OR B` 只要有一边为 `TRUE` 就是 `TRUE`；`NOT A` 把真假反过来。",
-            "三者也有优先级：`NOT` 最高，其次 `AND`，最后 `OR`。所以 `TRUE OR TRUE AND FALSE` 先算 `AND`，结果是 `TRUE`。`NOT` 抓得最紧会带来一个后果——`NOT Score > 50` 被理解成 `(NOT Score) > 50`，先对一个数取反，讲不通；想说「分数不超过 50」得写成 `NOT (Score > 50)`。",
+            "三者之间也有优先级：`NOT` 最高，其次 `AND`，最后 `OR`。所以 `TRUE OR TRUE AND FALSE` 先算 `AND`，结果是 `TRUE`。",
+            "还有一处优先级 Guide 没有规定，本编辑器给了个说法：`NOT` 抓得比关系运算符更紧。所以 `NOT Score > 50` 在这里被读成 `(NOT Score) > 50`——先对一个数取反，讲不通。想说「分数不超过 50」就写 `NOT (Score > 50)`，把括号补上，换到别的工具里也不会被读成另一个意思。",
             "记不住优先级不要紧，**把想先算的部分用括号括起来**，读的人也省事。Guide 本身就建议复杂的式子显式加括号。"
           ],
           callouts: [
             {
               source: "CAIE",
               text: "逻辑运算符是 `AND`、`OR`、`NOT`；复杂表达式建议用括号把运算顺序写明白（Pseudocode Guide §5.4、§5.2）。"
+            },
+            {
+              source: "editor",
+              text: "`NOT` 和关系运算符谁先算，Pseudocode Guide 没有规定。本编辑器让 `NOT` 先算，所以 `NOT Score > 50` 会报类型错。加上括号写成 `NOT (Score > 50)` 就没有歧义了。"
             }
           ]
         },
@@ -545,32 +554,32 @@ export const chapter03: Chapter = {
         {
           kind: "quiz",
           type: "single-choice",
-          prompt: "下面四行里，哪一行**不会**被编辑器拦下？",
+          prompt: "下面四行里，哪一行**能开始运行、跑到那一行才停下来**？",
           options: [
             {
               key: "A",
               label: "DECLARE R : REAL 之后写 R ← 7",
-              correct: true,
-              explanation: "不会。整数可以当实数用，`R` 里存的是 `7.0`。这是唯一一处自动转换。"
+              correct: false,
+              explanation: "这一行从头到尾都不会停。整数可以当实数用，`R` 里存的是 `7.0`——这是唯一一处自动转换。"
             },
             {
               key: "B",
               label: "DECLARE N : INTEGER 之后写 N ← 7 / 2",
               correct: false,
-              explanation: "会被拦下。`/` 的结果永远是实数，`3.5` 放不进整数变量。"
+              explanation: "它根本开始不了。`/` 的结果永远是实数，`3.5` 放不进整数变量，这是运行前就看得出来的类型不匹配。"
             },
             {
               key: "C",
               label: "DECLARE Flag : BOOLEAN 之后写 Flag ← 1",
               correct: false,
-              explanation: "会被拦下。`1` 是整数，布尔变量只收 `TRUE` 和 `FALSE`。"
+              explanation: "它也开始不了。`1` 是整数，布尔变量只收 `TRUE` 和 `FALSE`，同样是运行前就拦下的类型不匹配。"
             },
             {
               key: "D",
               label: "DECLARE N : INTEGER 之后写 N ← 5 MOD 0",
-              correct: false,
+              correct: true,
               explanation:
-                "类型上没问题，`MOD` 两边都是整数——但除数是 0，程序一算到这里就会停下来报错。这一条不是编辑器拦的，是运行时拦的。"
+                "对。类型上挑不出毛病，`MOD` 两边都是整数，所以程序照常开始跑；等真算到这一行才发现除数是 0，这时候才停。"
             }
           ]
         }

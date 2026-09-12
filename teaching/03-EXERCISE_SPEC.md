@@ -40,23 +40,15 @@ OUTPUT "FOR"
 
 ### 3.2 特征（feature）清单
 
-约束用一组稳定的特征 ID 表达，题目只引用 ID，不写实现细节：
+约束用一组稳定的特征 ID 表达，题目只引用 ID，不写实现细节。
 
-已实现于 `packages/exercise/src/features.ts`，`FEATURE_IDS` 是唯一的权威清单。
+**权威清单是 `packages/exercise/src/features.ts` 里的 `FEATURE_IDS`（目前 77 个），本文件不再抄一份。** 以前这里有一张示例表，结果和实现慢慢分了岔（表里写 `file.eof`，实现里叫 `builtin.eof`；实现里有 `oop.method-call`，表里没有）。要看有哪些 ID，读那个文件；`feature-labels.test.ts` 已经钉住「每个 ID 都要有中文标签」。
 
-| 类别 | 特征 ID 示例 |
-|---|---|
-| 输入输出 | `io.input`、`io.output` |
-| 循环 | `loop.for`、`loop.while`、`loop.repeat`、`loop.nested` |
-| 选择 | `select.if`、`select.if-else`、`select.nested-if`、`select.case`、`select.case-otherwise`、`select.case-range` |
-| 声明 | `decl.variable`、`decl.constant`、`decl.array-1d`、`decl.array-2d`、`decl.record-type`、`decl.enum`、`decl.pointer`、`decl.set`、`decl.class` |
-| 模块 | `routine.procedure`、`routine.function`、`routine.call`、`param.byval`、`param.byref`、`routine.recursive` |
-| 内置 | `builtin.length`、`builtin.mid`、`builtin.right`、`builtin.lcase`、`builtin.ucase`、`builtin.int`、`builtin.rand` |
-| 文件 | `file.open-read`、`file.open-write`、`file.open-append`、`file.open-random`、`file.eof`、`file.seek`、`file.getrecord`、`file.putrecord` |
-| 运算 | `op.div`、`op.mod`、`op.concat`、`op.and`、`op.or`、`op.not` |
-| 其它 | `expr.function-call`、`array.index-2d`、`record.field-access`、`oop.inherits`、`oop.new`、`oop.super`、`misc.comment` |
+大致分类仍是：输入输出、循环、选择、声明、模块、内置函数、文件、运算，外加 `record.field-access`、`oop.*`、`misc.comment` 这些零散项。
 
-特征 ID 需要一份稳定清单文件（类似 `CAIE_RULES.md` 的规则 ID），**一旦发布不得改名**，否则老题目会失效。
+特征 ID **一旦发布不得改名**，否则老题目会失效。
+
+**已知缺口**：`routine.recursive` 在本文件和 [07-HANDOFF.md](07-HANDOFF.md) 里都提过，`features.ts` 里**仍然没有**——Chapter 19 第一道题就要用它。按交接文档的规矩，首次使用一个新特征前先补一条提取测试。
 
 ### 3.3 约束语法
 
@@ -184,6 +176,29 @@ comparison: {
 - 输出行数超限 → 「输出太多，检查 `OUTPUT` 是不是写在循环里了」
 
 死循环是初学者最常见的错误，这条反馈的教学价值很高，不能只显示「运行超时」。
+
+**进 Chapter 19（递归）之前要补两类**，否则反馈会把学生引到错误的方向：
+
+| 情况 | 运行时给的 | 该对学生说 |
+|---|---|---|
+| 调用层数超限（`RT1205`，`maxCallDepth` 默认 256） | 目前不在上面两类里 | 「递归一直往下调用，没有停下来的那一支——检查基本情况写了没有、参数是不是每次都在靠近它」。**说成「死循环」是错的**，学生会跑去看循环条件 |
+| 写法正确但指数爆炸 | 撞 `RT1203` 步数超限，于是被归成「可能是死循环」 | 「算得对，但同一个子问题被重复算了太多遍」 |
+
+第二条不是假设：实测 `Fib(20)` 能跑出 6765，`Fib(25)` 就撞上步数上限。而「朴素递归 Fibonacci 很贵」正是考纲 §19.2「什么时候用递归划算」的标准例子——现在跑到 22 左右就到头了，而且一超限就被告知「可能是死循环」，正好把这一节的结论讲反。出这一节的题时要么把规模压在能跑完的范围内，要么先把这条反馈补上。
+
+### 4.7 L2 对「声明类」题目是无效的
+
+A Level 的 Paper 3 里最常见的伪代码题是写一段类型声明（见 [02-CONTENT_SPEC.md](02-CONTENT_SPEC.md) 2.9）。这类程序**没有输出**，而 L2 的全部手段就是比对输出。后果是实测出来的：
+
+输出比对只能判断可观察的输出；声明本身没有输出，因此不能凭两个空输出认定成员列表正确。此处移除未经授权的外部评分方案摘录，保留判题能力边界。
+
+在补上值级检查之前，规矩是：
+
+1. **声明类知识点优先做成关卡**（填空题问「括号里该填哪几个值」判得清清楚楚），不做成伪代码题。
+2. 确实要出伪代码题时，判定**只能靠 L1**，因此这类题的章末大题允许用 `require`（对 2.5「章末大题只用软约束」的例外，已写进 02-CONTENT_SPEC 2.9）。
+3. 题面必须说清「这道题看的是声明写得对不对」，不要让学生以为有隐藏用例在跑。
+
+要真正判对，需要的是一类新的约束——**不是「用了哪个特征」，而是「AST 里那个类型定义的成员列表等于给定的集合」**。这需要设计，不在本次修订范围内。
 
 ## 5. L3：规范建议
 

@@ -168,4 +168,28 @@ ENDIF`).result;
     expect(result.outputs).toEqual([]);
     expect(result.diagnostics?.some(({ severity }) => severity === "error")).toBe(true);
   });
+
+  it("refuses unsupported advanced structures before executing declarations", async () => {
+    const result = await executeSource(`CLASS Pet
+ENDCLASS`).result;
+
+    expect(result.status).toBe("preflight-error");
+    expect(result.error).toMatchObject({
+      code: "RT1106",
+      messageKey: "runtime.feature.notSupported",
+      range: { start: { line: 1 } }
+    });
+  });
+
+  it("refuses NEW and pointer expressions instead of silently ignoring them", async () => {
+    const objectResult = await executeSource(`CLASS Pet
+ENDCLASS
+DECLARE Value : Pet
+Value ← NEW Pet()`).result;
+    expect(objectResult.error?.code).toBe("RT1106");
+
+    const pointerResult = await executeSource(`TYPE NumberPointer = ^ INTEGER
+DECLARE Value : NumberPointer`).result;
+    expect(pointerResult.error?.code).toBe("RT1106");
+  });
 });

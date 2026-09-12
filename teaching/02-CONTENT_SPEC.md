@@ -1,6 +1,6 @@
 # 教学元素规格
 
-版本：1.3
+版本：1.4
 本文件定义教学模块里每一种内容单元的**结构、写作规范和约束**。所有章节正文必须按此产出，便于统一渲染、统一判题、统一回归测试。
 
 ## 1. 层级模型
@@ -48,6 +48,14 @@ Course（AS / A Level 两条主线）
   - 可以写：「条件里用到的变量如果循环体里没改，循环不会结束」——这是语言语义的推论，是事实。
   - 不可以写：「学生最常忘记的就是这一行」——这是猜测。
   说清「它是什么、为什么」，学生自己就不会错；不需要先替他假设他会错。
+- **Guide 的范例本身跑不起来时，正文按引擎写，并把这件事说出来。** 权威顺序里 Guide 高于引擎，但 Guide 的个别范例是不自洽的，照抄会直接违反 2.2 的「示例零阻断错误」。已知的两处：
+
+  | Guide 出处 | 原样照抄的结果 | 正文该怎么办 |
+  |---|---|---|
+  | §4.2 指针范例 `MyPointer ← ^ThisSeason` / `NextSeason ← MyPointer^ + 1` | 两条 `PC4000` 类型错——`^INTEGER` 的指针收了一个枚举变量的地址；另外枚举做 `+ 1` 也报 `PC4001` | 写类型对得上的版本，并用 `editor` callout 说明「Guide 这段范例只在示意写法，类型对不上，本编辑器不接受」 |
+  | §10.1 类体里的裸赋值 `Attempts ← 3` | 四条解析/绑定错 | 把初值放进构造器 `NEW`，并说明类体里只放字段声明和方法 |
+
+  规矩是：**不回避、不照抄**。既不能装作 Guide 没这么写过，也不能把跑不起来的代码摆进正文。
 - 引用规则时标注来源，**只标来源、不显示内部规则 ID**（`LOOP-001` 这类标识符是给我们查文档用的）。来源有三种：
 
   | `source` | 标签 | 什么情况 |
@@ -172,6 +180,9 @@ Course（AS / A Level 两条主线）
 
 ### 2.5.8 每次 `INPUT` 之前先 `OUTPUT` 一句提示
 
+> **适用范围：有 `INPUT` 的题才受这一条约束。** 下面三条约束里出现的「必须」，前提都是这道题真的要读输入。
+> AS 的伪代码题几乎都要读输入，所以这一条在 Chapter 1–16 近乎无条件；**A Level 不是这样**——Paper 3 的伪代码题以类型声明和算法补全为主，多数根本没有 `INPUT`（27 份评分方案里只有 1 份提到 prompt，而 AS 的 Paper 2 是 8/30）。写 Chapter 17 以后的章节时，先看这道题有没有输入，没有就整条跳过，不要为了「符合规格」硬加一个读输入的环节。
+
 程序停下来等输入时，屏幕上如果什么都没有，用的人只看到光标在闪。所以**每次 `INPUT` 之前，先用 `OUTPUT` 说一句要输入什么**。
 
 这一条以 `convention`（通行写法）callout 的形式出现在正文里，并把成对的写法直接摆出来：
@@ -282,13 +293,34 @@ OUTPUT "Name lives in City"
 
 Chapter 1 是个例子：它真正的新知识只有四块，所以是 4 节、4 个关卡、1 道小节题、1 道章末大题，整章约 33 分钟。最初写成 7 节 6 关卡 3 道题，是在用格式撑内容。
 
+### 2.9 A Level 的题目形状和 AS 不一样
+
+2.1–2.8 是照着 AS 写出来的，因为当时只有 AS 的内容。进 Chapter 17 之前必须知道：**A Level 的伪代码写作题根本不是 AS 那种「写一个完整程序」。**
+
+先把卷子的分工弄清楚——伪代码的**作答**只在 Paper 2（AS）和 **Paper 3**（A Level）。Paper 4 是实作卷，参考答案给的是 Python / Java / VB.NET，伪代码只出现在题干里当规格用。所以 A Level 这一侧要对齐的是 Paper 3。
+
+Paper 3 的伪代码题只有两族：
+
+| 族 | 典型题干 | 特点 |
+|---|---|---|
+| **声明类** | 编写一个类型或字段声明（项目自拟概括） | 无输入、无输出；需要检查 AST 或成员值 |
+| **补全类** | 完成项目自拟的函数、类或算法骨架 | 给出骨架，只填空缺部分 |
+
+对内容规格的三条影响：
+
+1. **声明类题目判不出对错，这是结构性的**，不是没写好。详见 [03-EXERCISE_SPEC.md](03-EXERCISE_SPEC.md) 4.7——L2 靠比对输出，而声明类程序没有输出。在补上值级检查之前，**声明类知识点优先做成关卡（quiz）而不是伪代码题**：填空题正好能问「`DEFINE` 那一行的括号里该填哪几个值」。
+2. **2.5「章末大题只用软约束」在 A Level 要放宽。** 那一条的前提是「通过语法检查 + 全部测试用例即算通过」，而声明类题目没有测试用例可通过。这类章末大题允许使用 `require`，理由照常必填。
+3. **锁定骨架从例外升为主力。** 2.2 第 5 条的 `lockedStarterCode` 在 AS 只是「教之前要用到某写法时的补救」，到 A Level 它就是补全类题目的正常形态——给骨架、留空、只判学生填的那部分。
+
+另外，**AS 里写成绝对规则的几句话，到 A Level 会变成半对**。已知一条：Chapter 12.2 写着「过程只能用 `CALL` 调用」。Guide §10.1 的方法调用恰恰不写 `CALL`（`Player.SetAttempts(5)`），而且实测两种形式互相排斥——普通过程漏写 `CALL` 报 `parser.call.requiresCallKeyword`，方法多写 `CALL` 也报错。写 Chapter 22 时要回头把 12.2 那句话补成三种情况，不能让学生带着一条错规则过来。**写每一章之前，先想一想这一章会不会推翻前面某句「只能 / 必须」。**
+
 ## 3. 写作规范
 
 3.1–3.3 是中英术语规则：中文授课，但考纲内的具体名词要出现考纲原文英文。3.4 与 3.5 是两条硬性界面约束。
 
 ### 3.1 伪代码关键字：一律英文原文大写，永不翻译
 
-`DECLARE` `CONSTANT` `INTEGER` `REAL` `CHAR` `STRING` `BOOLEAN` `DATE` `ARRAY` `IF` `THEN` `ELSE` `ENDIF` `CASE OF` `OTHERWISE` `ENDCASE` `FOR` `TO` `STEP` `NEXT` `WHILE` `ENDWHILE` `REPEAT` `UNTIL` `PROCEDURE` `ENDPROCEDURE` `FUNCTION` `RETURNS` `RETURN` `ENDFUNCTION` `CALL` `BYVAL` `BYREF` `TYPE` `ENDTYPE` `OPENFILE` `READFILE` `WRITEFILE` `CLOSEFILE` `EOF` `SEEK` `GETRECORD` `PUTRECORD` `CLASS` `ENDCLASS` `INHERITS` `NEW` `SUPER` `PUBLIC` `PRIVATE` `AND` `OR` `NOT` `DIV` `MOD` `SET OF` `DEFINE` …
+`DECLARE` `CONSTANT` `INTEGER` `REAL` `CHAR` `STRING` `BOOLEAN` `DATE` `ARRAY` `IF` `THEN` `ELSE` `ENDIF` `CASE OF` `OTHERWISE` `ENDCASE` `FOR` `TO` `STEP` `NEXT` `WHILE` `ENDWHILE` `REPEAT` `UNTIL` `PROCEDURE` `ENDPROCEDURE` `FUNCTION` `RETURNS` `RETURN` `ENDFUNCTION` `CALL` `BYVAL` `BYREF` `TYPE` `ENDTYPE` `OPENFILE` `READFILE` `WRITEFILE` `CLOSEFILE` `EOF` `SEEK` `RANDOM` `GETRECORD` `PUTRECORD` `CLASS` `ENDCLASS` `INHERITS` `NEW` `SUPER` `PUBLIC` `PRIVATE` `AND` `OR` `NOT` `DIV` `MOD` `SET OF` `DEFINE` …
 
 正文里出现这些词时用行内代码格式，不加中文括注（`WHILE` 就是 `WHILE`，不写「`WHILE`（当型循环）」）。
 

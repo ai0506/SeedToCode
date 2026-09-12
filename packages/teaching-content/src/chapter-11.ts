@@ -44,7 +44,7 @@ export const chapter11: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求能定义并使用记录，字段可以是不同的数据类型（§10.1）。"
+              text: "记录把若干项数据绑在一个标识符下，各字段可以是不同的数据类型；用 `TYPE … ENDTYPE` 定义（§10.1）。"
             }
           ]
         },
@@ -582,7 +582,7 @@ export const chapter11: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求能为给定问题选择合适的数据结构并说明理由（§10.1、§10.2）。"
+              text: "为一个问题挑数据结构时要说得出理由，理由落在这批数据本身的形状上（§10.1、§10.2）。"
             }
           ]
         },

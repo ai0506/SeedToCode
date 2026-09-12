@@ -368,7 +368,7 @@ export const chapter09: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求能为给定问题**选择**合适的数据结构，并说明理由（§10.2）。"
+              text: "一维和二维数组都是 Pseudocode Guide 的正式写法。为一个问题挑哪一种，要说得出理由——理由落在「指准一个数据要几个编号」上（§10.2）。"
             }
           ]
         },

@@ -35,9 +35,9 @@ export const chapter05: Chapter = {
           kind: "explanation",
           paragraphs: [
             "要把同一句话显示五遍，照抄五行 `OUTPUT` 也做得到。但要显示一百遍呢？要改其中一个字呢——得改一百处。**重复（iteration）**让同一段代码跑多次，代码只写一份。",
-            "次数事先就知道的时候用 `FOR`：写成 `FOR <控制变量> ← <起点> TO <终点>`，中间是要重复做的事，最后用 `NEXT <控制变量>` 收尾。",
+            "次数事先就知道的时候用 `FOR`。这种「数着遍数跑」的循环叫**计数控制循环（count-controlled loop）**：写成 `FOR <控制变量> ← <起点> TO <终点>`，中间是要重复做的事，最后用 `NEXT <控制变量>` 收尾。",
             "`FOR I ← 1 TO 5` 的意思是：`I` 先取 1 跑一遍循环体，回到 `NEXT` 时 `I` 加 1 变成 2，再跑一遍……直到 `I` 超过 5 就停下来。起点和终点都算在内，所以 `FOR I ← 2 TO 5` 跑的是 2、3、4、5 共四遍——**终点减起点再加一**。",
-            "**控制变量（control variable）**必须是 `INTEGER`，和别的变量一样要先 `DECLARE`。`NEXT` 后面重复写一遍变量名，不写编辑器不会拦，但会提醒你补上，这是 CAIE 的书写习惯。"
+            "那个数着遍数的变量叫**控制变量（control variable）**，也叫**循环计数器（loop counter）**。它必须是 `INTEGER`，和别的变量一样要先 `DECLARE`。`NEXT` 后面重复写一遍变量名，不写编辑器不会拦，但会提醒你补上，这是 CAIE 的书写习惯。"
           ],
           callouts: [
             {
@@ -103,7 +103,7 @@ export const chapter05: Chapter = {
           kind: "task",
           id: "5.1.1",
           title: "连加",
-          statement: "写一段伪代码：提示并读入一个正整数 `N`，算出 1 加到 `N` 的和并显示。",
+          statement: "写一段伪代码：提示并读入一个整数 `N`（不会是负数），算出 1 加到 `N` 的和并显示。`N` 是 0 时一个数都不用加，和就是 0。",
           ioSpec: {
             input: ["一行，一个 `INTEGER`。提示语排在读取之前，一字不差：", "`Enter a number`"].join("\n"),
             output: "一行，写成 `Sum: <和>`。冒号后面是一个空格。"
@@ -258,9 +258,9 @@ export const chapter05: Chapter = {
           kind: "explanation",
           paragraphs: [
             "`FOR` 的前提是次数事先知道。可有些事没法事先知道要做多少遍：一直读数字直到读到某个值、一直问直到答对。这时候用 `WHILE`：写 `WHILE <条件>`，中间是循环体，最后用 `ENDWHILE` 收尾。",
-            "**每一遍开始之前先看条件**：成立就进去跑一遍，跑完回到开头再看一次；不成立就跳过整个循环，从 `ENDWHILE` 后面继续。",
+            "条件写在循环前面，所以它叫**前测循环（pre-condition loop）**。**每一遍开始之前先看条件**：成立就进去跑一遍，跑完回到开头再看一次；不成立就跳过整个循环，从 `ENDWHILE` 后面继续。",
             "因为条件在前面，`WHILE` **可能一遍都不执行**——第一次检查就不成立的话，循环体一次都不会跑。这不是毛病，恰恰是它有用的地方：「一个数都没有」本来就该是合法的情况。",
-            "条件里用到的东西，循环体里必须有办法让它变，否则条件永远成立，程序会一直跑下去。一种常见的写法是**哨兵（sentinel）**：约定一个特殊值表示「到此为止」。要在进入循环前先读一次，循环体的最后再读一次，这样条件每次都是拿最新读到的值去判断。"
+            "条件里用到的东西，循环体里必须有办法让它变。改不了就成了**死循环（infinite loop）**——条件永远成立，程序停不下来。判断办法很直接：**把条件里出现的每个名字挑出来，看循环体里有没有哪一行会改到它**；一个都没有，那就是死循环。一种常见的写法是**哨兵（sentinel）**：约定一个特殊值表示「到此为止」。要在进入循环前先读一次，循环体的最后再读一次，这样条件每次都是拿最新读到的值去判断。"
           ],
           callouts: [
             {
@@ -341,7 +341,7 @@ export const chapter05: Chapter = {
           kind: "explanation",
           paragraphs: [
             "有些事必须先做一次才知道要不要再做：先问一遍才知道答案对不对，先读一次才知道这个数合不合格。这时候条件应该放在后面——写 `REPEAT`，中间是循环体，最后一行写 `UNTIL <条件>`。",
-            "循环体先跑一遍，跑完再看条件。这就是后测循环（post-condition loop）的定义：**至少执行一次**。`REPEAT` 没有 `ENDREPEAT`，`UNTIL` 那一行本身就是结尾。",
+            "循环体先跑一遍，跑完再看条件。条件写在后面，所以它叫**后测循环（post-condition loop）**，定义就是这一句：**至少执行一次**。`REPEAT` 没有 `ENDREPEAT`，`UNTIL` 那一行本身就是结尾。",
             "`UNTIL` 和 `WHILE` 的方向正好相反，这一点要盯住：`WHILE <条件>` 是条件成立就继续，`UNTIL <条件>` 是条件成立就停。",
             "所以同一件事写成两种循环时，条件往往要反过来写。「继续读，直到读到 -1」写成 `UNTIL Score = -1`；换成 `WHILE` 就得写 `WHILE Score <> -1`。"
           ],
@@ -598,7 +598,7 @@ export const chapter05: Chapter = {
       hints: [
         "「一个分数都没有」是一种合法情况，5.5 的判据直接给出了该用哪种循环。",
         "个数、总分、最高分都要一路攒着，三个变量都要在循环开始前先给初值。",
-        "求最高分不需要记住所有分数：每读到一个就和目前的最高分比一下，比它大就换掉。"
+        "求最高分不需要记住所有分数：每读到一个就和目前的最高分比一下，比它大就换掉。第一个分数没有「目前的最高分」可比，直接让它当起点。"
       ],
       examples: [
         {
@@ -620,15 +620,18 @@ export const chapter05: Chapter = {
         "DECLARE Highest : INTEGER",
         "Total ← 0",
         "Count ← 0",
-        "Highest ← 0",
         'OUTPUT "Enter a score"',
         "INPUT Score",
         "WHILE Score <> -1",
         "   Total ← Total + Score",
-        "   Count ← Count + 1",
-        "   IF Score > Highest THEN",
+        "   IF Count = 0 THEN",
         "      Highest ← Score",
+        "   ELSE",
+        "      IF Score > Highest THEN",
+        "         Highest ← Score",
+        "      ENDIF",
         "   ENDIF",
+        "   Count ← Count + 1",
         '   OUTPUT "Enter a score"',
         "   INPUT Score",
         "ENDWHILE",

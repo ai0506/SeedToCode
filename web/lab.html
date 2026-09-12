@@ -275,6 +275,14 @@
             <span class="switch-track"><span class="switch-thumb"></span></span>
          </button>
       </div>
+      <div class="setting">
+         <span class="setting-label" id="lbl-runtime-profile">运行档位</span>
+         <div class="segmented runtime-profile" id="setRuntimeProfile" role="radiogroup" aria-labelledby="lbl-runtime-profile">
+            <button role="radio" data-value="core-2027" aria-checked="true">Core</button>
+            <button role="radio" data-value="advanced-2027" aria-checked="false">Advanced</button>
+         </div>
+      </div>
+      <p class="muted small runtime-profile-note">Advanced 开启考纲扩展运行：类、对象、指针、集合与枚举。</p>
       <hr>
       <button class="btn btn-danger small" id="clearData">清除本地项目数据</button>
       <p class="muted small">清除后所有代码文件、运行时文件与设置都会丢失，且无法撤销。</p>
@@ -379,17 +387,17 @@
 
 <script src="js/caie-spec.js"></script>
 <script src="js/samples.js?v=2"></script>
-<script src="js/language-engine.js?v=11"></script>
-<script src="js/language-adapter.js?v=9"></script>
-<script src="js/runtime-engine.js?v=9"></script>
+<script src="js/language-engine.js?v=13"></script>
+<script src="js/language-adapter.js?v=10"></script>
+<script src="js/runtime-engine.js?v=11"></script>
 <script src="js/lang.js?v=11"></script>
-<script src="js/runtime-messages.js?v=4"></script>
+<script src="js/runtime-messages.js?v=5"></script>
 <script src="js/storage.js?v=2"></script>
 <script src="js/auth-store.js?v=1"></script>
 <script src="js/cloud-client.js?v=4"></script>
 <script src="js/sync-queue.js?v=1"></script>
 <script src="js/sync-engine.js?v=1"></script>
-<script src="js/app.js?v=30"></script>
+<script src="js/app.js?v=31"></script>
 <script src="js/account-ui.js?v=7"></script>
 </body>
 </html>

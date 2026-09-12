@@ -36,7 +36,7 @@ const CLOSERS = new Map([
   ["ENDFUNCTION", "FUNCTION"],
   ["ENDTYPE", "TYPE"],
   ["ENDCLASS", "CLASS"],
-  ["ENDCASE", "CASE"]
+  ["ENDCASE", "CASE"],
 ]);
 
 export function checkFormatting(source: string, options: FormatOptions = {}): Diagnostic[] {

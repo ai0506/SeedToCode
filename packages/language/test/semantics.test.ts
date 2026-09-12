@@ -4,6 +4,18 @@ import { analyzeSource } from "../src/index.js";
 
 const corpus = Object.fromEntries(SEMANTIC_CASES.map((testCase) => [testCase.id, testCase]));
 
+describe("advanced type checks", () => {
+  it("rejects ordered comparisons for enumerated values", () => {
+    const result = analyzeSource(`TYPE Season = (Spring, Summer)
+DECLARE Current : Season
+Current ← Spring
+IF Current < Summer THEN
+   OUTPUT "early"
+ENDIF`);
+    expect(result.diagnostics.map((diagnostic) => diagnostic.messageKey)).toContain("type.enum.orderedComparison");
+  });
+});
+
 describe("global name binding", () => {
   it("treats differently-cased names as the same declaration", () => {
     const result = analyzeSource(corpus["ID-002"].source);

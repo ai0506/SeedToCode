@@ -1,4 +1,5 @@
 import type { Constraints, FeatureId } from "@caie-pseudocode/exercise";
+import type { ExecutionProfile } from "@caie-pseudocode/runtime";
 
 /**
  * 教学内容的数据模型。
@@ -183,9 +184,29 @@ export type Chapter = {
   syllabus: string[];
   /** 前置章节编号。 */
   prerequisites: number[];
+  /**
+   * 这一章的示例、参考解与学生作答用哪个执行档跑。
+   *
+   * 运行时用执行档划定「哪些特性可以执行」：`core-2027` 只放行 AS 范围，
+   * A Level 的枚举、集合、指针与类会得到 `RT1106` 预检错误；`advanced-2027` 全部放行。
+   * **省略时按 `core-2027`**，所以 AS 十六章不用写这个字段。
+   *
+   * 为什么挂在章上而不是题上：知识点闸门本来就是按章推进的，同一章里的示例、
+   * 小节题和章末大题用的语法范围一致；挂在题上会出现「同一章两道题能用的写法不一样」，
+   * 那是闸门要防的事。见 teaching/07-HANDOFF.md 3.16。
+   */
+  executionProfile?: ExecutionProfile;
   sections: Section[];
   chapterTasks: ChapterTask[];
 };
+
+/**
+ * 解析一章的执行档。所有跑代码的地方都要走这里，不要各自写 `?? "core-2027"`——
+ * 默认值散在多处会慢慢分叉（`07-HANDOFF.md` 3.2 记过同一类教训）。
+ */
+export function executionProfileOf(chapter: Pick<Chapter, "executionProfile">): ExecutionProfile {
+  return chapter.executionProfile ?? "core-2027";
+}
 
 /** 期望输出快照：`${taskId}/${testId}` → 参考解在该组输入下的输出。 */
 export type ExpectedOutputs = Record<string, string[]>;

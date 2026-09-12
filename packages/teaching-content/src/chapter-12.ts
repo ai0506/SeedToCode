@@ -49,7 +49,7 @@ export const chapter12: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求理解分解与模块化的意义，并能写出和使用过程（§11.3）。"
+              text: "把问题分解成子问题、每个子问题做成一个程序模块（过程 / 函数），是写长程序的标准做法（§11.3）。"
             }
           ]
         },
@@ -252,7 +252,7 @@ export const chapter12: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "实参的数量、顺序和类型必须与形参一致（G§8.1）。考纲明确要求区分 parameter 与 argument（§11.3）。"
+              text: "实参的数量、顺序和类型必须与参数一致（G§8.1）。parameter 与 argument 在 CAIE 的术语里是两个词，各指一侧，不能混用（§11.3）。"
             }
           ]
         },
@@ -334,7 +334,7 @@ export const chapter12: Chapter = {
               key: "B",
               label: "两个都叫参数",
               correct: false,
-              explanation: "考纲把它们分开：定义里的名字是参数，调用时给的值另有名字。混着说会在读题时吃亏。"
+              explanation: "这两样在 CAIE 的术语里是分开的：定义里的名字是参数，调用时给的值另有名字。两边混着说，就没法指清一句话说的是定义那一侧还是调用那一侧。"
             },
             {
               key: "C",
@@ -686,7 +686,7 @@ export const chapter12: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求理解局部变量与全局变量的区别，以及作用域的含义（§11.3）。"
+              text: "局部变量只在它所属的过程或函数里有效，全局变量在整段程序里都有效；一个名字在哪一段代码里算数，就是它的作用域（§11.3）。"
             }
           ]
         },

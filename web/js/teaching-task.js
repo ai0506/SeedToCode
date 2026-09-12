@@ -374,6 +374,11 @@
    }
 
    /** 学完这道题所在小节为止，学生总共学过的特征；章末大题用全章最后一节的。 */
+   /* 与 packages/teaching-content/src/types.ts 的 executionProfileOf 保持一致：省略即 core-2027。 */
+   function executionProfileOf(chapter) {
+      return (chapter && chapter.executionProfile) || "core-2027";
+   }
+
    function taughtFeaturesFor(chapter, taskId) {
       for (var i = 0; i < chapter.sections.length; i += 1) {
          var section = chapter.sections[i];
@@ -1012,7 +1017,12 @@
             source: source,
             constraints: task.constraints,
             tests: task.tests,
-            taughtFeatures: opts.taughtFeatures || []
+            taughtFeatures: opts.taughtFeatures || [],
+            /*
+             * 执行档按章定。省掉它就退回 core-2027，A Level 的枚举、集合、指针和类
+             * 会在预检就被拒（RT1106），学生看到的是「跑不起来」而不是「答错了」。
+             */
+            execute: { profile: opts.executionProfile || "core-2027" }
          });
          if (result.failedLayer === "L2") failedRuns += 1;
          /*
@@ -1065,6 +1075,7 @@
       draftConflicts: DraftConflicts,
       locate: locate,
       taughtFeaturesFor: taughtFeaturesFor,
+      executionProfileOf: executionProfileOf,
       stepIdFor: stepIdFor,
       renderStatement: renderStatement,
       renderWorkspace: renderWorkspace,

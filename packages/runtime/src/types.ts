@@ -1,8 +1,10 @@
 import type { DateLiteralValue, Diagnostic, LiteralType, SourceRange } from "@caie-pseudocode/language";
 
+export type ExecutionProfile = "core-2027" | "advanced-2027" | "exam-extension";
+
 export type RuntimeDate = DateLiteralValue;
 export type RuntimePrimitive = number | string | boolean | RuntimeDate;
-export type RuntimeValue = RuntimePrimitive | RuntimeArraySnapshot | RuntimeRecordSnapshot;
+export type RuntimeValue = RuntimePrimitive | RuntimeArraySnapshot | RuntimeRecordSnapshot | RuntimeObjectSnapshot | RuntimePointerSnapshot | RuntimeSetSnapshot | RuntimeEnumSnapshot;
 
 export type RuntimeArraySnapshot = {
   kind: "array";
@@ -16,6 +18,16 @@ export type RuntimeRecordSnapshot = {
   typeName: string;
   fields: Array<{ name: string; initialized: boolean; value?: RuntimeValue }>;
 };
+
+export type RuntimeObjectSnapshot = {
+  kind: "object";
+  className: string;
+  fields: Array<{ name: string; initialized: boolean; value?: RuntimeValue }>;
+};
+
+export type RuntimePointerSnapshot = { kind: "pointer"; target: string };
+export type RuntimeSetSnapshot = { kind: "set"; typeName: string; values: RuntimePrimitive[] };
+export type RuntimeEnumSnapshot = { kind: "enum"; typeName: string; member: string };
 
 export type RuntimeVariable = {
   name: string;
@@ -98,6 +110,7 @@ export type InputSubmission =
   | { accepted: false; messageKey: string; args?: Record<string, string | number> };
 
 export type ExecutionOptions = {
+  profile?: ExecutionProfile;
   maxSteps?: number;
   maxActiveTimeMs?: number;
   maxOutputLines?: number;
@@ -133,4 +146,14 @@ export type RecordRuntimeType = {
   normalizedName: string;
   fields: Array<{ name: string; normalizedName: string; type: RuntimeType }>;
 };
-export type RuntimeType = PrimitiveRuntimeType | ArrayRuntimeType | RecordRuntimeType;
+export type ClassRuntimeType = {
+  kind: "class";
+  name: string;
+  normalizedName: string;
+  base?: ClassRuntimeType;
+  fields: Array<{ name: string; normalizedName: string; access: "PUBLIC" | "PRIVATE"; type: RuntimeType; owner: string }>;
+};
+export type PointerRuntimeType = { kind: "pointer"; target: RuntimeType };
+export type SetRuntimeType = { kind: "set"; name: string; normalizedName: string; elementType: RuntimeType };
+export type EnumRuntimeType = { kind: "enum"; name: string; normalizedName: string; members: string[] };
+export type RuntimeType = PrimitiveRuntimeType | ArrayRuntimeType | RecordRuntimeType | ClassRuntimeType | PointerRuntimeType | SetRuntimeType | EnumRuntimeType;

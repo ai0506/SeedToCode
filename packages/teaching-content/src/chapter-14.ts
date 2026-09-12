@@ -53,7 +53,7 @@ export const chapter14: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求能使用文本文件存储和读取数据（§10.3）。"
+              text: "文本文件用来在程序结束之后仍然保住数据，内容是一行或多行文字（§10.3）。"
             }
           ]
         },
@@ -419,7 +419,7 @@ export const chapter14: Chapter = {
         {
           kind: "explanation",
           paragraphs: [
-            "`OPENFILE` 的 `FOR` 后面只有三个词可写，各管一件事。`READ`：从第 1 行开始往下读，一个字都不改。`WRITE`：**打开的一瞬间就把原有内容全部清空**，然后从第 1 行开始写。`APPEND`：保留原有内容，从最后一行的后面接着写。",
+            "`OPENFILE` 的 `FOR` 后面那个词叫**文件模式（file mode）**，它说明这次打开这个文件是要拿它做什么。只有三个词可写，各管一件事。`READ`：从第 1 行开始往下读，一个字都不改。`WRITE`：**打开的一瞬间就把原有内容全部清空**，然后从第 1 行开始写。`APPEND`：保留原有内容，从最后一行的后面接着写。",
             "`WRITE` 那条要特别小心：它不是「准备往里写点东西」，而是「这个文件从现在起重新来过」。想在已有内容后面添一行却写成了 `FOR WRITE`，**原来的东西一句提示都不给就没了**。",
             "选哪个的判据很短：**原来的内容还要不要？**不要就 `WRITE`，要留着就 `APPEND`，只是看看就 `READ`。",
             "模式一旦选定就管住了这次能做什么：`FOR READ` 打开的文件不能 `WRITEFILE`，`FOR WRITE` 打开的不能 `READFILE`。要换着来，就得先 `CLOSEFILE` 再用另一种方式重新打开。"
@@ -764,13 +764,13 @@ export const chapter14: Chapter = {
         {
           kind: "quiz",
           type: "single-choice",
-          prompt: "想把一个文件里的每一行都改成大写再存回去。下面哪种做法可行？",
+          prompt: "一个文件里有很多行，想只留下长度不小于 3 的那些。下面哪种做法可行？",
           options: [
             {
               key: "A",
-              label: "先 `FOR READ` 读完全部内容，再 `FOR WRITE` 打开同一个文件写回去",
+              label: "用 `FOR APPEND` 打开原文件，把够长的那些行接在后面",
               correct: false,
-              explanation: "这个思路是对的，但得先把读到的内容存进数组之类的地方——读完必须先 `CLOSEFILE`，而文件里的内容在 `FOR WRITE` 打开那一刻就没了。"
+              explanation: "`APPEND` 只会往后加，不会拿掉任何东西。做完之后文件里是「原来的全部 + 够长的那些又来一遍」，短行一行没少。"
             },
             {
               key: "B",
@@ -782,13 +782,13 @@ export const chapter14: Chapter = {
               key: "C",
               label: "读原文件、写一个新文件，处理完再把新文件当作结果",
               correct: true,
-              explanation: "对。「读旧的、写新的」是处理文件的标准形状，两个文件同时开着，各干各的。"
+              explanation: "对。「读旧的、写新的」是处理文件的标准形状，两个文件同时开着，各干各的。上面那段示例走的就是这条路。"
             },
             {
               key: "D",
-              label: "用 `FOR APPEND` 打开原文件，把大写的行接在后面",
+              label: "用 `FOR READ` 打开原文件，读到太短的那一行就把它从文件里去掉",
               correct: false,
-              explanation: "那样文件里会变成「原来的小写 + 新加的大写」，原来那些一行都没少。"
+              explanation: "没有「去掉某一行」这种写法。`READ` 模式只能一行一行往下读，文件的内容一个字都改不了。要少掉几行，只能重新写出一个不含它们的文件。"
             }
           ]
         }

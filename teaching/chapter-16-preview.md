@@ -430,9 +430,9 @@ print("Frost days:", count)
 
 `set the count to zero`
 `repeat 5 times`
-`    ask for a temperature and read it`
-`    if the temperature is below zero`
-`        add one to the count`
+`　　ask for a temperature and read it`
+`　　if the temperature is below zero`
+`　　　　add one to the count`
 `output the count`
 
 - **输入**：五行，各一个 `INTEGER`。每次读取之前都要显示提示语，一字不差：

@@ -62,7 +62,7 @@ Hello, world
 
 > **规则**（CAIE 规定）　`OUTPUT` 后面可以跟多个值，用逗号分隔，一次全部输出（Pseudocode Guide §5.1）。
 
-> **规则**（编辑器约定）　每一个 `INPUT` 之前，都先用一句 `OUTPUT` 说明要输入什么，成对出现：
+> **写法**（通行写法）　每一个 `INPUT` 之前，都先用一句 `OUTPUT` 说明要输入什么，成对出现：
 `OUTPUT "Enter the name"`
 `INPUT Name`
 Pseudocode Guide 没有规定这一条，但正式发布的伪代码范例一律这么写。
@@ -189,7 +189,7 @@ OUTPUT Name, " lives in ", City
 
 <sub>G§1｜约 7 分钟｜可用写法：`io.output`、`literal.string`、`io.input`、`decl.variable`、`type.string`、`misc.comment`</sub>
 
-同一段程序有很多种写法都能跑，但 CAIE 对它长什么样是有规定的。两条最常用到的是：固定词（`OUTPUT`、`INPUT`、`DECLARE`）和类型名（`STRING`）全部大写；需要缩进时用三个空格。你自己起的名字不受大小写这条约束，习惯上首字母大写。
+同一段程序有很多种写法都能跑，但 CAIE 对它长什么样是有规定的。两条最常用到的是：固定词（`OUTPUT`、`INPUT`、`DECLARE`）和类型名（`STRING`）全部大写；需要往右让开一段时用三个空格，这种让开叫**缩进（indentation）**。你自己起的名字不受大小写这条约束，习惯上首字母大写。
 
 这一章的程序每行都顶格，还看不出缩进的用处；等 Chapter 4 写到「某些行属于某个判断内部」时，缩进就是一眼看出层次的依据。现在只要记住：不该缩进的行别随手缩进。
 

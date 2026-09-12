@@ -271,7 +271,8 @@
 > 初版八节合并为六节：`push`/`pop` 和栈是同一节讲完的事，`enqueue`/`dequeue` 同理。
 > **整章没有伪代码题**（`verifyChapter({ conceptOnly: true })` 会反过来断言这一点）；示例只用来把结构的样子摆出来看。
 
-> 本章题型限定：选择题、排序题、状态推演题（给一串 push/pop 问最终栈顶）。**不出伪代码写作题**，完整实现见 Chapter 20。
+> 本章题型限定：单选、判断、状态推演题（给一串 push/pop 问最终栈顶，写成单选）。**不出伪代码写作题**，完整实现见 Chapter 20。
+> 排序题（`order`）已在 [02-CONTENT_SPEC.md](02-CONTENT_SPEC.md) 2.3.1 废弃——它判不清对错。Chapter 20 的遍历顺序、链表插删同样不许用排序题，要问就问**可观察行为**（「这棵树中序遍历依次输出什么」只有一种答案）。
 
 ## Chapter 16 — 综合：从问题到完整程序 `[AS]`
 
@@ -299,6 +300,8 @@
 
 # A Level（Chapter 17–23）
 
+> **这七章都要在章数据上写 `executionProfile: "advanced-2027"`。** 省略的话按 `core-2027`，枚举、集合、指针和类会在预检就被拒（`RT1106`），学生看到的是「跑不起来」而不是「答错了」。只用到数组、循环、过程函数的章（18、19、20、23）写不写都能跑，但**统一写上**——同一条主线用两种档位，以后加一段用到指针的示例就会莫名其妙地失败。细节见 [07-HANDOFF.md](07-HANDOFF.md) 3.16。
+
 ## Chapter 17 — 自定义数据类型 `[A]`
 
 对应 `§13.1`、`G§4`
@@ -313,6 +316,10 @@
 | 17.6 | 使用指针 | `^` 取地址与解引用 |
 | 17.7 | 回顾记录，理解它属于 composite | **不重讲记录**——Chapter 11 已学，这里只做归位 |
 | 17.8 | 为问题选择合适的自定义类型 | 考纲 `§13.1` 最后一条 |
+
+> **动笔前必读：枚举、集合、指针在 Guide 里只有声明，没有任何运算。** 相关评分方案的具体引文：Content under development。
+> 实测引擎也一致：`S + 1`（枚举求后继）报 `PC4001`，`C IN Vowels`（集合成员）根本不是合法写法，`LANGUAGE_SPEC.md` 的文法里只有 `set-decl` 和 `set-value-decl`。
+> 后果：**17.3 / 17.4 / 17.6 出不了有实质判定的伪代码题**（原因见 [03-EXERCISE_SPEC.md](03-EXERCISE_SPEC.md) 4.7），这几节靠关卡，尤其是填空题。17.6「使用指针」要重新想：Guide §4.2 那段范例本身类型就对不上，照抄跑不起来。
 
 ## Chapter 18 — 进阶搜索排序与算法比较 `[A]`
 
@@ -361,6 +368,10 @@
 | 20.9 | 图（graph） | 概念节：特征、适用场景；**考纲明确不要求写代码** |
 | 20.10 | ADT 之间的实现关系 | 考纲 `Content under development` |
 
+> **20.6 字典（dictionary）：Guide 把它列为 ADT，但没有给任何语法。** 只能用记录数组或平行数组描述，处理方式和 Chapter 15 相同。
+> 20.4 的链表走「节点数组 + 指针字段 + 空闲链表」，用数组下标模拟指针——这条路不碰 17.5 的真指针类型，所以本章不受指针运行时进度影响。
+> 本章的遍历顺序、插删步骤**不许用排序题**（见 Chapter 15 下方的说明）；要问就问可观察行为。
+
 ## Chapter 21 — 进阶文件处理 `[A]`
 
 对应 `§13.2`、`§20.2`、`G§11`
@@ -402,6 +413,9 @@
 | 23.2 | 什么时候该用异常处理 | 考纲 `Know when it is appropriate` |
 | 23.3 | **伪代码没有标准异常语法** | Pseudocode Guide 未定义 TRY/CATCH；考纲要求用真实语言写。本模块只讲概念 |
 | 23.4 | 编程范式（programming paradigm）概览 | imperative / OOP 与前面所学的对应关系；low-level 与 declarative 声明为本模块**不覆盖**，并说明去哪里学 |
+
+> **本章走 `verifyChapter({ conceptOnly: true })`**，和 Chapter 15 同类。Pseudocode Guide 的关键字索引里没有任何异常处理关键字，TRY / CATCH 完全未定义，所以不可能有伪代码题。
+> 23.4 讲 declarative 时**不要配 Python 栏**——参照系应该是 Prolog 那类语言。现在 `types.ts` 的对照栏类型是闭合联合、且测试强制存在一个非 natural/pseudocode/diagram 的栏（等于强制 Python），这一条要先改代码才写得了，见 [07-HANDOFF.md](07-HANDOFF.md) 的风险清单。
 
 ---
 
@@ -451,6 +465,7 @@
 
 | 考纲小节 | 覆盖章节 | 备注 |
 |---|---|---|
+| §9.1 Computational Thinking | Ch12, Ch16 | **只覆盖 decomposition**；abstraction 的四条（need/benefits、purpose、produce an abstract model）**不覆盖**，它不落在伪代码上 |
 | §9.2 Algorithms | Ch1, Ch16 | 画流程图方向不覆盖（只教读懂） |
 | §10.1 Data Types and Records | Ch2, Ch11 | |
 | §10.2 Arrays | Ch8, Ch9, Ch10 | 含 linear search、bubble sort |
@@ -459,8 +474,9 @@
 | §11.1 Programming Basics | Ch1–Ch3, Ch7 | |
 | §11.2 Constructs | Ch4, Ch5, Ch6 | |
 | §11.3 Structured Programming | Ch12, Ch13 | |
-| §12.2 Program Design | Ch16 | |
-| §12.3 Program Testing | 待定章 X1 | 主线暂不覆盖 |
+| §12.2 Program Design | Ch16 | 只覆盖 structure chart（读、画、倒推伪代码）；**state-transition diagram 不覆盖** |
+| §12.1 Program Development Life cycle | — | **不覆盖**（waterfall / iterative / RAD 与伪代码无关） |
+| §12.3 Program Testing | 待定章 X1 | 主线暂不覆盖（含 syntax / logic / run-time error 三分法与测试数据分类） |
 | §13.1 User-defined data types | Ch17, Ch22 | class/object 在 Ch22 |
 | §13.2 File organisation and access | Ch21 | 含 hashing |
 | §13.3 Floating-point | — | **不覆盖**（与伪代码无关） |

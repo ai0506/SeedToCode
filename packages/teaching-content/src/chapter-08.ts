@@ -134,7 +134,7 @@ export const chapter08: Chapter = {
         {
           kind: "explanation",
           paragraphs: [
-            "声明一个数组写成 `DECLARE Marks : ARRAY[1:30] OF INTEGER`。读作：`Marks` 是一排格子，编号从 1 到 30，每个格子里装一个 `INTEGER`。",
+            "声明一个数组写成 `DECLARE Marks : ARRAY[1:30] OF INTEGER`。读作：`Marks` 是一排格子，编号从 1 到 30，每个格子里装一个 `INTEGER`。只用一个编号就指得准一个格子的数组叫**一维数组（1D array）**，第 9 章会见到要两个编号的那一种。",
             "方括号里那两个数就是**下界（lower bound）**和**上界（upper bound）**——第一个格子的编号和最后一个格子的编号。**两端都算数**，所以 `ARRAY[1:30]` 一共 30 个格子。",
             "方括号里用来指格子的那个数叫**下标（index）**。`Marks[7]` 的下标是 7。下标必须是 `INTEGER`，可以是字面量，也可以是变量或算式——但不能是 `REAL`，哪怕它正好是个整数值。",
             "CAIE 要求把上下界**写明白**，不能只写个长度。这样做的好处是编号从几开始由你决定：成绩从 1 数到 30 很自然，而要表示 2020 到 2029 这十年，直接写 `ARRAY[2020:2029]` 比自己换算方便得多。"

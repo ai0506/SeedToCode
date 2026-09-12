@@ -18,17 +18,23 @@
 | Enums | Complete |
 | Pointers | Complete |
 | Sets | Complete |
-| OOP | Static analysis complete |
+| OOP | Complete |
 
 ## Runtime
 
-| Area | Status |
-|---|---|
-| Core | Complete |
-| Control flow | Complete |
-| Routines | Complete |
-| Text files | Complete |
-| Random files | Complete |
+执行档（`ExecutionProfile`）决定哪些特性可以执行：`core-2027` 只放行 AS 范围，`advanced-2027` 放行下表全部。**未指定时默认 `core-2027`**，A Level 特性会得到 `RT1106` 预检错误。
+
+| Area | Status | 需要的执行档 |
+|---|---|---|
+| Core | Complete | `core-2027` |
+| Control flow | Complete | `core-2027` |
+| Routines（含递归） | Complete | `core-2027` |
+| Text files | Complete | `core-2027` |
+| Random files | Complete | `core-2027` |
+| Enums | Complete | `advanced-2027` |
+| Pointers | Complete | `advanced-2027` |
+| Sets | Complete | `advanced-2027` |
+| OOP（构造器、继承、`SUPER`、多态、聚合） | Complete | `advanced-2027` |
 
 ## Teaching
 
@@ -39,6 +45,8 @@
 | Ch3 | Production |
 | Ch4–16 | Production |
 | Ch17–23 | Planned |
+
+> 运行时已能执行 Chapter 17–23 所需的全部特性；执行档按章声明（`Chapter.executionProfile`，省略即 `core-2027`），期望输出生成、内容校验、浏览器判题与服务端重判四条链路均已接通。见 [`teaching/07-HANDOFF.md`](teaching/07-HANDOFF.md) 3.16。
 
 ## Product and local storage
 

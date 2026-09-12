@@ -50,7 +50,7 @@ export const chapter13: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求区分过程与函数，并理解「返回值取代了这次调用」（§11.3）。"
+              text: "过程与函数是两种不同的模块：过程做一件事，函数算出一个值——而那个返回值取代了这次调用本身（§11.3）。"
             }
           ]
         },
@@ -637,7 +637,7 @@ export const chapter13: Chapter = {
         {
           kind: "explanation",
           paragraphs: [
-            "考纲点名要求能分清五个词。拿 `FUNCTION Area(Width : INTEGER, Height : INTEGER) RETURNS INTEGER` 这一行当例子，五个词全在里面或者紧挨着它。",
+            "说清一个函数的各个部位要用到五个词，它们各指一样东西，不能混着用。拿 `FUNCTION Area(Width : INTEGER, Height : INTEGER) RETURNS INTEGER` 这一行当例子，五个词全在里面或者紧挨着它。",
             "**头部（header）**就是这一行本身：名字、参数、返回类型。它不包含函数体，也不包含 `ENDFUNCTION`。过程也有头部，只是没有 `RETURNS` 那一截。",
             "**接口（interface）**是头部里回答「怎么用它」的那部分：要给它什么、它会还回来什么。知道接口就足够使用一个函数了——**里面怎么写的完全不用看**，这正是分解带来的好处。",
             "**参数（parameter）**是 `Width` 和 `Height`；**实参（argument）**是调用时写的 `3` 和 `4`；**返回值（return value）**是 `RETURN` 交回去、并且取代了这次调用的那个数。"
@@ -645,7 +645,7 @@ export const chapter13: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲明确列出 header、interface、parameter、argument、return value 五个术语（§11.3）。"
+              text: "header、interface、parameter、argument、return value 是描述过程与函数时使用的五个标准术语（§11.3）。"
             }
           ]
         },

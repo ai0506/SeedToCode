@@ -17,6 +17,7 @@ export { chapter16 } from "./chapter-16.js";
 export { course, allChapters, allTasks, findSection } from "./course.js";
 export { expectedOutputs, sampleTranscripts } from "./expected-outputs.js";
 export { toPublicChapter } from "./publish.js";
+export { executionProfileOf } from "./types.js";
 export type { PublicBlock, PublicChapter, PublicChapterTask, PublicSection, PublicTask, PublicTest } from "./publish.js";
 export type {
   Annotation,

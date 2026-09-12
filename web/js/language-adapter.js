@@ -116,6 +116,7 @@ window.LANGUAGE_ADAPTER = (function (engine) {
     'type.logical.requiresBoolean': '逻辑运算需要 BOOLEAN',
     'type.concatenation.requiresStrings': '字符串连接运算 & 两侧都必须是 STRING',
     'type.relation.incompatibleOperands': '比较的两边类型要对得上；这里左边是 {left}，右边是 {right}',
+    'type.enum.orderedComparison': '枚举值只能比较相等或不相等，不能比较大小。',
     'type.condition.requiresBoolean': '条件必须是一个 BOOLEAN；这里是 {actual}。条件通常写成一次比较，例如 Score >= 50',
     'type.arrayBounds.requireIntegers': '数组上下界必须是 INTEGER',
     'type.arrayBounds.invalidOrder': '数组下界 {lower} 不能大于上界 {upper}',

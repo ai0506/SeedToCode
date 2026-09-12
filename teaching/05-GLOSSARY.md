@@ -30,7 +30,6 @@
 | 伪代码 | pseudocode | 1 |
 | 顺序 | sequence | 1 |
 | 选择 | selection | 4 |
-| 迭代 / 重复 | iteration | 5 |
 | 重复 | iteration | 5 |
 | 缩进 | indentation | 1 |
 | 注释 | comment | 1 |
@@ -69,7 +68,6 @@
 |---|---|---|
 | 连接 | concatenation | 7 |
 | 数组 | array | 8 |
-| 索引 / 下标 | index | 8 |
 | 下标 | index | 8 |
 | 下界 | lower bound | 8 |
 | 上界 | upper bound | 8 |
@@ -103,7 +101,6 @@
 | 分解 | decomposition | 12 |
 | 模块化 | modularity | 12 |
 | 过程 | procedure | 12 |
-| 参数（形参） | parameter | 12 |
 | 参数 | parameter | 12 |
 | 实参 | argument | 12 |
 | 传值 | by value | 12 |
@@ -144,7 +141,7 @@
 
 | 中文 | English | 出现章节 |
 |---|---|---|
-| 抽象数据类型 | abstract data type (ADT) | 15 |
+| 抽象数据类型 | abstract data type, ADT | 15 |
 | 栈 | stack | 15 |
 | 队列 | queue | 15 |
 | 链表 | linked list | 15 |

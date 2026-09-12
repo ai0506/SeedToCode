@@ -46,7 +46,7 @@ export const chapter10: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求在 AS 阶段就能写出并使用线性查找（§10.2）。"
+              text: "线性查找是考纲点名的两个标准算法之一：从第一格开始逐格比对，直到比中或者走完（§10.2）。"
             }
           ]
         },
@@ -412,7 +412,7 @@ export const chapter10: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "考纲要求在 AS 阶段就能写出并使用冒泡排序（§10.2）。"
+              text: "冒泡排序是考纲点名的另一个标准算法：反复比较相邻两项并交换，每一趟把剩下的最大值送到末尾（§10.2）。"
             }
           ]
         },

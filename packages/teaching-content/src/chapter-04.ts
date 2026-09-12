@@ -34,7 +34,7 @@ export const chapter04: Chapter = {
           kind: "explanation",
           paragraphs: [
             "前三章的程序，每一行都会执行。从上到下走一遍，一句不落。但很多事情要看情况才做：下雨才带伞，及格了才发证书。**选择（selection）**就是让一段代码只在条件成立时才执行。",
-            "写法是 `IF <条件> THEN`，接着写条件成立时要做的事，最后用 `ENDIF` 收尾。这里的条件就是第 3 章那种算出 `BOOLEAN` 的式子——`Score >= 50` 算出来是 `TRUE` 或 `FALSE`。",
+            "写法是 `IF <条件> THEN`，接着写条件成立时要做的事，最后用 `ENDIF` 收尾。`IF` 后面那个用来决定走不走的式子叫**条件（condition）**，它就是第 3 章那种算出 `BOOLEAN` 的式子——`Score >= 50` 算出来是 `TRUE` 或 `FALSE`。",
             "算出 `TRUE`，就执行 `THEN` 和 `ENDIF` 之间的部分；算出 `FALSE`，这一整段就跳过，程序从 `ENDIF` 后面接着走。",
             "`ENDIF` 不是装饰，它划出「归这个条件管」的范围。范围里的每一行往右缩进三个空格——缩进在这里第一次真正有了意义：一眼就能看出哪几行是有条件的，哪几行是无论如何都会执行的。"
           ],
@@ -177,8 +177,8 @@ export const chapter04: Chapter = {
         {
           kind: "quiz",
           type: "single-choice",
-          prompt: "`A` 是 10 时，下面这段显示什么？",
-          code: ["IF A > 10 THEN", '   OUTPUT "Big"', "ELSE", '   OUTPUT "Small"', "ENDIF"].join("\n"),
+          prompt: "`Size` 是 10 时，下面这段显示什么？",
+          code: ["IF Size > 10 THEN", '   OUTPUT "Big"', "ELSE", '   OUTPUT "Small"', "ENDIF"].join("\n"),
           options: [
             {
               key: "A",
@@ -190,7 +190,7 @@ export const chapter04: Chapter = {
               key: "B",
               label: "Big",
               correct: false,
-              explanation: "要显示 `Big`，`A` 得比 10 大。正好等于 10 时 `>` 给出的是 `FALSE`。"
+              explanation: "要显示 `Big`，`Size` 得比 10 大。正好等于 10 时 `>` 给出的是 `FALSE`。"
             },
             {
               key: "C",
@@ -261,10 +261,10 @@ export const chapter04: Chapter = {
         {
           kind: "explanation",
           paragraphs: [
-            "两条路不够用的时候很多：成绩要分 A、Pass、Fail 三档，就得先问一次，再在「否则」里接着问。办法是把下一个 `IF` 放进 `ELSE` 里，这叫**串接**。",
+            "两条路不够用的时候很多：成绩要分 A、Pass、Fail 三档，就得先问一次，再在「否则」里接着问。办法是把下一个 `IF` 放进 `ELSE` 里。一个 `IF` 套在另一个 `IF` 里面，统称**嵌套（nested）**的选择结构，考纲里写作 nested IF；本节把套在 `ELSE` 里的这一种单独叫作串接，是因为它读起来是一串条件依次往下试。",
             "串接的含义是：一串条件按顺序试，**第一个成立的那条就被走掉，后面的不再看**。90 分在第一个条件就停住了，根本不会走到第二个。",
             "正因为是按顺序试的，**顺序不能乱排**。如果把 `Score >= 50` 放在前面，90 分会先撞上它显示 `Pass`，`>= 80` 那条永远轮不到。分档时要么从高往低排，要么从低往高排，不能交错。",
-            "有几个 `IF` 就要有几个 `ENDIF`，它们会叠在一起，里面那个关掉里层，外面那个关掉外层；CAIE 的伪代码里没有 `ELSEIF` 这样的合写形式，缩进一层比一层深是正常的。还有一种**嵌套**长得像但意思不同：把 `IF` 放进 `THEN` 里，那表示两个条件都要成立才做——和第 3 章的 `AND` 是一回事，能用 `AND` 写成一行时通常更清楚。"
+            "有几个 `IF` 就要有几个 `ENDIF`，它们会叠在一起，里面那个关掉里层，外面那个关掉外层；CAIE 的伪代码里没有 `ELSEIF` 这样的合写形式，缩进一层比一层深是正常的。套在 `THEN` 里的那一种长得像但意思不同：它表示两个条件都要成立才做——和第 3 章的 `AND` 是一回事，能用 `AND` 写成一行时通常更清楚。两种都算 nested IF，区别只在套进了哪一支。"
           ],
           callouts: [
             {

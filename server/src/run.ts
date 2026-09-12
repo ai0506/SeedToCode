@@ -1,4 +1,4 @@
-import { executeSource, type ExecutionResult, type RuntimeVirtualFile } from "../../packages/runtime/dist/index.js";
+import { executeSource, type ExecutionProfile, type ExecutionResult, type RuntimeVirtualFile } from "../../packages/runtime/dist/index.js";
 import type { AuthenticatedUser } from "./auth";
 import { assertProjectOwner } from "./sync";
 
@@ -13,6 +13,7 @@ type RunRequest = {
   projectId: string;
   requestId: string;
   runtimeVersion: string;
+  profile: ExecutionProfile;
   inputs: string[];
   snapshot: { entryFileId: string; files: SnapshotFile[] };
 };
@@ -52,6 +53,7 @@ export async function runSnapshot(db: D1Database, user: AuthenticatedUser, input
     maxCallDepth: 128,
     maxFileBytes: 256 * 1024,
     maxProjectFileBytes: MAX_SNAPSHOT_BYTES,
+    profile: request.profile,
     yieldEverySteps: 64,
     virtualFiles,
     onEvent(event) {
@@ -96,14 +98,21 @@ function parseRequest(input: unknown): RunRequest {
   const projectId = identifier(value.projectId, "项目");
   const requestId = identifier(value.requestId, "运行请求");
   const runtimeVersion = stringValue(value.runtimeVersion, "运行时版本", 100);
+  const profile = value.profile === undefined ? "core-2027" : profileValue(value.profile);
   if (!Array.isArray(value.inputs) || value.inputs.length > MAX_INPUTS) throw new RunError("INVALID_INPUTS", 400, "输入序列不正确。");
   return {
     projectId,
     requestId,
     runtimeVersion,
+    profile,
     inputs: value.inputs.map((item) => stringValue(item, "输入", MAX_INPUT_BYTES)),
     snapshot: parseSnapshot(value.snapshot)
   };
+}
+
+function profileValue(value: unknown): ExecutionProfile {
+  if (value === "core-2027" || value === "advanced-2027" || value === "exam-extension") return value;
+  throw new RunError("INVALID_RUNTIME_PROFILE", 400, "运行档位不正确。");
 }
 
 function parseSnapshot(value: unknown): RunRequest["snapshot"] {

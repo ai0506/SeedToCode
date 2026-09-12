@@ -166,8 +166,8 @@ OUTPUT "2: ", Line
 CLOSEFILE "Names.txt"
 ```
 - 1–4 行：先把文件写出来再关掉。不关就读不了——文件同一时刻只能开着一个。
-- 7–9 行：两句 `READFILE` 读到的是两行不同的内容：位置在第一句之后自己往下走了一行。
 - 第 5 行：接收的变量是 `STRING`。这一行写成 `INTEGER` 的话，第 7 行就过不去。
+- 7–9 行：两句 `READFILE` 读到的是两行不同的内容：位置在第一句之后自己往下走了一行。
 
 示例运行：
 
@@ -279,7 +279,7 @@ CLOSEFILE "Names.txt"
 
 <sub>§10.3｜约 10 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.boolean`、`literal.date`、`assign.simple`、`decl.constant`、`op.arithmetic`、`op.div`、`op.mod`、`op.relational`、`op.and`、`op.or`、`op.not`、`select.if`、`select.if-else`、`select.nested-if`、`select.case`、`select.case-range`、`select.case-otherwise`、`loop.for`、`loop.for-step`、`loop.while`、`loop.repeat`、`loop.nested`、`builtin.length`、`builtin.mid`、`builtin.right`、`builtin.ucase`、`builtin.lcase`、`op.concat`、`builtin.int`、`builtin.rand`、`decl.array-1d`、`array.index`、`decl.array-2d`、`array.index-2d`、`decl.record-type`、`record.field-access`、`routine.procedure`、`routine.call`、`param.byval`、`param.byref`、`routine.function`、`routine.return`、`expr.function-call`、`file.open-write`、`file.write`、`file.close`、`file.open-read`、`file.read`、`file.open-append`</sub>
 
-`OPENFILE` 的 `FOR` 后面只有三个词可写，各管一件事。`READ`：从第 1 行开始往下读，一个字都不改。`WRITE`：**打开的一瞬间就把原有内容全部清空**，然后从第 1 行开始写。`APPEND`：保留原有内容，从最后一行的后面接着写。
+`OPENFILE` 的 `FOR` 后面那个词叫**文件模式（file mode）**，它说明这次打开这个文件是要拿它做什么。只有三个词可写，各管一件事。`READ`：从第 1 行开始往下读，一个字都不改。`WRITE`：**打开的一瞬间就把原有内容全部清空**，然后从第 1 行开始写。`APPEND`：保留原有内容，从最后一行的后面接着写。
 
 `WRITE` 那条要特别小心：它不是「准备往里写点东西」，而是「这个文件从现在起重新来过」。想在已有内容后面添一行却写成了 `FOR WRITE`，**原来的东西一句提示都不给就没了**。
 
@@ -547,16 +547,16 @@ ada
 cathy
 ```
 
-**关卡**（single-choice）　想把一个文件里的每一行都改成大写再存回去。下面哪种做法可行？
+**关卡**（single-choice）　一个文件里有很多行，想只留下长度不小于 3 的那些。下面哪种做法可行？
 
-- **A** 先 `FOR READ` 读完全部内容，再 `FOR WRITE` 打开同一个文件写回去
-  - ✗ 这个思路是对的，但得先把读到的内容存进数组之类的地方——读完必须先 `CLOSEFILE`，而文件里的内容在 `FOR WRITE` 打开那一刻就没了。
+- **A** 用 `FOR APPEND` 打开原文件，把够长的那些行接在后面
+  - ✗ `APPEND` 只会往后加，不会拿掉任何东西。做完之后文件里是「原来的全部 + 够长的那些又来一遍」，短行一行没少。
 - **B** 同时用 `FOR READ` 和 `FOR WRITE` 打开这一个文件，边读边写回去
   - ✗ 同一个文件同一时刻只能开着一个，这一步就过不去；就算过得去，`FOR WRITE` 一打开就把要读的内容清空了。
 - **C** 读原文件、写一个新文件，处理完再把新文件当作结果
-  - ✓ 对。「读旧的、写新的」是处理文件的标准形状，两个文件同时开着，各干各的。
-- **D** 用 `FOR APPEND` 打开原文件，把大写的行接在后面
-  - ✗ 那样文件里会变成「原来的小写 + 新加的大写」，原来那些一行都没少。
+  - ✓ 对。「读旧的、写新的」是处理文件的标准形状，两个文件同时开着，各干各的。上面那段示例走的就是这条路。
+- **D** 用 `FOR READ` 打开原文件，读到太短的那一行就把它从文件里去掉
+  - ✗ 没有「去掉某一行」这种写法。`READ` 模式只能一行一行往下读，文件的内容一个字都改不了。要少掉几行，只能重新写出一个不含它们的文件。
 
 
 ---

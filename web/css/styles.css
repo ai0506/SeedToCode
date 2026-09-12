@@ -700,6 +700,8 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
 .segmented button:hover { color: var(--text); }
 .segmented button[aria-checked="true"] { background: var(--bg-panel); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, .08); }
 .segmented button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.runtime-profile button { min-width: 84px; }
+.runtime-profile-note { margin: -2px 0 8px; }
 
 /* 自定义步进器，替代原生 range */
 .stepper { display: inline-flex; align-items: center; background: var(--bg-sunken); border: 1px solid var(--border); border-radius: var(--radius); padding: 2px; }

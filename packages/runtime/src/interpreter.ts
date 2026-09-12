@@ -4,12 +4,15 @@ import {
   type CaseLabel,
   type DateLiteralValue,
   type Diagnostic,
+  type EnumTypeDeclaration,
   type Expression,
   type FunctionDeclaration,
   type LiteralType,
   type Program,
+  type PointerTypeDeclaration,
   type ProcedureDeclaration,
   type RecordTypeDeclaration,
+  type SetTypeDeclaration,
   type SourceRange,
   type Statement,
   type TextFileMode,
@@ -17,23 +20,32 @@ import {
 } from "@caie-pseudocode/language";
 import type {
   ArrayRuntimeType,
+  ClassRuntimeType,
+  EnumRuntimeType,
   ExecutionController,
   ExecutionEvent,
   ExecutionEventType,
+  ExecutionProfile,
   ExecutionOptions,
   ExecutionResult,
   ExecutionStatus,
   InputSubmission,
   PrimitiveRuntimeType,
+  PointerRuntimeType,
+  SetRuntimeType,
   RecordRuntimeType,
   RuntimeArraySnapshot,
   RuntimeDate,
   RuntimeErrorInfo,
   RuntimeFileHandle,
   RuntimeRecordSnapshot,
+  RuntimeObjectSnapshot,
+  RuntimePrimitive,
+  RuntimeEnumSnapshot,
   RuntimeType,
   RuntimeValue,
   RuntimeVariable,
+  RuntimeSetSnapshot,
   RuntimeVirtualFile
 } from "./types.js";
 
@@ -49,13 +61,18 @@ type Cell = {
 
 type RuntimeArray = { kind: "array"; type: ArrayRuntimeType; elements: Map<string, Cell> };
 type RuntimeRecord = { kind: "record"; type: RecordRuntimeType; fields: Map<string, Cell> };
-type InternalValue = number | string | boolean | RuntimeDate | RuntimeArray | RuntimeRecord;
+type RuntimeObject = { kind: "object"; type: ClassRuntimeType; fields: Map<string, Cell> };
+type RuntimePointer = { kind: "pointer"; type: PointerRuntimeType; target: Cell };
+type RuntimeSet = { kind: "set"; type: SetRuntimeType; values: Map<string, InternalValue> };
+type RuntimeEnum = { kind: "enum"; type: EnumRuntimeType; member: string };
+type InternalValue = number | string | boolean | RuntimeDate | RuntimeArray | RuntimeRecord | RuntimeObject | RuntimePointer | RuntimeSet | RuntimeEnum;
 type TypedValue = { type: RuntimeType; value: InternalValue };
 type PendingInput = { cell: Cell; range: SourceRange; resolve: () => void };
-type Frame = { id: string; name: string; cells: Map<string, Cell>; returnType?: RuntimeType };
+type Frame = { id: string; name: string; cells: Map<string, Cell>; returnType?: RuntimeType; receiver?: RuntimeObject; classType?: ClassRuntimeType };
 type OpenHandle = { file: RuntimeVirtualFile; mode: TextFileMode; position: number };
 
 const DEFAULTS = {
+  profile: "core-2027" as ExecutionProfile,
   maxSteps: 100_000,
   maxActiveTimeMs: 5_000,
   maxOutputLines: 10_000,
@@ -87,6 +104,15 @@ export class Interpreter {
   private readonly procedures = new Map<string, ProcedureDeclaration>();
   private readonly functions = new Map<string, FunctionDeclaration>();
   private readonly records = new Map<string, RecordTypeDeclaration>();
+  private readonly classes = new Map<string, Extract<Statement, { kind: "ClassDeclaration" }>>();
+  private readonly pointers = new Map<string, PointerTypeDeclaration>();
+  private readonly resolvedPointers = new Map<string, PointerRuntimeType>();
+  private readonly sets = new Map<string, SetTypeDeclaration>();
+  private readonly resolvedSets = new Map<string, SetRuntimeType>();
+  private readonly enums = new Map<string, EnumTypeDeclaration>();
+  private readonly resolvedEnums = new Map<string, EnumRuntimeType>();
+  private readonly enumCells = new Map<string, Cell>();
+  private readonly resolvedClasses = new Map<string, ClassRuntimeType>();
   private readonly resolvedRecords = new Map<string, RecordRuntimeType>();
   private readonly resolvingRecords = new Set<string>();
   private readonly loopControls = new Map<string, number>();
@@ -107,6 +133,7 @@ export class Interpreter {
   constructor(private readonly program: Program, options: ExecutionOptions = {}, private readonly diagnostics?: Diagnostic[]) {
     this.runId = makeRunId();
     this.options = {
+      profile: options.profile ?? DEFAULTS.profile,
       maxSteps: positiveInteger(options.maxSteps, DEFAULTS.maxSteps),
       maxActiveTimeMs: positiveNumber(options.maxActiveTimeMs, DEFAULTS.maxActiveTimeMs),
       maxOutputLines: positiveInteger(options.maxOutputLines, DEFAULTS.maxOutputLines),
@@ -126,6 +153,20 @@ export class Interpreter {
       if (statement.kind === "RecordTypeDeclaration") this.records.set(statement.normalizedName, statement);
       if (statement.kind === "ProcedureDeclaration") this.procedures.set(statement.normalizedName, statement);
       if (statement.kind === "FunctionDeclaration") this.functions.set(statement.normalizedName, statement);
+      if (statement.kind === "ClassDeclaration") this.classes.set(statement.normalizedName, statement);
+      if (statement.kind === "PointerTypeDeclaration") this.pointers.set(statement.normalizedName, statement);
+      if (statement.kind === "SetTypeDeclaration") this.sets.set(statement.normalizedName, statement);
+      if (statement.kind === "EnumTypeDeclaration") this.enums.set(statement.normalizedName, statement);
+    }
+    for (const declaration of this.enums.values()) {
+      const type: EnumRuntimeType = { kind: "enum", name: declaration.name, normalizedName: declaration.normalizedName, members: declaration.members.map(({ name }) => name) };
+      this.resolvedEnums.set(declaration.normalizedName, type);
+      for (const member of declaration.members) {
+        this.enumCells.set(member.normalizedName, {
+          name: member.name, normalizedName: member.normalizedName, kind: "constant", type, initialized: true,
+          value: { kind: "enum", type, member: member.name }
+        });
+      }
     }
     this.frames.push({ id: "main", name: "<main>", cells: this.cells });
     this.activeStartedAt = this.options.now();
@@ -175,6 +216,15 @@ export class Interpreter {
     if (this.diagnostics?.some(({ severity }) => severity === "error")) {
       const count = this.diagnostics.filter(({ severity }) => severity === "error").length;
       const error = faultInfo("RT1000", "runtime.preflightFailed", this.program.range, { count });
+      this.emit("runtime-error", error.range, { error });
+      return this.finish("preflight-error", error);
+    }
+    const unsupported = findUnsupportedFeature(this.program, this.options.profile);
+    if (unsupported) {
+      const error = faultInfo("RT1106", "runtime.feature.notSupported", unsupported.range, {
+        feature: unsupported.feature,
+        profile: this.options.profile
+      });
       this.emit("runtime-error", error.range, { error });
       return this.finish("preflight-error", error);
     }
@@ -231,6 +281,20 @@ export class Interpreter {
           initialized: true,
           value: cloneValue(value.value)
         };
+        this.currentFrame().cells.set(cell.normalizedName, cell);
+        this.emitVariable("variable-declared", statement.range, cell);
+        return;
+      }
+      case "DefineSetStatement": {
+        const type = await this.resolveType(statement.typeReference);
+        if (type.kind !== "set") this.fail("RT1310", "runtime.set.requiresSetType", statement.typeReference.range);
+        const set: RuntimeSet = { kind: "set", type, values: new Map() };
+        for (const expression of statement.values) {
+          const value = await this.evaluate(expression);
+          if (!typesCompatible(type.elementType, value.type)) this.fail("RT1311", "runtime.set.elementTypeMismatch", expression.range);
+          set.values.set(valueKey(value.value), cloneValue(value.value));
+        }
+        const cell: Cell = { name: statement.name, normalizedName: statement.normalizedName, kind: "constant", type, initialized: true, value: set };
         this.currentFrame().cells.set(cell.normalizedName, cell);
         this.emitVariable("variable-declared", statement.range, cell);
         return;
@@ -427,6 +491,9 @@ export class Interpreter {
       case "CallStatement":
         await this.callProcedure(statement.target.normalizedName, statement.arguments, statement.range);
         return;
+      case "MethodCallStatement":
+        await this.callMethod(statement.call.callee as Extract<Expression, { kind: "MemberExpression" }>, statement.call.arguments, statement.range);
+        return;
       case "ReturnStatement": {
         const frame = this.currentFrame();
         if (!frame.returnType) this.fail("RT1901", "runtime.return.outsideFunction", statement.range);
@@ -449,20 +516,44 @@ export class Interpreter {
       case "IndexExpression": return this.readCell(await this.resolveLocation(expression, false), expression.range);
       case "MemberExpression": return this.readCell(await this.resolveLocation(expression, false), expression.range);
       case "UnaryExpression": {
-        if (expression.operator === "^") this.fail("RT1102", "runtime.expression.notSupportedInCurrentStage", expression.range);
+        if (expression.operator === "^" && expression.postfix) {
+          const pointer = await this.evaluate(expression.operand);
+          if (!isPointerValue(pointer.value)) this.fail("RT1309", "runtime.pointer.requiresPointer", expression.range);
+          return this.readCell(pointer.value.target, expression.range);
+        }
+        if (expression.operator === "^") {
+          const target = await this.resolveLocation(expression.operand, false);
+          return { type: { kind: "pointer", target: target.type }, value: { kind: "pointer", type: { kind: "pointer", target: target.type }, target: storageCell(target) } };
+        }
         const operand = await this.evaluate(expression.operand);
         if (expression.operator === "NOT") return { type: primitive("BOOLEAN"), value: !asBoolean(operand, expression.range) };
         return checkedNumber(-asNumber(operand, expression.range), operand.type, expression.range);
       }
       case "BinaryExpression": return this.evaluateBinary(expression);
       case "CallExpression": {
+        if (expression.callee.kind === "MemberExpression") {
+          const value = await this.callMethod(expression.callee, expression.arguments, expression.range);
+          if (!value) this.fail("RT4020", "runtime.function.cannotBeExpression", expression.range);
+          return value;
+        }
         if (expression.callee.kind === "NameExpression" && this.functions.has(expression.callee.normalizedName)) {
           return this.callFunction(expression.callee.normalizedName, expression.arguments, expression.range);
         }
+        const frame = this.currentFrame();
+        if (expression.callee.kind === "NameExpression" && frame.receiver && frame.classType) {
+          const method = this.findMethod(frame.classType, expression.callee.normalizedName);
+          if (method) {
+            const value = await this.invokeRoutine(method.declaration, expression.arguments, frame.receiver, method.owner);
+            if (method.declaration.kind === "ProcedureDeclaration") this.fail("RT4020", "runtime.function.cannotBeExpression", expression.range);
+            if (!value) this.fail("RT1905", "runtime.function.missingReturn", method.declaration.range, { name: method.declaration.name });
+            return value;
+          }
+        }
         return this.evaluateBuiltin(expression);
       }
+      case "NewExpression": return this.newObject(expression);
       case "ErrorExpression": this.fail("RT1004", "runtime.expression.invalid", expression.range);
-      default: this.fail("RT1102", "runtime.expression.notSupportedInCurrentStage", expression.range);
+      default: this.fail("RT1102", "runtime.expression.notSupportedInCurrentStage", (expression as Expression).range);
     }
   }
 
@@ -471,6 +562,15 @@ export class Interpreter {
     if (expression.operator === "AND" && !asBoolean(left, expression.left.range)) return typed("BOOLEAN", false);
     if (expression.operator === "OR" && asBoolean(left, expression.left.range)) return typed("BOOLEAN", true);
     const right = await this.evaluate(expression.right);
+    if (left.type.kind === "enum" && isPrimitive(right.type, "INTEGER")
+      && (expression.operator === "+" || expression.operator === "-")) {
+      const index = left.type.members.indexOf((left.value as RuntimeEnum).member);
+      const offset = right.value as number;
+      const nextIndex = index + (expression.operator === "+" ? offset : -offset);
+      const member = left.type.members[nextIndex];
+      if (index < 0 || !member) this.fail("RT1312", "runtime.enum.ordinalOutOfRange", expression.range);
+      return { type: left.type, value: { kind: "enum", type: left.type, member } };
+    }
     switch (expression.operator) {
       case "AND": return typed("BOOLEAN", asBoolean(right, expression.right.range));
       case "OR": return typed("BOOLEAN", asBoolean(right, expression.right.range));
@@ -493,11 +593,16 @@ export class Interpreter {
       }
       case "=": return typed("BOOLEAN", compareValues(left, right, expression.range) === 0);
       case "<>": return typed("BOOLEAN", compareValues(left, right, expression.range) !== 0);
-      case ">": return typed("BOOLEAN", compareValues(left, right, expression.range) > 0);
-      case "<": return typed("BOOLEAN", compareValues(left, right, expression.range) < 0);
-      case ">=": return typed("BOOLEAN", compareValues(left, right, expression.range) >= 0);
-      case "<=": return typed("BOOLEAN", compareValues(left, right, expression.range) <= 0);
+      case ">": return typed("BOOLEAN", this.compareOrdered(left, right, expression.range) > 0);
+      case "<": return typed("BOOLEAN", this.compareOrdered(left, right, expression.range) < 0);
+      case ">=": return typed("BOOLEAN", this.compareOrdered(left, right, expression.range) >= 0);
+      case "<=": return typed("BOOLEAN", this.compareOrdered(left, right, expression.range) <= 0);
     }
+  }
+
+  private compareOrdered(left: TypedValue, right: TypedValue, range: SourceRange): number {
+    if (isEnumValue(left.value) || isEnumValue(right.value)) this.fail("RT1308", "runtime.comparison.incompatible", range);
+    return compareValues(left, right, range);
   }
 
   private async evaluateBuiltin(expression: Extract<Expression, { kind: "CallExpression" }>): Promise<TypedValue> {
@@ -541,6 +646,13 @@ export class Interpreter {
   }
 
   private async resolveLocation(expression: Expression, writable: boolean): Promise<Cell> {
+    if (expression.kind === "UnaryExpression" && expression.operator === "^" && expression.postfix) {
+      const pointer = await this.evaluate(expression.operand);
+      if (!isPointerValue(pointer.value)) this.fail("RT1309", "runtime.pointer.requiresPointer", expression.range);
+      const target = storageCell(pointer.value.target);
+      if (writable && target.kind === "constant") this.fail("RT1005", "runtime.constant.cannotChange", expression.range, { name: target.name });
+      return target;
+    }
     if (expression.kind === "NameExpression") {
       const cell = this.lookupCell(expression.normalizedName);
       if (!cell) this.fail("RT1002", "runtime.name.notDeclared", expression.range, { name: expression.name });
@@ -592,24 +704,32 @@ export class Interpreter {
     }
     if (expression.kind === "MemberExpression") {
       const target = await this.referenceValue(expression.target);
-      if (target.type.kind !== "record" || target.value.kind !== "record") {
-        this.fail("RT1701", "runtime.member.targetRequiresRecord", expression.target.range);
+      if (target.type.kind === "record" && target.value.kind === "record") {
+        const cell = target.value.fields.get(expression.normalizedMember);
+        if (!cell) this.fail("RT1702", "runtime.member.unknownField", expression.memberRange, { field: expression.member, record: target.type.name });
+        return cell;
       }
-      const cell = target.value.fields.get(expression.normalizedMember);
-      if (!cell) this.fail("RT1702", "runtime.member.unknownField", expression.memberRange, { field: expression.member, record: target.type.name });
-      return cell;
+      if (target.type.kind === "class" && target.value.kind === "object") {
+        const field = target.type.fields.find(({ normalizedName }) => normalizedName === expression.normalizedMember);
+        if (!field) this.fail("RT1702", "runtime.member.unknownField", expression.memberRange, { field: expression.member, record: target.type.name });
+        if (field.access === "PRIVATE" && this.currentFrame().classType?.normalizedName !== field.owner) {
+          this.fail("RT1706", "runtime.class.privateMember", expression.memberRange, { member: expression.member });
+        }
+        return target.value.fields.get(field.normalizedName)!;
+      }
+      this.fail("RT1701", "runtime.member.targetRequiresRecord", expression.target.range);
     }
     this.fail("RT1104", "runtime.target.notSupportedInCurrentStage", expression.range);
   }
 
-  private async referenceValue(expression: Expression): Promise<TypedValue & { value: RuntimeArray | RuntimeRecord }> {
+  private async referenceValue(expression: Expression): Promise<TypedValue & { value: RuntimeArray | RuntimeRecord | RuntimeObject }> {
     const cell = await this.resolveLocation(expression, false);
     const storage = storageCell(cell);
     if (!storage.initialized) this.fail("RT1003", "runtime.name.uninitialized", expression.range, { name: cell.name });
     if (!storage.value || typeof storage.value !== "object" || (!("kind" in storage.value))) {
       this.fail("RT1703", "runtime.value.requiresComposite", expression.range);
     }
-    return { type: cell.type, value: storage.value as RuntimeArray | RuntimeRecord };
+    return { type: cell.type, value: storage.value as RuntimeArray | RuntimeRecord | RuntimeObject };
   }
 
   private readCell(cell: Cell, range: SourceRange): TypedValue {
@@ -622,9 +742,58 @@ export class Interpreter {
     switch (reference.kind) {
       case "PrimitiveTypeReference": return primitive(reference.name);
       case "ArrayTypeReference": return this.resolveArrayType(reference);
-      case "NamedTypeReference": return this.resolveRecordType(reference.normalizedName, reference.range);
+      case "NamedTypeReference": {
+        if (this.classes.has(reference.normalizedName)) return this.resolveClassType(reference.normalizedName, reference.range);
+        if (this.pointers.has(reference.normalizedName)) return this.resolvePointerType(reference.normalizedName, reference.range);
+        if (this.sets.has(reference.normalizedName)) return this.resolveSetType(reference.normalizedName, reference.range);
+        if (this.resolvedEnums.has(reference.normalizedName)) return this.resolvedEnums.get(reference.normalizedName)!;
+        return this.resolveRecordType(reference.normalizedName, reference.range);
+      }
       default: this.fail("RT1101", "runtime.type.notSupportedInCurrentStage", reference.range);
     }
+  }
+
+  private async resolveRuntimeType(reference: TypeReference): Promise<RuntimeType> {
+    if (reference.kind === "NamedTypeReference" && this.classes.has(reference.normalizedName)) {
+      return this.resolveClassType(reference.normalizedName, reference.range);
+    }
+    return this.resolveType(reference);
+  }
+
+  private async resolveClassType(normalizedName: string, range: SourceRange): Promise<ClassRuntimeType> {
+    const existing = this.resolvedClasses.get(normalizedName);
+    if (existing) return existing;
+    const declaration = this.classes.get(normalizedName);
+    if (!declaration) this.fail("RT1101", "runtime.type.notSupportedInCurrentStage", range);
+    const base = declaration.normalizedBaseName ? await this.resolveClassType(declaration.normalizedBaseName, range) : undefined;
+    const type: ClassRuntimeType = { kind: "class", name: declaration.name, normalizedName, ...(base ? { base } : {}), fields: [] };
+    this.resolvedClasses.set(normalizedName, type);
+    if (base) type.fields.push(...base.fields);
+    for (const member of declaration.members) {
+      if (member.kind !== "ClassField") continue;
+      type.fields.push({ name: member.name, normalizedName: member.normalizedName, access: member.access, type: await this.resolveType(member.typeReference), owner: normalizedName });
+    }
+    return type;
+  }
+
+  private async resolvePointerType(normalizedName: string, range: SourceRange): Promise<PointerRuntimeType> {
+    const existing = this.resolvedPointers.get(normalizedName);
+    if (existing) return existing;
+    const declaration = this.pointers.get(normalizedName);
+    if (!declaration) this.fail("RT1101", "runtime.type.notSupportedInCurrentStage", range);
+    const type: PointerRuntimeType = { kind: "pointer", target: await this.resolveType(declaration.targetType) };
+    this.resolvedPointers.set(normalizedName, type);
+    return type;
+  }
+
+  private async resolveSetType(normalizedName: string, range: SourceRange): Promise<SetRuntimeType> {
+    const existing = this.resolvedSets.get(normalizedName);
+    if (existing) return existing;
+    const declaration = this.sets.get(normalizedName);
+    if (!declaration) this.fail("RT1101", "runtime.type.notSupportedInCurrentStage", range);
+    const type: SetRuntimeType = { kind: "set", name: declaration.name, normalizedName, elementType: await this.resolveType(declaration.elementType) };
+    this.resolvedSets.set(normalizedName, type);
+    return type;
   }
 
   private async resolveArrayType(reference: ArrayTypeReference): Promise<ArrayRuntimeType> {
@@ -674,6 +843,62 @@ export class Interpreter {
     return compareValues(selector, lower, label.lower.range) >= 0 && compareValues(selector, upper, label.upper.range) <= 0;
   }
 
+  private async newObject(expression: Extract<Expression, { kind: "NewExpression" }>): Promise<TypedValue> {
+    const type = await this.resolveClassType(expression.normalizedClassName, expression.classNameRange);
+    const object: RuntimeObject = { kind: "object", type, fields: new Map() };
+    for (const field of type.fields) {
+      const value = instantiateComposite(field.type);
+      object.fields.set(field.normalizedName, {
+        name: field.name, normalizedName: field.normalizedName, kind: "field", type: field.type,
+        initialized: value !== undefined, ...(value !== undefined ? { value } : {})
+      });
+    }
+    const constructor = this.findMethod(type, "NEW");
+    if (constructor) await this.invokeRoutine(constructor.declaration, expression.arguments, object, constructor.owner);
+    else if (expression.arguments.length) this.fail("RT1906", "runtime.call.argumentCount", expression.range, { expected: 0, actual: expression.arguments.length });
+    return { type, value: object };
+  }
+
+  private async callMethod(expression: Extract<Expression, { kind: "MemberExpression" }>, args: Expression[], range: SourceRange): Promise<TypedValue | undefined> {
+    let object: RuntimeObject;
+    let type: ClassRuntimeType;
+    if (expression.target.kind === "NameExpression" && expression.target.normalizedName === "SUPER") {
+      const frame = this.currentFrame();
+      if (!frame.receiver || !frame.classType?.base) this.fail("RT1705", "runtime.class.superOutsideMethod", range);
+      object = frame.receiver;
+      type = frame.classType.base;
+    } else {
+      const value = await this.evaluate(expression.target);
+      if (value.type.kind !== "class" || !isRuntimeObject(value.value)) this.fail("RT1705", "runtime.class.methodRequiresObject", expression.target.range);
+      object = value.value;
+      // The variable may have a base-class type while the stored object is a
+      // subclass instance. Method lookup must use the object's dynamic type.
+      type = object.type;
+    }
+    const method = this.findMethod(type, expression.normalizedMember);
+    if (!method) this.fail("RT1904", "runtime.function.notFound", expression.memberRange, { name: expression.member });
+    if (method.access === "PRIVATE" && this.currentFrame().classType?.normalizedName !== method.owner) {
+      this.fail("RT1706", "runtime.class.privateMember", expression.memberRange, { member: expression.member });
+    }
+    const value = await this.invokeRoutine(method.declaration, args, object, method.owner);
+    if (method.declaration.kind === "ProcedureDeclaration") return undefined;
+    if (!value) this.fail("RT1905", "runtime.function.missingReturn", method.declaration.range, { name: method.declaration.name });
+    return value;
+  }
+
+  private findMethod(type: ClassRuntimeType, normalizedName: string): { declaration: ProcedureDeclaration | FunctionDeclaration; owner: string; access: "PUBLIC" | "PRIVATE" } | undefined {
+    for (let current: ClassRuntimeType | undefined = type; current; current = current.base) {
+      const declaration = this.classes.get(current.normalizedName);
+      const member = declaration?.members.find((candidate) =>
+        (candidate.kind === "ProcedureDeclaration" || candidate.kind === "FunctionDeclaration") && candidate.normalizedName === normalizedName
+      );
+      if (member && (member.kind === "ProcedureDeclaration" || member.kind === "FunctionDeclaration")) {
+        return { declaration: member, owner: current.normalizedName, access: member.access ?? "PUBLIC" };
+      }
+    }
+    return undefined;
+  }
+
   private async callProcedure(normalizedName: string, args: Expression[], range: SourceRange): Promise<void> {
     const declaration = this.procedures.get(normalizedName);
     if (!declaration) this.fail("RT1903", "runtime.procedure.notFound", range, { name: normalizedName });
@@ -688,7 +913,7 @@ export class Interpreter {
     return value;
   }
 
-  private async invokeRoutine(declaration: ProcedureDeclaration | FunctionDeclaration, args: Expression[]): Promise<TypedValue | undefined> {
+  private async invokeRoutine(declaration: ProcedureDeclaration | FunctionDeclaration, args: Expression[], receiver?: RuntimeObject, className?: string): Promise<TypedValue | undefined> {
     if (this.frames.length - 1 >= this.options.maxCallDepth) {
       this.fail("RT1205", "runtime.limit.callDepth", declaration.nameRange, { maximum: this.options.maxCallDepth });
     }
@@ -734,6 +959,7 @@ export class Interpreter {
       name: declaration.name,
       cells: parameterCells,
       ...(returnType ? { returnType } : {})
+      ,...(receiver ? { receiver, classType: className ? this.resolvedClasses.get(className) ?? receiver.type : receiver.type } : {})
     };
     this.frames.push(frame);
     this.emit("frame-entered", declaration.range, { name: declaration.name, stack: this.stackNames(), variables: this.getVariables() });
@@ -758,7 +984,9 @@ export class Interpreter {
   private currentFrame(): Frame { return this.frames[this.frames.length - 1]; }
   private lookupCell(normalizedName: string): Cell | undefined {
     const current = this.currentFrame();
-    return current.cells.get(normalizedName) ?? (current.id === "main" ? undefined : this.cells.get(normalizedName));
+    return current.cells.get(normalizedName)
+      ?? current.receiver?.fields.get(normalizedName)
+      ?? (current.id === "main" ? this.enumCells.get(normalizedName) : this.cells.get(normalizedName) ?? this.enumCells.get(normalizedName));
   }
   private stackNames(): string[] { return this.frames.map(({ name }) => name); }
 
@@ -867,6 +1095,7 @@ export class Interpreter {
         if (!isPlainRecord(raw)) this.fail("RT2109", "runtime.random.invalidStoredRecord", range, { field: field.name });
         field.value = this.plainToRecord(raw, field.type, range);
       } else {
+        if (field.type.kind !== "primitive") this.fail("RT2109", "runtime.random.invalidStoredRecord", range, { field: field.name });
         field.value = plainPrimitive(raw, field.type.name, range);
       }
       field.initialized = true;
@@ -965,6 +1194,77 @@ function expose(interpreter: Interpreter): ExecutionController {
   };
 }
 
+type UnsupportedFeature = { feature: string; range: SourceRange };
+
+function findUnsupportedFeature(program: Program, profile: ExecutionProfile): UnsupportedFeature | undefined {
+  const visitType = (reference: TypeReference): UnsupportedFeature | undefined => {
+    if (reference.kind === "ErrorTypeReference") return undefined;
+    if (reference.kind === "ArrayTypeReference") {
+      for (const dimension of reference.dimensions) {
+        const found = visitExpression(dimension.lower) ?? visitExpression(dimension.upper);
+        if (found) return found;
+      }
+      return visitType(reference.elementType);
+    }
+    return undefined;
+  };
+  const visitExpression = (expression: Expression): UnsupportedFeature | undefined => {
+    if (expression.kind === "NewExpression") return profile === "advanced-2027" ? undefined : { feature: "NEW / 对象", range: expression.range };
+    if (expression.kind === "UnaryExpression" && expression.operator === "^" && profile !== "advanced-2027") {
+      return { feature: "指针", range: expression.range };
+    }
+    if (expression.kind === "CallExpression" && expression.callee.kind === "MemberExpression" && profile !== "advanced-2027") {
+      return { feature: "对象方法", range: expression.range };
+    }
+    switch (expression.kind) {
+      case "UnaryExpression": return visitExpression(expression.operand);
+      case "BinaryExpression": return visitExpression(expression.left) ?? visitExpression(expression.right);
+      case "CallExpression": return expression.arguments.reduce<UnsupportedFeature | undefined>((found, argument) => found ?? visitExpression(argument), undefined);
+      case "IndexExpression": return visitExpression(expression.target) ?? expression.indices.reduce<UnsupportedFeature | undefined>((found, index) => found ?? visitExpression(index), undefined);
+      case "MemberExpression": return visitExpression(expression.target);
+      default: return undefined;
+    }
+  };
+  const visitStatements = (statements: Statement[]): UnsupportedFeature | undefined => {
+    for (const statement of statements) {
+      let found: UnsupportedFeature | undefined;
+      switch (statement.kind) {
+        case "EnumTypeDeclaration": if (profile !== "advanced-2027") found = { feature: "枚举", range: statement.range }; break;
+        case "PointerTypeDeclaration": if (profile !== "advanced-2027") found = { feature: "指针", range: statement.range }; break;
+        case "SetTypeDeclaration":
+        case "DefineSetStatement": if (profile !== "advanced-2027") found = { feature: "集合", range: statement.range }; break;
+        case "ClassDeclaration": if (profile !== "advanced-2027") found = { feature: "CLASS / 对象", range: statement.range }; break;
+        case "MethodCallStatement": if (profile !== "advanced-2027") found = { feature: "对象方法", range: statement.range }; break;
+        case "DeclareStatement": found = visitType(statement.typeReference); break;
+        case "ConstantStatement": found = visitExpression(statement.value); break;
+        case "AssignmentStatement": found = visitExpression(statement.target) ?? visitExpression(statement.value); break;
+        case "InputStatement": found = visitExpression(statement.target); break;
+        case "OutputStatement": found = statement.values.reduce<UnsupportedFeature | undefined>((result, value) => result ?? visitExpression(value), undefined); break;
+        case "OpenFileStatement": found = visitExpression(statement.file); break;
+        case "ReadFileStatement": found = visitExpression(statement.file) ?? visitExpression(statement.target); break;
+        case "WriteFileStatement": found = visitExpression(statement.file) ?? visitExpression(statement.data); break;
+        case "CloseFileStatement": found = visitExpression(statement.file); break;
+        case "SeekStatement": found = visitExpression(statement.file) ?? visitExpression(statement.address); break;
+        case "GetRecordStatement": found = visitExpression(statement.file) ?? visitExpression(statement.target); break;
+        case "PutRecordStatement": found = visitExpression(statement.file) ?? visitExpression(statement.data); break;
+        case "IfStatement": found = visitExpression(statement.condition) ?? visitStatements(statement.thenBranch) ?? visitStatements(statement.elseBranch); break;
+        case "CaseStatement": found = visitExpression(statement.selector) ?? statement.clauses.reduce<UnsupportedFeature | undefined>((result, clause) => result ?? visitStatements(clause.body), undefined); break;
+        case "ForStatement": found = visitExpression(statement.control) ?? visitExpression(statement.startValue) ?? visitExpression(statement.endValue) ?? (statement.step && visitExpression(statement.step)) ?? visitStatements(statement.body); break;
+        case "WhileStatement": found = visitExpression(statement.condition) ?? visitStatements(statement.body); break;
+        case "RepeatStatement": found = visitStatements(statement.body) ?? visitExpression(statement.condition); break;
+        case "ProcedureDeclaration": found = visitStatements(statement.body); break;
+        case "FunctionDeclaration": found = visitType(statement.returnType) ?? visitStatements(statement.body); break;
+        case "RecordTypeDeclaration": found = statement.fields.reduce<UnsupportedFeature | undefined>((result, field) => result ?? visitType(field.typeReference), undefined); break;
+        case "ReturnStatement": found = visitExpression(statement.value); break;
+        default: break;
+      }
+      if (found) return found;
+    }
+    return undefined;
+  };
+  return visitStatements(program.body);
+}
+
 function primitive(name: LiteralType): PrimitiveRuntimeType { return { kind: "primitive", name }; }
 function typed(type: LiteralType, value: number | string | boolean | RuntimeDate): TypedValue { return { type: primitive(type), value }; }
 
@@ -996,7 +1296,7 @@ function parseInput(raw: string, type: LiteralType): TypedValue | { messageKey: 
   }
 }
 
-function instantiateComposite(type: RuntimeType): RuntimeArray | RuntimeRecord | undefined {
+function instantiateComposite(type: RuntimeType): RuntimeArray | RuntimeRecord | RuntimeObject | undefined {
   if (type.kind === "array") return { kind: "array", type, elements: new Map() };
   if (type.kind === "record") {
     return {
@@ -1016,6 +1316,17 @@ function instantiateComposite(type: RuntimeType): RuntimeArray | RuntimeRecord |
         }] as const;
       }))
     };
+  }
+  if (type.kind === "class") {
+    const object: RuntimeObject = { kind: "object", type, fields: new Map() };
+    for (const field of type.fields) {
+      const value = instantiateComposite(field.type);
+      object.fields.set(field.normalizedName, {
+        name: field.name, normalizedName: field.normalizedName, kind: "field", type: field.type,
+        initialized: value !== undefined, ...(value !== undefined ? { value } : {})
+      });
+    }
+    return object;
   }
   return undefined;
 }
@@ -1047,6 +1358,22 @@ function snapshotValue(value: InternalValue): RuntimeValue {
     }
     return snapshot;
   }
+  if (value.kind === "object") {
+    const snapshot: RuntimeObjectSnapshot = {
+      kind: "object", className: value.type.name,
+      fields: [...value.fields.values()].map((field) => ({
+        name: field.name, initialized: field.initialized,
+        ...(field.initialized ? { value: snapshotValue(field.value!) } : {})
+      }))
+    };
+    return snapshot;
+  }
+  if (value.kind === "pointer") return { kind: "pointer", target: value.target.name };
+  if (value.kind === "set") {
+    const snapshot: RuntimeSetSnapshot = { kind: "set", typeName: value.type.name, values: [...value.values.values()].map((item) => cloneValue(item) as RuntimePrimitive) };
+    return snapshot;
+  }
+  if (value.kind === "enum") return { kind: "enum", typeName: value.type.name, member: value.member } satisfies RuntimeEnumSnapshot;
   const snapshot: RuntimeRecordSnapshot = {
     kind: "record",
     typeName: value.type.name,
@@ -1060,6 +1387,14 @@ function snapshotValue(value: InternalValue): RuntimeValue {
 }
 
 function cloneValue<T extends InternalValue>(value: T): T {
+  if (isRuntimeObject(value)) return value;
+  if (isPointerValue(value)) return value;
+  if (isSetValue(value)) {
+    const copy: RuntimeSet = { kind: "set", type: value.type, values: new Map() };
+    for (const [key, item] of value.values) copy.values.set(key, cloneValue(item));
+    return copy as T;
+  }
+  if (isEnumValue(value)) return value;
   if (!isComposite(value)) {
     if (isDate(value)) return { day: value.day, month: value.month, year: value.year } as T;
     return value;
@@ -1077,6 +1412,8 @@ function cloneValue<T extends InternalValue>(value: T): T {
 function cloneCell(cell: Cell): Cell {
   return { ...cell, ...(cell.initialized ? { value: cloneValue(cell.value!) } : {}) };
 }
+
+function isRuntimeObject(value: InternalValue): value is RuntimeObject { return isComposite(value) && value.kind === "object"; }
 
 function cloneFiles(files: RuntimeVirtualFile[]): RuntimeVirtualFile[] {
   return files.map((file) => ({
@@ -1157,6 +1494,7 @@ function storageCell(cell: Cell): Cell {
 }
 
 function formatValue(value: TypedValue, range: SourceRange): string {
+  if (isEnumValue(value.value)) return value.value.member;
   if (value.type.kind !== "primitive") throw new RuntimeFault(faultInfo("RT1801", "runtime.output.requiresPrimitive", range));
   if (value.type.name === "BOOLEAN") return value.value ? "TRUE" : "FALSE";
   if (value.type.name === "DATE") {
@@ -1173,9 +1511,13 @@ function formatValue(value: TypedValue, range: SourceRange): string {
 function displayValue(value: InternalValue, type?: RuntimeType): string {
   if (isComposite(value)) {
     if (value.kind === "array") return `${typeName(value.type)} · ${[...value.elements.values()].filter(({ initialized }) => initialized).length} 项已赋值`;
+    if (value.kind === "pointer") return `^${value.target.name}`;
+    if (value.kind === "set") return `${value.type.name} { ${[...value.values.values()].map((item) => displayValue(item)).join(", ")} }`;
+    if (value.kind === "enum") return value.member;
     return `${value.type.name} { ${[...value.fields.values()].map((field) => `${field.name}: ${field.initialized ? displayValue(field.value!, field.type) : "<未赋值>"}`).join(", ")} }`;
   }
   if (isDate(value)) return `${pad2(value.day)}/${pad2(value.month)}/${String(value.year).padStart(4, "0")}`;
+  if (isPointerValue(value)) return `^${value.target.name}`;
   if (typeof value === "boolean") return value ? "TRUE" : "FALSE";
   if (type?.kind === "primitive" && type.name === "REAL") {
     const text = String(value);
@@ -1187,6 +1529,10 @@ function displayValue(value: InternalValue, type?: RuntimeType): string {
 function typeName(type: RuntimeType): string {
   if (type.kind === "primitive") return type.name;
   if (type.kind === "record") return type.name;
+  if (type.kind === "class") return type.name;
+  if (type.kind === "pointer") return `^${typeName(type.target)}`;
+  if (type.kind === "set") return type.name;
+  if (type.kind === "enum") return type.name;
   return `ARRAY[${type.dimensions.map(({ lower, upper }) => `${lower}:${upper}`).join(", ")}] OF ${typeName(type.elementType)}`;
 }
 
@@ -1197,6 +1543,17 @@ function typesCompatible(target: RuntimeType, value: RuntimeType): boolean {
     return target.dimensions.length === value.dimensions.length
       && target.dimensions.every((bounds, index) => bounds.lower === value.dimensions[index]?.lower && bounds.upper === value.dimensions[index]?.upper)
       && sameRuntimeType(target.elementType, value.elementType);
+  }
+  if (target.kind === "class" && value.kind === "class") return isSubclassOf(value, target);
+  if (target.kind === "pointer" && value.kind === "pointer") return sameRuntimeType(target.target, value.target);
+  if (target.kind === "set" && value.kind === "set") return target.normalizedName === value.normalizedName;
+  if (target.kind === "enum" && value.kind === "enum") return target.normalizedName === value.normalizedName;
+  return false;
+}
+
+function isSubclassOf(value: ClassRuntimeType, target: ClassRuntimeType): boolean {
+  for (let current: ClassRuntimeType | undefined = value; current; current = current.base) {
+    if (current.normalizedName === target.normalizedName) return true;
   }
   return false;
 }
@@ -1210,6 +1567,10 @@ function sameRuntimeType(left: RuntimeType, right: RuntimeType): boolean {
       && left.dimensions.every((bounds, index) => bounds.lower === right.dimensions[index]?.lower && bounds.upper === right.dimensions[index]?.upper)
       && sameRuntimeType(left.elementType, right.elementType);
   }
+  if (left.kind === "class" && right.kind === "class") return left.normalizedName === right.normalizedName;
+  if (left.kind === "pointer" && right.kind === "pointer") return sameRuntimeType(left.target, right.target);
+  if (left.kind === "set" && right.kind === "set") return left.normalizedName === right.normalizedName;
+  if (left.kind === "enum" && right.kind === "enum") return left.normalizedName === right.normalizedName;
   return false;
 }
 
@@ -1250,6 +1611,10 @@ function asChar(value: TypedValue | undefined, range: SourceRange): string {
 }
 
 function compareValues(left: TypedValue, right: TypedValue, range: SourceRange): number {
+  if (isEnumValue(left.value) && isEnumValue(right.value) && left.type.kind === "enum" && right.type.kind === "enum"
+    && left.type.normalizedName === right.type.normalizedName) {
+    return left.type.members.indexOf(left.value.member) - right.type.members.indexOf(right.value.member);
+  }
   if (left.type.kind !== "primitive" || right.type.kind !== "primitive") throw new RuntimeFault(faultInfo("RT1308", "runtime.comparison.incompatible", range));
   if (left.type.name === "DATE" && right.type.name === "DATE") return dateNumber(left.value as RuntimeDate) - dateNumber(right.value as RuntimeDate);
   if (typeof left.value === "number" && typeof right.value === "number") return left.value - right.value;
@@ -1266,8 +1631,20 @@ function transformedChar(value: string, upper: boolean, range: SourceRange): str
 
 function isPrimitive(type: RuntimeType, name: LiteralType): type is PrimitiveRuntimeType { return type.kind === "primitive" && type.name === name; }
 function isDate(value: InternalValue): value is DateLiteralValue { return typeof value === "object" && value !== null && "day" in value && "month" in value && "year" in value; }
-function isComposite(value: InternalValue): value is RuntimeArray | RuntimeRecord { return typeof value === "object" && value !== null && "kind" in value; }
+function isComposite(value: InternalValue): value is RuntimeArray | RuntimeRecord | RuntimeObject | RuntimePointer | RuntimeSet | RuntimeEnum {
+  return typeof value === "object" && value !== null && !isDate(value) && "kind" in value
+    && (value.kind === "array" || value.kind === "record" || value.kind === "object" || value.kind === "pointer" || value.kind === "set" || value.kind === "enum");
+}
 function isRuntimeRecord(value: InternalValue): value is RuntimeRecord { return isComposite(value) && value.kind === "record"; }
+function isPointerValue(value: InternalValue): value is RuntimePointer { return isComposite(value) && value.kind === "pointer"; }
+function isSetValue(value: InternalValue): value is RuntimeSet { return isComposite(value) && value.kind === "set"; }
+function isEnumValue(value: InternalValue): value is RuntimeEnum { return isComposite(value) && value.kind === "enum"; }
+function valueKey(value: InternalValue): string {
+  if (isDate(value)) return `DATE:${value.year}-${value.month}-${value.day}`;
+  if (isEnumValue(value)) return `ENUM:${value.type.normalizedName}:${value.member}`;
+  if (typeof value === "string") return `STRING:${value}`;
+  return `${typeof value}:${String(value)}`;
+}
 function isPlainRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
 function locationName(expression: Expression): string { return expression.kind === "NameExpression" ? expression.name : expression.kind === "MemberExpression" ? expression.member : "Value"; }
 function validDate(value: RuntimeDate): boolean { const date = new Date(Date.UTC(value.year, value.month - 1, value.day)); return date.getUTCFullYear() === value.year && date.getUTCMonth() === value.month - 1 && date.getUTCDate() === value.day; }

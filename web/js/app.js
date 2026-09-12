@@ -24,6 +24,7 @@ const RUNTIME = window.CAIERuntime;
 const defaultSettings = {
    theme: 'light', fontSize: 14, lineNumbers: true,
    arrowConvert: true, autoIndent: true, autoPair: true, lint: false,
+   runtimeProfile: 'core-2027',
    // 归档的课文文件默认不显示在列表里
    showArchivedLessons: false
 };
@@ -1069,6 +1070,7 @@ function startRun() {
 
    setStatus('运行中…', 'running');
    const controller = RUNTIME.executeSource(code.value, {
+      profile: state.settings.runtimeProfile,
       onEvent: handleRuntimeEvent,
       virtualFiles: clone(state.runtimeFiles)
    });
@@ -1798,7 +1800,18 @@ function syncSettingsUI() {
       $(sw.id).setAttribute('aria-checked', String(!!state.settings[sw.key]));
    });
    $('lintToggle').setAttribute('aria-checked', String(!!state.settings.lint));
+   Array.prototype.forEach.call($('setRuntimeProfile').children, function (b) {
+      b.setAttribute('aria-checked', String(b.dataset.value === state.settings.runtimeProfile));
+   });
 }
+
+$('setRuntimeProfile').addEventListener('click', function (ev) {
+   const b = ev.target.closest('button[data-value]');
+   if (!b) return;
+   state.settings.runtimeProfile = b.dataset.value === 'advanced-2027' ? 'advanced-2027' : 'core-2027';
+   syncSettingsUI();
+   savePrefs();
+});
 
 $('setTheme').addEventListener('click', function (ev) {
    const b = ev.target.closest('button[data-value]');
@@ -2381,6 +2394,7 @@ async function startCloudRun(inputs) {
             projectId: projectId,
             requestId: cloudUuid(),
             runtimeVersion: 'web-1',
+            profile: state.settings.runtimeProfile,
             inputs: inputs,
             snapshot: snapshot
          }

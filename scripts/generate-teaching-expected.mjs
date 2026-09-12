@@ -17,7 +17,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runWithInputs } from "../packages/exercise/dist/index.js";
-import { allChapters, allTasks } from "../packages/teaching-content/dist/index.js";
+import { allChapters, allTasks, executionProfileOf } from "../packages/teaching-content/dist/index.js";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const target = resolve(root, "packages/teaching-content/src/expected-outputs.ts");
@@ -26,10 +26,12 @@ const checkOnly = process.argv.includes("--check");
 const snapshot = {};
 let failures = 0;
 
-for (const { task } of allTasks()) {
+for (const { chapter, task } of allTasks()) {
+  // 执行档按章定：A Level 的枚举、集合、指针与类在 core-2027 下会被预检拒绝。
+  const execute = { profile: executionProfileOf(chapter) };
   for (const test of task.tests) {
     const key = `${task.id}/${test.id}`;
-    const run = await runWithInputs(task.referenceSolution, test.inputs);
+    const run = await runWithInputs(task.referenceSolution, test.inputs, execute);
     if (run.status !== "completed" || run.exhausted) {
       console.error(`✗ ${key}: 参考解未正常结束（status=${run.status}, exhausted=${run.exhausted}）`);
       failures += 1;
@@ -46,7 +48,7 @@ for (const chapter of allChapters) {
     for (const block of section.blocks) {
       if (block.kind !== "example" || !block.sampleRun) continue;
       const key = `${section.id}/${block.fileName}`;
-      const run = await runWithInputs(block.code, block.sampleRun.inputs);
+      const run = await runWithInputs(block.code, block.sampleRun.inputs, { profile: executionProfileOf(chapter) });
       if (run.status !== "completed" || run.exhausted) {
         console.error(`✗ ${key}: 示例未正常结束（status=${run.status}）`);
         failures += 1;

@@ -17,13 +17,6 @@
 
 > **规则**（CAIE 规定）　标识符以字母开头，只能含字母、数字和下划线；它们不区分大小写。变量声明写成 `DECLARE <identifier> : <data type>`（Pseudocode Guide §2.3、§2.4）。
 
-**示例：先给存放位置取名**　`Example_2_1_a.pseudocode`
-
-```
-DECLARE PlayerName : STRING
-```
-- 第 1 行：这一行准备了一个叫 `PlayerName` 的位置，准备存放文字；它现在还没有内容。
-
 **关卡**（single-choice）　下面哪个名字可以作为标识符？
 
 - **A** 2ndPlayer
@@ -59,10 +52,22 @@ DECLARE Initial : CHAR
 DECLARE Message : STRING
 DECLARE Finished : BOOLEAN
 DECLARE StartDate : DATE
+OUTPUT "Enter the count"
+INPUT Count
+OUTPUT Count
 ```
 - 1–2 行：数量通常用 `INTEGER`；可能带小数的价格用 `REAL`。
 - 3–4 行：单个字母用 `CHAR`；一句文字或空文字用 `STRING`。
 - 5–6 行：只有是或否的状态用 `BOOLEAN`；日历上的日期用 `DATE`。
+- 7–9 行：输入前先显示提示。这里读入的内容会放进 `INTEGER` 类型的 `Count`。
+
+示例运行（`>` 开头的那行是输入）：
+
+```
+Enter the count
+> 12
+12
+```
 
 **关卡**（single-choice）　要保存“这本书是否已经归还”，哪种类型最合适？
 
@@ -80,7 +85,7 @@ DECLARE StartDate : DATE
 
 ## 2.3　字面量怎样写
 
-<sub>G§2.2｜约 8 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.string`、`literal.boolean`、`literal.date`</sub>
+<sub>G§2.2｜约 8 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.boolean`、`literal.date`</sub>
 
 直接写在代码里的一个确定值叫**字面量（literal）**。`7` 是整数，`0.5` 是实数；实数的小数点两边都要有数字，所以写 `0.5`，不写 `.5`。
 
@@ -127,7 +132,7 @@ TRUE
 
 ## 2.4　赋值与初始化
 
-<sub>§10.1、G§2.6｜约 9 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.string`、`literal.boolean`、`literal.date`、`assign.simple`</sub>
+<sub>§10.1、G§2.6｜约 9 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.boolean`、`literal.date`、`assign.simple`</sub>
 
 声明只是准备一个位置；把值放进去要用**赋值（assignment）**。写法是 `名字 ← 值`，箭头表示值从右边放到左边的变量里。这里不能用 `=`；`=` 留给后面 Chapter 3 的比较。
 
@@ -174,6 +179,7 @@ OUTPUT Score
 - **输入**：没有输入。
 - **输出**：一行：`Points: 0`。冒号后有一个空格。
 - **必须用** `assign.simple` — 本节练习的是先给变量一个值；只把零直接写进 OUTPUT 不能体现初始化。
+- **必须用** `io.output-variable` — OUTPUT 要显示的是 Points 变量里的值，不能把 "Points: 0" 整句写成固定文字。
 
 提示：
 1. 先想清楚：变量里要保存的是一个没有小数的数量。
@@ -195,7 +201,7 @@ OUTPUT "Points: ", Points
 
 判题用例（对学生隐藏，失败时只显示 caseHint）：
 
-- `normal` 显示初始化后的积分。
+- `normal` 程序不读输入，输出只有一种可能，所以只有这一组。
 
 </details>
 
@@ -203,7 +209,7 @@ OUTPUT "Points: ", Points
 
 ## 2.5　常量与不变的值
 
-<sub>G§2.5｜约 7 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.string`、`literal.boolean`、`literal.date`、`assign.simple`、`decl.constant`</sub>
+<sub>G§2.5｜约 7 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.boolean`、`literal.date`、`assign.simple`、`decl.constant`</sub>
 
 程序里有些值从开始到结束都不该改变，例如一周的天数。把这种值命名为**常量（constant）**，读代码的人就不用反复猜 `7` 代表什么。
 
@@ -223,6 +229,50 @@ OUTPUT "Points: ", Points
   - ✗ 姓名来自输入，每次运行可能不同；它应保存在变量里。
 - **D** 循环中不断累加的总数
   - ✗ 总数会反复改变。常量不能在后面被重新赋值。
+
+**示例：用有意义的名字保存固定值**　`Example_2_5_a.pseudocode`
+
+```
+CONSTANT DaysInWeek = 7
+OUTPUT "Days: ", DaysInWeek
+```
+- 第 1 行：常量在这一行给出名字和固定的字面量值。
+- 第 2 行：之后可以读取它；名字说明了这里的 7 代表什么。
+
+示例运行：
+
+```
+Days: 7
+```
+
+**反例：有些错误会在不同阶段被发现**
+
+*把文字放进整数变量*
+```
+DECLARE Count : INTEGER
+Count ← "twelve"
+```
+第 2 行右边是文字，左边却只能保存整数。编辑器在运行前就能发现这两边不相配。
+
+- 错误（第 2 行）：这里需要整数，不能把一段文字放进 `Count`。
+
+*重新给常量赋值*
+```
+CONSTANT DaysInWeek = 7
+DaysInWeek ← 8
+```
+第 1 行已经给常量确定了值。第 2 行不能再改变它；这段代码也不会开始运行。
+
+- 错误（第 2 行）：`DaysInWeek` 是常量，不能在后面重新赋值。
+
+*声明后立刻读取*
+```
+DECLARE Name : STRING
+OUTPUT Name
+```
+这段代码的写法本身没有问题，所以可以开始运行；但 `Name` 还没有内容，运行到第 2 行才会停止。
+
+- 运行时（第 2 行，RT1003）：`Name` 还没有被赋值，不能显示它的内容。
 
 
 ---

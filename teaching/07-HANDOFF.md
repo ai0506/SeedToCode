@@ -2,7 +2,7 @@
 
 当前状态以 [`../PROJECT_STATE.md`](../PROJECT_STATE.md) 为准。本交接文档用于说明背景、风险和接手上下文；其中的阶段记录或历史发现不替代当前状态文档。
 
-版本：1.9　　对应状态：模板定稿 + **AS 全部十六章完成**并接入页面
+版本：2.0　　对应状态：模板定稿 + **AS 全部十六章完成**并接入页面；A Level 已做完考纲与真题核对，规格相应修订（见 §3.15）
 
 这份文档给下一个接手的人（人或模型）。它回答三件事：**现在做到哪儿了**、**问题是怎么被发现的**、**哪些地方有风险**。
 规格本身在 00–06 各文件里，这里不重复，只讲状态、方法和坑。
@@ -17,7 +17,7 @@
 |---|---|---|
 | `packages/caie-spec` | 关键字、类型、内置函数、70 个规则 ID | 完成 |
 | `packages/language` | 词法 / 语法 / 语义 / 格式化，Core + Advanced | 完成 |
-| `packages/runtime` | 解释执行，到阶段 4（含过程、函数、递归、文本与随机文件） | **Advanced 特性（枚举、指针、集合、OOP）尚未能执行** |
+| `packages/runtime` | 解释执行，AS 全部 + 枚举、指针、集合、OOP（构造器、继承、`SUPER`、多态、聚合） | 完成；A Level 特性需 `advanced-2027` 执行档，见 §3.16 |
 | `packages/exercise` | 判题核心：特征提取、输出比对、分层判题、写法提醒 | 首版；Chapter 3 起输出比对在行数不一致时优先报行数 |
 | `packages/teaching-content` | 教学内容数据 + 校验 | **Chapter 1–16（AS 全部）** |
 | `web/lab.html` | 实验室（编辑器） | 完成 |
@@ -84,7 +84,9 @@ Chapter 16 共 7 个小节（读懂题目、IPO 与标识符表、分解与结�
 
 ### 1.3 判题能力
 
-运行时到阶段 4，所以**除 Chapter 17（自定义数据类型）与 Chapter 22（面向对象）之外，其余章节现在都能出可判的题**。这两章要等 Advanced 运行时。
+运行时已经覆盖 Chapter 17–23 需要的全部特性（实测：枚举、集合、指针、随机文件、递归，以及 OOP 的构造器 / 继承 / `SUPER` / 多态动态分派）。**卡住 A Level 的不再是运行时，是 §3.16 的执行档没接进内容模型**——判题走默认的 `core-2027`，A Level 特性一律得到 `RT1106` 预检错误。
+
+另外：异常处理**没有**伪代码语法，Chapter 23 仍是概念章。曾经有人给引擎加过一套 `TRY … CATCH … ENDTRY` 扩展，已回退——它把 `Try`、`Catch` 变成保留字（合法的 CAIE 标识符因此失效），进了 `KEYWORDS` 这张 CAIE 官方关键字表，用它时零提示，三个执行档全都放行，而且 `CAIE_RULES.md`、`runtime-conventions.md`、`LANGUAGE_SPEC.md` 里一个字都没有。**要给引擎加 Guide 之外的写法，先过权威顺序那四层文档，再决定放在哪个执行档，并且必须有一条 `editor` 级提示告诉学生这不是 Guide 的写法。**
 
 ---
 
@@ -322,11 +324,82 @@ Chapter 1 的数据文件约 480 行，覆盖 4 个小节。按这个密度，22
 
 ---
 
+### 3.15 A Level 的硬约束（写 Chapter 17 之前必读）
+
+和 §1.2 里「Chapter 14 有一条硬约束值得记住」是同一性质的东西——**先确认清楚，能省掉一整轮返工**。这些结论来自通读 §13/§19/§20 考纲、Pseudocode Guide 的 A Level 部分，以及把 230 份真题（s21–w25）转成文本逐份统计。
+
+**（a）伪代码的作答只在 Paper 2 和 Paper 3，不在 Paper 4。**
+Paper 4 是实作卷，29 份评分方案的参考答案给的是 Python（552 处）、Java（547 处）、VB.NET（502 处），伪代码一处都没有；它只出现在题干里当规格用。所以 A Level 这一侧要对齐的是 **Paper 3**。
+
+**（b）Paper 3 的伪代码题不是「写一个完整程序」。** 只有两族：声明类（最多）和「Complete this pseudocode …」补全类。对规格的影响写在 [02-CONTENT_SPEC.md](02-CONTENT_SPEC.md) 2.9 与 [03-EXERCISE_SPEC.md](03-EXERCISE_SPEC.md) 4.7。
+
+**（c）A Level 的伪代码题基本不读输入。** 27 份 Paper 3 评分方案里字面 `INPUT` 出现 13 次，提到 prompt 的只有 1 份；AS 的 Paper 2 是 27 次、8/30 份。所以 2.5.8 那条提示语规则在 A Level 是例外而不是常态。（Paper 4 确实有 prompt 评分点，但那是真实语言的输入语句，不归伪代码教学管。）
+
+**（d）枚举、集合、指针只有声明，没有运算。** 见 [01-CURRICULUM.md](01-CURRICULUM.md) Chapter 17 下方的说明。这一条决定了 17.3 / 17.4 / 17.6 出不了有实质判定的伪代码题。
+
+**（e）字典没有语法，异常处理没有语法。** Chapter 20.6 只能描述；Chapter 23 整章走 `conceptOnly: true`。
+
+**（f）Guide 的两处范例跑不起来。** §4.2 的指针范例类型对不上（`^INTEGER` 收了枚举变量的地址，还对枚举做 `+ 1`），§10.1 的类体里有一句裸赋值 `Attempts ← 3`。处理办法写进了 02-CONTENT_SPEC 2.1。**教训和 §2.2(f) 一样：写一章之前先把这一章要教的每一条都在引擎上跑一遍**——这两处就是这么发现的，不是读文档读出来的。
+
+**（g）方法调用不写 `CALL`，而普通过程必须写。** 实测两种形式互相排斥：
+
+| 写法 | 结果 |
+|---|---|
+| `ShowLine()`（普通过程） | 阻断 `parser.call.requiresCallKeyword` |
+| `P.SetAttempts(5)`（方法） | 零阻断错误 |
+| `CALL P.SetAttempts(5)` | 阻断 |
+
+Chapter 12.2 现在把「过程只能用 `CALL` 调用」写成了绝对规则，写 Chapter 22 时要回头补第三种情况。
+
+**（h）递归的两个坑。** 调用层数上限 `maxCallDepth` 默认 256，超限是 `RT1205`，**不能说成死循环**；朴素递归 Fibonacci 实测 `Fib(20)` 能跑、`Fib(25)` 撞步数上限，而这正是考纲 §19.2 的标准例子。反馈要补两类，见 03-EXERCISE_SPEC 4.6。
+
+### 3.16 执行档（ExecutionProfile）：已按章接通
+
+运行时用执行档划定「哪些特性可以执行」：`core-2027` 只放行 AS 范围，`advanced-2027` 放行枚举、集合、指针与类。**档位挂在章上**——`Chapter.executionProfile`，省略即 `core-2027`，所以 AS 十六章不写这个字段。
+
+为什么挂在章上而不是题上：知识点闸门本来就是按章推进的，同一章里的示例、小节题和章末大题语法范围一致；挂在题上会出现「同一章两道题能用的写法不一样」，那正是闸门要防的事。
+
+**解析一律走 `executionProfileOf(chapter)`**（`packages/teaching-content/src/types.ts`），不要各处自己写 `?? "core-2027"`——默认值散在多处会慢慢分叉。四条跑代码的链路都已接上：
+
+| 链路 | 位置 |
+|---|---|
+| 期望输出与运行实录生成 | `scripts/generate-teaching-expected.mjs` |
+| 内容校验（示例、反例、参考解、判题） | `packages/teaching-content/test/shared.ts` |
+| 浏览器判题 | `web/js/task-page.js` → `web/js/teaching-task.js` |
+| 服务端重判（作业与章末大题提交） | `server/src/teaching.ts` 的 `gradeTask()` |
+
+两条测试钉住它：`verifyChapter()` 里「AS 章的执行档必须是 `core-2027`」（否则 A Level 写法能混进 AS 的示例代码——静态闸门只拦题目里学生写的特征，拦不住示例），以及 `test/execution-profile.test.ts` 用一段最小的 A Level 代码验证「不带档位判在 L2、带上就通过」，不必等 Chapter 17 上线。
+
+**还没接的一处**：老师自出题不属于任何一章，拿不到章级档位，见 §3.18。
+
+### 3.17 对照栏的语言是闭合联合，A Level 会卡住
+
+`packages/teaching-content/src/types.ts` 里 `language` 定成 `"natural" | "pseudocode" | "python" | "diagram"`，而 `test/shared.ts` 强制每个对照块至少有一个既不是 natural 也不是 pseudocode/diagram 的栏——**等于强制 Python 栏**。
+
+两处会卡：Chapter 17.5–17.6 讲指针，Python 没有指针，硬配一栏正好犯了 02-CONTENT_SPEC 2.7 规则 3 想避免的错；Chapter 23.4 讲 declarative，参照系该是 Prolog 那类语言。
+
+改法有两种——把联合开放成可扩展的语言名，或者允许一栏显式声明「这门语言没有对应写法」。这是代码改动，没有随本次规格修订一起做。
+
+---
+
+### 3.18 老师自出题跑不了 A Level（等出题功能大改时一起做）
+
+`web/js/custom-task-page.js` 跑的是老师现写的代码，**不属于任何一章**，所以拿不到 §3.16 的章级执行档，目前固定 `core-2027`。后果：老师想出一道用枚举、集合、指针或类的自出题，代码在预检就被拒（`RT1106`），界面上表现为「跑不起来」。
+
+**这一条先记下不修。** 出题这一块计划整体重做，现在单独补一个档位选择器，等于在一个即将被替换的形状上加东西——重做时还要再拆一遍。等新的出题流程定下来，档位应该和题目一起存（它是题目的属性，不是页面的临时开关），别沿用章级默认：自出题没有「章」这个上下文，默认成 `core-2027` 会让老师一脸茫然，默认成 `advanced-2027` 又会让 AS 的自出题失去闸门。
+
+顺带记一笔，重做时会撞上的相邻问题（都在别处写过，这里只列指针）：
+
+- 声明类题目判不出对错（[03-EXERCISE_SPEC.md](03-EXERCISE_SPEC.md) 4.7）——自出题如果允许老师出 A Level 的类型声明题，同样只能判出「用没用某个特征」。
+- 章末大题只能一道（`verifyChapter()` 拦着），而自出题条目数上限是 30（`MAX_ASSIGNMENT_ITEMS`），两套规则的粒度不一样。
+
 ## 4. 接手后建议的顺序
 
-1. 进入 A Level Chapter 17 的范围评估；需要 Advanced 运行时的章节先补齐对应执行能力边界。
-2. 每章先调 `verifyChapter()`，再只为该章添加必要的特有断言；**不要复制上一章的测试文件**。
-3. 按 [01-CURRICULUM.md](01-CURRICULUM.md) 顺序推进；首次使用新的特征 ID 前先补提取测试。
+1. **先读 §3.15。** A Level 的范围评估已经做完，结论都在那儿；不要重新从考纲读起。
+2. 动 Chapter 17 之前先解决 §3.16（执行档）和 §3.17（对照栏）——这两条不解决，17 章写出来判不了、对照块也摆不出来。
+3. 每章先调 `verifyChapter()`，再只为该章添加必要的特有断言；**不要复制上一章的测试文件**。
+4. 按 [01-CURRICULUM.md](01-CURRICULUM.md) 顺序推进；首次使用新的特征 ID 前先补提取测试（`routine.recursive` 还没有，Chapter 19 要用）。
+5. 顺序上可以考虑先写不受阻塞的 18、19、20、21、23，把 17 和 22 押后到运行时与上面两条就绪——20 走数组模拟指针，不依赖 17。
 
 写每一章时照 [02-CONTENT_SPEC.md](02-CONTENT_SPEC.md) 走，特别是这几条最容易忘：
 

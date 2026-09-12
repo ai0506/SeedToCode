@@ -11,6 +11,7 @@ import {
   type FeatureId
 } from "@caie-pseudocode/exercise";
 import { executeSource } from "@caie-pseudocode/runtime";
+import { executionProfileOf } from "../src/types.js";
 import type {
   Block,
   Chapter,
@@ -160,8 +161,23 @@ export function verifyChapter(verification: ChapterVerification): void {
   const tasks = tasksOf(chapter);
   const taughtBySection = new Map<string, FeatureId[]>(sections.map((section) => [section.id, section.taughtFeatures]));
   const allTexts = studentVisibleTexts(chapter);
+  /** 本章的执行档。所有跑代码的断言都用它，和页面、判分服务走同一个解析。 */
+  const profile = executionProfileOf(chapter);
 
   describe(`Chapter ${chapter.id} — 通用结构`, () => {
+    /*
+     * 执行档是「这一章的代码能用到哪些特性」的运行时闸门，和 taughtFeatures 那道静态闸门互补。
+     * AS 章一旦被改成 advanced-2027，枚举、集合、指针、类就能在 AS 的示例里跑起来而不报错——
+     * 静态闸门只拦题目里学生写的特征，拦不住示例代码，所以这一条要单独钉住。
+     */
+    it("执行档与章节层级相符", () => {
+      if (chapter.level === "AS") {
+        expect(profile, `Chapter ${chapter.id} 是 AS 章，执行档必须留在 core-2027`).toBe("core-2027");
+      } else {
+        expect(["core-2027", "advanced-2027"], `Chapter ${chapter.id} 执行档取值`).toContain(profile);
+      }
+    });
+
     it("每个小节恰好一段讲解、一个关卡，且篇幅受控", () => {
       let paragraphs = 0;
       let blocks = 0;
@@ -231,7 +247,7 @@ export function verifyChapter(verification: ChapterVerification): void {
 
     it("示例运行快照和实录均来自真实执行", async () => {
       for (const { section, block } of examples.filter((item) => item.block.sampleRun)) {
-        const run = await runWithInputs(block.code, block.sampleRun!.inputs);
+        const run = await runWithInputs(block.code, block.sampleRun!.inputs, { profile });
         expect(run.status, `${section.id}《${block.title}》`).toBe("completed");
         expect(run.exhausted).toBe(false);
         expect(run.outputs).toEqual(block.sampleRun!.outputs);
@@ -255,7 +271,7 @@ export function verifyChapter(verification: ChapterVerification): void {
           }
           if (item.expectRuntimeError) {
             expect(diagnostics.filter((diagnostic) => diagnostic.severity === "error"), `${section.id}《${block.title}》不应有静态错误`).toHaveLength(0);
-            const run = await executeSource(item.code).result;
+            const run = await executeSource(item.code, { profile }).result;
             expect(run.status, `${section.id}《${block.title}》没有在运行时停止`).toBe("error");
             expect(run.error?.code, `${section.id}《${block.title}》运行时错误`).toBe(item.expectRuntimeError.code);
             expect(run.error?.range.start.line, `${section.id}《${block.title}》运行时错误行`).toBe(item.expectRuntimeError.line);
@@ -341,13 +357,14 @@ export function verifyChapter(verification: ChapterVerification): void {
         const result = await grade({
           source: task.referenceSolution,
           constraints: task.kind === "task" ? task.constraints : undefined,
-          tests
+          tests,
+          execute: { profile }
         });
         expect(result.passed, `${task.id} 参考解未通过`).toBe(true);
         const testInputs = task.tests.map((test) => JSON.stringify(test.inputs));
         for (const example of task.examples) {
           if (task.tests.some((test) => test.inputs.length > 0)) expect(testInputs).not.toContain(JSON.stringify(example.inputs));
-          const run = await runWithInputs(task.referenceSolution, example.inputs);
+          const run = await runWithInputs(task.referenceSolution, example.inputs, { profile });
           expect(run.outputs, `${task.id} 题面示例`).toEqual(example.outputs);
         }
         for (const test of task.tests) {
@@ -355,7 +372,7 @@ export function verifyChapter(verification: ChapterVerification): void {
           expect(/[0-9]/u.test(test.caseHint), `${task.id}/${test.id} caseHint 泄露数字`).toBe(false);
           const snapshot = expectedOutputs[`${task.id}/${test.id}`];
           expect(snapshot, `${task.id}/${test.id} 缺快照`).toBeDefined();
-          expect((await runWithInputs(task.referenceSolution, test.inputs)).outputs).toEqual(snapshot);
+          expect((await runWithInputs(task.referenceSolution, test.inputs, { profile })).outputs).toEqual(snapshot);
         }
         const hasInput = task.tests.some((test) => test.inputs.length > 0);
         if (hasInput) {
@@ -412,6 +429,23 @@ export function verifyChapter(verification: ChapterVerification): void {
           expect(entry, `「${chinese}（${english}）」未登记在 teaching/05-GLOSSARY.md`).toBeDefined();
           expect(entry!.firstChapter, `「${chinese}」在 Chapter ${chapter.id} 提前出现`).toBeLessThanOrEqual(chapter.id);
         }
+      }
+    });
+
+    /**
+     * 反向检查。上面那条守的是「正文里引入的术语必须登记」，漏掉的是另一头：
+     * 词汇表把某个术语标在本章，正文却从没给过它的英文原词。
+     * 「计数控制循环（count-controlled loop）」就是这么漏掉的——考纲原词，
+     * 词汇表登记在 Chapter 5，正文里英文一次都没出现过。
+     */
+    it("词汇表登记在本章的术语，正文里都真的用中文（English）引入过", () => {
+      const joined = allTexts.join("\n");
+      for (const entry of readGlossary()) {
+        if (entry.firstChapter !== chapter.id) continue;
+        expect(
+          joined.includes(`**${entry.chinese}（${entry.english}）**`),
+          `词汇表把「${entry.chinese}（${entry.english}）」标在 Chapter ${chapter.id}，但本章正文里没有以 **中文（English）** 的形式引入它`
+        ).toBe(true);
       }
     });
   });

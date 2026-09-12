@@ -2709,6 +2709,10 @@ var CAIERuntime = (() => {
             return record(expression, primitive("STRING"));
           }
           if ([">", "<", ">=", "<=", "=", "<>"].includes(expression.operator)) {
+            if ([">", "<", ">=", "<="].includes(expression.operator) && (left.kind === "enum" || right.kind === "enum")) {
+              report("PC4037", "UDT-001", "type.enum.orderedComparison", expression.range);
+              return record(expression, primitive("BOOLEAN"));
+            }
             if (!areComparable(left, right)) {
               report("PC4002", "OP-003", "type.relation.incompatibleOperands", expression.range, "CAIE", {
                 left: displayType(left),
@@ -2723,6 +2727,9 @@ var CAIERuntime = (() => {
             }
             return record(expression, primitive("INTEGER"));
           }
+          const enumOrdinalArithmetic = left.kind === "enum" && isPrimitive(right, "INTEGER") && (expression.operator === "+" || expression.operator === "-");
+          if (enumOrdinalArithmetic)
+            return record(expression, left);
           if (!isNumeric(left) || !isNumeric(right)) {
             if (left.kind !== "unknown" && right.kind !== "unknown") {
               const looksLikeConcatenation = expression.operator === "+" && (isPrimitive(left, "STRING") || isPrimitive(right, "STRING") || isPrimitive(left, "CHAR") || isPrimitive(right, "CHAR"));
@@ -3575,6 +3582,7 @@ var CAIERuntime = (() => {
 
   // packages/runtime/src/interpreter.ts
   var DEFAULTS = {
+    profile: "core-2027",
     maxSteps: 1e5,
     maxActiveTimeMs: 5e3,
     maxOutputLines: 1e4,
@@ -3607,6 +3615,7 @@ var CAIERuntime = (() => {
       this.diagnostics = diagnostics;
       this.runId = makeRunId();
       this.options = {
+        profile: options.profile ?? DEFAULTS.profile,
         maxSteps: positiveInteger(options.maxSteps, DEFAULTS.maxSteps),
         maxActiveTimeMs: positiveNumber(options.maxActiveTimeMs, DEFAULTS.maxActiveTimeMs),
         maxOutputLines: positiveInteger(options.maxOutputLines, DEFAULTS.maxOutputLines),
@@ -3626,6 +3635,24 @@ var CAIERuntime = (() => {
         if (statement.kind === "RecordTypeDeclaration") this.records.set(statement.normalizedName, statement);
         if (statement.kind === "ProcedureDeclaration") this.procedures.set(statement.normalizedName, statement);
         if (statement.kind === "FunctionDeclaration") this.functions.set(statement.normalizedName, statement);
+        if (statement.kind === "ClassDeclaration") this.classes.set(statement.normalizedName, statement);
+        if (statement.kind === "PointerTypeDeclaration") this.pointers.set(statement.normalizedName, statement);
+        if (statement.kind === "SetTypeDeclaration") this.sets.set(statement.normalizedName, statement);
+        if (statement.kind === "EnumTypeDeclaration") this.enums.set(statement.normalizedName, statement);
+      }
+      for (const declaration of this.enums.values()) {
+        const type = { kind: "enum", name: declaration.name, normalizedName: declaration.normalizedName, members: declaration.members.map(({ name }) => name) };
+        this.resolvedEnums.set(declaration.normalizedName, type);
+        for (const member of declaration.members) {
+          this.enumCells.set(member.normalizedName, {
+            name: member.name,
+            normalizedName: member.normalizedName,
+            kind: "constant",
+            type,
+            initialized: true,
+            value: { kind: "enum", type, member: member.name }
+          });
+        }
       }
       this.frames.push({ id: "main", name: "<main>", cells: this.cells });
       this.activeStartedAt = this.options.now();
@@ -3638,6 +3665,15 @@ var CAIERuntime = (() => {
     procedures = /* @__PURE__ */ new Map();
     functions = /* @__PURE__ */ new Map();
     records = /* @__PURE__ */ new Map();
+    classes = /* @__PURE__ */ new Map();
+    pointers = /* @__PURE__ */ new Map();
+    resolvedPointers = /* @__PURE__ */ new Map();
+    sets = /* @__PURE__ */ new Map();
+    resolvedSets = /* @__PURE__ */ new Map();
+    enums = /* @__PURE__ */ new Map();
+    resolvedEnums = /* @__PURE__ */ new Map();
+    enumCells = /* @__PURE__ */ new Map();
+    resolvedClasses = /* @__PURE__ */ new Map();
     resolvedRecords = /* @__PURE__ */ new Map();
     resolvingRecords = /* @__PURE__ */ new Set();
     loopControls = /* @__PURE__ */ new Map();
@@ -3697,6 +3733,15 @@ var CAIERuntime = (() => {
         this.emit("runtime-error", error.range, { error });
         return this.finish("preflight-error", error);
       }
+      const unsupported = findUnsupportedFeature(this.program, this.options.profile);
+      if (unsupported) {
+        const error = faultInfo("RT1106", "runtime.feature.notSupported", unsupported.range, {
+          feature: unsupported.feature,
+          profile: this.options.profile
+        });
+        this.emit("runtime-error", error.range, { error });
+        return this.finish("preflight-error", error);
+      }
       try {
         await this.executeBlock(this.program.body);
         this.checkStopped();
@@ -3748,6 +3793,20 @@ var CAIERuntime = (() => {
             initialized: true,
             value: cloneValue(value.value)
           };
+          this.currentFrame().cells.set(cell.normalizedName, cell);
+          this.emitVariable("variable-declared", statement.range, cell);
+          return;
+        }
+        case "DefineSetStatement": {
+          const type = await this.resolveType(statement.typeReference);
+          if (type.kind !== "set") this.fail("RT1310", "runtime.set.requiresSetType", statement.typeReference.range);
+          const set = { kind: "set", type, values: /* @__PURE__ */ new Map() };
+          for (const expression of statement.values) {
+            const value = await this.evaluate(expression);
+            if (!typesCompatible(type.elementType, value.type)) this.fail("RT1311", "runtime.set.elementTypeMismatch", expression.range);
+            set.values.set(valueKey(value.value), cloneValue(value.value));
+          }
+          const cell = { name: statement.name, normalizedName: statement.normalizedName, kind: "constant", type, initialized: true, value: set };
           this.currentFrame().cells.set(cell.normalizedName, cell);
           this.emitVariable("variable-declared", statement.range, cell);
           return;
@@ -3944,6 +4003,9 @@ var CAIERuntime = (() => {
         case "CallStatement":
           await this.callProcedure(statement.target.normalizedName, statement.arguments, statement.range);
           return;
+        case "MethodCallStatement":
+          await this.callMethod(statement.call.callee, statement.call.arguments, statement.range);
+          return;
         case "ReturnStatement": {
           const frame = this.currentFrame();
           if (!frame.returnType) this.fail("RT1901", "runtime.return.outsideFunction", statement.range);
@@ -3969,7 +4031,15 @@ var CAIERuntime = (() => {
         case "MemberExpression":
           return this.readCell(await this.resolveLocation(expression, false), expression.range);
         case "UnaryExpression": {
-          if (expression.operator === "^") this.fail("RT1102", "runtime.expression.notSupportedInCurrentStage", expression.range);
+          if (expression.operator === "^" && expression.postfix) {
+            const pointer = await this.evaluate(expression.operand);
+            if (!isPointerValue(pointer.value)) this.fail("RT1309", "runtime.pointer.requiresPointer", expression.range);
+            return this.readCell(pointer.value.target, expression.range);
+          }
+          if (expression.operator === "^") {
+            const target = await this.resolveLocation(expression.operand, false);
+            return { type: { kind: "pointer", target: target.type }, value: { kind: "pointer", type: { kind: "pointer", target: target.type }, target: storageCell(target) } };
+          }
           const operand = await this.evaluate(expression.operand);
           if (expression.operator === "NOT") return { type: primitive2("BOOLEAN"), value: !asBoolean(operand, expression.range) };
           return checkedNumber(-asNumber(operand, expression.range), operand.type, expression.range);
@@ -3977,11 +4047,28 @@ var CAIERuntime = (() => {
         case "BinaryExpression":
           return this.evaluateBinary(expression);
         case "CallExpression": {
+          if (expression.callee.kind === "MemberExpression") {
+            const value = await this.callMethod(expression.callee, expression.arguments, expression.range);
+            if (!value) this.fail("RT4020", "runtime.function.cannotBeExpression", expression.range);
+            return value;
+          }
           if (expression.callee.kind === "NameExpression" && this.functions.has(expression.callee.normalizedName)) {
             return this.callFunction(expression.callee.normalizedName, expression.arguments, expression.range);
           }
+          const frame = this.currentFrame();
+          if (expression.callee.kind === "NameExpression" && frame.receiver && frame.classType) {
+            const method = this.findMethod(frame.classType, expression.callee.normalizedName);
+            if (method) {
+              const value = await this.invokeRoutine(method.declaration, expression.arguments, frame.receiver, method.owner);
+              if (method.declaration.kind === "ProcedureDeclaration") this.fail("RT4020", "runtime.function.cannotBeExpression", expression.range);
+              if (!value) this.fail("RT1905", "runtime.function.missingReturn", method.declaration.range, { name: method.declaration.name });
+              return value;
+            }
+          }
           return this.evaluateBuiltin(expression);
         }
+        case "NewExpression":
+          return this.newObject(expression);
         case "ErrorExpression":
           this.fail("RT1004", "runtime.expression.invalid", expression.range);
         default:
@@ -3993,6 +4080,14 @@ var CAIERuntime = (() => {
       if (expression.operator === "AND" && !asBoolean(left, expression.left.range)) return typed("BOOLEAN", false);
       if (expression.operator === "OR" && asBoolean(left, expression.left.range)) return typed("BOOLEAN", true);
       const right = await this.evaluate(expression.right);
+      if (left.type.kind === "enum" && isPrimitive2(right.type, "INTEGER") && (expression.operator === "+" || expression.operator === "-")) {
+        const index = left.type.members.indexOf(left.value.member);
+        const offset = right.value;
+        const nextIndex = index + (expression.operator === "+" ? offset : -offset);
+        const member = left.type.members[nextIndex];
+        if (index < 0 || !member) this.fail("RT1312", "runtime.enum.ordinalOutOfRange", expression.range);
+        return { type: left.type, value: { kind: "enum", type: left.type, member } };
+      }
       switch (expression.operator) {
         case "AND":
           return typed("BOOLEAN", asBoolean(right, expression.right.range));
@@ -4024,14 +4119,18 @@ var CAIERuntime = (() => {
         case "<>":
           return typed("BOOLEAN", compareValues(left, right, expression.range) !== 0);
         case ">":
-          return typed("BOOLEAN", compareValues(left, right, expression.range) > 0);
+          return typed("BOOLEAN", this.compareOrdered(left, right, expression.range) > 0);
         case "<":
-          return typed("BOOLEAN", compareValues(left, right, expression.range) < 0);
+          return typed("BOOLEAN", this.compareOrdered(left, right, expression.range) < 0);
         case ">=":
-          return typed("BOOLEAN", compareValues(left, right, expression.range) >= 0);
+          return typed("BOOLEAN", this.compareOrdered(left, right, expression.range) >= 0);
         case "<=":
-          return typed("BOOLEAN", compareValues(left, right, expression.range) <= 0);
+          return typed("BOOLEAN", this.compareOrdered(left, right, expression.range) <= 0);
       }
+    }
+    compareOrdered(left, right, range) {
+      if (isEnumValue(left.value) || isEnumValue(right.value)) this.fail("RT1308", "runtime.comparison.incompatible", range);
+      return compareValues(left, right, range);
     }
     async evaluateBuiltin(expression) {
       if (expression.callee.kind !== "NameExpression") this.fail("RT1102", "runtime.expression.notSupportedInCurrentStage", expression.range);
@@ -4078,6 +4177,13 @@ var CAIERuntime = (() => {
       }
     }
     async resolveLocation(expression, writable) {
+      if (expression.kind === "UnaryExpression" && expression.operator === "^" && expression.postfix) {
+        const pointer = await this.evaluate(expression.operand);
+        if (!isPointerValue(pointer.value)) this.fail("RT1309", "runtime.pointer.requiresPointer", expression.range);
+        const target = storageCell(pointer.value.target);
+        if (writable && target.kind === "constant") this.fail("RT1005", "runtime.constant.cannotChange", expression.range, { name: target.name });
+        return target;
+      }
       if (expression.kind === "NameExpression") {
         const cell = this.lookupCell(expression.normalizedName);
         if (!cell) this.fail("RT1002", "runtime.name.notDeclared", expression.range, { name: expression.name });
@@ -4126,12 +4232,20 @@ var CAIERuntime = (() => {
       }
       if (expression.kind === "MemberExpression") {
         const target = await this.referenceValue(expression.target);
-        if (target.type.kind !== "record" || target.value.kind !== "record") {
-          this.fail("RT1701", "runtime.member.targetRequiresRecord", expression.target.range);
+        if (target.type.kind === "record" && target.value.kind === "record") {
+          const cell = target.value.fields.get(expression.normalizedMember);
+          if (!cell) this.fail("RT1702", "runtime.member.unknownField", expression.memberRange, { field: expression.member, record: target.type.name });
+          return cell;
         }
-        const cell = target.value.fields.get(expression.normalizedMember);
-        if (!cell) this.fail("RT1702", "runtime.member.unknownField", expression.memberRange, { field: expression.member, record: target.type.name });
-        return cell;
+        if (target.type.kind === "class" && target.value.kind === "object") {
+          const field = target.type.fields.find(({ normalizedName }) => normalizedName === expression.normalizedMember);
+          if (!field) this.fail("RT1702", "runtime.member.unknownField", expression.memberRange, { field: expression.member, record: target.type.name });
+          if (field.access === "PRIVATE" && this.currentFrame().classType?.normalizedName !== field.owner) {
+            this.fail("RT1706", "runtime.class.privateMember", expression.memberRange, { member: expression.member });
+          }
+          return target.value.fields.get(field.normalizedName);
+        }
+        this.fail("RT1701", "runtime.member.targetRequiresRecord", expression.target.range);
       }
       this.fail("RT1104", "runtime.target.notSupportedInCurrentStage", expression.range);
     }
@@ -4155,11 +4269,55 @@ var CAIERuntime = (() => {
           return primitive2(reference.name);
         case "ArrayTypeReference":
           return this.resolveArrayType(reference);
-        case "NamedTypeReference":
+        case "NamedTypeReference": {
+          if (this.classes.has(reference.normalizedName)) return this.resolveClassType(reference.normalizedName, reference.range);
+          if (this.pointers.has(reference.normalizedName)) return this.resolvePointerType(reference.normalizedName, reference.range);
+          if (this.sets.has(reference.normalizedName)) return this.resolveSetType(reference.normalizedName, reference.range);
+          if (this.resolvedEnums.has(reference.normalizedName)) return this.resolvedEnums.get(reference.normalizedName);
           return this.resolveRecordType(reference.normalizedName, reference.range);
+        }
         default:
           this.fail("RT1101", "runtime.type.notSupportedInCurrentStage", reference.range);
       }
+    }
+    async resolveRuntimeType(reference) {
+      if (reference.kind === "NamedTypeReference" && this.classes.has(reference.normalizedName)) {
+        return this.resolveClassType(reference.normalizedName, reference.range);
+      }
+      return this.resolveType(reference);
+    }
+    async resolveClassType(normalizedName, range) {
+      const existing = this.resolvedClasses.get(normalizedName);
+      if (existing) return existing;
+      const declaration = this.classes.get(normalizedName);
+      if (!declaration) this.fail("RT1101", "runtime.type.notSupportedInCurrentStage", range);
+      const base = declaration.normalizedBaseName ? await this.resolveClassType(declaration.normalizedBaseName, range) : void 0;
+      const type = { kind: "class", name: declaration.name, normalizedName, ...base ? { base } : {}, fields: [] };
+      this.resolvedClasses.set(normalizedName, type);
+      if (base) type.fields.push(...base.fields);
+      for (const member of declaration.members) {
+        if (member.kind !== "ClassField") continue;
+        type.fields.push({ name: member.name, normalizedName: member.normalizedName, access: member.access, type: await this.resolveType(member.typeReference), owner: normalizedName });
+      }
+      return type;
+    }
+    async resolvePointerType(normalizedName, range) {
+      const existing = this.resolvedPointers.get(normalizedName);
+      if (existing) return existing;
+      const declaration = this.pointers.get(normalizedName);
+      if (!declaration) this.fail("RT1101", "runtime.type.notSupportedInCurrentStage", range);
+      const type = { kind: "pointer", target: await this.resolveType(declaration.targetType) };
+      this.resolvedPointers.set(normalizedName, type);
+      return type;
+    }
+    async resolveSetType(normalizedName, range) {
+      const existing = this.resolvedSets.get(normalizedName);
+      if (existing) return existing;
+      const declaration = this.sets.get(normalizedName);
+      if (!declaration) this.fail("RT1101", "runtime.type.notSupportedInCurrentStage", range);
+      const type = { kind: "set", name: declaration.name, normalizedName, elementType: await this.resolveType(declaration.elementType) };
+      this.resolvedSets.set(normalizedName, type);
+      return type;
     }
     async resolveArrayType(reference) {
       const dimensions = [];
@@ -4204,6 +4362,61 @@ var CAIERuntime = (() => {
       const upper = await this.evaluate(label.upper);
       return compareValues(selector, lower, label.lower.range) >= 0 && compareValues(selector, upper, label.upper.range) <= 0;
     }
+    async newObject(expression) {
+      const type = await this.resolveClassType(expression.normalizedClassName, expression.classNameRange);
+      const object = { kind: "object", type, fields: /* @__PURE__ */ new Map() };
+      for (const field of type.fields) {
+        const value = instantiateComposite(field.type);
+        object.fields.set(field.normalizedName, {
+          name: field.name,
+          normalizedName: field.normalizedName,
+          kind: "field",
+          type: field.type,
+          initialized: value !== void 0,
+          ...value !== void 0 ? { value } : {}
+        });
+      }
+      const constructor = this.findMethod(type, "NEW");
+      if (constructor) await this.invokeRoutine(constructor.declaration, expression.arguments, object, constructor.owner);
+      else if (expression.arguments.length) this.fail("RT1906", "runtime.call.argumentCount", expression.range, { expected: 0, actual: expression.arguments.length });
+      return { type, value: object };
+    }
+    async callMethod(expression, args, range) {
+      let object;
+      let type;
+      if (expression.target.kind === "NameExpression" && expression.target.normalizedName === "SUPER") {
+        const frame = this.currentFrame();
+        if (!frame.receiver || !frame.classType?.base) this.fail("RT1705", "runtime.class.superOutsideMethod", range);
+        object = frame.receiver;
+        type = frame.classType.base;
+      } else {
+        const value2 = await this.evaluate(expression.target);
+        if (value2.type.kind !== "class" || !isRuntimeObject(value2.value)) this.fail("RT1705", "runtime.class.methodRequiresObject", expression.target.range);
+        object = value2.value;
+        type = object.type;
+      }
+      const method = this.findMethod(type, expression.normalizedMember);
+      if (!method) this.fail("RT1904", "runtime.function.notFound", expression.memberRange, { name: expression.member });
+      if (method.access === "PRIVATE" && this.currentFrame().classType?.normalizedName !== method.owner) {
+        this.fail("RT1706", "runtime.class.privateMember", expression.memberRange, { member: expression.member });
+      }
+      const value = await this.invokeRoutine(method.declaration, args, object, method.owner);
+      if (method.declaration.kind === "ProcedureDeclaration") return void 0;
+      if (!value) this.fail("RT1905", "runtime.function.missingReturn", method.declaration.range, { name: method.declaration.name });
+      return value;
+    }
+    findMethod(type, normalizedName) {
+      for (let current = type; current; current = current.base) {
+        const declaration = this.classes.get(current.normalizedName);
+        const member = declaration?.members.find(
+          (candidate) => (candidate.kind === "ProcedureDeclaration" || candidate.kind === "FunctionDeclaration") && candidate.normalizedName === normalizedName
+        );
+        if (member && (member.kind === "ProcedureDeclaration" || member.kind === "FunctionDeclaration")) {
+          return { declaration: member, owner: current.normalizedName, access: member.access ?? "PUBLIC" };
+        }
+      }
+      return void 0;
+    }
     async callProcedure(normalizedName, args, range) {
       const declaration = this.procedures.get(normalizedName);
       if (!declaration) this.fail("RT1903", "runtime.procedure.notFound", range, { name: normalizedName });
@@ -4216,7 +4429,7 @@ var CAIERuntime = (() => {
       if (!value) this.fail("RT1905", "runtime.function.missingReturn", declaration.range, { name: declaration.name });
       return value;
     }
-    async invokeRoutine(declaration, args) {
+    async invokeRoutine(declaration, args, receiver, className) {
       if (this.frames.length - 1 >= this.options.maxCallDepth) {
         this.fail("RT1205", "runtime.limit.callDepth", declaration.nameRange, { maximum: this.options.maxCallDepth });
       }
@@ -4261,7 +4474,8 @@ var CAIERuntime = (() => {
         id: `frame-${this.sequence + 1}`,
         name: declaration.name,
         cells: parameterCells,
-        ...returnType ? { returnType } : {}
+        ...returnType ? { returnType } : {},
+        ...receiver ? { receiver, classType: className ? this.resolvedClasses.get(className) ?? receiver.type : receiver.type } : {}
       };
       this.frames.push(frame);
       this.emit("frame-entered", declaration.range, { name: declaration.name, stack: this.stackNames(), variables: this.getVariables() });
@@ -4287,7 +4501,7 @@ var CAIERuntime = (() => {
     }
     lookupCell(normalizedName) {
       const current = this.currentFrame();
-      return current.cells.get(normalizedName) ?? (current.id === "main" ? void 0 : this.cells.get(normalizedName));
+      return current.cells.get(normalizedName) ?? current.receiver?.fields.get(normalizedName) ?? (current.id === "main" ? this.enumCells.get(normalizedName) : this.cells.get(normalizedName) ?? this.enumCells.get(normalizedName));
     }
     stackNames() {
       return this.frames.map(({ name }) => name);
@@ -4388,6 +4602,7 @@ var CAIERuntime = (() => {
           if (!isPlainRecord(raw)) this.fail("RT2109", "runtime.random.invalidStoredRecord", range, { field: field.name });
           field.value = this.plainToRecord(raw, field.type, range);
         } else {
+          if (field.type.kind !== "primitive") this.fail("RT2109", "runtime.random.invalidStoredRecord", range, { field: field.name });
           field.value = plainPrimitive(raw, field.type.name, range);
         }
         field.initialized = true;
@@ -4480,6 +4695,133 @@ var CAIERuntime = (() => {
       getVariables: () => interpreter.getVariables()
     };
   }
+  function findUnsupportedFeature(program, profile) {
+    const visitType = (reference) => {
+      if (reference.kind === "ErrorTypeReference") return void 0;
+      if (reference.kind === "ArrayTypeReference") {
+        for (const dimension of reference.dimensions) {
+          const found = visitExpression(dimension.lower) ?? visitExpression(dimension.upper);
+          if (found) return found;
+        }
+        return visitType(reference.elementType);
+      }
+      return void 0;
+    };
+    const visitExpression = (expression) => {
+      if (expression.kind === "NewExpression") return profile === "advanced-2027" ? void 0 : { feature: "NEW / \u5BF9\u8C61", range: expression.range };
+      if (expression.kind === "UnaryExpression" && expression.operator === "^" && profile !== "advanced-2027") {
+        return { feature: "\u6307\u9488", range: expression.range };
+      }
+      if (expression.kind === "CallExpression" && expression.callee.kind === "MemberExpression" && profile !== "advanced-2027") {
+        return { feature: "\u5BF9\u8C61\u65B9\u6CD5", range: expression.range };
+      }
+      switch (expression.kind) {
+        case "UnaryExpression":
+          return visitExpression(expression.operand);
+        case "BinaryExpression":
+          return visitExpression(expression.left) ?? visitExpression(expression.right);
+        case "CallExpression":
+          return expression.arguments.reduce((found, argument) => found ?? visitExpression(argument), void 0);
+        case "IndexExpression":
+          return visitExpression(expression.target) ?? expression.indices.reduce((found, index) => found ?? visitExpression(index), void 0);
+        case "MemberExpression":
+          return visitExpression(expression.target);
+        default:
+          return void 0;
+      }
+    };
+    const visitStatements = (statements) => {
+      for (const statement of statements) {
+        let found;
+        switch (statement.kind) {
+          case "EnumTypeDeclaration":
+            if (profile !== "advanced-2027") found = { feature: "\u679A\u4E3E", range: statement.range };
+            break;
+          case "PointerTypeDeclaration":
+            if (profile !== "advanced-2027") found = { feature: "\u6307\u9488", range: statement.range };
+            break;
+          case "SetTypeDeclaration":
+          case "DefineSetStatement":
+            if (profile !== "advanced-2027") found = { feature: "\u96C6\u5408", range: statement.range };
+            break;
+          case "ClassDeclaration":
+            if (profile !== "advanced-2027") found = { feature: "CLASS / \u5BF9\u8C61", range: statement.range };
+            break;
+          case "MethodCallStatement":
+            if (profile !== "advanced-2027") found = { feature: "\u5BF9\u8C61\u65B9\u6CD5", range: statement.range };
+            break;
+          case "DeclareStatement":
+            found = visitType(statement.typeReference);
+            break;
+          case "ConstantStatement":
+            found = visitExpression(statement.value);
+            break;
+          case "AssignmentStatement":
+            found = visitExpression(statement.target) ?? visitExpression(statement.value);
+            break;
+          case "InputStatement":
+            found = visitExpression(statement.target);
+            break;
+          case "OutputStatement":
+            found = statement.values.reduce((result, value) => result ?? visitExpression(value), void 0);
+            break;
+          case "OpenFileStatement":
+            found = visitExpression(statement.file);
+            break;
+          case "ReadFileStatement":
+            found = visitExpression(statement.file) ?? visitExpression(statement.target);
+            break;
+          case "WriteFileStatement":
+            found = visitExpression(statement.file) ?? visitExpression(statement.data);
+            break;
+          case "CloseFileStatement":
+            found = visitExpression(statement.file);
+            break;
+          case "SeekStatement":
+            found = visitExpression(statement.file) ?? visitExpression(statement.address);
+            break;
+          case "GetRecordStatement":
+            found = visitExpression(statement.file) ?? visitExpression(statement.target);
+            break;
+          case "PutRecordStatement":
+            found = visitExpression(statement.file) ?? visitExpression(statement.data);
+            break;
+          case "IfStatement":
+            found = visitExpression(statement.condition) ?? visitStatements(statement.thenBranch) ?? visitStatements(statement.elseBranch);
+            break;
+          case "CaseStatement":
+            found = visitExpression(statement.selector) ?? statement.clauses.reduce((result, clause) => result ?? visitStatements(clause.body), void 0);
+            break;
+          case "ForStatement":
+            found = visitExpression(statement.control) ?? visitExpression(statement.startValue) ?? visitExpression(statement.endValue) ?? (statement.step && visitExpression(statement.step)) ?? visitStatements(statement.body);
+            break;
+          case "WhileStatement":
+            found = visitExpression(statement.condition) ?? visitStatements(statement.body);
+            break;
+          case "RepeatStatement":
+            found = visitStatements(statement.body) ?? visitExpression(statement.condition);
+            break;
+          case "ProcedureDeclaration":
+            found = visitStatements(statement.body);
+            break;
+          case "FunctionDeclaration":
+            found = visitType(statement.returnType) ?? visitStatements(statement.body);
+            break;
+          case "RecordTypeDeclaration":
+            found = statement.fields.reduce((result, field) => result ?? visitType(field.typeReference), void 0);
+            break;
+          case "ReturnStatement":
+            found = visitExpression(statement.value);
+            break;
+          default:
+            break;
+        }
+        if (found) return found;
+      }
+      return void 0;
+    };
+    return visitStatements(program.body);
+  }
   function primitive2(name) {
     return { kind: "primitive", name };
   }
@@ -4534,6 +4876,21 @@ var CAIERuntime = (() => {
         }))
       };
     }
+    if (type.kind === "class") {
+      const object = { kind: "object", type, fields: /* @__PURE__ */ new Map() };
+      for (const field of type.fields) {
+        const value = instantiateComposite(field.type);
+        object.fields.set(field.normalizedName, {
+          name: field.name,
+          normalizedName: field.normalizedName,
+          kind: "field",
+          type: field.type,
+          initialized: value !== void 0,
+          ...value !== void 0 ? { value } : {}
+        });
+      }
+      return object;
+    }
     return void 0;
   }
   function snapshotCell(cell) {
@@ -4562,6 +4919,24 @@ var CAIERuntime = (() => {
       }
       return snapshot2;
     }
+    if (value.kind === "object") {
+      const snapshot2 = {
+        kind: "object",
+        className: value.type.name,
+        fields: [...value.fields.values()].map((field) => ({
+          name: field.name,
+          initialized: field.initialized,
+          ...field.initialized ? { value: snapshotValue(field.value) } : {}
+        }))
+      };
+      return snapshot2;
+    }
+    if (value.kind === "pointer") return { kind: "pointer", target: value.target.name };
+    if (value.kind === "set") {
+      const snapshot2 = { kind: "set", typeName: value.type.name, values: [...value.values.values()].map((item) => cloneValue(item)) };
+      return snapshot2;
+    }
+    if (value.kind === "enum") return { kind: "enum", typeName: value.type.name, member: value.member };
     const snapshot = {
       kind: "record",
       typeName: value.type.name,
@@ -4574,6 +4949,14 @@ var CAIERuntime = (() => {
     return snapshot;
   }
   function cloneValue(value) {
+    if (isRuntimeObject(value)) return value;
+    if (isPointerValue(value)) return value;
+    if (isSetValue(value)) {
+      const copy2 = { kind: "set", type: value.type, values: /* @__PURE__ */ new Map() };
+      for (const [key, item] of value.values) copy2.values.set(key, cloneValue(item));
+      return copy2;
+    }
+    if (isEnumValue(value)) return value;
     if (!isComposite(value)) {
       if (isDate(value)) return { day: value.day, month: value.month, year: value.year };
       return value;
@@ -4589,6 +4972,9 @@ var CAIERuntime = (() => {
   }
   function cloneCell(cell) {
     return { ...cell, ...cell.initialized ? { value: cloneValue(cell.value) } : {} };
+  }
+  function isRuntimeObject(value) {
+    return isComposite(value) && value.kind === "object";
   }
   function cloneFiles(files) {
     return files.map((file) => ({
@@ -4661,6 +5047,7 @@ var CAIERuntime = (() => {
     return current;
   }
   function formatValue(value, range) {
+    if (isEnumValue(value.value)) return value.value.member;
     if (value.type.kind !== "primitive") throw new RuntimeFault(faultInfo("RT1801", "runtime.output.requiresPrimitive", range));
     if (value.type.name === "BOOLEAN") return value.value ? "TRUE" : "FALSE";
     if (value.type.name === "DATE") {
@@ -4676,9 +5063,13 @@ var CAIERuntime = (() => {
   function displayValue(value, type) {
     if (isComposite(value)) {
       if (value.kind === "array") return `${typeName(value.type)} \xB7 ${[...value.elements.values()].filter(({ initialized }) => initialized).length} \u9879\u5DF2\u8D4B\u503C`;
+      if (value.kind === "pointer") return `^${value.target.name}`;
+      if (value.kind === "set") return `${value.type.name} { ${[...value.values.values()].map((item) => displayValue(item)).join(", ")} }`;
+      if (value.kind === "enum") return value.member;
       return `${value.type.name} { ${[...value.fields.values()].map((field) => `${field.name}: ${field.initialized ? displayValue(field.value, field.type) : "<\u672A\u8D4B\u503C>"}`).join(", ")} }`;
     }
     if (isDate(value)) return `${pad2(value.day)}/${pad2(value.month)}/${String(value.year).padStart(4, "0")}`;
+    if (isPointerValue(value)) return `^${value.target.name}`;
     if (typeof value === "boolean") return value ? "TRUE" : "FALSE";
     if (type?.kind === "primitive" && type.name === "REAL") {
       const text = String(value);
@@ -4689,6 +5080,10 @@ var CAIERuntime = (() => {
   function typeName(type) {
     if (type.kind === "primitive") return type.name;
     if (type.kind === "record") return type.name;
+    if (type.kind === "class") return type.name;
+    if (type.kind === "pointer") return `^${typeName(type.target)}`;
+    if (type.kind === "set") return type.name;
+    if (type.kind === "enum") return type.name;
     return `ARRAY[${type.dimensions.map(({ lower, upper }) => `${lower}:${upper}`).join(", ")}] OF ${typeName(type.elementType)}`;
   }
   function typesCompatible(target, value) {
@@ -4696,6 +5091,16 @@ var CAIERuntime = (() => {
     if (target.kind === "record" && value.kind === "record") return target.normalizedName === value.normalizedName;
     if (target.kind === "array" && value.kind === "array") {
       return target.dimensions.length === value.dimensions.length && target.dimensions.every((bounds, index) => bounds.lower === value.dimensions[index]?.lower && bounds.upper === value.dimensions[index]?.upper) && sameRuntimeType(target.elementType, value.elementType);
+    }
+    if (target.kind === "class" && value.kind === "class") return isSubclassOf(value, target);
+    if (target.kind === "pointer" && value.kind === "pointer") return sameRuntimeType(target.target, value.target);
+    if (target.kind === "set" && value.kind === "set") return target.normalizedName === value.normalizedName;
+    if (target.kind === "enum" && value.kind === "enum") return target.normalizedName === value.normalizedName;
+    return false;
+  }
+  function isSubclassOf(value, target) {
+    for (let current = value; current; current = current.base) {
+      if (current.normalizedName === target.normalizedName) return true;
     }
     return false;
   }
@@ -4706,6 +5111,10 @@ var CAIERuntime = (() => {
     if (left.kind === "array" && right.kind === "array") {
       return left.dimensions.length === right.dimensions.length && left.dimensions.every((bounds, index) => bounds.lower === right.dimensions[index]?.lower && bounds.upper === right.dimensions[index]?.upper) && sameRuntimeType(left.elementType, right.elementType);
     }
+    if (left.kind === "class" && right.kind === "class") return left.normalizedName === right.normalizedName;
+    if (left.kind === "pointer" && right.kind === "pointer") return sameRuntimeType(left.target, right.target);
+    if (left.kind === "set" && right.kind === "set") return left.normalizedName === right.normalizedName;
+    if (left.kind === "enum" && right.kind === "enum") return left.normalizedName === right.normalizedName;
     return false;
   }
   function numericBinary(left, right, range, operation) {
@@ -4741,6 +5150,9 @@ var CAIERuntime = (() => {
     return value.value;
   }
   function compareValues(left, right, range) {
+    if (isEnumValue(left.value) && isEnumValue(right.value) && left.type.kind === "enum" && right.type.kind === "enum" && left.type.normalizedName === right.type.normalizedName) {
+      return left.type.members.indexOf(left.value.member) - right.type.members.indexOf(right.value.member);
+    }
     if (left.type.kind !== "primitive" || right.type.kind !== "primitive") throw new RuntimeFault(faultInfo("RT1308", "runtime.comparison.incompatible", range));
     if (left.type.name === "DATE" && right.type.name === "DATE") return dateNumber(left.value) - dateNumber(right.value);
     if (typeof left.value === "number" && typeof right.value === "number") return left.value - right.value;
@@ -4760,10 +5172,25 @@ var CAIERuntime = (() => {
     return typeof value === "object" && value !== null && "day" in value && "month" in value && "year" in value;
   }
   function isComposite(value) {
-    return typeof value === "object" && value !== null && "kind" in value;
+    return typeof value === "object" && value !== null && !isDate(value) && "kind" in value && (value.kind === "array" || value.kind === "record" || value.kind === "object" || value.kind === "pointer" || value.kind === "set" || value.kind === "enum");
   }
   function isRuntimeRecord(value) {
     return isComposite(value) && value.kind === "record";
+  }
+  function isPointerValue(value) {
+    return isComposite(value) && value.kind === "pointer";
+  }
+  function isSetValue(value) {
+    return isComposite(value) && value.kind === "set";
+  }
+  function isEnumValue(value) {
+    return isComposite(value) && value.kind === "enum";
+  }
+  function valueKey(value) {
+    if (isDate(value)) return `DATE:${value.year}-${value.month}-${value.day}`;
+    if (isEnumValue(value)) return `ENUM:${value.type.normalizedName}:${value.member}`;
+    if (typeof value === "string") return `STRING:${value}`;
+    return `${typeof value}:${String(value)}`;
   }
   function isPlainRecord(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);

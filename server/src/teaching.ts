@@ -1,4 +1,4 @@
-import { allTasks, expectedOutputs } from "../../packages/teaching-content/dist/index.js";
+import { allTasks, executionProfileOf, expectedOutputs } from "../../packages/teaching-content/dist/index.js";
 import { grade } from "../../packages/exercise/dist/index.js";
 import {
   allowAuthAttempt,
@@ -666,6 +666,8 @@ async function gradeTask(taskId: string, source: string) {
     tests: item.task.tests.map((test) => ({ ...test, expected: expectedOutputs[taskId + "/" + test.id] ?? [] })),
     taughtFeatures,
     execute: {
+      // 执行档按题目所属的章解析，和浏览器端判题、期望输出生成用的是同一个函数。
+      profile: executionProfileOf(item.chapter),
       maxSteps: 200_000,
       maxActiveTimeMs: 1_500,
       maxOutputLines: 2_000,

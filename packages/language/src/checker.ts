@@ -171,6 +171,11 @@ export function check(program: Program, binding: BindResult, options: CheckOptio
           return record(expression, primitive("STRING"));
         }
         if ([">", "<", ">=", "<=", "=", "<>"].includes(expression.operator)) {
+          if ([">", "<", ">=", "<="].includes(expression.operator)
+            && (left.kind === "enum" || right.kind === "enum")) {
+            report("PC4037", "UDT-001", "type.enum.orderedComparison", expression.range);
+            return record(expression, primitive("BOOLEAN"));
+          }
           if (!areComparable(left, right)) {
             // 两边的类型都已经算出来了，不写进提示里等于让学生自己再推一遍。
             report("PC4002", "OP-003", "type.relation.incompatibleOperands", expression.range, "CAIE", {
@@ -185,6 +190,9 @@ export function check(program: Program, binding: BindResult, options: CheckOptio
           }
           return record(expression, primitive("INTEGER"));
         }
+        const enumOrdinalArithmetic = left.kind === "enum" && isPrimitive(right, "INTEGER")
+          && (expression.operator === "+" || expression.operator === "-");
+        if (enumOrdinalArithmetic) return record(expression, left);
         if (!isNumeric(left) || !isNumeric(right)) {
           if (left.kind !== "unknown" && right.kind !== "unknown") {
             // `"Hi " + Name` 是从别的语言带过来的写法：`+` 只做加法，接文字要用 `&`。

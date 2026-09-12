@@ -9,15 +9,15 @@
 
 <sub>§10.4｜约 9 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.boolean`、`literal.date`、`assign.simple`、`decl.constant`、`op.arithmetic`、`op.div`、`op.mod`、`op.relational`、`op.and`、`op.or`、`op.not`、`select.if`、`select.if-else`、`select.nested-if`、`select.case`、`select.case-range`、`select.case-otherwise`、`loop.for`、`loop.for-step`、`loop.while`、`loop.repeat`、`loop.nested`、`builtin.length`、`builtin.mid`、`builtin.right`、`builtin.ucase`、`builtin.lcase`、`op.concat`、`builtin.int`、`builtin.rand`、`decl.array-1d`、`array.index`、`decl.array-2d`、`array.index-2d`、`decl.record-type`、`record.field-access`、`routine.procedure`、`routine.call`、`param.byval`、`param.byref`、`routine.function`、`routine.return`、`expr.function-call`、`file.open-read`、`file.open-write`、`file.open-append`、`file.read`、`file.write`、`file.close`、`builtin.eof`</sub>
 
-数组和记录说的都是**怎么存**：几格、什么类型、怎么取。**抽象数据类型（abstract data type (ADT)）**换了个角度——它先说清**能对这批数据做哪几件事**，至于底下拿什么存，暂时不问。
+数组和记录说的都是**怎么存**：几格、什么类型、怎么取。**抽象数据类型（abstract data type, ADT）**换了个角度——它先说清**能对这批数据做哪几件事**，至于底下拿什么存，暂时不问。
 
 「抽象」的意思就是这个：**只承诺行为，不承诺存法**。和第 13 章的接口是同一个思路——知道要给什么、会还回什么就够用了，里面怎么写不必看。
 
-考纲要求认识三种：**栈（stack）**、**队列（queue）**、**链表（linked list）**。它们装的都是「一串数据」，区别全在规矩上——**从哪头进、从哪头出、怎么找到下一个**。
+最常见的三种是**栈（stack）**、**队列（queue）**和**链表（linked list）**，这一章讲的就是它们。三种装的都是「一串数据」，区别全在规矩上——**从哪头进、从哪头出、怎么找到下一个**。
 
-AS 阶段**不要求为这三种结构写伪代码**。要求的是三件事：说清各自的特点、在给定场景里挑一个并说明理由、**描述**怎么用数组把它们做出来。完整实现留到第 20 章。
+这一章不写它们的伪代码实现，只做三件事：说清各自的特点、在给定场景里挑一个并说得出理由、**描述**怎么用数组把它们做出来。每一种都会讲怎么往里添一个、怎么改掉里面的一个、怎么去掉一个。完整实现留到第 20 章。
 
-> **规则**（CAIE 规定）　考纲原话：ADT 是一批数据加上定义在这批数据上的一组操作；栈、队列、链表都是 ADT 的例子；**不要求为这些结构写伪代码**，但要能往里面添加、修改、删除数据（§10.4）。
+> **规则**（CAIE 规定）　ADT 是一批数据，加上定义在这批数据上的一组操作；栈、队列、链表都是 ADT 的例子。要会往里面添加、修改、删除数据，但不需要为这些结构写出伪代码实现（§10.4）。
 
 **对照：说存法，还是说做法**
 
@@ -184,13 +184,15 @@ Cal
 
 <sub>§10.4｜约 10 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.boolean`、`literal.date`、`assign.simple`、`decl.constant`、`op.arithmetic`、`op.div`、`op.mod`、`op.relational`、`op.and`、`op.or`、`op.not`、`select.if`、`select.if-else`、`select.nested-if`、`select.case`、`select.case-range`、`select.case-otherwise`、`loop.for`、`loop.for-step`、`loop.while`、`loop.repeat`、`loop.nested`、`builtin.length`、`builtin.mid`、`builtin.right`、`builtin.ucase`、`builtin.lcase`、`op.concat`、`builtin.int`、`builtin.rand`、`decl.array-1d`、`array.index`、`decl.array-2d`、`array.index-2d`、`decl.record-type`、`record.field-access`、`routine.procedure`、`routine.call`、`param.byval`、`param.byref`、`routine.function`、`routine.return`、`expr.function-call`、`file.open-read`、`file.open-write`、`file.open-append`、`file.read`、`file.write`、`file.close`、`builtin.eof`</sub>
 
-考纲要求你能**描述**怎么用数组把这三种结构做出来——描述，不是写出完整实现。三种的套路是同一个：**一个数组装数据，外加一两个整数变量记位置**。
+这三种结构底下都可以用数组做出来，能**描述**清楚就够了，不用写出完整实现。三种的套路是同一个：**一个数组装数据，外加一两个整数变量记位置**。
 
 **栈**：一个数组 + 一个 `Top`，记着栈顶在第几格。放一个就是 `Top` 加一再往那格写，取一个就是先读那格再把 `Top` 减一。`Top` 是 0 表示空栈，`Top` 等于上界表示满了。
 
 **队列**：一个数组 + `Front` 和 `Rear` 两个位置。出队时 `Front` 往后挪，入队时 `Rear` 往后挪。两个都只朝一个方向走，所以走到数组尽头就得从头绕回来——那叫环形队列，第 20 章讲。
 
 **链表**：数据放一个数组，「下一个在哪儿」放另一个数组（或者做成记录数组的一个字段），再加一个变量记着第一个节点在第几格。**这里存的「下一个在哪儿」是数组下标，不是内存地址。**
+
+**改掉里面已有的一个**，三种的做法不一样，而且都不需要搬动别的数据。栈只碰得到栈顶，要改更深的那个就得先把上面的全部 pop 出来、改完再 push 回去；队列只能改队头，或者从 `Front` 走到 `Rear` 逐个找到要改的那一个；链表顺着「下一个在哪儿」走到那个节点，直接改它的数据格——**「下一个在哪儿」一个都不用动，因为链子的形状没变**。这和插入、删除正好是一对照：插删改的是链接，修改只改数据。
 
 > **规则**（CAIE 规定）　考纲原话是 `Content under development`——只要求描述（§10.4）。
 
@@ -276,13 +278,11 @@ Front is 2, Rear is 3
 
 挑结构的判据就一句话：**这批数据要按什么顺序取出来？**按相反顺序取 → 栈；按到达顺序取 → 队列；按编号直接取 → 数组；顺序常变、经常在中间插删 → 链表。
 
-考纲要求的不只是挑对，还要**说得出理由**。理由要落在「这个场景里数据是怎么进、怎么出的」上——「因为撤销要从最近一次开始退」是理由，「因为栈比较快」不是。
+挑对还不够，还要**说得出理由**。理由要落在「这个场景里数据是怎么进、怎么出的」上——「因为撤销要从最近一次开始退」是理由，「因为栈比较快」不是。
 
-挑错了不会立刻出错，这是最容易忽略的一点。拿数组硬做一个队列也跑得动，只是每次出队都要把后面的人全挪一格；数据一多就慢，而且多出来的搬运代码全是出错的机会。
+挑错了不会立刻出错，这是最容易忽略的一点。拿数组硬做一个队列也跑得动，只是每次出队都要把后面的人全挪一格；数据一多就慢，而且多出来的搬运代码全是出错的机会。反过来说，**结构挑对了，代码就不用做多余的搬运**——这和第 9 章「形状对上了就不用做换算」、第 11 章「绑成一份就拆不散」是同一件事的三种说法。
 
-**结构挑对了，代码就不用做多余的搬运**——这和第 9 章「形状对上了就不用做换算」、第 11 章「绑成一份就拆不散」是同一件事的三种说法。
-
-> **规则**（CAIE 规定）　考纲要求为给定场景说明选择某种 ADT 的理由（§10.4）。
+> **规则**（CAIE 规定）　选用某一种 ADT 时要能说明理由，理由来自这个场景本身的取用顺序（§10.4）。
 
 **关卡**（single-choice）　一个程序要记下用户做过的每一步操作，好让「撤销」按钮一次退回一步。该用哪种结构？
 
