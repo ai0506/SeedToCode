@@ -107,7 +107,7 @@
     */
    function holdNotice() {
       var hold = ENGINE.pendingHold();
-      if (!hold || hold.asked) return "";
+      if (!hold) return "";
       var parts = [];
       if (hold.projects) parts.push(hold.projects + " 个项目");
       if (hold.progress) parts.push(hold.progress + " 节已完成");
@@ -115,12 +115,22 @@
       if (!parts.length) return "";
       var summary = escapeHtml(parts.join("、"));
       if (!hold.fromGuest) {
-         return '<p class="account-meta">这台设备上有上一位登录用户留下的内容（' + summary +
-            "），不会并入你的账号，也不会被删除。</p><hr>";
+         /* 默认不并，但必须给一条出口：使用者可能就是在这台设备上接着用那个项目。
+            出口只到项目为止——完成进度不给并，理由见 ENGINE.adoptHeldProjects 的注释。 */
+         var body = '<p class="account-meta">这台设备上有上一位登录用户留下的内容（' + summary +
+            "），默认不并入你的账号，也不会被删除。</p>";
+         if (!hold.projects) return body + "<hr>";
+         return body +
+            '<p class="account-meta">其中的项目如果其实是你自己的，可以并进来——只并项目文件，已完成的章节不会记到你名下。</p>' +
+            '<div class="account-actions">' +
+            (hold.asked ? "" : '<button class="btn btn-ghost small fixed-btn" data-account-action="keepOut">知道了</button>') +
+            '<button class="btn btn-primary small fixed-btn" data-account-action="adoptProjects">并入项目</button>' +
+            "</div><hr>";
       }
-      return '<p class="account-meta">这台设备上有未登录时留下的内容（' + summary + "）。要并入这个账号吗？</p>" +
+      return '<p class="account-meta">这台设备上有未登录时留下的内容（' + summary +
+         (hold.asked ? "），只留在本机，没有并入这个账号。</p>" : "）。要并入这个账号吗？</p>") +
          '<div class="account-actions">' +
-         '<button class="btn btn-ghost small fixed-btn" data-account-action="keepOut">不并入</button>' +
+         (hold.asked ? "" : '<button class="btn btn-ghost small fixed-btn" data-account-action="keepOut">不并入</button>') +
          '<button class="btn btn-primary small fixed-btn" data-account-action="adopt">并入</button>' +
          "</div><hr>";
    }
@@ -217,21 +227,57 @@
     * 换到 B 登录同一账号却是旧内容，两边点同步按钮都没反应——因为 A 那份从头到尾
     * 就没上传过。状态可以说「还没同步」，但不能说「已同步」。
     */
-   function unadoptedHold() {
+   function heldContent() {
       var hold = ENGINE.pendingHold && ENGINE.pendingHold();
-      return hold && hold.fromGuest && !hold.asked ? hold : null;
+      if (!hold) return null;
+      // 刚登录、还没盘点完时各项都是 0，那不叫「有内容没并入」，不能拿它吓人。
+      return hold.projects || hold.progress || hold.drafts ? hold : null;
    }
 
-   function statusText(status) {
+   /* 还没被使用者处理过的挂起。两种来源都算：
+      未登录时攒下的可以并入，上一位用户留下的可以「并入项目」或「知道了」。
+      早先这里只认第一种，于是第二种既不变琥珀色、状态行也照说「已同步」。 */
+   function unresolvedHold() {
+      var hold = heldContent();
+      return hold && !hold.asked ? hold : null;
+   }
+
+   /*
+    * `long` 为真时给完整的一句（按钮 tooltip 用，宽度不受限）；
+    * 为假时给短句（浮层底部那一行只有十来个字的位置）。
+    * 两处必须说同一件事，只是详略不同。
+    */
+   function statusText(status, long) {
       if (!status) return "";
       if (status.state === "offline") return "网络暂时不可用，恢复后会自动重试。";
       if (status.state === "paused") return "同步已暂停，重新登录后继续。";
-      if (unadoptedHold()) return "这台设备上的内容还没并入这个账号，点开账户处理一下。";
+      /* 这一行在浮层底部和两个按钮挤一行，宽度只够十来个字（`.account-status-line`
+         定宽加省略号）。所以这里只写得下一句短话，完整的说明在上面那块 holdNotice，
+         按钮上的 tooltip 也带着同一句——两处都不受这个宽度限制。 */
+      var unresolved = unresolvedHold();
+      if (unresolved) {
+         if (!long) return "有内容没并入。";
+         return unresolved.fromGuest
+            ? "这台设备上的内容还没并入这个账号，点开账户处理一下。"
+            : "这台设备上有上一位用户留下的内容没有并入，点开账户看一下。";
+      }
       if (status.pending) return status.state === "syncing" ? "正在同步 " + status.pending + " 项改动…" : "有 " + status.pending + " 项改动待同步。";
       if (status.state === "syncing") return "正在同步…";
+      /* 被 block 的操作是**已经从队列里拿掉**的——重名、文件过大这类重试一百次
+         也还是同样结果。所以不能落到下面那句「稍后会重试」：那是空头承诺，
+         而使用者会因此一直等一件永远不会发生的事。具体哪几项列在上面的 blocked 里。 */
+      if (status.blocked && status.blocked.length) {
+         return long
+            ? "有 " + status.blocked.length + " 项没能同步，不会自动重试；本地内容没有丢。"
+            : "有 " + status.blocked.length + " 项没能同步。";
+      }
       if (status.lastError && status.lastError.tooLarge) return "文件过大，这一项没有同步。";
       if (status.lastError) return "上一次同步没有成功，稍后会重试。";
-      return status.lastPullAt ? "已同步。" : "已登录。";
+      /* 使用者已经选过「不并入 / 知道了」之后仍然不能说「已同步」：那些内容确实
+         还在这台设备上、确实没进这个账号。说清楚是哪一部分没进，才不算撒谎。 */
+      var held = heldContent();
+      var tail = held ? (long ? "；这台设备上还有内容没有并入这个账号。" : "，部分在本机。") : "。";
+      return status.lastPullAt ? "已同步" + tail : "已登录" + tail;
    }
 
    function refreshStatusLine() {
@@ -298,12 +344,12 @@
       }
       /* 有内容等着决定并不并入时，按钮要看得出来——否则用户没理由点开账户浮层，
          而那句「要并入吗」只在浮层里。 */
-      var state = unadoptedHold() ? "attention"
+      var state = unresolvedHold() ? "attention"
          : status && (status.state === "syncing" || status.pending) ? "syncing"
          : status && status.state === "offline" ? "offline" : "in";
       button.dataset.state = state;
       button.querySelector(".account-btn-text").textContent = AUTH.label();
-      button.setAttribute("data-tip", AUTH.roleLabel() + " · " + statusText(status));
+      button.setAttribute("data-tip", AUTH.roleLabel() + " · " + statusText(status, true));
    }
 
    /*
@@ -367,14 +413,22 @@
 
    var ACTIONS = {
       goLogin: function () { goToLogin(); },
-      adopt: function () {
-         if (ENGINE.adoptLocalData()) note("已并入，正在同步。", "ok");
+      /* 三个 handler 都是「先重画，再写提示」：renderPanel 重建整块 innerHTML，
+         反过来写的话那条提示会被立刻抹掉——原来的 adopt/keepOut 就是这个顺序。 */
+      adoptProjects: function () {
+         var done = ENGINE.adoptHeldProjects && ENGINE.adoptHeldProjects();
          renderPanel();
+         if (done) note("已并入项目，正在同步。", "ok");
+      },
+      adopt: function () {
+         var done = ENGINE.adoptLocalData();
+         renderPanel();
+         if (done) note("已并入，正在同步。", "ok");
       },
       keepOut: function () {
          ENGINE.keepLocalDataOut();
-         note("这些内容只留在本机。", "ok");
          renderPanel();
+         note("这些内容只留在本机。", "ok");
       },
       syncNow: function () {
          ENGINE.start();

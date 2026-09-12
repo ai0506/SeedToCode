@@ -1101,6 +1101,32 @@ var status = { state: "idle", pending: 0, blocked: [], lastPullAt: 0, lastError:
          schedule(300);
          return true;
       },
+      /**
+       * 只把挂起的**项目文件**并入当前账号，已完成进度和题目草稿仍然挂起。
+       *
+       * 换人登录留下的内容默认不并——那通常是别人的东西。但「默认」不等于「没有出口」：
+       * 使用者在这台设备上登录自己的账号、打开那个项目、一直在改，那份内容此刻就是他的，
+       * 而原来的实现没有任何办法让它进账号，界面还一直说「已同步」。
+       *
+       * 允许并入项目、不允许并入完成进度，是因为两者的代价不对称：项目是一份文件，
+       * 并错了可以删；完成进度是单调的，一旦记进账号就撤不回来，老师那边还看得见。
+       * 所以这里只清项目侧的挂起，`needsTeaching` 原样留着，教学那一半照旧盘点并挂起。
+       *
+       * `needsProjects` 一并置否：既然使用者已经声明这台设备上的项目归他，
+       * 就不该在下一次盘点时又把它们挂起来。
+       */
+      adoptHeldProjects: function () {
+         if (!meta.hold) return false;
+         if (!meta.hold.needsProjects && !Object.keys(meta.hold.projects).length) return false;
+         meta.hold.needsProjects = false;
+         meta.hold.projects = {};
+         meta.hold.files = {};
+         meta.hold.asked = true;
+         saveMeta();
+         syncLocalProjects();
+         schedule(300);
+         return true;
+      },
       /** 不并入：本地内容原样留着，只是永远不进这个账号。 */
       keepLocalDataOut: function () {
          if (!meta.hold) return;
