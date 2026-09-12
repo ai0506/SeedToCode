@@ -30,7 +30,7 @@
 
    /*
     * 判断当前在哪一页。两种形状都要认：线上地址栏是无后缀的 `/teacher`，
-    * 而双击本地文件时是 `.../web/teacher.html`。
+    * 而双击本地文件时是 `.../web/classes.html`。
     */
    function onPage(name) {
       var last = window.location.pathname.split("/").pop() || "";
@@ -77,21 +77,11 @@
       );
    }
 
-   /* 班级面板只对老师出现，而且只是一条链接——不给学生和游客多一个按钮。
-      已经在那一页时不再重复给入口。 */
-   function teacherLink() {
-      var user = AUTH.user();
-      if (!user || user.role !== "teacher") return "";
-      if (onPage("teacher")) return "";
-      return '<div class="account-row"><a class="btn btn-ghost small fixed-btn wide" href="teacher.html">班级面板</a></div><hr>';
-   }
-
    function renderSignedIn() {
       return (
          '<div class="account-identity">' + escapeHtml(AUTH.label()) + "</div>" +
          '<div class="account-meta">' + escapeHtml(AUTH.roleLabel()) + "</div>" +
          "<hr>" +
-         teacherLink() +
          '<div data-account-assignments></div>' +
          holdNotice() +
          '<ul class="account-blocked" data-account-blocked hidden></ul>' +
@@ -204,7 +194,7 @@
    function renderUnconfigured() {
       return (
          "<h4>云端功能暂未连接</h4>" +
-         '<p class="account-meta">当前站点没有可用的云端接口，登录、跨设备同步和云端运行都无法使用。' +
+         '<p class="account-meta">这里暂时用不了账号功能，登录、跨设备继续和云端运行都不可用。' +
          "本地编辑、保存、学习、做题和本地运行不受影响。</p>"
       );
    }
@@ -328,6 +318,15 @@
          ENGINE.start();
          void ENGINE.pull();
          note("已开始同步。", "ok");
+      },
+      logout: function () {
+         void guard(async function () {
+            await CLIENT.logout();
+            close();
+            renderPanel();
+            refreshButton(ENGINE.status());
+            note("已退出登录。", "ok");
+         }, "正在退出…");
       }
    };
 
@@ -348,28 +347,67 @@
          await CLIENT.verifyEmailToken(token);
          return true;
       } catch (error) {
+         /* 以前这里一声不吭地 return false：人点了邮件里的「验证」，落到编辑器，
+            成功和失败长得一模一样，只能自己猜。链接 15 分钟过期、而且一次性，
+            过期是常事——送回登录页，把原因说清楚。 */
+         if (error && error.code === "OFFLINE") return false;
+         window.location.replace("login.html?verify=expired");
          return false;
       }
    }
 
-   /* ---------------- 装配 ---------------- */
+
+   /* ---------------- 主导航 ---------------- */
 
    /*
-    * 学生的作业入口放顶栏，不放浮层里。
-    * 老师有「班级面板」，学生对应的就是「作业」——藏在浮层里等于没有。
-    * 只对学生出现；游客和老师的顶栏一个按钮都不多。
+    * 四个一级目的地。以前它们是散在各页顶栏右侧的普通链接，和「运行」「语法检测」
+    * 这些「对当前内容做什么」的控件混在一条线上，顺序纯属历史堆积；老师的班级入口
+    * 更是埋在账户浮层里两层深。
+    *
+    * 现在统一成品牌右边的一组分段控件：左边回答「去哪儿」，右边只留「对这份东西做
+    * 什么」。当前页是浮起来的那一枚，而且渲染成 span 不是 a——点它没反应，比点它
+    * 重新加载一遍诚实。
+    *
+    * 做题页（task / custom-task）不放这组：它们是沉浸式子页，左上角的「‹ 返回课文」
+    * 「‹ 我的作业」就是它们的导航，做题时不该再鼓励切走。
     */
-   function syncAssignmentEntry() {
-      var host = document.querySelector(".topbar-right");
+   var NAV_FIXED = [
+      { id: "lab", label: "实验室", href: "lab.html" },
+      { id: "learn", label: "学习", href: "learn.html" }
+   ];
+   var NAV_BY_ROLE = {
+      student: { id: "assignments", label: "作业", href: "assignments.html" },
+      teacher: { id: "classes", label: "班级", href: "classes.html" }
+   };
+
+   function navItemHtml(item, current) {
+      if (item.id === current) {
+         return '<span class="topnav-item is-current" aria-current="page">' + escapeHtml(item.label) + "</span>";
+      }
+      return '<a class="topnav-item" href="' + item.href + '">' + escapeHtml(item.label) + "</a>";
+   }
+
+   function renderNav() {
+      var host = document.getElementById("topNav");
       if (!host) return;
       var user = AUTH.user();
-      var wanted = Boolean(user && user.role === "student") && !onPage("assignments");
-      var existing = document.getElementById("assignmentEntry");
-      if (!wanted) { if (existing) existing.remove(); return; }
-      if (existing) return;
-      var link = el('<a class="btn btn-ghost fixed-btn wide" id="assignmentEntry" href="assignments.html" data-tip="老师布置的作业">作业</a>');
-      host.insertBefore(link, host.firstChild);
+      var role = user ? NAV_BY_ROLE[user.role] : null;
+      var current = ["lab", "learn", "assignments", "classes"].filter(onPage)[0] || "";
+
+      /* 身份相关的那一枚（作业 / 班级）是登录之后才知道的。空着不画的话，
+         /auth/me 一回来整条顶栏就会往右挪一截。所以槽位常驻：没有对应身份时
+         放一枚同样宽度的隐形项（「作业」和「班级」都是两个字，宽度天然一致）。 */
+      var roleHtml = role
+         ? navItemHtml(role, current)
+         : '<span class="topnav-item is-blank" aria-hidden="true">作业</span>';
+
+      var next = '<span class="topnav-sep" aria-hidden="true"></span><div class="topnav-group">' +
+         NAV_FIXED.map(function (item) { return navItemHtml(item, current); }).join("") +
+         roleHtml + "</div>";
+      if (host.innerHTML !== next) host.innerHTML = next;
    }
+
+   /* ---------------- 装配 ---------------- */
 
    function mount() {
       var host = document.querySelector(".topbar-right");
@@ -383,10 +421,9 @@
       panel = el('<div class="account-panel" id="accountPanel" hidden></div>');
       root.appendChild(button);
       root.appendChild(panel);
-      // 放在「更多 ▾」之前；没有更多菜单的页面就挂到最后。
-      var menuWrap = host.querySelector(".menu-wrap");
-      if (menuWrap) host.insertBefore(root, menuWrap);
-      else host.appendChild(root);
+      // 永远挂到最右：顶栏右侧从左到右是「状态 → 主操作 → 更多 → 我是谁」，
+      // 身份在最末是全站惯例，其他页面本来就是这个位置。
+      host.appendChild(root);
 
       button.addEventListener("click", function (event) {
          event.stopPropagation();
@@ -403,11 +440,11 @@
          if (!event.target.closest(".account-wrap")) close();
       });
 
-      AUTH.subscribe(function () { syncAssignmentEntry(); if (!panel.hidden) renderPanel(); refreshButton(ENGINE.status()); });
+      AUTH.subscribe(function () { renderNav(); if (!panel.hidden) renderPanel(); refreshButton(ENGINE.status()); });
       CLIENT.subscribe(function () { if (!panel.hidden) renderPanel(); refreshButton(ENGINE.status()); });
       ENGINE.onStatus(function () { if (!panel.hidden) refreshStatusLine(); else refreshButton(ENGINE.status()); });
       QUEUE.subscribe(function () { if (!panel.hidden) refreshStatusLine(); });
-      syncAssignmentEntry();
+      renderNav();
       refreshButton(ENGINE.status());
    }
 
@@ -416,7 +453,7 @@
       if (!CLIENT.available()) { refreshButton(null); return; }
       var verified = await consumeAuthTokenFromUrl();
       if (!verified) await CLIENT.restore();
-      syncAssignmentEntry();
+      renderNav();
       refreshButton(ENGINE.status());
       if (AUTH.isSignedIn()) {
          // 只有登录之后才启动队列和同步；游客这两个模块完全不跑。

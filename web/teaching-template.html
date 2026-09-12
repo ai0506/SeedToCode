@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="SeedToCode_favicon.png">
 <title>教学页版式参照 · CAIE 9618</title>
-<link rel="stylesheet" href="css/styles.css?v=23">
+<link rel="stylesheet" href="css/styles.css?v=25">
 <link rel="stylesheet" href="css/teaching.css?v=15">
 </head>
 <body>
 
 <!--
    版式参照页。
-   它和真实教学页 teaching.html 用的是**同一个渲染器** js/teaching-app.js，
+   它和真实教学页 learn.html 用的是**同一个渲染器** js/teaching-app.js，
    区别只在于这里喂给它的是一份占位数据（见页面底部的 PLACEHOLDER_COURSE）。
    这样版式不会和实际页面走样，也不需要维护两份 HTML。
 
@@ -51,7 +52,7 @@
          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
          <span class="progress-num" id="progressNum">0/0</span>
       </div>
-      <a class="btn btn-ghost fixed-btn wide" href="teaching.html">真实页面</a>
+      <a class="btn btn-ghost fixed-btn wide" href="learn.html">真实页面</a>
    </div>
 </header>
 
@@ -68,7 +69,7 @@
          <div id="tocChapters"></div>
       </div>
       <div class="toc-foot">
-         <p class="muted small" style="margin:0">这一页的内容全部是占位。<br>真实内容见 teaching.html。</p>
+         <p class="muted small" style="margin:0">这一页的内容全部是占位。<br>真实内容见 learn.html。</p>
       </div>
    </aside>
 
@@ -103,7 +104,7 @@
 <script src="js/language-engine.js?v=12"></script>
 <script src="js/language-adapter.js?v=9"></script>
 <script src="js/runtime-engine.js?v=10"></script>
-<script src="js/runtime-messages.js?v=3"></script>
+<script src="js/runtime-messages.js?v=4"></script>
 <script src="js/exercise-engine.js?v=17"></script>
 <script>
 /* 占位数据。结构与 packages/teaching-content 完全一致，只是内容是【占位】。
@@ -301,6 +302,6 @@ window.CAIETeaching = {
 };
 </script>
 <script src="js/teaching-task.js?v=11"></script>
-<script src="js/teaching-app.js?v=27"></script>
+<script src="js/teaching-app.js?v=30"></script>
 </body>
 </html>

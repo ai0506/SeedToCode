@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="SeedToCode_favicon.png">
 <title>做题 · CAIE 9618 伪代码</title>
-<link rel="stylesheet" href="css/styles.css?v=23">
+<link rel="stylesheet" href="css/styles.css?v=25">
 <link rel="stylesheet" href="css/teaching.css?v=15">
 <link rel="stylesheet" href="css/task.css?v=5">
 <link rel="stylesheet" href="css/account.css?v=1">
@@ -20,10 +21,13 @@
 
 <header class="topbar">
    <div class="topbar-left">
-      <a class="btn btn-ghost" id="backToLesson" href="teaching.html">‹ 返回课文</a>
-      <div class="brand-block">
-         <span class="brand">SeedToCode<span class="brand-dim">Learn</span></span>
-         <span class="brand-tag">Based on CAIE 9618</span>
+      <a class="btn btn-ghost" id="backToLesson" href="learn.html">‹ 返回课文</a>
+      <div class="brand-lockup">
+         <img class="brand-logo" src="SeedToCode_favicon.png" alt="SeedToCode" width="26" height="26">
+         <div class="brand-block">
+            <span class="brand">SeedToCode</span>
+            <span class="brand-tag">Based on CAIE 9618</span>
+         </div>
       </div>
    </div>
 
@@ -37,7 +41,7 @@
    <div class="topbar-right">
       <span class="assignment-slot" data-assignment-slot hidden></span>
       <span class="task-state-slot" id="taskState" data-state="todo"></span>
-      <a class="btn btn-ghost fixed-btn wide" href="index.html">编辑器</a>
+      <a class="btn btn-ghost fixed-btn wide" href="lab.html">实验室</a>
    </div>
 </header>
 
@@ -72,7 +76,7 @@
 <div class="task-missing" id="missing" hidden>
    <h1>没有找到这道题</h1>
    <p class="muted">链接里的题号在当前课程数据里不存在。回到课文，从小节里的入口重新进来。</p>
-   <p><a class="btn btn-primary" href="teaching.html">回到课文</a></p>
+   <p><a class="btn btn-primary" href="learn.html">回到课文</a></p>
 </div>
 
 <footer class="statusbar">
@@ -92,18 +96,18 @@
 <script src="js/language-engine.js?v=12"></script>
 <script src="js/language-adapter.js?v=9"></script>
 <script src="js/runtime-engine.js?v=10"></script>
-<script src="js/runtime-messages.js?v=3"></script>
+<script src="js/runtime-messages.js?v=4"></script>
 <script src="js/exercise-engine.js?v=17"></script>
 <script src="js/teaching-content.js?v=23"></script>
 <script src="js/tooltip.js?v=1"></script>
 <script src="js/storage.js?v=2"></script>
 <script src="js/auth-store.js?v=1"></script>
-<script src="js/cloud-client.js?v=1"></script>
+<script src="js/cloud-client.js?v=4"></script>
 <script src="js/sync-queue.js?v=1"></script>
 <script src="js/sync-engine.js?v=1"></script>
 <script src="js/teaching-task.js?v=12"></script>
-<script src="js/task-page.js?v=4"></script>
-<script src="js/account-ui.js?v=1"></script>
+<script src="js/task-page.js?v=3"></script>
+<script src="js/account-ui.js?v=6"></script>
 <div class="tooltip" id="tooltip" hidden></div>
 </body>
 </html>

@@ -66,17 +66,21 @@ async function proxy(request, response, url) {
 }
 
 async function serveStatic(response, pathname) {
-  const relative = normalize(pathname === "/" ? "/index.html" : pathname).replace(/^(\.\.[/\\])+/, "");
+  const relative = normalize(pathname === "/" ? "/lab.html" : pathname).replace(/^(\.\.[/\\])+/, "");
   const file = join(ROOT, relative);
   if (!file.startsWith(ROOT)) { response.writeHead(403).end(); return; }
-  try {
-    const body = await readFile(file);
-    response.writeHead(200, { "content-type": TYPES[extname(file)] || "application/octet-stream", "cache-control": "no-store" });
-    response.end(body);
-  } catch {
-    response.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
-    response.end("Not found");
+  // 线上地址栏是无后缀的（/lab、/learn、/classes），本机也认这种形状
+  const candidates = extname(file) ? [file] : [file, file + ".html"];
+  for (const candidate of candidates) {
+    try {
+      const body = await readFile(candidate);
+      response.writeHead(200, { "content-type": TYPES[extname(candidate)] || "application/octet-stream", "cache-control": "no-store" });
+      response.end(body);
+      return;
+    } catch { /* 试下一个形状 */ }
   }
+  response.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+  response.end("Not found");
 }
 
 createServer((request, response) => {

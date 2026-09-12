@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>学习 · CAIE 9618 伪代码</title>
-<link rel="stylesheet" href="css/styles.css?v=23">
+<link rel="icon" type="image/png" href="SeedToCode_favicon.png">
+<title>学习 · SeedToCode</title>
+<link rel="stylesheet" href="css/styles.css?v=25">
 <link rel="stylesheet" href="css/teaching.css?v=15">
 <link rel="stylesheet" href="css/account.css?v=1">
 </head>
@@ -23,10 +24,14 @@
             <line x1="6.5" y1="2.5" x2="6.5" y2="13.5"></line>
          </svg>
       </button>
-      <div class="brand-block">
-         <span class="brand">SeedToCode<span class="brand-dim">Learn</span></span>
-         <span class="brand-tag">Based on CAIE 9618</span>
+      <div class="brand-lockup">
+         <img class="brand-logo" src="SeedToCode_favicon.png" alt="SeedToCode" width="26" height="26">
+         <div class="brand-block">
+            <span class="brand">SeedToCode</span>
+            <span class="brand-tag">Based on CAIE 9618</span>
+         </div>
       </div>
+      <nav class="topnav" id="topNav" aria-label="主导航"></nav>
    </div>
 
    <div class="topbar-center">
@@ -37,17 +42,10 @@
    </div>
 
    <div class="topbar-right">
-      <div class="switch-field" data-tip="在每个内容块右上角显示内容类型">
-         <button class="switch-ctl" id="elLabelToggle" role="switch" aria-checked="false" aria-label="显示内容类型">
-            <span class="switch-track"><span class="switch-thumb"></span></span>
-         </button>
-         <span class="switch-label">内容类型</span>
-      </div>
       <div class="progress-slot" data-tip="本章完成度">
          <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
          <span class="progress-num" id="progressNum">0/0</span>
       </div>
-      <a class="btn btn-ghost fixed-btn wide" href="index.html">编辑器</a>
    </div>
 </header>
 
@@ -99,18 +97,18 @@
 <script src="js/language-engine.js?v=12"></script>
 <script src="js/language-adapter.js?v=9"></script>
 <script src="js/runtime-engine.js?v=10"></script>
-<script src="js/runtime-messages.js?v=3"></script>
+<script src="js/runtime-messages.js?v=4"></script>
 <script src="js/exercise-engine.js?v=17"></script>
 <script src="js/teaching-content.js?v=23"></script>
 <script src="js/tooltip.js?v=1"></script>
 <script src="js/storage.js?v=2"></script>
 <script src="js/auth-store.js?v=1"></script>
-<script src="js/cloud-client.js?v=1"></script>
+<script src="js/cloud-client.js?v=4"></script>
 <script src="js/sync-queue.js?v=1"></script>
 <script src="js/sync-engine.js?v=1"></script>
 <script src="js/teaching-task.js?v=12"></script>
-<script src="js/teaching-app.js?v=28"></script>
-<script src="js/account-ui.js?v=1"></script>
+<script src="js/teaching-app.js?v=30"></script>
+<script src="js/account-ui.js?v=6"></script>
 <div class="tooltip" id="tooltip" hidden></div>
 </body>
 </html>

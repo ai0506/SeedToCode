@@ -3,3 +3,6 @@ packages/*/dist/
 .DS_Store
 server/.wrangler/
 server/node_modules/
+
+# 本机 wrangler dev 的环境变量，只在本地生效，不入库
+server/.dev.vars

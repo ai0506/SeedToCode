@@ -141,7 +141,7 @@
    async function boot() {
       if (!CLIENT.available()) {
          gate("云端功能暂未连接", "作业需要连接云端才能查看。编辑器、课程和做题都不受影响。",
-            [{ label: "去学习", primary: true, href: "teaching.html" }]);
+            [{ label: "去学习", primary: true, href: "learn.html" }]);
          return;
       }
       await CLIENT.restore();
@@ -152,7 +152,7 @@
       }
       if (AUTH.user().role !== "student") {
          gate("这一页是给学生的", "当前登录的是" + AUTH.roleLabel() + "。老师在班级面板里布置和批改作业。",
-            [{ label: "班级面板", primary: true, href: "teacher.html" }]);
+            [{ label: "班级面板", primary: true, href: "classes.html" }]);
          return;
       }
 

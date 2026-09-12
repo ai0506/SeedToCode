@@ -12,7 +12,7 @@
 - 本地优先：编辑、教学、做题和本地运行不依赖后端；登录后可选接入云端同步、云端运行和班级教学。
 - 支持多个本地项目；每个项目独立保存代码文件和运行时虚拟文件，项目入口位于编辑器左侧栏顶部。
 - 本地存储正在从旧版 `localStorage` blob 迁移到 `CAIEStorage` + IndexedDB entity 模型；旧用户数据会保留并迁移，页面仍通过兼容快照读取。
-- 页面已接入认证、个人项目同步、云端运行、教学进度/草稿同步、老师面板、学生作业页和自出题作业；服务端已部署到 Cloudflare Workers 并绑定远端 D1，生产邮箱登录仍待配置。
+- 页面已接入认证、个人项目同步、云端运行、教学进度/草稿同步、老师面板、学生作业页和自出题作业；老师/个人学习者首次注册验证邮箱，之后使用邮箱密码登录；服务端已部署到 Cloudflare Workers 并绑定远端 D1，生产邮箱验证仍待配置。
 
 ## 快速开始
 
@@ -21,7 +21,7 @@ npm install
 npm test
 ```
 
-直接打开 `web/index.html` 可以使用编辑器。需要通过本地 HTTP 服务预览网页时：
+直接打开 `web/lab.html` 可以使用编辑器。需要通过本地 HTTP 服务预览网页时：
 
 ```bash
 python3 -m http.server 8777 --directory web
@@ -54,10 +54,10 @@ npm test
 | `packages/test-cases` | 结构化验收语料 |
 | `packages/teaching-content` | 课程章节、题目、参考解、期望输出和浏览器发布数据 |
 | `server/` | Cloudflare Worker 入口、D1 migrations 和后端 API（本地开发与线上部署配置） |
-| `web/index.html` | 主编辑器页面 |
-| `web/teaching.html` | 教学课程页 |
+| `web/lab.html` | 实验室：主编辑器页面（线上 `/lab`，`/` 会 301 到这里） |
+| `web/learn.html` | 学习：教学课程页（线上 `/learn`） |
 | `web/task.html` | 独立做题页 |
-| `web/teacher.html` | 老师班级、学生、进度和作业面板 |
+| `web/classes.html` | 班级：老师的班级、学生、进度和作业面板（线上 `/classes`） |
 | `web/login.html` | 老师、个人学习者和学生的独立登录/激活页 |
 | `web/assignments.html` | 学生作业清单、提交状态、分数和评语 |
 | `web/custom-task.html` | 自出题作业的编辑、运行和提交页 |
@@ -99,6 +99,10 @@ CAIE 规定的语法和规则以以下资料为准：
 4. `LANGUAGE_SPEC.md`
 
 `web/js/caie-spec.js` 主要服务于界面高亮、模板和编辑辅助；网页诊断与运行使用由 `packages/language`、`packages/runtime` 构建的真实引擎。
+
+## 前端硬性规则
+
+`web/` 下所有页面必须满足 `FRONTEND_RULES.md` 的两条硬性要求：**界面稳定性**（一次交互只允许改变被操作对象自身，其他元素不得移动或改变尺寸）和**不使用浏览器原生交互界面**（`alert` / `confirm` / `prompt`、原生 `title` 悬浮文字、原生 `select` / 日期选择器 / 复选框等一律换成应用内组件）。该文件带检查清单和一段可直接粘进控制台的位移比对脚本，改动前端时按它逐项过。
 
 ## 说明
 
