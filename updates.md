@@ -378,3 +378,10 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 缓存版本：`styles.css?v=25`（8 个页面统一）、`account-ui.js?v=6`。
 验证：本机 `wrangler dev` 上按真实身份走了一遍——游客只看到「实验室 学习」，用 `newteacher@example.com` 登录后左边出现「班级」（一次点击可达，浮层里已无「班级面板」），建班级 + 建学生 + 用激活码激活成学生后左边出现「作业」；`/lab`、`/learn`、`/assignments`、`/classes` 四页的当前项各自高亮正确，点「学习」「班级」跳转正常。按 FRONTEND_RULES 文末的脚本做位移比对：悬停导航项前后比对 2082 个元素的 `getBoundingClientRect`，**零位移**。860px 窄屏下品牌文字让位、导航三项完整保留、无横向滚动。`npm test` 40 文件 567 项全绿，`server` 的 `tsc --noEmit` 通过。**尚未部署。**
 下一步（第 3 步）：把「语法检测」开关搬进「更多 → 设置」，顶栏只留可点的问题计数徽章。
+
+[ClaudeCode][2609121840] 合并并上线。`main` 合入 PR #1（两个 commit：一个收拢本次会话开始前就存在于工作区的改动，一个是本次会话的账户加固 + 登录页重做 + `FRONTEND_RULES.md` + 页面改名 + 顶栏主导航）。按你的意见，「语法检测」保留在顶栏，原计划的第 3 步取消。
+把 `server/.dev.vars` 加进 `.gitignore`——它此前是未跟踪状态，随时可能被 `git add -A` 带进库；内容只有 `ENVIRONMENT=development`，没有密钥，但不该入库。
+远端 D1 应用迁移 `0009_email_pending_password`（执行 3 条命令），`wrangler deploy` 上线（Version 363a98a4-9589-461b-9802-e5e810b16b3c，上传 17 个改动资源）。
+线上验证：`/`、`/index.html`、`/teaching(.html)`、`/teacher(.html)` 全部 301 到 `/lab`、`/learn`、`/classes`，`/?authToken=abc` 的 301 带着查询串；七个页面路径全部 200；`/lab` 的标题是「实验室 · SeedToCode」、资源版本 `styles.css?v=25` / `account-ui.js?v=6`、含 `id="topNav"`；`/learn` 已无 `brand-dim`（品牌后缀已去掉）。接口抽查：未验证账号登录返回 `EMAIL_NOT_VERIFIED`，探针账号已清理。
+**终于查到了之前查不了的那件事**：生产库里确实有一个「`role=teacher`、`status=active`、没有密码」的旧 magic-link 账号，另有 2 个同样没有密码的 learner 账号。也就是说上一轮那个「陌生人一次匿名请求就能把账号锁死、主人点了验证邮件还会被接管」的漏洞在线上是真实可触发的，影响 3 个账号；这次部署之前一直存在。这 3 个账号现在可以走「注册」给自己补一个密码——密码只有在点过他们自己邮箱里的链接之后才生效。
+顺带发现与文档订正：`wrangler secret list` 显示 `RESEND_API_KEY` / `EMAIL_FROM` / `APP_ORIGIN` 三个 secret **早就设好了**，而 `README.md` 和 `PROJECT_STATE.md` 一直写着「三个 secret 都没设」。但线上拿 `@example.com` 试注册返回的是 `EMAIL_DELIVERY_FAILED` 而不是 `EMAIL_NOT_CONFIGURED`，说明配置在、投递没成——可能是发件域未验证，也可能只是 `example.com` 本身不可投递，要用一个真实邮箱再测一次才能断定。两份文档已按事实改写，并补记一条：`sendVerificationLink()` 的抛出发生在 users/auth_tokens 写入之后，投递失败会留下一行 `pending_email` 用户和一条未消费 token（不影响任何人登录，重新注册会覆盖同一行并重发）。
