@@ -149,6 +149,7 @@ export async function deleteProject(db: D1Database, user: AuthenticatedUser, pro
     throw mutationError(caught, user);
   }
   await ensureMutationApplied(results[1], async () => conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(await projectById(db, projectId) ?? current)));
+  await reclaimProjectBytes(db, projectId);
   return { project: publicProject(await ownedProject(db, user, projectId, true)), idempotent: false };
 }
 
@@ -235,8 +236,15 @@ export async function deleteFile(db: D1Database, user: AuthenticatedUser, projec
     results = await db.batch([
       operationInsert(db, operationId, user.id, entity, now),
       db.prepare(
+        /*
+         * 连内容一起清空。tombstone 只需要「这个 id 被删过」这件事——拉取时
+         * 删除的文件本来就不返回 content（见 publicFile），也没有任何恢复接口。
+         * 留着内容的后果是：它仍然占着 D1 的真实字节，却因为配额统计排除了
+         * deleted_at 非空的行而不计入用量。传满→删掉→再传满可以无限循环，
+         * 账户空间上限等于不存在。
+         */
         `UPDATE project_files
-            SET deleted_at = ?1, updated_by_device = ?2, revision = revision + 1, updated_at = ?1
+            SET deleted_at = ?1, content = '', updated_by_device = ?2, revision = revision + 1, updated_at = ?1
           WHERE id = ?3 AND project_id = ?4 AND revision = ?5 AND deleted_at IS NULL`
       ).bind(now, deviceId, fileId, project.id, expectedRevision)
     ]);
@@ -245,6 +253,26 @@ export async function deleteFile(db: D1Database, user: AuthenticatedUser, projec
   }
   await ensureMutationApplied(results[1], async () => conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(await requiredFile(db, project.id, fileId), false)));
   return { file: publicFile(await requiredFile(db, project.id, fileId), false), idempotent: false };
+}
+
+/*
+ * 项目删除之后把它名下文件的内容清空。
+ *
+ * 为什么不放进删除那一批：`UPDATE project_files ... WHERE project_id = ?` 会**逐行**
+ * 触发 0011 的写入限流（`BEFORE UPDATE OF content`），删一个 200 文件的项目就要吃掉
+ * 200 次写配额；一旦撞上上限，触发器 ABORT 会把整个删除一起回滚——用户就再也删不掉
+ * 那个项目了。删除是用户要的结果，不能因为回收字节而失败。
+ *
+ * 所以放在删除成功之后，并且**尽力而为**：失败就让字节先留着，不往上抛。留下来的
+ * 那部分由 0012 那种一次性清理兜底。
+ */
+async function reclaimProjectBytes(db: D1Database, projectId: string): Promise<void> {
+  try {
+    await db.prepare("UPDATE project_files SET content = '' WHERE project_id = ?1 AND content <> ''")
+      .bind(projectId).run();
+  } catch {
+    // 回收失败不影响删除本身
+  }
 }
 
 function publicProject(project: ProjectRow) {
@@ -318,8 +346,21 @@ function operationInsert(db: D1Database, operationId: string, userId: string, en
   ).bind(operationId, userId, entity, now);
 }
 
+/*
+ * 这条语句到底改到目标行了没有。
+ *
+ * 判据是「至少改到一行」，**不能要求恰好等于 1**：0011 的写入限流触发器会在同一条
+ * 语句里再往 `service_rate_limits` 写一行，D1 把触发器造成的写入也算进 `meta.changes`，
+ * 于是每次 UPDATE 的 changes 都是 2。此前写成 `!== 1`，结果是**更新文件、删除文件、
+ * 重命名项目、删除项目全部返回假的 SYNC_CONFLICT**——写入其实已经生效，客户端却当成
+ * 冲突去建云端副本。
+ *
+ * 反过来，真冲突时一行都匹配不上：UPDATE 的 WHERE 带着 revision 守卫，没匹配到行
+ * 时 BEFORE UPDATE 触发器根本不会触发，changes 就是 0。所以 `< 1` 既挡得住真冲突，
+ * 又不会被触发器的额外写入误伤。
+ */
 async function ensureMutationApplied(result: D1Result<unknown>, onConflict: () => SyncError | Promise<SyncError>): Promise<void> {
-  if (!result.meta || result.meta.changes !== 1) throw await onConflict();
+  if (!result.meta || (result.meta.changes ?? 0) < 1) throw await onConflict();
 }
 
 async function checkProjectLimits(db: D1Database, projectId: string, current: FileRow | null, nextBytes: number): Promise<void> {
