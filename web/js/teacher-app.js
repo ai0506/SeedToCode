@@ -121,11 +121,17 @@
 
    /* ---------------- 门禁 ---------------- */
 
-   function gate(title, body) {
+   /* 门禁原来只有一段文字，一个出口都没有：走错的人只能自己想办法离开。
+      现在按当前身份给下一步。 */
+   function gate(title, body, actions) {
       $("teacherGate").hidden = false;
       $("teacherPanels").hidden = true;
       $("gateTitle").textContent = title;
       $("gateBody").textContent = body;
+      $("gateActions").innerHTML = (actions || []).map(function (action) {
+         return '<a class="btn ' + (action.primary ? "btn-primary" : "btn-ghost") + ' fixed-btn wide" href="' +
+            esc(action.href) + '">' + esc(action.label) + "</a>";
+      }).join("");
       $("classList").innerHTML = "";
       $("newClassBtn").disabled = true;
       $("refreshBtn").disabled = true;
@@ -140,15 +146,23 @@
 
    function checkAccess() {
       if (!CLIENT.available()) {
-         gate("云端功能暂未连接", "这里暂时用不了账号功能，班级、学生和提交记录都读不出来。编辑器、课程和本地运行不受影响。");
+         gate("云端功能暂未连接", "这里暂时用不了账号功能，班级、学生和提交记录都读不出来。实验室、课程和本地运行不受影响。",
+            [{ label: "去学习", primary: true, href: "learn.html" }, { label: "去实验室", href: "lab.html" }]);
          return false;
       }
       if (!AUTH.isSignedIn()) {
-         gate("请先登录", "班级数据属于老师账号。用右上角的账户入口以老师身份登录后，这里会显示你的班级。");
+         gate("请先登录", "班级数据属于老师账号。以老师身份登录后，这里会显示你的班级。",
+            [{ label: "去登录", primary: true, href: "login.html?next=classes.html" }]);
          return false;
       }
       if (AUTH.user().role !== "teacher") {
-         gate("这个页面是给老师的", "当前登录的是" + AUTH.roleLabel() + "。学生和个人学习者不需要这个页面，学习和做题都在课程页里。");
+         var student = AUTH.user().role === "student";
+         gate("这个页面是给老师的",
+            "当前登录的是" + AUTH.roleLabel() + "。" +
+            (student ? "你的作业在「作业」那一页，学习和做题在「学习」里。" : "学习和做题都在「学习」里。"),
+            student
+               ? [{ label: "去作业", primary: true, href: "assignments.html" }, { label: "去学习", href: "learn.html" }]
+               : [{ label: "去学习", primary: true, href: "learn.html" }, { label: "去实验室", href: "lab.html" }]);
          return false;
       }
       ungate();

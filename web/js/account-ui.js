@@ -257,7 +257,20 @@
       button.setAttribute("data-tip", AUTH.roleLabel() + " · " + statusText(status));
    }
 
+   /*
+    * 同一时刻只留一个浮层。以前账户浮层和「更多 ▾」能同时开着：两边的按钮都
+    * stopPropagation，于是各自的「点外面就关」都收不到对方那一次点击。
+    * 这里改成谁要打开谁先广播一声，别的浮层听见就自己收起来。
+    */
+   function announceOpen(id) {
+      document.dispatchEvent(new CustomEvent("ui:popover-open", { detail: { id: id } }));
+   }
+   document.addEventListener("ui:popover-open", function (event) {
+      if (!event.detail || event.detail.id !== "account") close();
+   });
+
    function open() {
+      announceOpen("account");
       renderPanel();
       // 作业是异步取的，先把面板画出来，拿到再补上去，不让入口卡住。
       void CLIENT.assignments().then(async function (list) {

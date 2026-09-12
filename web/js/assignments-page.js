@@ -151,8 +151,16 @@
          return;
       }
       if (AUTH.user().role !== "student") {
-         gate("这一页是给学生的", "当前登录的是" + AUTH.roleLabel() + "。老师在班级面板里布置和批改作业。",
-            [{ label: "班级面板", primary: true, href: "classes.html" }]);
+         /* 出口要按**当前**身份给。以前不管是谁都指向班级面板，个人学习者点过去
+            只会撞上另一块「这个页面是给老师的」，两页之间来回弹。 */
+         var teacher = AUTH.user().role === "teacher";
+         gate("这一页是给学生的",
+            teacher
+               ? "当前登录的是老师。布置和批改作业在班级面板里。"
+               : "当前登录的是" + AUTH.roleLabel() + "。作业是老师布置给班上学生的，个人学习者不参与班级。",
+            teacher
+               ? [{ label: "去班级", primary: true, href: "classes.html" }]
+               : [{ label: "去学习", primary: true, href: "learn.html" }, { label: "去实验室", href: "lab.html" }]);
          return;
       }
 
