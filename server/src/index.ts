@@ -16,6 +16,8 @@ import {
   deleteProject,
   listProjects,
   readFile,
+  serviceDisabledError,
+  serviceEnabled,
   writeFile,
   writeProject
 } from "./sync";
@@ -121,7 +123,16 @@ export default {
       }
       if (url.pathname === "/api/projects" && request.method === "GET") {
         const user = await requireUser(env.DB, request);
-        return json({ projects: await listProjects(env.DB, user), requestId: context.requestId });
+        const { projects, account } = await listProjects(env.DB, user);
+        return json({ projects, account, requestId: context.requestId });
+      }
+      /*
+       * 写入类的同步接口都过一次免部署开关（见 sync.ts 的 serviceEnabled）。
+       * 读取不拦：关掉之后已经同步上去的内容仍然拿得回来，只是不再接受新写入。
+       */
+      if (/^\/api\/projects(\/|$)/.test(url.pathname) && request.method !== "GET"
+        && !(await serviceEnabled(env.DB, "cloud_sync_enabled"))) {
+        throw serviceDisabledError();
       }
       const projectMatch = /^\/api\/projects\/([^/]+)$/.exec(url.pathname);
       if (projectMatch && request.method === "PUT") {
@@ -150,6 +161,9 @@ export default {
         return json({ ...result, requestId: context.requestId });
       }
       if (url.pathname === "/api/runs" && request.method === "POST") {
+        if (!(await serviceEnabled(env.DB, "cloud_run_enabled"))) {
+          return json({ code: "SERVICE_DISABLED", message: "云端运行暂时关闭，本地运行不受影响。", requestId: context.requestId }, 503);
+        }
         const user = await requireUser(env.DB, request);
         return json(await runSnapshot(env.DB, user, await request.json()), 200, { "x-request-id": context.requestId });
       }

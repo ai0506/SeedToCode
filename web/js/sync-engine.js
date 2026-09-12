@@ -33,7 +33,9 @@
    var pulling = null;
    var collectTimer = null;
    var conflictRounds = {};
-   var status = { state: "idle", pending: 0, blocked: [], lastPullAt: 0, lastError: null };
+   /* account：服务端在每次拉取时顺带回的账户用量。只在接近上限时才拿来提示，
+   平时不显示——界面空间紧张，不值得常驻一个「云端空间」展位。 */
+var status = { state: "idle", pending: 0, blocked: [], lastPullAt: 0, lastError: null, account: null };
    var statusListeners = [];
 
    function uuid() {
@@ -738,6 +740,8 @@
          var entry = meta.files[key];
          serverFileToLocal[entry.serverId] = key;
       });
+
+      if (data.account) setStatus({ account: data.account });
 
       (data.projects || []).forEach(function (project) {
          var localProjectId = serverIdToLocal[project.id] || project.id;

@@ -84,6 +84,7 @@
          "<hr>" +
          '<div data-account-assignments></div>' +
          holdNotice() +
+         '<p class="account-quota" data-account-quota hidden></p>' +
          '<ul class="account-blocked" data-account-blocked hidden></ul>' +
          /* 状态文字和两个按钮排在同一行：分两行的话，左边一句话、右边两个按钮，
             中间那块空白会把视线拉成一道斜线。 */
@@ -207,10 +208,25 @@
       refreshStatusLine();
    }
 
+   /*
+    * 有没有「登录之前就在这台设备上、还没决定要不要并入」的内容。
+    *
+    * 这一类内容不进队列、不上传，所以 `pending` 是 0——而此前 statusText 只看
+    * pending，于是界面理直气壮地说「已同步」，实际上整个项目根本没进这个账号。
+    * 使用者的现象正是这么来的：在 A 浏览器改了文件、显示「已保存」「已同步」，
+    * 换到 B 登录同一账号却是旧内容，两边点同步按钮都没反应——因为 A 那份从头到尾
+    * 就没上传过。状态可以说「还没同步」，但不能说「已同步」。
+    */
+   function unadoptedHold() {
+      var hold = ENGINE.pendingHold && ENGINE.pendingHold();
+      return hold && hold.fromGuest && !hold.asked ? hold : null;
+   }
+
    function statusText(status) {
       if (!status) return "";
       if (status.state === "offline") return "网络暂时不可用，恢复后会自动重试。";
       if (status.state === "paused") return "同步已暂停，重新登录后继续。";
+      if (unadoptedHold()) return "这台设备上的内容还没并入这个账号，点开账户处理一下。";
       if (status.pending) return status.state === "syncing" ? "正在同步 " + status.pending + " 项改动…" : "有 " + status.pending + " 项改动待同步。";
       if (status.state === "syncing") return "正在同步…";
       if (status.lastError && status.lastError.tooLarge) return "文件过大，这一项没有同步。";
@@ -223,6 +239,7 @@
       var status = ENGINE.status();
       var line = panel.querySelector("[data-account-status]");
       if (line) line.textContent = statusText(status);
+      refreshQuota(status);
       var list = panel.querySelector("[data-account-blocked]");
       if (list) {
          var blocked = status.blocked || [];
@@ -236,6 +253,33 @@
          }).join("");
       }
       refreshButton(status);
+   }
+
+   /*
+    * 云端空间只在**快满时**说一句，平时一个字都不占。
+    *
+    * 常驻一个「已用 3.2 / 5 MB」的展位，在这个界面里是纯粹的噪音：绝大多数人
+    * 一辈子用不到上限，而顶栏和账户浮层的空间本来就紧。真正需要被告知的只有
+    * 一种人——快撞墙的那个，而且他需要在撞墙**之前**知道。
+    */
+   var QUOTA_WARN_AT = 0.8;
+
+   function refreshQuota(status) {
+      var box = panel.querySelector("[data-account-quota]");
+      if (!box) return;
+      var account = status && status.account;
+      if (!account || !account.maxBytes || !account.maxProjects) { box.hidden = true; return; }
+      var byBytes = account.bytes / account.maxBytes;
+      var byProjects = account.projects / account.maxProjects;
+      var worst = Math.max(byBytes, byProjects);
+      if (worst < QUOTA_WARN_AT) { box.hidden = true; return; }
+      box.hidden = false;
+      box.dataset.level = worst >= 1 ? "full" : "warn";
+      box.textContent = byProjects >= byBytes
+         ? "云端项目已用 " + account.projects + " / " + account.maxProjects +
+           (byProjects >= 1 ? "，已满，删掉不用的项目才能再同步新的。" : "，快满了。")
+         : "云端空间已用 " + Math.round(byBytes * 100) + "%" +
+           (byBytes >= 1 ? "，已满，删掉不用的文件才能再同步。" : "，快满了。");
    }
 
    function refreshButton(status) {
@@ -252,7 +296,10 @@
          button.setAttribute("data-tip", "登录后可在另一台设备继续");
          return;
       }
-      var state = status && (status.state === "syncing" || status.pending) ? "syncing"
+      /* 有内容等着决定并不并入时，按钮要看得出来——否则用户没理由点开账户浮层，
+         而那句「要并入吗」只在浮层里。 */
+      var state = unadoptedHold() ? "attention"
+         : status && (status.state === "syncing" || status.pending) ? "syncing"
          : status && status.state === "offline" ? "offline" : "in";
       button.dataset.state = state;
       button.querySelector(".account-btn-text").textContent = AUTH.label();
