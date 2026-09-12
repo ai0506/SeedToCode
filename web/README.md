@@ -45,6 +45,7 @@ node scripts/dev-proxy.mjs
 | `assignments.html` + `js/assignments-page.js` + `css/assignments.css` | 学生的作业页：每道题的状态、老师给的分与评语 |
 | `login.html` + `js/login-page.js` + `css/login.css` | 独立登录页：先问登录还是注册，再选身份（学生 / 老师 / 个人学习者），最后才是对应的表单；三步共用一个高度受控容器，换屏做一次短过渡 |
 | `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、作业列表与作业详情（左栏题面、右栏提交矩阵） |
+| `js/assignment-core.js` | `packages/assignment` 的浏览器打包（全局 `CAIEAssignment`）：日期与月格、草稿快照、提交前校验、迟交判定、提交汇总。出题页和老师面板都用这一份，不留副本——副本会和被测的那份悄悄分叉 |
 | `assign.html` + `js/assign-page.js` + `css/assign.css` | 布置 / 编辑一份班级作业：左侧大纲、右侧逐题写题面和提示，自定义日期选择器，本地草稿 |
 
 ## 语言规范文档

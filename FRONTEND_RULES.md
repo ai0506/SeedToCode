@@ -119,6 +119,8 @@
 - [ ] 没有新增 `<select>` / `type="date"` / `type="checkbox"` / `type="range"` / `<details>` / `<dialog>`
 - [ ] 没有依赖 HTML5 表单校验
 
+**这两条现在有自动化检查了**：`tests/frontend-rules.test.ts` 把下面这些 grep 写成了测试，`npm test` 会跑。新增违规直接红；上表里的存量欠债冻在那个文件的基线数组里，修好一处就删一行。注意它只做**静态文本**检查——第 1 条「一次交互只允许改变被操作对象自身的外观」需要真实布局引擎才能量（见文末的快照法），jsdom 里所有 rect 都是 0，那一条仍然靠手动核对。
+
 **全局 grep（应当只命中已知豁免项）**
 
 ```bash
@@ -167,5 +169,7 @@ window.__snap.size;
 
 | 位置 | 问题 | 状态 |
 |---|---|---|
-| `web/classes.html:120` `#taskFilter` | 原生 `<select>` 按题号筛选 | 待修 |
-| `web/lab.html:380` `#importInput` | `<input type="file" hidden>` | 符合 2.2 例外，不修 |
+| `web/classes.html` `#taskFilter` | 原生 `<select>` 按题号筛选 | 待修 |
+| `web/lab.html` `#importInput` | `<input type="file" hidden>` | 符合 2.2 例外，不修 |
+| `css/styles.css` `#projectPickerList` / `.file-list` / `.editor-scroll` / `.snippet-pop ul` / `.tab-panel` / `.console` / `.dialog-body`，`css/teaching.css` `.mini-code textarea` | 滚动容器缺 `scrollbar-gutter: stable`（第 1.4 条） | 待修，已冻进基线 |
+| `css/styles.css` `.file-list li.active` / `.tab.active` | 用 `font-weight` 表示选中（第 1.2 条点名禁止） | 待修，已冻进基线 |

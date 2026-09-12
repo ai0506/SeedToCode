@@ -51,6 +51,7 @@ npm test
 | `packages/language` | tokenizer、parser、AST、绑定、类型检查、静态诊断和格式化 |
 | `packages/runtime` | 与 DOM 解耦的 AST 解释器和虚拟文件运行时 |
 | `packages/exercise` | 教学题目的语法特征提取、输出比对和分层判题 |
+| `packages/assignment` | 作业的纯逻辑：日期与月格、草稿快照、提交前校验、迟交判定、提交汇总 |
 | `packages/test-cases` | 结构化验收语料 |
 | `packages/teaching-content` | 课程章节、题目、参考解、期望输出和浏览器发布数据 |
 | `server/` | Cloudflare Worker 入口、D1 migrations 和后端 API（本地开发与线上部署配置） |

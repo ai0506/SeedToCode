@@ -23,6 +23,11 @@
    var $ = function (id) { return document.getElementById(id); };
    var CLIENT = window.CloudClient;
    var AUTH = window.AuthStore;
+   /* 日期、草稿快照、提交前校验这几件事的实现在 packages/assignment 里，
+      由 js/assignment-core.js 打成全局。放那边不是为了复用，是为了**能被测到**：
+      它们原来锁在这个 IIFE 里，一个都跑不了单测，而这一轮的三个草稿 bug
+      全长在这块地上。页面必须用那一份，不能在这里留副本——留副本等于测的是别人。 */
+   var CORE = window.CAIEAssignment;
 
    var params = new URLSearchParams(window.location.search);
    var classId = params.get("class") || "";
@@ -126,21 +131,11 @@
 
    /* ---------------- 日期 ---------------- */
 
-   var WEEK = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-
    function pad(n) { return String(n).padStart(2, "0"); }
 
-   /** 截止时间按当天结束算：老师选「今天」应当是今天下班前都还能交。 */
-   function endOfDay(year, month, day) {
-      return new Date(year, month, day, 23, 59, 59, 0).getTime();
-   }
-
-   function dueLabel(timestamp) {
-      if (!timestamp) return "不限时间";
-      var date = new Date(timestamp);
-      return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) +
-         " " + WEEK[date.getDay()];
-   }
+   var endOfDay = CORE.endOfDay;
+   var dueLabel = CORE.dueLabel;
+   var sameDay = CORE.sameDay;
 
    function renderDue() {
       $("dueText").textContent = dueLabel(dueAt);
@@ -148,40 +143,34 @@
       $("dueClear").disabled = !dueAt;
    }
 
-   /* 月格永远 6 行 42 格，换月时浮层高度不变。 */
+   /* 月格永远 6 行 42 格（CORE.monthGrid 保证），换月时浮层高度不变。 */
    var dpYear = 0;
    var dpMonth = 0;
 
-   function sameDay(timestamp, year, month, day) {
-      if (!timestamp) return false;
-      var date = new Date(timestamp);
-      return date.getFullYear() === year && date.getMonth() === month && date.getDate() === day;
-   }
-
    function renderPicker() {
       $("dpMonth").textContent = dpYear + " 年 " + (dpMonth + 1) + " 月";
-      var first = new Date(dpYear, dpMonth, 1);
-      // 一周从周一起算，和表头对齐；getDay() 的周日是 0，要挪到末位
-      var offset = (first.getDay() + 6) % 7;
-      var start = new Date(dpYear, dpMonth, 1 - offset);
-      var today = new Date();
+      var today = Date.now();
       var grid = $("dpGrid");
       grid.innerHTML = "";
-      for (var i = 0; i < 42; i += 1) {
-         var date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      CORE.monthGrid(dpYear, dpMonth).forEach(function (cell) {
          var button = document.createElement("button");
          button.type = "button";
          button.className = "dp-day";
-         button.textContent = String(date.getDate());
-         button.dataset.outside = date.getMonth() === dpMonth ? "no" : "yes";
-         button.dataset.today = sameDay(today.getTime(), date.getFullYear(), date.getMonth(), date.getDate()) ? "yes" : "no";
-         button.setAttribute("aria-pressed",
-            String(sameDay(dueAt, date.getFullYear(), date.getMonth(), date.getDate())));
-         button.setAttribute("aria-label",
-            date.getFullYear() + " 年 " + (date.getMonth() + 1) + " 月 " + date.getDate() + " 日");
-         button.dataset.stamp = String(endOfDay(date.getFullYear(), date.getMonth(), date.getDate()));
+         button.textContent = String(cell.day);
+         button.dataset.outside = cell.outside ? "yes" : "no";
+         button.dataset.today = sameDay(today, cell.year, cell.month, cell.day) ? "yes" : "no";
+         button.setAttribute("aria-pressed", String(sameDay(dueAt, cell.year, cell.month, cell.day)));
+         button.setAttribute("aria-label", cell.year + " 年 " + (cell.month + 1) + " 月 " + cell.day + " 日");
+         button.dataset.stamp = String(cell.stamp);
          grid.appendChild(button);
-      }
+      });
+   }
+
+   function stepMonth(delta) {
+      var next = CORE.shiftMonth(dpYear, dpMonth, delta);
+      dpYear = next.year;
+      dpMonth = next.month;
+      renderPicker();
    }
 
    function pickerOpen() { return !$("datePicker").hidden; }
@@ -458,26 +447,28 @@
       } catch (e) { return null; }
    }
 
-   /** 用来存草稿，也用来和 baseline 比对判断「改过没有」。 */
+   /** 用来存草稿，也用来和 baseline 比对判断「改过没有」。
+       序列化交给 CORE：字段顺序在那边钉死并有测试，顺序一变，没改过的内容
+       也会被判成改过，草稿就会凭空冒出来。 */
    function snapshot() {
       readItems();
-      return JSON.stringify({
+      return CORE.serializeDraft({
          title: $("assignTitle").value.trim(),
          dueAt: dueAt,
          legacy: legacy,
-         items: items.map(function (item) {
-            return { id: item.id, title: item.title, prompt: item.prompt, guidance: item.guidance };
-         })
+         items: items
       });
    }
 
+   /** 反过来：把一份草稿铺回界面。读不出来就抛，由调用方决定怎么办。 */
    function applySnapshot(text) {
-      var data = JSON.parse(text);
-      $("assignTitle").value = data.title || "";
-      dueAt = data.dueAt || null;
-      legacy = Array.isArray(data.legacy) ? data.legacy.slice() : [];
-      items = (data.items || []).map(function (row) {
-         return { key: "k" + (uid += 1), id: row.id || null, title: row.title || "", prompt: row.prompt || "", guidance: row.guidance || "" };
+      var data = CORE.parseDraft(text);
+      if (!data) throw new Error("draft unreadable");
+      $("assignTitle").value = data.title;
+      dueAt = data.dueAt;
+      legacy = data.legacy.slice();
+      items = data.items.map(function (row) {
+         return { key: "k" + (uid += 1), id: row.id, title: row.title, prompt: row.prompt, guidance: row.guidance };
       });
       if (!items.length) items.push(blank());
       renderDue();
@@ -602,18 +593,18 @@
          return;
       }
       // 完全空白的题不算数：新建时会预置一条空的，老师没填就当没加
-      var filled = items.filter(function (item) { return item.title || item.prompt || item.guidance; });
+      var filled = CORE.fillableItems(items);
       if (!filled.length && !legacy.length) {
          fail("至少写一道题。");
          return;
       }
-      var bad = filled.filter(function (item) { return !item.title || !item.prompt; })[0];
+      var bad = CORE.firstIncomplete(filled);
       if (bad) {
-         fail("第 " + (filled.indexOf(bad) + 1) + " 道题还缺标题或题目内容。");
-         var card = cardOf(bad.key);
+         fail("第 " + (bad.index + 1) + " 道题还缺" + (bad.missing === "title" ? "标题" : "题目内容") + "。");
+         var card = cardOf(bad.item.key);
          if (card) {
             card.scrollIntoView({ block: "center" });
-            card.querySelector(bad.title ? ".item-prompt" : ".item-title").focus();
+            card.querySelector(bad.missing === "title" ? ".item-title" : ".item-prompt").focus();
          }
          return;
       }
@@ -750,16 +741,8 @@
          if (pickerOpen()) closePicker(); else openPicker();
       });
       $("dueClear").addEventListener("click", function () { setDue(null); closePicker(); });
-      $("dpPrev").addEventListener("click", function () {
-         dpMonth -= 1;
-         if (dpMonth < 0) { dpMonth = 11; dpYear -= 1; }
-         renderPicker();
-      });
-      $("dpNext").addEventListener("click", function () {
-         dpMonth += 1;
-         if (dpMonth > 11) { dpMonth = 0; dpYear += 1; }
-         renderPicker();
-      });
+      $("dpPrev").addEventListener("click", function () { stepMonth(-1); });
+      $("dpNext").addEventListener("click", function () { stepMonth(1); });
       $("dpToday").addEventListener("click", function () {
          var now = new Date();
          setDue(endOfDay(now.getFullYear(), now.getMonth(), now.getDate()));

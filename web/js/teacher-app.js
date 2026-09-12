@@ -14,6 +14,9 @@
    var CLIENT = window.CloudClient;
    var AUTH = window.AuthStore;
    var course = (window.CAIETeaching && window.CAIETeaching.course) || { chapters: [] };
+   /* 迟交判定和提交汇总在 packages/assignment 里（js/assignment-core.js 打成全局），
+      那边有测试；这里不留副本，副本会和被测的那一份悄悄分叉。 */
+   var CORE = window.CAIEAssignment;
 
    var classes = [];
    var currentClassId = null;
@@ -442,9 +445,7 @@
     * 迟交＝提交时间晚于当前截止时间。现算而不是提交时写死：
     * 老师改了截止时间，之前那些提交的迟交与否也应当跟着变。
     */
-   function isLate(assignment, submission) {
-      return Boolean(assignment && assignment.dueAt && submission && submission.submittedAt > assignment.dueAt);
-   }
+   var isLate = CORE.isLate;
 
    function renderAssignments() {
       $("backToAssignments").hidden = !openAssignmentId;
@@ -505,16 +506,19 @@
          if (!latest[key]) latest[key] = item;
       });
       var tasks = assignment.items || [];
-      // 每道题交了几个人，左栏和表尾都要用
-      var perTask = tasks.map(function (entry) {
-         return students.filter(function (student) { return latest[student.id + "/" + entry.id]; }).length;
-      });
+      // 每道题交了几个人 / 每个学生交了几道，左栏、行尾和表尾都要用
+      var counts = CORE.tally(
+         students.map(function (student) { return student.id; }),
+         tasks.map(function (entry) { return entry.id; }),
+         function (studentId, taskId) { return Boolean(latest[studentId + "/" + taskId]); }
+      );
+      var perTask = counts.perTask;
 
       $("assignmentsScroll").dataset.mode = "detail";
       $("assignmentsBody").innerHTML =
          '<div class="assign-detail">' +
-         assignmentAside(assignment, tasks, perTask) +
-         '<div class="ad-main">' + assignmentMatrix(assignment, tasks, perTask, latest) + "</div>" +
+         assignmentAside(assignment, tasks, perTask, counts) +
+         '<div class="ad-main">' + assignmentMatrix(assignment, tasks, counts, latest) + "</div>" +
          "</div>";
    }
 
@@ -523,17 +527,15 @@
    }
 
    /** 左栏：这份作业出了什么题。题面和提示按原文显示，换行照旧。 */
-   function assignmentAside(assignment, tasks, perTask) {
+   function assignmentAside(assignment, tasks, perTask, counts) {
       var overdue = assignment.dueAt && assignment.dueAt < Date.now();
-      var submitted = perTask.reduce(function (sum, n) { return sum + n; }, 0);
-      var total = tasks.length * students.length;
 
       var head =
          '<div class="ad-meta">' +
          '<div class="ad-due" data-state="' + (overdue ? "over" : "") + '">' + esc(dueLabel(assignment.dueAt)) +
          (overdue ? "（现在提交算迟交，但仍然可以交）" : "") + "</div>" +
          '<div class="ad-stat">' + tasks.length + " 道题 · " + students.length + " 名学生 · 已交 " +
-         submitted + "/" + total + " 份</div></div>";
+         counts.submitted + "/" + counts.total + " 份</div></div>";
 
       if (!tasks.length) return '<aside class="ad-side">' + head + emptyBox("这份作业里没有题目。") + "</aside>";
 
@@ -560,7 +562,7 @@
    }
 
    /** 右栏：学生 × 题目。行尾一列「这个学生交了几道」，表尾一行「这道题交了几个人」。 */
-   function assignmentMatrix(assignment, tasks, perTask, latest) {
+   function assignmentMatrix(assignment, tasks, counts, latest) {
       if (!students.length) return emptyBox("这个班还没有学生。");
       if (!tasks.length) return emptyBox("这份作业里没有题目。");
 
@@ -575,13 +577,12 @@
          }).join("") +
          '<th class="done-col">已交</th><th class="when-col">最近提交</th>';
 
-      var body = students.map(function (student) {
+      var body = students.map(function (student, studentIndex) {
          var newest = 0;
-         var done = 0;
+         var done = counts.perStudent[studentIndex];
          var cells = tasks.map(function (entry, index) {
             var item = latest[student.id + "/" + entry.id];
             if (!item) return '<td class="cell" data-col="' + index + '">未交</td>';
-            done += 1;
             if (item.submittedAt > newest) newest = item.submittedAt;
             // 迟交只是标出来，不改变判分，也从来没有拦过提交。
             var late = isLate(assignment, item);
@@ -607,13 +608,12 @@
             '<td class="when-col">' + when(newest) + "</td></tr>";
       }).join("");
 
-      var submitted = perTask.reduce(function (sum, n) { return sum + n; }, 0);
       var foot = '<tr><td class="who">每题已交</td>' +
-         perTask.map(function (count, index) {
+         counts.perTask.map(function (count, index) {
             return '<td class="cell total" data-col="' + index + '" data-full="' + (count === students.length ? "yes" : "no") + '">' +
                count + "/" + students.length + "</td>";
          }).join("") +
-         '<td class="done-col total">' + submitted + "/" + (tasks.length * students.length) + "</td>" +
+         '<td class="done-col total">' + counts.submitted + "/" + counts.total + "</td>" +
          '<td class="when-col"></td></tr>';
 
       return '<div class="matrix-wrap"><table class="matrix assign-matrix"><thead><tr>' + head +
