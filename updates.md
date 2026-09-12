@@ -402,3 +402,4 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 
 缓存版本：`styles.css?v=26`、`account.css?v=2`、`teacher.css?v=2`、`login.css?v=4`、`app.js?v=30`、`account-ui.js?v=7`、`teacher-app.js?v=3`、`assignments-page.js?v=3`。
 验证：上述每一项都在本机 `wrangler dev` 上按真实身份实测（学生、老师、个人学习者各建了账号走一遍）。按 `FRONTEND_RULES` 的脚本比对：连开两个浮层前后，全页只有 `.account-panel` 自己从无到有，其余零位移。`npm test` 40 文件 567 项全绿。
+[CodeX][2609121805] 核对当前项目与线上 Worker 状态：工作区干净且 `main` 与 `origin/main` 一致；`npm test` 通过（40 个测试文件、567 个测试），Wrangler 4.131.1 配置 dry-run 读取 44 个静态资源并识别 `seedtocode` 远端 D1，生产 `/health` 返回 `ok`。订正文档事实：生产 Resend 所需三个 secret 已设置，但真实邮件投递仍未验证成功；保留自定义域名尚未绑定的说明。
