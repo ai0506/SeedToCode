@@ -217,7 +217,7 @@
          '<span class="mono">' + esc(block.fileName) + "</span><span class=\"spacer\"></span>" +
          '<button class="btn small" data-open-editor="' + esc(block.code) +
          '" data-open-name="' + esc(block.fileName.replace(/\.pseudocode$/i, "")) +
-         '" data-open-label="' + esc("来自 " + plainText(block.title)) + '">在编辑器中打开</button>';
+         '" data-open-label="' + esc("来自 " + plainText(block.title)) + '">在实验室中打开</button>';
       var annots = block.annotations
          .map(function (a) {
             var label = a.fromLine === a.toLine ? "第 " + a.fromLine + " 行" : a.fromLine + "–" + a.toLine + " 行";
@@ -699,7 +699,7 @@
          paragraph.push(line.trim());
       }
       flushCode(); flushParagraph();
-      return '<section class="block draft-block"><div class="draft-banner">草稿阅读版 · 保留原文 · 尚未接入判题</div><div class="draft-markdown">' + html.join("") + '</div></section>';
+      return '<section class="block draft-block"><div class="draft-banner">草稿 · 这一节还没有练习</div><div class="draft-markdown">' + html.join("") + '</div></section>';
    }
 
    function renderSection(section, index) {
@@ -1063,7 +1063,7 @@
       if (next && !next.disabled) next.click();
    }
 
-   /** `teaching.html?c=1&s=1.2`：做题页做完之后带着落点回来，不能只按上次的滚动位置恢复。 */
+   /** `learn.html?c=1&s=1.2`：做题页做完之后带着落点回来，不能只按上次的滚动位置恢复。 */
    function requestedLocation() {
       var search = window.location.search.replace(/^\?/, "");
       if (!search) return null;
@@ -1202,17 +1202,19 @@
                alertLike("这个浏览器不让页面之间传数据，请手动把代码复制到编辑器里。");
                return;
             }
-            window.location.href = "index.html";
+            window.location.href = "lab.html";
          }
       });
 
       $("#toggleToc").addEventListener("click", function () { $("#toc").classList.toggle("collapsed"); });
       var labels = $("#elLabelToggle");
-      labels.addEventListener("click", function () {
-         var on = labels.getAttribute("aria-checked") === "true";
-         labels.setAttribute("aria-checked", on ? "false" : "true");
-         document.documentElement.setAttribute("data-el-labels", on ? "off" : "on");
-      });
+      if (labels) {
+         labels.addEventListener("click", function () {
+            var on = labels.getAttribute("aria-checked") === "true";
+            labels.setAttribute("aria-checked", on ? "false" : "true");
+            document.documentElement.setAttribute("data-el-labels", on ? "off" : "on");
+         });
+      }
 
       var wasNarrow = window.innerWidth < 900;
       if (wasNarrow) $("#toc").classList.add("collapsed");

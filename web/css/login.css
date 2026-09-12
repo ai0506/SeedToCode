@@ -16,33 +16,35 @@
 .login-top .spacer { flex: 1; }
 .login-brand { text-decoration: none; color: inherit; }
 
-.login-main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 40px 16px 56px; }
+/* 卡片纵向居中：以前固定贴顶，第一步只有三张卡时下面空一大片。
+   居中靠 card 上的 margin: auto 0，而不是 align-items: center——
+   表单长到超过一屏时前者不会把卡片顶部切掉。 */
+.login-main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 32px 16px 40px; }
 
 .login-card {
-   width: 100%; max-width: 420px;
+   width: 100%; max-width: 440px; margin: auto 0;
    background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;
    padding: 26px 28px 24px; box-shadow: 0 10px 34px rgba(0, 0, 0, .06);
 }
 .login-title { margin: 0 0 8px; font-size: 19px; font-weight: 600; }
-.login-lead { margin: 0 0 22px; color: var(--text-dim); line-height: 1.75; }
+.login-lead { margin: 0 0 20px; color: var(--text-dim); line-height: 1.75; }
 .login-label { margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--text-dim); }
 
-/* 三种身份横排三张卡，各带一个大图标——竖排太占篇幅又不好区分 */
+/* 身份横排三张卡，各带一个大图标——竖排太占篇幅又不好区分 */
 .role-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.intent-list { grid-template-columns: repeat(2, 1fr); }
 .role-option {
    display: flex; flex-direction: column; align-items: center; gap: 7px;
-   padding: 16px 8px 14px; text-align: center; font: inherit; cursor: pointer;
+   padding: 16px 10px 14px; text-align: center; font: inherit; cursor: pointer;
    background: var(--bg); color: var(--text);
    border: 1px solid var(--border); border-radius: 8px;
    transition: background-color .12s ease, box-shadow .12s ease;
 }
 .role-option:hover { background: var(--bg-sunken); }
 .role-option:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
-/* 选中用 inset 阴影画边线，不改 border 宽度，卡片尺寸不会跳 */
-.role-option[aria-checked="true"] {
-   background: var(--accent-soft);
-   box-shadow: inset 0 0 0 1.5px var(--accent);
-}
+/* 卡片本身就是「选了就进下一步」，没有选中态要画；
+   按下时用 inset 阴影给一点反馈，不改 border 宽度，尺寸不会跳 */
+.role-option:active { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
 .role-icon { display: block; height: 34px; }
 .role-icon svg {
    width: 34px; height: 34px; fill: none;
@@ -50,13 +52,10 @@
    transition: stroke .12s ease;
 }
 .role-option:hover .role-icon svg { stroke: var(--text-dim); }
-.role-option[aria-checked="true"] .role-icon svg { stroke: var(--accent); }
+.role-option:active .role-icon svg { stroke: var(--accent); }
 .role-name { font-weight: 600; font-size: 12.5px; }
-.role-desc { font-size: 11px; color: var(--text-faint); line-height: 1.5; }
-.role-option[aria-checked="true"] .role-desc { color: var(--accent); opacity: .8; }
-
-.login-continue { margin-top: 16px; }
-.login-continue[disabled] { opacity: .45; cursor: default; }
+/* 中文没有词边界，随便断行会把「激活码」劈成两半；说明文字一律压到一行能放下的长度 */
+.role-desc { font-size: 11px; color: var(--text-faint); line-height: 1.55; text-wrap: balance; }
 
 /* 选定身份之后顶上这一行，替代三张卡 */
 .login-chosen {
@@ -64,19 +63,84 @@
    padding: 10px 12px; border-radius: 6px; background: var(--accent-soft);
 }
 .login-chosen-name { flex: 1; min-width: 0; font-weight: 600; color: var(--accent); }
+.login-chosen .login-link { flex: 0 0 auto; }
+/* 还没选身份时这行没有内容可显示，色块退掉，只留「上一步」 */
+.login-chosen.is-bare { background: transparent; padding: 2px 0 0; }
+
+/* 三步共用的高度容器。换屏时 JS 在旧高度和新高度之间补一次 170ms 的过渡，
+   过渡结束立刻把 height 交还给内容——留着定值的话，表单里冒出一行错误就撑不开。
+   overflow: hidden 只在过渡期间有意义，但常开也无害，且能挡住淡入时的越界。 */
+.login-steps { overflow: hidden; }
+
+/* 换屏的淡入。位移只有 5px：这是「换了一屏」的提示，不是一段动画表演。 */
+.login-step.is-entering { animation: login-step-in 170ms ease-out both; }
+@keyframes login-step-in {
+   from { opacity: 0; transform: translateY(5px); }
+   to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+   .login-steps { transition: none !important; }
+   .login-step.is-entering { animation: none; }
+}
 
 .login-form { margin-top: 20px; }
+/* 第三步整屏就是表单，顶上那行面包屑已经隔开了，不用再叠一层外边距 */
+.login-step.login-form, #studentRegisterStep { margin-top: 20px; }
+#studentRegisterStep .login-form { margin-top: 14px; }
 .login-field { display: block; margin-bottom: 12px; }
 .login-field-label { display: block; margin-bottom: 5px; font-size: 12px; color: var(--text-dim); }
 .login-field .text-field { height: 34px; font-size: 13px; }
+.login-field .text-field::placeholder { color: var(--text-faint); }
+
+/* 密码框右侧的「显示 / 隐藏」。10 位以上的密码盲打太容易错一位。 */
+.login-input-wrap { display: block; position: relative; }
+.text-field.has-reveal { padding-right: 52px; }
+.pw-reveal {
+   position: absolute; top: 0; right: 0; height: 34px; padding: 0 10px;
+   border: 0; background: transparent; font: inherit; font-size: 11.5px;
+   color: var(--text-faint); cursor: pointer; border-radius: 4px;
+}
+.pw-reveal:hover { color: var(--accent); }
+.pw-reveal:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+
+/* 激活码 / 班级码：等宽大写，一位一位好核对 */
+.code-field {
+   font-family: var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+}
+.code-field::placeholder { font-family: var(--font-ui); letter-spacing: 0; text-transform: none; }
+
+/* 服务端的提示有时是两三行（比如「这个邮箱还没验证」），固定高度会把它切掉。
+   改成最小高度：没有错误时仍然占着那一行，不会因为出现错误就整块往下推得毫无预兆，
+   真的超过一行时由 transition() 把卡片高度平滑补上去。 */
+.login-form .field-error { height: auto; min-height: var(--field-error-h); }
 
 .login-submit { width: 100%; height: 36px; font-size: 13px; }
+.login-submit[disabled] { cursor: default; }
 .login-hint { margin: 12px 0 0; font-size: 11.5px; color: var(--text-faint); line-height: 1.7; }
 
 /* 文字按钮：行内切换「登录 / 激活」，不额外占一行控件 */
 .login-link {
    border: 0; background: transparent; padding: 0; font: inherit; font-size: 11.5px;
    color: var(--accent); cursor: pointer; text-decoration: underline;
+}
+
+/* 「登录 / 首次注册」是这张表单最先要做的判断，做成分段控件，
+   比两个下划线文字更像一个可以切的开关 */
+.login-choice {
+   display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 16px;
+   padding: 2px; background: var(--bg-sunken); border-radius: 7px;
+}
+.login-choice-btn {
+   height: 28px; border: 0; border-radius: 5px; background: transparent;
+   font: inherit; font-size: 12px; color: var(--text-dim); cursor: pointer;
+   transition: background-color .12s ease, color .12s ease;
+}
+.login-choice-btn:hover { color: var(--text); }
+.login-choice-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+/* 选中只换底色和字色。改字重会让文字宽度变一点，两个 tab 之间来回切就在抖。 */
+.login-choice-active, .login-choice-active:hover {
+   background: var(--bg-panel); color: var(--accent);
+   box-shadow: 0 1px 2px rgba(0, 0, 0, .07);
 }
 .login-link:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); border-radius: 3px; }
 
@@ -95,12 +159,24 @@
 @media (max-width: 480px) {
    .login-main { padding: 20px 12px 40px; }
    .login-card { padding: 20px 18px 18px; }
-   /* 窄屏三张卡挤不下，退回竖排，图标缩小放左边 */
+   /* 窄屏三张卡挤不下，退回竖排：图标放左边，名称和说明在右边上下排 */
    .role-list { grid-template-columns: 1fr; }
-   .role-option { flex-direction: row; align-items: center; gap: 12px; text-align: left; padding: 11px 13px; }
+   .role-option {
+      display: grid; grid-template-columns: auto 1fr; align-items: center;
+      column-gap: 12px; row-gap: 2px; text-align: left; padding: 11px 13px;
+   }
+   .role-option .role-icon { grid-row: span 2; }
    .role-icon { height: 26px; }
    .role-icon svg { width: 26px; height: 26px; }
-   .role-desc br { display: none; }
+   /* 「你手上有什么」那三项本来就没有图标，保持整块左对齐 */
+   .path-option { display: flex; }
+   /* iOS Safari 会把字号小于 16px 的输入框自动放大整页，聚焦一下版式就跳了 */
+   .login-field .text-field { height: 40px; font-size: 16px; }
+   .text-field.has-reveal { padding-right: 56px; }
+   .pw-reveal { height: 40px; }
+   .login-submit { height: 42px; }
+   /* 顶上那两个文字按钮在手机上太小，撑开一点点好点 */
+   .login-chosen .login-link { padding: 6px 2px; }
 }
 
 /* 「老师给了你什么」这一屏：沿用身份卡的样子，但竖排、不带图标，

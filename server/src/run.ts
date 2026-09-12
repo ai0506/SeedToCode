@@ -62,9 +62,15 @@ export async function runSnapshot(db: D1Database, user: AuthenticatedUser, input
         controller.stop();
         return;
       }
-      const submission = controller.provideInput(request.inputs[inputCursor]);
-      inputCursor += 1;
-      if (!submission.accepted) {
+      /* 与本地运行一致：类型不匹配只消耗这次错误输入，继续等待下一项，
+         让调用方可以在预先提供的序列里放入修正值，而不是直接结束运行。 */
+      let accepted = false;
+      while (inputCursor < request.inputs.length) {
+        const submission = controller.provideInput(request.inputs[inputCursor]);
+        inputCursor += 1;
+        if (submission.accepted) { accepted = true; break; }
+      }
+      if (!accepted) {
         inputExhausted = true;
         controller.stop();
       }

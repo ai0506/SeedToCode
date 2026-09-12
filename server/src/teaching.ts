@@ -158,11 +158,7 @@ export async function registerStudentWithJoinCode(db: D1Database, env: Env, inpu
     throw new TeachingError("CLASS_JOIN_LOCKED", 403, "这个班级暂时不能加入，跟老师确认一下。");
   }
 
-  const user = await createActiveStudent(db, body.username, body.password);
-  const now = Date.now();
-  await db.prepare(
-    "INSERT INTO class_members (class_id, user_id, display_name, status, created_at) VALUES (?1, ?2, ?3, 'active', ?4)"
-  ).bind(classRow.id, user.id, displayName, now).run();
+  const user = await createActiveStudent(db, body.username, body.password, { classId: classRow.id, displayName });
 
   await clearAuthAttempts(db, "student_register", clientIp);
   const setCookie = await startSession(db, env, user.id);
@@ -178,11 +174,7 @@ export async function createStudentInClass(db: D1Database, teacher: Authenticate
   await ownedClass(db, teacher, classId);
   const body = objectBody(input);
   const displayName = nameValue(body.displayName, MAX_DISPLAY_NAME, "学生姓名");
-  const created = await createPendingStudent(db, body.username);
-  const now = Date.now();
-  await db.prepare(
-    "INSERT INTO class_members (class_id, user_id, display_name, status, created_at) VALUES (?1, ?2, ?3, 'active', ?4)"
-  ).bind(classId, created.user.id, displayName, now).run();
+  const created = await createPendingStudent(db, body.username, { classId, displayName });
   return { student: publicUser(created.user), displayName, activationCode: created.activationCode };
 }
 

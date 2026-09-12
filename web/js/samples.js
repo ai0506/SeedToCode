@@ -1,135 +1,181 @@
 /*
- * 初始源码文档与运行时虚拟文件。
- * 程序运行已交给阶段 4 解释器，本文件不再提供脚本化运行结果。
+ * 新建项目时的初始代码文件与运行时数据文件。
+ *
+ * 这里放的是「打开就能跑、跑出来能看懂」的起步示例，不是开发期的检测用例：
+ * 一份基本的输入与判断，一份数组与过程，一份文本文件读写，以及后者要读写的两个文件。
+ * 改动这份清单时记得同步下面的 legacy 快照，理由见那里的注释。
  */
 window.SAMPLES = (function () {
-  const docs = [
-    {
-      id: 'doc-main',
-      name: 'Main.pseudocode',
-      source: [
-        '// 阶段 3B：输入成绩并执行真实选择结构',
-        'CONSTANT PassMark = 50',
-        'DECLARE StudentName : STRING',
-        'DECLARE Score : INTEGER',
-        '',
-        'OUTPUT "Please enter the student name"',
-        'INPUT StudentName',
-        'OUTPUT "Please enter the score"',
-        'INPUT Score',
-        '',
-        'IF Score >= PassMark THEN',
-        '   OUTPUT StudentName, " has passed with ", Score',
-        'ELSE',
-        '   OUTPUT StudentName, " has not passed"',
-        'ENDIF'
-      ].join('\n')
-    },
-    {
-      id: 'doc-bubble',
-      name: 'BubbleSort.pseudocode',
-      source: [
-        '// 演示：一维数组 + 过程 + 嵌套循环',
-        'DECLARE Numbers : ARRAY[1:6] OF INTEGER',
-        'DECLARE Index : INTEGER',
-        '',
-        'PROCEDURE BubbleSort(BYREF List : ARRAY[1:6] OF INTEGER)',
-        '   DECLARE Temp : INTEGER',
-        '   DECLARE i : INTEGER',
-        '   DECLARE j : INTEGER',
-        '   FOR i ← 1 TO 5',
-        '      FOR j ← 1 TO 6 - i',
-        '         IF List[j] > List[j + 1] THEN',
-        '            Temp ← List[j]',
-        '            List[j] ← List[j + 1]',
-        '            List[j + 1] ← Temp',
-        '         ENDIF',
-        '      NEXT j',
-        '   NEXT i',
-        'ENDPROCEDURE',
-        '',
-        'Numbers[1] ← 42',
-        'Numbers[2] ← 7',
-        'Numbers[3] ← 19',
-        'Numbers[4] ← 3',
-        'Numbers[5] ← 25',
-        'Numbers[6] ← 11',
-        '',
-        'CALL BubbleSort(Numbers)',
-        '',
-        'FOR Index ← 1 TO 6',
-        '   OUTPUT Numbers[Index]',
-        'NEXT Index'
-      ].join('\n')
-    },
-    {
-      id: 'doc-file',
-      name: 'FileCopy.pseudocode',
-      source: [
-        '// 演示：文本文件读写（指南 9.1）',
-        'DECLARE LineOfText : STRING',
-        '',
-        'OPENFILE "Names.txt" FOR READ',
-        'OPENFILE "Report.txt" FOR WRITE',
-        '',
-        'WHILE NOT EOF("Names.txt")',
-        '   READFILE "Names.txt", LineOfText',
-        '   IF LineOfText = "" THEN',
-        '      WRITEFILE "Report.txt", "----------"',
-        '   ELSE',
-        '      WRITEFILE "Report.txt", LineOfText',
-        '   ENDIF',
-        'ENDWHILE',
-        '',
-        'CLOSEFILE "Names.txt"',
-        'CLOSEFILE "Report.txt"',
-        'OUTPUT "Copy finished"'
-      ].join('\n')
-    },
-    {
-      id: 'doc-practice',
-      name: 'Practice.pseudocode',
-      source: [
-        '// 演示：故意写错，用来看“问题”面板的三级诊断',
-        'declare Counter : INTEGER',
-        'Counter = 0',
-        '  Counter ← Counter + 1',
-        '',
-        'if Counter > 0 then',
-        '   OUTPUT "Counter is ", Counter',
-        '',
-        'DECLARE 2Names : STRING',
-        'CALL LENGTH("Hello")'
-      ].join('\n')
-    }
-  ];
+  const mainDoc = {
+    id: 'doc-main',
+    name: 'Main.pseudocode',
+    source: [
+      '// 输入姓名和分数，判断是否及格',
+      'CONSTANT PassMark = 50',
+      'DECLARE StudentName : STRING',
+      'DECLARE Score : INTEGER',
+      '',
+      'OUTPUT "Please enter the student name"',
+      'INPUT StudentName',
+      'OUTPUT "Please enter the score"',
+      'INPUT Score',
+      '',
+      'IF Score >= PassMark THEN',
+      '   OUTPUT StudentName, " has passed with ", Score',
+      'ELSE',
+      '   OUTPUT StudentName, " has not passed"',
+      'ENDIF'
+    ].join('\n')
+  };
+
+  const bubbleDoc = {
+    id: 'doc-bubble',
+    name: 'BubbleSort.pseudocode',
+    source: [
+      '// 演示：一维数组 + 过程 + 嵌套循环',
+      'DECLARE Numbers : ARRAY[1:6] OF INTEGER',
+      'DECLARE Index : INTEGER',
+      '',
+      'PROCEDURE BubbleSort(BYREF List : ARRAY[1:6] OF INTEGER)',
+      '   DECLARE Temp : INTEGER',
+      '   DECLARE i : INTEGER',
+      '   DECLARE j : INTEGER',
+      '   FOR i ← 1 TO 5',
+      '      FOR j ← 1 TO 6 - i',
+      '         IF List[j] > List[j + 1] THEN',
+      '            Temp ← List[j]',
+      '            List[j] ← List[j + 1]',
+      '            List[j + 1] ← Temp',
+      '         ENDIF',
+      '      NEXT j',
+      '   NEXT i',
+      'ENDPROCEDURE',
+      '',
+      'Numbers[1] ← 42',
+      'Numbers[2] ← 7',
+      'Numbers[3] ← 19',
+      'Numbers[4] ← 3',
+      'Numbers[5] ← 25',
+      'Numbers[6] ← 11',
+      '',
+      'CALL BubbleSort(Numbers)',
+      '',
+      'FOR Index ← 1 TO 6',
+      '   OUTPUT Numbers[Index]',
+      'NEXT Index'
+    ].join('\n')
+  };
+
+  const fileDoc = {
+    id: 'doc-file',
+    name: 'FileCopy.pseudocode',
+    source: [
+      '// 演示：文本文件读写（指南 9.1）',
+      'DECLARE LineOfText : STRING',
+      '',
+      'OPENFILE "Names.txt" FOR READ',
+      'OPENFILE "Report.txt" FOR WRITE',
+      '',
+      'WHILE NOT EOF("Names.txt")',
+      '   READFILE "Names.txt", LineOfText',
+      '   IF LineOfText = "" THEN',
+      '      WRITEFILE "Report.txt", "----------"',
+      '   ELSE',
+      '      WRITEFILE "Report.txt", LineOfText',
+      '   ENDIF',
+      'ENDWHILE',
+      '',
+      'CLOSEFILE "Names.txt"',
+      'CLOSEFILE "Report.txt"',
+      'OUTPUT "Copy finished"'
+    ].join('\n')
+  };
 
   // 运行时虚拟数据文件：与 .pseudocode 源文件是两个独立集合
-  const runtimeFiles = [
-    {
-      id: 'rf-names',
-      name: 'Names.txt',
-      kind: 'text',
-      lines: ['Ali', 'Bianca', '', 'Chen', 'Devi']
-    },
-    {
-      id: 'rf-report',
-      name: 'Report.txt',
-      kind: 'text',
-      lines: []
-    },
-    {
-      id: 'rf-students',
-      name: 'StudentFile.dat',
-      kind: 'records',
-      recordType: 'StudentRecord',
-      records: [
-        { LastName: 'Johnson', FirstName: 'Leroy', YearGroup: 6, FormGroup: 'A' },
-        { LastName: 'Ahmed', FirstName: 'Sara', YearGroup: 6, FormGroup: 'B' },
-        { LastName: 'Watanabe', FirstName: 'Ken', YearGroup: 5, FormGroup: 'A' }
-      ]
-    }
-  ];
+  const namesFile = {
+    id: 'rf-names',
+    name: 'Names.txt',
+    kind: 'text',
+    lines: ['Ali', 'Bianca', '', 'Chen', 'Devi']
+  };
 
-  return { docs: docs, runtimeFiles: runtimeFiles };
+  const reportFile = {
+    id: 'rf-report',
+    name: 'Report.txt',
+    kind: 'text',
+    lines: []
+  };
+
+  const docs = [mainDoc, bubbleDoc, fileDoc];
+  const runtimeFiles = [namesFile, reportFile];
+
+  /*
+   * 出厂样例改过一次：去掉了一份故意写错的 Practice.pseudocode 和一份没有示例
+   * 用到的 StudentFile.dat，并把 Main 开头那句只对开发者有意义的注释换成了人话。
+   *
+   * 但老用户浏览器里存的还是旧的那一份。isPristineProject 靠「和出厂样例逐字相同」
+   * 判断一个项目是不是「一个字都没改过」，只认新快照的话，这些人一登录就会被问
+   * 「这台设备上有未登录时留下的内容，要并入吗」——他们其实什么都没动过。
+   * 所以旧快照也要认。以后再改样例，同样往这里追加一份。
+   */
+  const legacy = [{
+    docs: [
+      {
+        id: 'doc-main',
+        name: 'Main.pseudocode',
+        source: [
+          '// 阶段 3B：输入成绩并执行真实选择结构',
+          'CONSTANT PassMark = 50',
+          'DECLARE StudentName : STRING',
+          'DECLARE Score : INTEGER',
+          '',
+          'OUTPUT "Please enter the student name"',
+          'INPUT StudentName',
+          'OUTPUT "Please enter the score"',
+          'INPUT Score',
+          '',
+          'IF Score >= PassMark THEN',
+          '   OUTPUT StudentName, " has passed with ", Score',
+          'ELSE',
+          '   OUTPUT StudentName, " has not passed"',
+          'ENDIF'
+        ].join('\n')
+      },
+      bubbleDoc,
+      fileDoc,
+      {
+        id: 'doc-practice',
+        name: 'Practice.pseudocode',
+        source: [
+          '// 演示：故意写错，用来看“问题”面板的三级诊断',
+          'declare Counter : INTEGER',
+          'Counter = 0',
+          '  Counter ← Counter + 1',
+          '',
+          'if Counter > 0 then',
+          '   OUTPUT "Counter is ", Counter',
+          '',
+          'DECLARE 2Names : STRING',
+          'CALL LENGTH("Hello")'
+        ].join('\n')
+      }
+    ],
+    runtimeFiles: [
+      namesFile,
+      reportFile,
+      {
+        id: 'rf-students',
+        name: 'StudentFile.dat',
+        kind: 'records',
+        recordType: 'StudentRecord',
+        records: [
+          { LastName: 'Johnson', FirstName: 'Leroy', YearGroup: 6, FormGroup: 'A' },
+          { LastName: 'Ahmed', FirstName: 'Sara', YearGroup: 6, FormGroup: 'B' },
+          { LastName: 'Watanabe', FirstName: 'Ken', YearGroup: 5, FormGroup: 'A' }
+        ]
+      }
+    ]
+  }];
+
+  return { docs: docs, runtimeFiles: runtimeFiles, legacy: legacy };
 })();

@@ -103,11 +103,12 @@ export async function writeProject(db: D1Database, user: AuthenticatedUser, proj
   if (current.owner_id !== user.id) throw new SyncError("NOT_FOUND", 404, "项目不存在。");
   if (current.deleted_at !== null) throw conflict("SYNC_CONFLICT", "项目已被删除。", publicProject(current));
   if (expectedRevision !== current.revision) throw conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(current));
-  await db.batch([
+  const results = await db.batch([
     operationInsert(db, operationId, user.id, entity, now),
     db.prepare("UPDATE projects SET name = ?1, revision = revision + 1, updated_at = ?2 WHERE id = ?3 AND revision = ?4")
       .bind(name, now, projectId, expectedRevision)
   ]);
+  await ensureMutationApplied(results[1], () => conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(current)));
   return { project: publicProject(await ownedProject(db, user, projectId, false)), idempotent: false };
 }
 
@@ -122,11 +123,12 @@ export async function deleteProject(db: D1Database, user: AuthenticatedUser, pro
   if (current.deleted_at !== null) throw conflict("SYNC_CONFLICT", "项目已被删除。", publicProject(current));
   if (expectedRevision !== current.revision) throw conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(current));
   const now = Date.now();
-  await db.batch([
+  const results = await db.batch([
     operationInsert(db, operationId, user.id, entity, now),
     db.prepare("UPDATE projects SET deleted_at = ?1, revision = revision + 1, updated_at = ?1 WHERE id = ?2 AND revision = ?3")
       .bind(now, projectId, expectedRevision)
   ]);
+  await ensureMutationApplied(results[1], async () => conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(await projectById(db, projectId) ?? current)));
   return { project: publicProject(await ownedProject(db, user, projectId, true)), idempotent: false };
 }
 
@@ -172,7 +174,7 @@ export async function writeFile(db: D1Database, user: AuthenticatedUser, project
   if (current.deleted_at !== null) throw conflict("SYNC_CONFLICT", "文件已被删除。", publicFile(current, false));
   if (current.kind !== kind) throw conflict("SYNC_CONFLICT", "文件类型已变化。", publicFile(current, false));
   if (expectedRevision !== current.revision) throw conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(current, false));
-  await db.batch([
+  const results = await db.batch([
     operationInsert(db, operationId, user.id, entity, now),
     db.prepare(
       `UPDATE project_files
@@ -181,6 +183,7 @@ export async function writeFile(db: D1Database, user: AuthenticatedUser, project
         WHERE id = ?6 AND project_id = ?7 AND revision = ?8 AND deleted_at IS NULL`
     ).bind(name, content, contentHash, deviceId, now, fileId, project.id, expectedRevision)
   ]);
+  await ensureMutationApplied(results[1], async () => conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(await requiredFile(db, project.id, fileId), false)));
   return { file: publicFile(await requiredFile(db, project.id, fileId), true), idempotent: false };
 }
 
@@ -197,7 +200,7 @@ export async function deleteFile(db: D1Database, user: AuthenticatedUser, projec
   if (current.deleted_at !== null) throw conflict("SYNC_CONFLICT", "文件已被删除。", publicFile(current, false));
   if (expectedRevision !== current.revision) throw conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(current, false));
   const now = Date.now();
-  await db.batch([
+  const results = await db.batch([
     operationInsert(db, operationId, user.id, entity, now),
     db.prepare(
       `UPDATE project_files
@@ -205,6 +208,7 @@ export async function deleteFile(db: D1Database, user: AuthenticatedUser, projec
         WHERE id = ?3 AND project_id = ?4 AND revision = ?5 AND deleted_at IS NULL`
     ).bind(now, deviceId, fileId, project.id, expectedRevision)
   ]);
+  await ensureMutationApplied(results[1], async () => conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(await requiredFile(db, project.id, fileId), false)));
   return { file: publicFile(await requiredFile(db, project.id, fileId), false), idempotent: false };
 }
 
@@ -277,6 +281,10 @@ function operationInsert(db: D1Database, operationId: string, userId: string, en
   return db.prepare(
     "INSERT INTO sync_operations (operation_id, user_id, entity, created_at, processed_at) VALUES (?1, ?2, ?3, ?4, ?4)"
   ).bind(operationId, userId, entity, now);
+}
+
+async function ensureMutationApplied(result: D1Result<unknown>, onConflict: () => SyncError | Promise<SyncError>): Promise<void> {
+  if (!result.meta || result.meta.changes !== 1) throw await onConflict();
 }
 
 async function checkProjectLimits(db: D1Database, projectId: string, current: FileRow | null, nextBytes: number): Promise<void> {

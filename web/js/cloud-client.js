@@ -156,8 +156,17 @@
       try { return await restoring; } finally { restoring = null; }
    }
 
-   async function startEmailLogin(email, role) {
-      return request("/auth/email/start", { method: "POST", body: { email: email, role: role } });
+   async function registerEmail(email, role, password) {
+      return request("/auth/email/register", { method: "POST", body: { email: email, role: role, password: password } });
+   }
+
+   /* 登录不带 role：账号自己知道自己是老师还是个人学习者。
+      以前带了，选错身份就会被当成密码错误，而且没有任何线索。 */
+   async function loginEmail(email, password) {
+      var data = await request("/auth/email/login", { method: "POST", body: { email: email, password: password } });
+      AUTH.set(data.user);
+      emit();
+      return data.user;
    }
 
    async function verifyEmailToken(token) {
@@ -251,7 +260,8 @@
       },
       request: request,
       restore: restore,
-      startEmailLogin: startEmailLogin,
+      registerEmail: registerEmail,
+      loginEmail: loginEmail,
       verifyEmailToken: verifyEmailToken,
       activateStudent: activateStudent,
       registerStudent: registerStudent,

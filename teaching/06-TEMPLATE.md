@@ -4,7 +4,7 @@
 
 | 文件 | 是什么 |
 |---|---|
-| `web/teaching.html` + `web/js/teaching-app.js` | **实际的教学页**。正文由 `packages/teaching-content` 的数据渲染，题目由真实引擎判 |
+| `web/learn.html` + `web/js/teaching-app.js` | **实际的教学页**。正文由 `packages/teaching-content` 的数据渲染，题目由真实引擎判 |
 | `web/task.html` + `web/js/task-page.js` | **独立做题页**。左题面、右作答，左右各自滚动；伪代码题与章末大题都在这里做 |
 | `web/js/teaching-task.js` | **两个页面共用的题目实现**：题面、作答区、判题、进度、草稿。判题口径只有这一份 |
 | `web/teaching-template.html` | **版式参照**：走**同一个渲染器**，只是喂给它一份占位数据（内联在页面里）。所以版式不可能和实际页面走样 |
@@ -140,7 +140,7 @@ statusbar  层级 · 章节号 · 考纲映射 │ 本地保存 │ 考纲版本
 
 ## 6.3 从课文跳进编辑器
 
-示例代码上的「在编辑器中打开」经 `localStorage` 交接（不是 `sessionStorage`——直接双击 HTML 打开时是 `file://`，两个页面的 session 互相看不见，交接会静默失败）。
+示例代码上的「在实验室中打开」经 `localStorage` 交接（不是 `sessionStorage`——直接双击 HTML 打开时是 `file://`，两个页面的 session 互相看不见，交接会静默失败）。
 
 带过去的文件**单独成组，放在用户自己的文件下面**，组标题可折叠：
 
@@ -196,13 +196,13 @@ runtime-messages.js   运行时错误的中文文案（与编辑器共用一份�
 
 `web/js/teaching-app.js` 负责把内容渲染成 DOM、串起关卡解锁、画题目入口卡；`web/js/teaching-task.js` 负责题面、作答区、判题与进度，`web/js/task-page.js` 只把它摆成左右两栏。判题全部在浏览器里完成，不需要服务器。
 
-**「在编辑器中打开」**：示例代码经 `sessionStorage` 传给 `index.html`，编辑器启动时把它建成 `FromLesson.pseudocode` 并直接打开。
+**「在实验室中打开」**：示例代码经 `sessionStorage` 传给 `lab.html`，编辑器启动时把它建成 `FromLesson.pseudocode` 并直接打开。
 
 **本地优先的一个已知限制**：判题用的输入与期望输出必须随页面下发，翻开开发者工具能看到。「用例对学生隐藏」这条约束管的是界面上不展示（[03-EXERCISE_SPEC.md](03-EXERCISE_SPEC.md) 4.3），不是保密。参考解不进浏览器包。
 
 ## 7. 版式参照页怎么用
 
-`teaching-template.html` 与 `teaching.html` 共用 `js/teaching-app.js`，区别只有一处：**参照页在加载渲染器之前，先用一份内联的占位数据覆盖 `window.CAIETeaching`**。
+`teaching-template.html` 与 `learn.html` 共用 `js/teaching-app.js`，区别只有一处：**参照页在加载渲染器之前，先用一份内联的占位数据覆盖 `window.CAIETeaching`**。
 
 因此：
 

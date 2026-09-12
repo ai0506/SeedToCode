@@ -57,7 +57,7 @@
 - [x] 教学元素规格（`02-CONTENT_SPEC.md`）
 - [x] 判题规格，含判题用例隐藏策略（`03-EXERCISE_SPEC.md`）
 - [x] 术语表种子（`05-GLOSSARY.md`）
-- [x] 小节页模板定稿（`web/teaching.html` + `06-TEMPLATE.md`）
+- [x] 小节页模板定稿（`web/learn.html` + `06-TEMPLATE.md`）
 - [x] 特征 ID 稳定清单（`packages/exercise/src/features.ts` 的 `FEATURE_IDS`）
 - [x] 内容文件的 TypeScript 类型定义（`packages/teaching-content/src/types.ts`）
 
@@ -76,7 +76,7 @@
 
 ### 阶段 T2 — 教学界面骨架（首版已完成）
 
-`web/teaching.html` + `web/js/teaching-app.js` 已按内容数据渲染出完整的 Chapter 1，并接通语言、运行时与判题三个引擎。已完成：内容渲染（六类块）、关卡逐段解锁、真实判题与四层结果面板、揭示阈值、章末大题软约束覆盖度、目录与上下节导航、「在编辑器中打开」的双向跳转。
+`web/learn.html` + `web/js/teaching-app.js` 已按内容数据渲染出完整的 Chapter 1，并接通语言、运行时与判题三个引擎。已完成：内容渲染（六类块）、关卡逐段解锁、真实判题与四层结果面板、揭示阈值、章末大题软约束覆盖度、目录与上下节导航、「在实验室中打开」的双向跳转。
 
 已补：课程主页（23 章一次列全 + 每节进度）、进度持久化（`localStorage`，刷新不丢）、章末大题通过后回主页、从课文跳进编辑器的文件保护（不能删/改名，可一键恢复原始）。
 
@@ -89,7 +89,7 @@
 
 - 学习模式与编辑器模式的切换（不是两个网站，共用同一个编辑器组件）。
 - 五类元素的渲染组件 + quiz 的四种题型（`single-choice` / `true-false` / `click-line` / `fill-blank`；`order` 与 `multi-choice` 已废弃，`trace-table` 见待定章 X1）+ 关卡逐段解锁 + 判题结果面板。
-- 题目编辑器：从教学页面「在编辑器中打开」、写完提交、结果内嵌显示。
+- 题目编辑器：从教学页面「在实验室中打开」、写完提交、结果内嵌显示。
 
 验收：用 2 个手写的样例小节跑通全链路，不依赖真实内容。
 

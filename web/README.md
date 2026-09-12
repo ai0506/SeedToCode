@@ -2,7 +2,7 @@
 
 页面与引擎的当前状态以 [`../PROJECT_STATE.md`](../PROJECT_STATE.md) 为准。本文件说明页面实现；“尚未实现”部分只列当前仍未完成的能力，不记录历史状态。
 
-页面运行时是纯静态资源，可直接双击 `web/index.html` 打开或启动本地服务。修改 TypeScript 语言或运行时核心后需要执行根目录 `npm run build`，重新生成浏览器引擎脚本：
+页面运行时是纯静态资源，可直接双击 `web/lab.html` 打开或启动本地服务。页面之间的链接一律写成带后缀的相对路径（`learn.html`）——双击本地文件时没有服务端，只有这种形式才找得到文件；线上由 Workers Assets 的 `auto-trailing-slash` 把地址栏换成无后缀的 `/learn`，两种用法都成立。判断"当前在哪一页"的地方要同时认两种形状。修改 TypeScript 语言或运行时核心后需要执行根目录 `npm run build`，重新生成浏览器引擎脚本：
 
 ```bash
 python3 -m http.server 8777 --directory web
@@ -20,14 +20,15 @@ node scripts/dev-proxy.mjs
 
 | 文件 | 职责 |
 |---|---|
-| `index.html` | 布局骨架：顶栏、代码文件栏、编辑器、结果面板、状态栏、对话框 |
+| `lab.html` | 实验室（编辑器）布局骨架：顶栏、代码文件栏、编辑器、结果面板、状态栏、对话框 |
+| `SeedToCode_favicon.png` | 站点图标，同时作为顶栏 `.brand-logo`（26px）。256×256，仓库根目录留有 1254×1254 原图 |
 | `css/styles.css` | 低饱和中性色主题，浅色/深色变量 |
 | `js/caie-spec.js` | CAIE 9618 关键字、类型、内置函数、块配对表、结构模板（规则基线） |
 | `js/language-engine.js` | 从 `packages/language` 生成的 IIFE 浏览器语言核心 |
 | `js/language-adapter.js` | 结构化诊断的中文消息、范围及 TextEdit 页面适配 |
 | `js/runtime-engine.js` | 从 `packages/runtime` 生成的 IIFE 阶段 4 解释器 |
 | `js/lang.js` | 不改变源代码的轻量语法高亮 |
-| `js/samples.js` | 初始源文件和运行时虚拟文件 |
+| `js/samples.js` | 新建项目的初始源文件（Main / BubbleSort / FileCopy）与运行时虚拟文件（Names.txt / Report.txt），另含历史样例快照 `legacy`，供「项目是否一个字没改过」的判断识别老设备上的旧出厂内容 |
 | `js/app.js` | 界面逻辑：项目、编辑器、文件管理、诊断展示、真实运行 |
 | `js/tooltip.js` | 共用的自定义悬浮提示：页面一律用 `data-tip`，不用原生 `title` |
 | `js/storage.js` | `CAIEStorage` 浏览器存储 facade：旧 key 兼容读取、IndexedDB 初始化、迁移镜像、云端相关 key 和 `deviceId()` |
@@ -35,15 +36,15 @@ node scripts/dev-proxy.mjs
 | `js/cloud-client.js` | `CloudClient`：API 定位（同源 `/auth` 与 `/api`）、`credentials: "include"` 请求、错误归一、会话状态 |
 | `js/sync-queue.js` | `SyncQueue`：待上传操作的本地持久化、幂等 `operationId`、退避重试与不可重试项 |
 | `js/sync-engine.js` | `SyncEngine`：pull / push / 冲突；项目与教学两个适配器由对应页面注册 |
-| `js/account-ui.js` | 账户入口：自行插入现有顶栏右侧，邮箱一次性链接、学生激活与登录、同步状态 |
+| `js/account-ui.js` | 顶栏主导航（实验室 / 学习 / 作业 \| 班级，按身份出）与账户入口：自行插入现有顶栏，身份、同步状态、作业概览、退出 |
 | `css/account.css` | 账户面板与题目草稿冲突提示的样式，不改动既有版式 |
-| `teaching.html` + `js/teaching-app.js` | 教学页：课文、关卡、进度；题目位置只放入口卡 |
+| `learn.html` + `js/teaching-app.js` | 教学页：课文、关卡、进度；题目位置只放入口卡 |
 | `task.html` + `js/task-page.js` + `css/task.css` | 独立做题页：左题面 / 右作答，左右各自滚动 |
 | `js/teaching-task.js` | 两个教学页共用的题目实现：题面、作答区、判题、进度、草稿 |
 | `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分 |
 | `assignments.html` + `js/assignments-page.js` + `css/assignments.css` | 学生的作业页：每道题的状态、老师给的分与评语 |
-| `login.html` + `js/login-page.js` + `css/login.css` | 独立登录页：三种身份并列选择，选中哪个才显示哪个的字段 |
-| `teacher.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、布置作业与查看作业提交 |
+| `login.html` + `js/login-page.js` + `css/login.css` | 独立登录页：先问登录还是注册，再选身份（学生 / 老师 / 个人学习者），最后才是对应的表单；三步共用一个高度受控容器，换屏做一次短过渡 |
+| `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、布置作业与查看作业提交 |
 
 ## 语言规范文档
 
@@ -77,13 +78,16 @@ node scripts/dev-proxy.mjs
 - 运行时虚拟文件：点击文件行打开二级界面，默认「预览」按行号列出内容（随机文件按记录位置），切到「编辑」再修改；新建、删除（二次确认）、重置。文件名在运行时不区分大小写并拒绝路径/URL；handle 表实时显示模式与位置。
 - 设置：主题、字号、行号、`<-` 转换、自动缩进、自动配对、清除本地数据。设置与语法检测开关属于偏好，静默写入本地，不触发文档的「保存中」状态。
 - 本地持久化：页面通过 `CAIEStorage` 访问；旧 `localStorage` key 作为兼容来源并镜像到 IndexedDB，刷新后恢复。最终纯 IndexedDB entity 读取仍在计划中。`deviceId` 是浏览器安装首次生成并持久化的随机 UUID，只用于 `updatedByDevice`、`operationId` 和冲突来源，不使用设备指纹。
-- 账户与云端（可选，不登录不影响任何本地能力）：顶栏右侧的账户入口支持老师/个人学习者的邮箱一次性链接，以及学生的 `username + activationCode` 首次激活和用户名密码登录；页面读到 URL 中的 `authToken` 后立刻用 `history.replaceState` 抹掉再校验。未配置 API 时入口只说明“云端功能暂未连接”。
+- 账户与云端（可选，不登录不影响任何本地能力）：顶栏右侧的账户入口支持老师/个人学习者邮箱密码登录与首次注册邮箱验证，以及学生的 `username + activationCode` 首次激活和用户名密码登录；页面读到 URL 中的 `authToken` 后立刻用 `history.replaceState` 抹掉再校验。未配置 API 时入口只说明“云端功能暂未连接”。
 - 个人项目同步：登录后首次 pull，之后本地每次保存触发一次差异计算并进入持久化队列。只同步代码文件与运行时文件；`activeId`、当前项目、滚动位置和编辑器偏好不上传。本地新建、改名、编辑、删除立即完成，同步在后面异步执行，失败不阻止本地任何操作。
 - 冲突与删除：版本冲突时保留本地内容，并按现有命名规则把服务端版本作为同一项目内的“（云端副本）”文件放进来，不做弹窗式合并；删除以带 revision 的 tombstone 上传，服务端 tombstone 只在本地未修改时才删除本地文件，本地改过的会在新的服务端 id 下重建。超过服务端上限时明确显示“文件过大”，不伪装成服务器繁忙。
 - 云端运行：保留“运行”按钮为本地运行，云端运行是“更多”菜单里的可选动作，未登录时提示“登录后可使用云端运行”。请求携带编辑器内存中的 immutable snapshot（不等同步完成），`projectId` 只用于归属；输出、变量、错误和虚拟文件变更复用既有结果面板；运行时文件变更先写回本地再进同步队列。收到 `SERVER_BUSY` 只显示“服务器繁忙，请稍后再试”，不显示任何额度信息；云端失败不影响本地文件和之后的本地运行。
 - 教学数据同步：完成状态只向“已完成”单调合并，绝不上传“未完成”，章末大题（`sectionId` 为 `chapterTask`）与普通小节一样同步；阅读位置只同步 `chapterId` 与 `sectionId`，`scrollTop` 保持设备本地；题目草稿按 `章号/题号` 同步，冲突时保留本地并把云端那一份存成可恢复草稿，作答区顶部出现一行提示由学生自己选择。章末大题每按一次「提交」都会留下一条不可变记录供老师查看：只上传答案内容，分数由服务端重新判分，客户端算出的结果只用于当场展示；断网时记录进队列，恢复后按提交顺序补传，判题和作答全程不等它。
 
 ## 全局交互原则的落实
+
+> 规则本身在仓库根目录的 [`FRONTEND_RULES.md`](../FRONTEND_RULES.md)（规范性，含检查清单和验证方法）。
+> 下面这一段是**现状记录**：已经按那两条做到了哪些。两者冲突以 `FRONTEND_RULES.md` 为准。
 
 **布局稳定性**（交互只改变被操作对象本身）
 
@@ -107,4 +111,4 @@ node scripts/dev-proxy.mjs
 - Advanced 特性的运行时执行（枚举、指针、集合、OOP）。
 - 单步调试与 Dry Run。
 - 页面完全切换到 IndexedDB entity 读取。
-- Cloudflare Workers 与远端 D1 已部署并联测；生产 Resend 邮件配置仍未完成，因此老师和个人学习者邮箱登录暂不可用。
+- Cloudflare Workers 与远端 D1 已部署并联测；老师和个人学习者首次注册需要生产 Resend 邮件验证，之后使用邮箱和密码登录。

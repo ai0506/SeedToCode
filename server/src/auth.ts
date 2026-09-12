@@ -22,6 +22,8 @@ type TokenRow = {
   email: string | null;
   username: string | null;
   status: string;
+  pending_password_hash?: string | null;
+  pending_password_salt?: string | null;
 };
 
 const textEncoder = new TextEncoder();
@@ -83,7 +85,15 @@ export function expiredCookieHeader(env: Env): string {
   return cookieHeader("", env, 0);
 }
 
-export async function startEmailLogin(
+/*
+ * 邮箱注册。密码在这里**不写进 users**，只挂在一次性 token 那一行上。
+ *
+ * 以前是当场写：新密码进 users、状态降成 pending_email，然后才发信。于是任何人
+ * 拿一个已知邮箱发一次请求，就能把那个账号的密码换掉并把它踢出 active——主人立刻
+ * 登不进去、会话当场失效，而且他要是点了那封看起来很正常的验证邮件，激活的是别人
+ * 设的密码。现在没点链接之前 users 完全不动，最坏情况只是收到一封没头没尾的信。
+ */
+export async function startEmailRegistration(
   db: D1Database,
   env: Env,
   input: unknown
@@ -91,8 +101,12 @@ export async function startEmailLogin(
   const body = objectBody(input);
   const email = normaliseEmail(body.email);
   const role = emailRole(body.role);
+  const password = passwordInput(body.password);
   const now = Date.now();
-  if (!(await allowAttempt(db, "email_start", email, EMAIL_START_MAX_ATTEMPTS, now)).allowed) return {};
+  /* 超限时要说出来。以前这里直接 return {}，前端照样显示「验证邮件已经发出」，
+     人就对着收件箱一直等一封不会来的信。 */
+  const gate = await allowAttempt(db, "email_register", email, EMAIL_START_MAX_ATTEMPTS, now);
+  if (!gate.allowed) throw throttled(gate.retryAfterSeconds);
   const existing = await db.prepare(
     "SELECT id, role, email, username, status, password_hash, password_salt FROM users WHERE email = ?1"
   ).bind(email).first<UserRow>();
@@ -101,43 +115,118 @@ export async function startEmailLogin(
   if (!existing) {
     userId = crypto.randomUUID();
     await db.prepare(
-      "INSERT INTO users (id, email, role, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'active', ?4, ?4)"
+      "INSERT INTO users (id, email, role, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'pending_email', ?4, ?4)"
     ).bind(userId, email, role, now).run();
   } else {
-    // Do not let this route reveal whether an address belongs to a student or another role.
-    if (existing.role === "student" || existing.role !== role || existing.status !== "active") return {};
+    if (existing.role === "student" || existing.role !== role || (existing.status !== "active" && existing.status !== "pending_email")) {
+      throw new AuthError("ACCOUNT_EXISTS", 409, "这个邮箱已经注册过，请直接登录。", { alreadyRegistered: true });
+    }
+    // 已经能用的账号不走注册，改密码是另一回事。
+    if (existing.status === "active" && existing.password_hash && existing.password_salt) {
+      throw new AuthError("ACCOUNT_EXISTS", 409, "这个邮箱已经注册过，请直接登录。", { alreadyRegistered: true });
+    }
+    /* 剩下两种都允许，而且都只发信、不改库：
+       - pending_email：同一个人再点一次注册，等于重发链接、改用新密码；
+       - active 但没有密码：旧 magic-link 账号，借这条路补一个密码，
+         但必须点他自己邮箱里的链接才算数。 */
     userId = existing.id;
   }
 
   const token = randomToken();
   const tokenHash = await digest(token);
+  const passwordSalt = randomToken();
+  const passwordHash = encodePasswordHash(await passwordDigest(password, passwordSalt));
   await db.batch([
     db.prepare("DELETE FROM auth_tokens WHERE user_id = ?1 AND purpose = 'email_login' AND consumed_at IS NULL").bind(userId),
     db.prepare(
-      "INSERT INTO auth_tokens (id, user_id, purpose, token_hash, expires_at, created_at) VALUES (?1, ?2, 'email_login', ?3, ?4, ?5)"
-    ).bind(crypto.randomUUID(), userId, tokenHash, now + EMAIL_TOKEN_TTL_MS, now)
+      "INSERT INTO auth_tokens (id, user_id, purpose, token_hash, expires_at, created_at, pending_password_hash, pending_password_salt) VALUES (?1, ?2, 'email_login', ?3, ?4, ?5, ?6, ?7)"
+    ).bind(crypto.randomUUID(), userId, tokenHash, now + EMAIL_TOKEN_TTL_MS, now, passwordHash, passwordSalt)
   ]);
 
   if (env.ENVIRONMENT === "development") return { developmentToken: token };
-  await sendMagicLink(env, email, token);
+  await sendVerificationLink(env, email, token);
   return {};
 }
 
+/*
+ * 邮箱登录。
+ *
+ * 这里**不再按身份过滤**。以前 role 参与判断，于是一个老师在登录页把身份点成
+ * 「个人学习者」，输对密码也只会得到「邮箱或密码不正确」；他改去注册，又被告知
+ * 「这个邮箱已经注册过，请直接登录」——两句话互相指向对方，没有任何线索说是身份
+ * 选错了。账号本来就自带 role，登录时不需要用户再报一遍，返回真实 role 即可。
+ */
+export async function loginEmail(db: D1Database, env: Env, input: unknown) {
+  const body = objectBody(input);
+  const email = normaliseEmail(body.email);
+  const password = passwordInput(body.password, false);
+  const now = Date.now();
+  const gate = await allowAttempt(db, "email_login", email, STUDENT_AUTH_MAX_ATTEMPTS, now);
+  if (!gate.allowed) throw throttled(gate.retryAfterSeconds);
+  const user = await db.prepare(
+    "SELECT id, role, email, username, status, password_hash, password_salt FROM users WHERE email = ?1"
+  ).bind(email).first<UserRow>();
+  if (!user || user.role === "student") throw invalidEmailCredentials();
+  /* 密码是对的却说「密码不正确」，人只会反复重打同一串字。这两种卡住的状态
+     各自有明确的下一步，就直说是哪一种——注册接口本来就会暴露邮箱存不存在，
+     这里不比它多说什么。 */
+  if (user.status === "pending_email") {
+    throw new AuthError("EMAIL_NOT_VERIFIED", 403, "这个邮箱还没有完成验证。请打开注册时收到的邮件点一下链接；找不到那封信就重新注册一次，会重新发给你。");
+  }
+  if (user.status !== "active") throw invalidEmailCredentials();
+  if (!user.password_hash || !user.password_salt) {
+    throw new AuthError("NEEDS_PASSWORD_SETUP", 403, "这个邮箱还没有设置过密码。请改用「注册」给它设一个密码，我们会发一封验证邮件确认是你本人。");
+  }
+  const stored = decodePasswordHash(user.password_hash);
+  let candidateHash: string;
+  try {
+    candidateHash = await passwordDigest(password, user.password_salt, stored.iterations, stored.rounds);
+  } catch {
+    throw invalidEmailCredentials();
+  }
+  if (!constantTimeEqual(candidateHash, stored.hex)) throw invalidEmailCredentials();
+  await clearAttempts(db, "email_login", email);
+  const session = await createSession(db, user.id);
+  return { user: publicUser(user), setCookie: cookieHeader(session.token, env, session.expiresAt) };
+}
+
+function invalidEmailCredentials(): AuthError {
+  return new AuthError("INVALID_CREDENTIALS", 401, "邮箱或密码不正确。若还没有账号，请先注册。");
+}
+
+/*
+ * 点验证链接。密码就是在这一刻才第一次写进 users——在此之前那串哈希只存在于
+ * 这条 token 记录上，谁都改不动已有账号。
+ */
 export async function verifyEmailLogin(db: D1Database, env: Env, input: unknown) {
   const body = objectBody(input);
   const token = requiredString(body.token, "登录链接无效。", "INVALID_TOKEN");
   const now = Date.now();
   const row = await db.prepare(
     `SELECT auth_tokens.id, auth_tokens.user_id, auth_tokens.expires_at, auth_tokens.consumed_at,
+            auth_tokens.pending_password_hash, auth_tokens.pending_password_salt,
             users.role, users.email, users.username, users.status
        FROM auth_tokens JOIN users ON users.id = auth_tokens.user_id
       WHERE auth_tokens.token_hash = ?1 AND auth_tokens.purpose = 'email_login'`
   ).bind(await digest(token)).first<TokenRow>();
 
-  if (!row || row.consumed_at || row.expires_at <= now || row.status !== "active" || row.role === "student") {
-    throw new AuthError("INVALID_TOKEN", 401, "登录链接无效或已过期。");
+  /* 允许 active：旧 magic-link 账号是 active 但没有密码，走注册补密码时状态一直
+     没动过，到这里仍然是 active。 */
+  const usable = row && !row.consumed_at && row.expires_at > now && row.role !== "student"
+    && (row.status === "pending_email" || row.status === "active");
+  if (!usable || !row || !row.pending_password_hash || !row.pending_password_salt) {
+    throw new AuthError("INVALID_TOKEN", 401, "验证链接无效或已过期。请重新注册一次，会发一封新的给你。");
   }
-  await db.prepare("UPDATE auth_tokens SET consumed_at = ?1 WHERE id = ?2 AND consumed_at IS NULL").bind(now, row.id).run();
+  await db.batch([
+    db.prepare("UPDATE auth_tokens SET consumed_at = ?1 WHERE id = ?2 AND consumed_at IS NULL").bind(now, row.id),
+    // 密码换了，别的地方的会话就不该继续留着
+    db.prepare("DELETE FROM sessions WHERE user_id = ?1").bind(row.user_id),
+    db.prepare(
+      "UPDATE users SET status = 'active', password_hash = ?1, password_salt = ?2, updated_at = ?3 WHERE id = ?4"
+    ).bind(row.pending_password_hash, row.pending_password_salt, now, row.user_id)
+  ]);
+  await clearAttempts(db, "email_register", row.email || "");
+  await clearAttempts(db, "email_login", row.email || "");
   const session = await createSession(db, row.user_id);
   return { user: publicUser(tokenUser(row)), setCookie: cookieHeader(session.token, env, session.expiresAt) };
 }
@@ -177,29 +266,35 @@ export async function activateStudent(db: D1Database, env: Env, input: unknown) 
   return { user: publicUser(tokenUser(row)), setCookie: cookieHeader(session.token, env, session.expiresAt) };
 }
 
-export async function createPendingStudent(db: D1Database, usernameInput: unknown): Promise<{ user: AuthenticatedUser; activationCode: string }> {
+type StudentMembership = { classId: string; displayName: string };
+
+export async function createPendingStudent(db: D1Database, usernameInput: unknown, membership?: StudentMembership): Promise<{ user: AuthenticatedUser; activationCode: string }> {
   const username = normaliseUsername(usernameInput);
   const existing = await db.prepare("SELECT id FROM users WHERE username = ?1").bind(username).first<{ id: string }>();
   if (existing) throw new AuthError("USERNAME_TAKEN", 409, "该用户名已被使用。");
   const now = Date.now();
   const user: AuthenticatedUser = { id: crypto.randomUUID(), role: "student", email: null, username };
   const activationCode = newActivationCode();
-  await db.batch([
+  const statements = [
     db.prepare(
       "INSERT INTO users (id, username, role, status, created_at, updated_at) VALUES (?1, ?2, 'student', 'pending_activation', ?3, ?3)"
     ).bind(user.id, username, now),
     db.prepare(
       "INSERT INTO auth_tokens (id, user_id, purpose, token_hash, expires_at, created_at) VALUES (?1, ?2, 'student_activation', ?3, ?4, ?5)"
-    ).bind(crypto.randomUUID(), user.id, await digest(activationCode), now + STUDENT_ACTIVATION_TTL_MS, now)
-  ]);
+      ).bind(crypto.randomUUID(), user.id, await digest(activationCode), now + STUDENT_ACTIVATION_TTL_MS, now)
+  ];
+  if (membership) statements.push(db.prepare(
+    "INSERT INTO class_members (class_id, user_id, display_name, status, created_at) VALUES (?1, ?2, ?3, 'active', ?4)"
+  ).bind(membership.classId, user.id, membership.displayName, now));
+  await db.batch(statements);
   return { user, activationCode };
 }
 
 /**
  * 直接建一个已激活的学生账号：自己定用户名和密码，不经过激活码。
- * 班级归属由调用方负责——这里只管凭据。
+ * 需要进班时，调用方把 membership 一并交给这里，确保凭据和班级成员关系原子写入。
  */
-export async function createActiveStudent(db: D1Database, usernameInput: unknown, passwordInputValue: unknown) {
+export async function createActiveStudent(db: D1Database, usernameInput: unknown, passwordInputValue: unknown, membership?: StudentMembership) {
   const username = normaliseUsername(usernameInput);
   const password = passwordInput(passwordInputValue);
   const existing = await db.prepare("SELECT id FROM users WHERE username = ?1").bind(username).first<{ id: string }>();
@@ -208,9 +303,13 @@ export async function createActiveStudent(db: D1Database, usernameInput: unknown
   const user: AuthenticatedUser = { id: crypto.randomUUID(), role: "student", email: null, username };
   const passwordSalt = randomToken();
   const passwordHash = encodePasswordHash(await passwordDigest(password, passwordSalt));
-  await db.prepare(
+  const statements = [db.prepare(
     "INSERT INTO users (id, username, role, status, password_hash, password_salt, created_at, updated_at) VALUES (?1, ?2, 'student', 'active', ?3, ?4, ?5, ?5)"
-  ).bind(user.id, username, passwordHash, passwordSalt, now).run();
+  ).bind(user.id, username, passwordHash, passwordSalt, now)];
+  if (membership) statements.push(db.prepare(
+    "INSERT INTO class_members (class_id, user_id, display_name, status, created_at) VALUES (?1, ?2, ?3, 'active', ?4)"
+  ).bind(membership.classId, user.id, membership.displayName, now));
+  await db.batch(statements);
   return user;
 }
 
@@ -350,21 +449,22 @@ async function createSession(db: D1Database, userId: string) {
   return { token, expiresAt };
 }
 
-async function sendMagicLink(env: Env, email: string, token: string): Promise<void> {
-  if (!env.RESEND_API_KEY || !env.EMAIL_FROM || !env.APP_ORIGIN) throw new AuthError("EMAIL_NOT_CONFIGURED", 503, "邮箱登录暂未配置，请稍后再试。");
+async function sendVerificationLink(env: Env, email: string, token: string): Promise<void> {
+  if (!env.RESEND_API_KEY || !env.EMAIL_FROM || !env.APP_ORIGIN) throw new AuthError("EMAIL_NOT_CONFIGURED", 503, "邮箱验证暂未配置，请联系管理员。");
   const origin = new URL(env.APP_ORIGIN).origin;
-  const link = `${origin}/?authToken=${encodeURIComponent(token)}`;
+  // 指到 /lab，不指根路径：根路径会 301 到 /lab，让一次性 token 白白多走一跳
+  const link = `${origin}/lab?authToken=${encodeURIComponent(token)}`;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
     body: JSON.stringify({
       from: env.EMAIL_FROM,
       to: [email],
-      subject: "登录 SeedToCode",
-      html: `<p>点击下方链接登录 SeedToCode。链接将在 15 分钟后失效。</p><p><a href="${link}">登录 SeedToCode</a></p>`
+      subject: "验证你的 SeedToCode 账号",
+      html: `<p>点击下方链接完成 SeedToCode 注册并登录。链接将在 15 分钟后失效。</p><p><a href="${link}">验证邮箱并登录 SeedToCode</a></p>`
     })
   });
-  if (!response.ok) throw new AuthError("EMAIL_DELIVERY_FAILED", 503, "登录邮件暂时无法发送，请稍后再试。");
+  if (!response.ok) throw new AuthError("EMAIL_DELIVERY_FAILED", 503, "验证邮件暂时无法发送，请稍后再试。");
 }
 
 async function digest(value: string): Promise<string> {

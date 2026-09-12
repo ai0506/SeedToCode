@@ -83,6 +83,15 @@
       saved.teaching.progress = saved.teaching.progress || {};
       saved.teaching.drafts = saved.teaching.drafts || {};
       saved.hold = saved.hold || { previousOwner: null, asked: false, projects: {}, files: {}, progress: {}, drafts: {} };
+      /* v1 的 files 曾经以 fileId 为键；迁移到 projectId/fileId，避免旧元数据
+         把两个项目中同名 id 合并成一份。无法判断归属的旧条目保留到首次发现文件时处理。 */
+      var migratedFiles = {};
+      Object.keys(saved.files).forEach(function (legacyId) {
+         var entry = saved.files[legacyId];
+         var key = entry && entry.projectId ? fileKey(entry.projectId, legacyId) : legacyId;
+         migratedFiles[key] = entry;
+      });
+      saved.files = migratedFiles;
       return saved;
    })();
 
@@ -101,7 +110,7 @@
             那是编辑器自己建的起始状态，拿它去问「要不要并入」纯属噪音。 */
          if (project.pristine) return;
          meta.hold.projects[project.id] = true;
-         (project.files || []).forEach(function (file) { meta.hold.files[file.id] = true; });
+         (project.files || []).forEach(function (file) { meta.hold.files[fileKey(project.id, file.id)] = true; });
       });
    }
 
@@ -175,7 +184,7 @@
          seenProjects[project.id] = true;
          // 登录之前就在这台设备上的内容：本地照常用，但不进这个账号。
          if (meta.hold.projects[project.id]) {
-            (project.files || []).forEach(function (file) { seenFiles[file.id] = true; });
+            (project.files || []).forEach(function (file) { seenFiles[fileKey(project.id, file.id)] = true; });
             return;
          }
          var entry = meta.projects[project.id];
@@ -188,13 +197,22 @@
          }
 
          (project.files || []).forEach(function (file) {
-            seenFiles[file.id] = true;
-            if (meta.hold.files[file.id]) return;
+            var key = fileKey(project.id, file.id);
+            seenFiles[key] = true;
+            if (meta.hold.files[key] || meta.hold.files[file.id]) return;
             var hash = hashOf(file.content);
-            var known = meta.files[file.id];
-            if (!known) {
-               meta.files[file.id] = { serverId: serverFileId(file.id), projectId: project.id, revision: null, hash: null };
+            var known = meta.files[key];
+            if (!known && meta.files[file.id] && !meta.files[file.id].projectId) {
                known = meta.files[file.id];
+               delete meta.files[file.id];
+               known.projectId = project.id;
+               known.serverId = serverFileId(project.id, file.id);
+               known.revision = null;
+               meta.files[key] = known;
+            }
+            if (!known) {
+               meta.files[key] = { serverId: serverFileId(project.id, file.id), projectId: project.id, revision: null, hash: null };
+               known = meta.files[key];
             }
             if (known.projectId !== project.id) known.projectId = project.id;
             if (known.hash !== hash || known.revision === null) {
@@ -205,10 +223,12 @@
          });
       });
 
-      Object.keys(meta.files).forEach(function (fileId) {
-         if (seenFiles[fileId]) return;
-         var known = meta.files[fileId];
-         if (!known || known.revision === null) { delete meta.files[fileId]; return; }
+      Object.keys(meta.files).forEach(function (key) {
+         var known = meta.files[key];
+         if (key.indexOf("/") < 0) { delete meta.files[key]; return; }
+         var fileId = key.slice(key.indexOf("/") + 1);
+         if (seenFiles[key]) return;
+         if (!known || known.revision === null) { delete meta.files[key]; return; }
          QUEUE.enqueue("file.delete", "file:" + known.projectId + ":" + fileId, {
             projectId: known.projectId, fileId: fileId
          });
@@ -281,14 +301,17 @@
    /* 服务端的 project_files.id 是全局主键，不是「项目内唯一」：
       `doc-main` 这种出厂就固定的 id 被一个用户占掉之后，别人再也建不出来。
       和项目 id 同样处理——带上用户短哈希，同一个人跨设备算出的仍然是同一个。 */
-   function serverFileId(fileId) {
+   function fileKey(projectId, fileId) { return projectId + "/" + fileId; }
+
+   function serverFileId(projectId, fileId) {
       var owner = meta.userId || AUTH.userId() || "anonymous";
-      return fileId + "." + shortHash(owner);
+      return projectId + "." + fileId + "." + shortHash(owner);
    }
 
    function fileEntry(projectId, fileId) {
-      if (!meta.files[fileId]) meta.files[fileId] = { serverId: serverFileId(fileId), projectId: projectId, revision: null, hash: null };
-      return meta.files[fileId];
+      var key = fileKey(projectId, fileId);
+      if (!meta.files[key]) meta.files[key] = { serverId: serverFileId(projectId, fileId), projectId: projectId, revision: null, hash: null };
+      return meta.files[key];
    }
 
    async function send(operation) {
@@ -327,8 +350,8 @@
          body: { operationId: operation.operationId, expectedRevision: entry.revision }
       });
       delete meta.projects[payload.projectId];
-      Object.keys(meta.files).forEach(function (fileId) {
-         if (meta.files[fileId].projectId === payload.projectId) delete meta.files[fileId];
+      Object.keys(meta.files).forEach(function (key) {
+         if (meta.files[key].projectId === payload.projectId) delete meta.files[key];
       });
       saveMeta();
       return { done: true };
@@ -362,10 +385,11 @@
    }
 
    async function sendFileDelete(operation, payload) {
-      var entry = meta.files[payload.fileId];
-      if (!entry || entry.revision === null) { delete meta.files[payload.fileId]; saveMeta(); return { done: true }; }
+      var key = fileKey(payload.projectId, payload.fileId);
+      var entry = meta.files[key];
+      if (!entry || entry.revision === null) { delete meta.files[key]; saveMeta(); return { done: true }; }
       var project = meta.projects[payload.projectId];
-      if (!project) { delete meta.files[payload.fileId]; saveMeta(); return { done: true }; }
+      if (!project) { delete meta.files[key]; saveMeta(); return { done: true }; }
       await CLIENT.request(
          "/api/projects/" + encodeURIComponent(project.serverId) + "/files/" + encodeURIComponent(entry.serverId),
          {
@@ -373,7 +397,7 @@
             body: { operationId: operation.operationId, expectedRevision: entry.revision, deviceId: STORAGE.deviceId() }
          }
       );
-      delete meta.files[payload.fileId];
+      delete meta.files[key];
       saveMeta();
       return { done: true };
    }
@@ -490,11 +514,11 @@
                它名下的文件也要跟着改到新项目下，否则会一直往一条已删的记录里写。 */
             entry.serverId = uuid();
             entry.revision = null;
-            Object.keys(meta.files).forEach(function (fileId) {
-               if (meta.files[fileId].projectId !== payload.projectId) return;
-               meta.files[fileId].serverId = uuid();
-               meta.files[fileId].revision = null;
-               meta.files[fileId].hash = null;
+            Object.keys(meta.files).forEach(function (key) {
+               if (meta.files[key].projectId !== payload.projectId) return;
+               meta.files[key].serverId = serverFileId(payload.projectId, key.slice(key.indexOf("/") + 1));
+               meta.files[key].revision = null;
+               meta.files[key].hash = null;
             });
             saveMeta();
             QUEUE.enqueue("project.put", operation.entity, payload);
@@ -514,7 +538,7 @@
 
       if (operation.kind === "file.delete") {
          // 服务端那边已经是 tombstone，或者版本对不上。删除意图已经达成或已作废。
-         delete meta.files[payload.fileId];
+         delete meta.files[fileKey(payload.projectId, payload.fileId)];
          saveMeta();
          return false;
       }
@@ -681,7 +705,7 @@
       var pendingDeletes = {};
       QUEUE.list().forEach(function (op) {
          if (op.kind === "project.delete") pendingDeletes["project:" + op.payload.projectId] = true;
-         if (op.kind === "file.delete") pendingDeletes["file:" + op.payload.fileId] = true;
+         if (op.kind === "file.delete") pendingDeletes["file:" + op.payload.projectId + ":" + op.payload.fileId] = true;
       });
       var localById = {};
       (projectsAdapter.collect() || []).forEach(function (project) {
@@ -691,7 +715,10 @@
       var serverIdToLocal = {};
       Object.keys(meta.projects).forEach(function (localId) { serverIdToLocal[meta.projects[localId].serverId] = localId; });
       var serverFileToLocal = {};
-      Object.keys(meta.files).forEach(function (localId) { serverFileToLocal[meta.files[localId].serverId] = localId; });
+      Object.keys(meta.files).forEach(function (key) {
+         var entry = meta.files[key];
+         serverFileToLocal[entry.serverId] = key;
+      });
 
       (data.projects || []).forEach(function (project) {
          var localProjectId = serverIdToLocal[project.id] || project.id;
@@ -703,8 +730,8 @@
                && knownProject.revision < project.revision && projectsAdapter.removeProject
                && projectsAdapter.removeProject(localProjectId)) {
                delete meta.projects[localProjectId];
-               Object.keys(meta.files).forEach(function (fileId) {
-                  if (meta.files[fileId].projectId === localProjectId) delete meta.files[fileId];
+               Object.keys(meta.files).forEach(function (key) {
+                  if (meta.files[key].projectId === localProjectId) delete meta.files[key];
                });
             }
             return;
@@ -728,9 +755,10 @@
          };
 
          (project.files || []).forEach(function (file) {
-            var localFileId = serverFileToLocal[file.id] || file.id;
-            if (pendingDeletes["file:" + localFileId]) return;
-            var knownFile = meta.files[localFileId];
+            var mappedKey = serverFileToLocal[file.id] || fileKey(localProjectId, file.id);
+            var localFileId = mappedKey.slice(mappedKey.indexOf("/") + 1);
+            if (pendingDeletes["file:" + localProjectId + ":" + localFileId]) return;
+            var knownFile = meta.files[mappedKey];
             var localFile = (local.files || []).filter(function (item) { return item.id === localFileId; })[0];
 
             if (file.deletedAt) {
@@ -738,7 +766,7 @@
                var unchanged = knownFile.hash !== null && knownFile.hash === hashOf(localFile.content);
                if (unchanged && knownFile.revision < file.revision && projectsAdapter.removeFile) {
                   projectsAdapter.removeFile(localProjectId, localFileId);
-                  delete meta.files[localFileId];
+                  delete meta.files[mappedKey];
                }
                // 本地改过：内容留着，推送时会在新的服务端 id 下重建，不复活已删的那条。
                return;
@@ -751,13 +779,13 @@
                projectsAdapter.applyFile(localProjectId, {
                   id: localFileId, kind: file.kind, name: file.name, content: file.content
                });
-               meta.files[localFileId] = { serverId: file.id, projectId: localProjectId, revision: file.revision, hash: serverHash };
+               meta.files[mappedKey] = { serverId: file.id, projectId: localProjectId, revision: file.revision, hash: serverHash };
                return;
             }
 
             var localHash = hashOf(localFile.content);
             if (localHash === serverHash) {
-               meta.files[localFileId] = { serverId: file.id, projectId: localProjectId, revision: file.revision, hash: serverHash };
+               meta.files[mappedKey] = { serverId: file.id, projectId: localProjectId, revision: file.revision, hash: serverHash };
                return;
             }
             if (knownFile && knownFile.revision !== null && knownFile.hash === localHash) {
@@ -768,7 +796,7 @@
                      id: localFileId, kind: file.kind, name: file.name, content: file.content
                   });
                }
-               meta.files[localFileId] = { serverId: file.id, projectId: localProjectId, revision: file.revision, hash: serverHash };
+               meta.files[mappedKey] = { serverId: file.id, projectId: localProjectId, revision: file.revision, hash: serverHash };
                return;
             }
             if (knownFile && knownFile.revision === file.revision) {
@@ -778,7 +806,7 @@
             // 两边都动过：本地这一份原封不动，服务端那一份落成看得见的副本。
             var adopted = projectsAdapter.addConflictCopy
                && projectsAdapter.addConflictCopy(localProjectId, localFileId, file) === true;
-            meta.files[localFileId] = {
+            meta.files[mappedKey] = {
                serverId: file.id, projectId: localProjectId, revision: file.revision,
                hash: adopted ? serverHash : null
             };

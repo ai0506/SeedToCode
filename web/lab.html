@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SeedToCode · CAIE 9618</title>
-<link rel="stylesheet" href="css/styles.css?v=23">
+<link rel="icon" type="image/png" href="SeedToCode_favicon.png">
+<title>实验室 · SeedToCode</title>
+<link rel="stylesheet" href="css/styles.css?v=25">
 <link rel="stylesheet" href="css/account.css?v=1">
 </head>
 <body>
@@ -17,10 +18,14 @@
             <line x1="6.5" y1="2.5" x2="6.5" y2="13.5"></line>
          </svg>
       </button>
-      <div class="brand-block">
-         <span class="brand">SeedToCode</span>
-         <span class="brand-tag">Based on CAIE 9618</span>
+      <div class="brand-lockup">
+         <img class="brand-logo" src="SeedToCode_favicon.png" alt="SeedToCode" width="26" height="26">
+         <div class="brand-block">
+            <span class="brand">SeedToCode</span>
+            <span class="brand-tag">Based on CAIE 9618</span>
+         </div>
       </div>
+      <nav class="topnav" id="topNav" aria-label="主导航"></nav>
    </div>
 
    <div class="topbar-center">
@@ -40,9 +45,6 @@
          <button id="runBtn" class="btn btn-primary run-btn">▶ 运行</button>
          <button id="stopBtn" class="btn btn-danger run-btn" hidden>■ 停止</button>
       </div>
-      <!-- 课程页有「编辑器」入口，编辑器这边却没有回去的路：学生从编辑器进来就出不去了。
-           两个方向都留一个同样位置、同样样式的入口，三个页面才转得起来。 -->
-      <a class="btn btn-ghost fixed-btn wide" href="teaching.html" data-tip="回到 CAIE 9618 课程">学习</a>
       <div class="menu-wrap">
          <button id="moreBtn" class="btn btn-ghost more-btn" aria-haspopup="true">更多 ▾</button>
          <div id="moreMenu" class="menu" hidden>
@@ -376,18 +378,18 @@
 <input type="file" id="importInput" hidden multiple accept=".pseudocode,.txt">
 
 <script src="js/caie-spec.js"></script>
-<script src="js/samples.js"></script>
+<script src="js/samples.js?v=2"></script>
 <script src="js/language-engine.js?v=11"></script>
 <script src="js/language-adapter.js?v=9"></script>
 <script src="js/runtime-engine.js?v=9"></script>
 <script src="js/lang.js?v=11"></script>
-<script src="js/runtime-messages.js?v=3"></script>
+<script src="js/runtime-messages.js?v=4"></script>
 <script src="js/storage.js?v=2"></script>
 <script src="js/auth-store.js?v=1"></script>
-<script src="js/cloud-client.js?v=1"></script>
+<script src="js/cloud-client.js?v=4"></script>
 <script src="js/sync-queue.js?v=1"></script>
 <script src="js/sync-engine.js?v=1"></script>
-<script src="js/app.js?v=28"></script>
-<script src="js/account-ui.js?v=1"></script>
+<script src="js/app.js?v=29"></script>
+<script src="js/account-ui.js?v=6"></script>
 </body>
 </html>

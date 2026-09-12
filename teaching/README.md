@@ -4,7 +4,7 @@
 
 本目录只放**教学模块的规划与规格文档**，不放任何章节正文或题库数据。
 
-实际的教学页是 `web/teaching.html`，正文由 `packages/teaching-content` 的数据渲染，题目由 `packages/exercise` + 语言/运行时引擎在浏览器里真判。
+实际的教学页是 `web/learn.html`，正文由 `packages/teaching-content` 的数据渲染，题目由 `packages/exercise` + 语言/运行时引擎在浏览器里真判。
 要写代码的题目都在独立的做题页 `web/task.html`（左题面、右作答，进度与课文共用同一份 `localStorage`），课文里对应位置留的是入口卡；两页的题目实现共用 `web/js/teaching-task.js`。
 版式参照页 `web/teaching-template.html` 走同一个渲染器、喂占位数据，所以不会和实际页面走样；说明见 [06-TEMPLATE.md](06-TEMPLATE.md)。
 
@@ -40,7 +40,7 @@
 
 - 规格与大纲：完成（00–06）
 - 判题核心 `packages/exercise`：首版可用
-- 教学页 `web/teaching.html` 与做题页 `web/task.html`：接通真实内容与引擎，判题、运行、进度都是真的
+- 教学页 `web/learn.html` 与做题页 `web/task.html`：接通真实内容与引擎，判题、运行、进度都是真的
 - 内容：**Chapter 1–16（AS 全部）**已接入正式内容、真实判题和页面流程；A Level 的 Chapter 17–23 尚未上线
 
 细节、风险与接手建议见 [07-HANDOFF.md](07-HANDOFF.md)。

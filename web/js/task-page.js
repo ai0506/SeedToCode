@@ -41,7 +41,7 @@
    }
 
    function lessonHref(chapter, stepId) {
-      return "teaching.html?c=" + chapter.id + (stepId ? "&s=" + encodeURIComponent(stepId) : "");
+      return "learn.html?c=" + chapter.id + (stepId ? "&s=" + encodeURIComponent(stepId) : "");
    }
 
    /* ---------------- 左右分栏的宽度 ---------------- */
@@ -169,10 +169,10 @@
          (next
             ? '<a class="btn btn-primary" href="' + lessonHref(chapter, next) + '">下一节：' +
               T.inline(labelOf(chapter, next)) + " ›</a>"
-            // 不能只写 "teaching.html"：teaching.html 在没有查询参数时会按上次保存的阅读位置恢复，
+            // 不能只写 "learn.html"：它在没有查询参数时会按上次保存的阅读位置恢复，
             // 而不是真的落在课程主页——点了「回到课程主页」结果还是回到刚才那一节，看起来像没反应。
             // 显式带上 s=home 才能让它落在真正的课程主页。
-            : '<a class="btn btn-primary" href="teaching.html?c=' + chapter.id + '&s=home">回到课程主页 ›</a>');
+            : '<a class="btn btn-primary" href="learn.html?c=' + chapter.id + '&s=home">回到课程主页 ›</a>');
       slot.hidden = false;
       slot.scrollIntoView({ behavior: "smooth", block: "nearest" });
    }

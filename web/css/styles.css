@@ -131,6 +131,11 @@ body {
 .topbar-left, .topbar-right { display: flex; align-items: center; gap: 8px; }
 .topbar-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
 
+/* 图标 + 两行字是一组。26px 正好等于「SeedToCode」与「Based on CAIE 9618」
+   两行叠起来的高度（13px/1.1 + 1px gap + 10px/1.1），窄屏下两行字藏起来时
+   图标还在，尺寸也不会跟着塌。 */
+.brand-lockup { display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+.brand-logo { width: 26px; height: 26px; flex: none; display: block; border-radius: 5px; }
 .brand-block { display: flex; flex-direction: column; justify-content: center; gap: 1px; line-height: 1.1; }
 .brand { font-weight: 600; letter-spacing: .2px; white-space: nowrap; }
 .brand-dim { color: var(--text-faint); font-weight: 400; margin-left: 2px; }
@@ -729,10 +734,45 @@ p.muted.small { line-height: 1.5; margin: 0; }
 code { font-family: var(--font-mono); font-size: .92em; }
 
 /* ---------- 窄屏：侧栏改为抽屉，覆盖而不是挤压编辑器 ---------- */
+
+/* ---------- 主导航 ---------- */
+/*
+ * 品牌右边的一组分段控件：实验室 / 学习 /（作业 | 班级）。
+ * 做成一个凹槽加一枚浮起的当前项，而不是几个并排的普通链接——只有当前项
+ * 足够突出，这几个才会被读成「一组可以切的地方」，人才会去点别的。
+ * 未选中项有 hover 底色，看着就能点。
+ *
+ * 按 FRONTEND_RULES 第 1 条：选中只换 background / color / box-shadow，
+ * 不动字重也不动 border 宽度，来回切不会有任何东西改变尺寸。
+ */
+.topnav { display: flex; align-items: center; }
+.topnav:empty { display: none; }
+.topnav-sep { width: 1px; height: 20px; margin: 0 10px 0 2px; background: var(--border); flex: 0 0 1px; }
+.topnav-group {
+   display: flex; gap: 2px; padding: 2px;
+   background: var(--bg-sunken); border-radius: 7px;
+}
+.topnav-item {
+   display: flex; align-items: center; height: 24px; padding: 0 10px;
+   border-radius: 5px; font-size: 12px; line-height: 1; white-space: nowrap;
+   color: var(--text-dim); text-decoration: none; cursor: pointer;
+   transition: background-color .12s ease, color .12s ease;
+}
+.topnav-item:hover { background: var(--bg-panel); color: var(--text); }
+.topnav-item:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.topnav-item.is-current, .topnav-item.is-current:hover {
+   background: var(--bg-panel); color: var(--accent); cursor: default;
+   box-shadow: 0 1px 2px rgba(0, 0, 0, .07);
+}
+/* 未登录时「作业 / 班级」那一枚还不知道是哪个，但槽位要一直在——
+   否则 /auth/me 一回来整条顶栏会往右挪一截。两个词都是两个字，宽度天然一致。 */
+.topnav-item.is-blank { opacity: 0; pointer-events: none; }
+
 @media (max-width: 900px) {
    /* 顶栏左右两块都是 nowrap，宽度不够时会直接压到居中的文档名上。
-      先让掉纯装饰的品牌块和开关文字，「运行」「学习」「更多」这些要点的留下。 */
+      先让掉纯装饰的品牌块和开关文字，导航、「运行」、「更多」这些要点的留下。 */
    .topbar-left .brand-block, .topbar-right .switch-label { display: none; }
+   .topnav-sep { margin: 0 8px 0 0; }
    .topbar-left, .topbar-right { flex: 0 0 auto; }
    .topbar-center { min-width: 0; }
    .topbar-center .doc-name { min-width: 0; }

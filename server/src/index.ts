@@ -6,7 +6,8 @@ import {
   loginStudent,
   logout,
   publicUser,
-  startEmailLogin,
+  startEmailRegistration,
+  loginEmail,
   verifyEmailLogin
 } from "./auth";
 import {
@@ -75,11 +76,18 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204 });
     if (url.pathname === "/health" && request.method === "GET") return json({ ok: true, service: "seedtocode-api", requestId: context.requestId });
 
+    const moved = movedPage(url.pathname);
+    if (moved) return redirect(moved + url.search);
+
     if (!env.DB) return error("SERVER_NOT_CONFIGURED", "服务器尚未配置。", 503, context);
     try {
-      if (url.pathname === "/auth/email/start" && request.method === "POST") {
-        const result = await startEmailLogin(env.DB, env, await request.json());
+      if (url.pathname === "/auth/email/register" && request.method === "POST") {
+        const result = await startEmailRegistration(env.DB, env, await request.json());
         return json({ accepted: true, ...result, requestId: context.requestId }, 202);
+      }
+      if (url.pathname === "/auth/email/login" && request.method === "POST") {
+        const result = await loginEmail(env.DB, env, await request.json());
+        return json({ user: result.user, requestId: context.requestId }, 200, { "set-cookie": result.setCookie });
       }
       if (url.pathname === "/auth/email/verify" && request.method === "POST") {
         const result = await verifyEmailLogin(env.DB, env, await request.json());
@@ -311,6 +319,34 @@ export default {
     return error("NOT_FOUND", "接口不存在。", 404, context);
   }
 };
+
+/*
+ * 页面改名留下的旧地址。
+ *
+ * `/teacher`（老师端）和 `/teaching`（学习）差两个字母却指两拨人，谁都会点错；
+ * 编辑器原来占着根路径，没有自己的名字。现在是 /lab、/learn、/classes。
+ *
+ * 这些路径能走到 Worker，正是因为 web/ 下已经没有对应文件了——资源服务
+ * 匹配不到才落到这里。带不带 .html 都认：线上是无后缀形式，但旧链接、书签和
+ * 别人贴出去的地址两种形状都有。查询串原样带走（`/?authToken=...` 这种）。
+ */
+const MOVED_PAGES: Record<string, string> = {
+  "/": "/lab",
+  "/index": "/lab",
+  "/index.html": "/lab",
+  "/teaching": "/learn",
+  "/teaching.html": "/learn",
+  "/teacher": "/classes",
+  "/teacher.html": "/classes"
+};
+
+function movedPage(pathname: string): string | null {
+  return MOVED_PAGES[pathname] ?? null;
+}
+
+function redirect(location: string): Response {
+  return new Response(null, { status: 301, headers: { location } });
+}
 
 async function requireUser(db: D1Database, request: Request) {
   const user = await currentUser(db, request);

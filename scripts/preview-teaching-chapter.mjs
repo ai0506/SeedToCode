@@ -1,6 +1,6 @@
 /**
  * 把指定章节的内容数据平铺成一份可读的 Markdown 预览，方便审阅正文。
- * 这不是最终版式——版式见 web/teaching.html 与 teaching/06-TEMPLATE.md。
+ * 这不是最终版式——版式见 web/learn.html 与 teaching/06-TEMPLATE.md。
  *
  *   node scripts/preview-teaching-chapter.mjs      # Chapter 1
  *   node scripts/preview-teaching-chapter.mjs 2    # Chapter 2
