@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登录 · SeedToCode</title>
+<link rel="stylesheet" href="css/styles.css?v=23">
+<link rel="stylesheet" href="css/login.css?v=1">
+</head>
+<body class="login-body">
+
+<!--
+   独立登录页。
+   原来这些表单挤在顶栏的下拉面板里：老师/个人、学生两层切换，学生里面
+   还套一层「登录 / 首次激活」，字段又各不相同，300px 宽根本铺不开。
+   这里把三种身份摊平成三个并列的选项，选中哪个就只显示哪个的字段。
+
+   登录始终不是使用的前提：没有账号、云端没配、断网，都能从这一页直接
+   回到编辑器和课程，本地功能一样不少。
+-->
+
+<header class="login-top">
+   <a class="brand-block login-brand" href="index.html">
+      <span class="brand">SeedToCode</span>
+      <span class="brand-tag">Based on CAIE 9618</span>
+   </a>
+   <span class="spacer"></span>
+   <a class="btn btn-ghost fixed-btn wide" href="index.html" id="skipLogin">先不登录，直接用</a>
+</header>
+
+<main class="login-main">
+   <div class="login-card">
+      <h1 class="login-title">登录</h1>
+      <p class="login-lead" id="loginLead">
+         不登录也能完整使用编辑器、课程和做题。登录是为了换一台设备还能接着写、接着学。
+      </p>
+
+      <!-- 云端未配置 / 已登录，都落到这里 -->
+      <div class="login-notice" id="loginNotice" hidden>
+         <p id="loginNoticeText"></p>
+         <div class="login-actions" id="loginNoticeActions"></div>
+      </div>
+
+      <div id="loginFlow">
+         <div id="roleStep">
+            <h2 class="login-label">我是</h2>
+            <div class="role-list" id="roleList" role="radiogroup" aria-label="选择身份">
+               <button type="button" class="role-option" role="radio" aria-checked="false" data-role="student">
+                  <span class="role-icon" aria-hidden="true">
+                     <svg viewBox="0 0 32 32"><path d="M16 6 4 12l12 6 12-6z"></path><path d="M9 15v6c0 2 3.5 4 7 4s7-2 7-4v-6"></path><path d="M28 12v8"></path></svg>
+                  </span>
+                  <span class="role-name">学生</span>
+                  <span class="role-desc">老师给了你<br>激活码或班级码</span>
+               </button>
+               <button type="button" class="role-option" role="radio" aria-checked="false" data-role="teacher">
+                  <span class="role-icon" aria-hidden="true">
+                     <svg viewBox="0 0 32 32"><rect x="4" y="5" width="24" height="16" rx="2"></rect><path d="M12 26h8"></path><path d="M16 21v5"></path><path d="M10 16l4-5 3 3 5-6"></path></svg>
+                  </span>
+                  <span class="role-name">老师</span>
+                  <span class="role-desc">建班级、加学生<br>布置作业</span>
+               </button>
+               <button type="button" class="role-option" role="radio" aria-checked="false" data-role="learner">
+                  <span class="role-icon" aria-hidden="true">
+                     <svg viewBox="0 0 32 32"><path d="M5 7h8a4 4 0 0 1 3 1.6A4 4 0 0 1 19 7h8v17h-8a4 4 0 0 0-3 1.4A4 4 0 0 0 13 24H5z"></path><path d="M16 8.6V25"></path></svg>
+                  </span>
+                  <span class="role-name">个人学习者</span>
+                  <span class="role-desc">自己学<br>自己练</span>
+               </button>
+            </div>
+            <button class="btn btn-primary login-submit login-continue" id="roleContinue" disabled>继续</button>
+         </div>
+
+         <!-- 第二步：选定身份之后，上面三张卡收起来，只留该填的东西 -->
+         <div class="login-chosen" id="chosenRow" hidden>
+            <span class="login-chosen-name" id="chosenName"></span>
+            <button type="button" class="login-link" id="changeRole">换一个身份</button>
+         </div>
+
+         <!-- 邮箱：老师和个人学习者共用 -->
+         <form class="login-form" id="emailForm" hidden>
+            <label class="login-field">
+               <span class="login-field-label">邮箱</span>
+               <input class="text-field block" type="email" id="loginEmail" autocomplete="email" spellcheck="false" placeholder="you@example.com">
+            </label>
+            <div class="field-error" id="emailError"></div>
+            <button class="btn btn-primary login-submit" type="submit" id="emailSubmit">发送登录链接</button>
+            <p class="login-hint">我们会发一封带登录链接的邮件，链接 15 分钟内有效，用过即失效。不需要记密码。</p>
+         </form>
+
+         <!-- 学生第二步：先问「你手上有什么」。学生不认识「激活码」「班级码」这些词，
+              所以每一项都按他实际拿到的东西描述，对上哪个点哪个。 -->
+         <div class="login-form" id="studentPathStep" hidden>
+            <h2 class="login-label">老师给了你什么？</h2>
+            <div class="role-list path-list">
+               <button type="button" class="role-option path-option" data-student-mode="login">
+                  <span class="role-name">我已经有账号了</span>
+                  <span class="role-desc">之前设过密码，直接登录</span>
+               </button>
+               <button type="button" class="role-option path-option" data-student-mode="activate">
+                  <span class="role-name">一个用户名和一串码</span>
+                  <span class="role-desc">老师替你建好了账号，第一次要用这串码设密码</span>
+               </button>
+               <button type="button" class="role-option path-option" data-student-mode="register">
+                  <span class="role-name">只有一个班级的码</span>
+                  <span class="role-desc">全班同一个码，用户名和密码你自己定</span>
+               </button>
+            </div>
+         </div>
+
+         <!-- 学生：登录 -->
+         <form class="login-form" id="studentLoginForm" hidden>
+            <label class="login-field">
+               <span class="login-field-label">用户名</span>
+               <input class="text-field block" id="studentUsername" autocomplete="username" spellcheck="false" placeholder="老师给你的用户名">
+            </label>
+            <label class="login-field">
+               <span class="login-field-label">密码</span>
+               <input class="text-field block" type="password" id="studentPassword" autocomplete="current-password">
+            </label>
+            <div class="field-error" id="studentError"></div>
+            <button class="btn btn-primary login-submit" type="submit">登录</button>
+            <p class="login-hint">
+               还没设过密码？<button type="button" class="login-link" data-student-mode="pick">回去选一下你手上有什么</button>
+            </p>
+         </form>
+
+         <!-- 学生：首次激活 -->
+         <form class="login-form" id="studentActivateForm" hidden>
+            <label class="login-field">
+               <span class="login-field-label">用户名</span>
+               <input class="text-field block" id="activateUsername" autocomplete="username" spellcheck="false" placeholder="老师给你的用户名">
+            </label>
+            <label class="login-field">
+               <span class="login-field-label">激活码</span>
+               <input class="text-field block" id="activateCode" autocomplete="one-time-code" spellcheck="false" placeholder="老师给你的 6 位码" maxlength="8" autocapitalize="characters">
+            </label>
+            <label class="login-field">
+               <span class="login-field-label">设置密码</span>
+               <input class="text-field block" type="password" id="activatePassword" autocomplete="new-password" placeholder="至少 10 个字符">
+            </label>
+            <div class="field-error" id="activateError"></div>
+            <button class="btn btn-primary login-submit" type="submit">激活并登录</button>
+            <p class="login-hint">
+               激活码是 6 位字母数字，不区分大小写，只能用一次；之后就用你自己设的密码登录。<br>
+               拿错了？<button type="button" class="login-link" data-student-mode="pick">回去重选</button>　
+               已经激活过了？<button type="button" class="login-link" data-student-mode="login">直接登录</button>
+            </p>
+         </form>
+
+         <!-- 学生：凭班级码自己注册 -->
+         <form class="login-form" id="studentRegisterForm" hidden>
+            <label class="login-field">
+               <span class="login-field-label">班级码</span>
+               <input class="text-field block" id="registerJoinCode" spellcheck="false" autocomplete="off"
+                      placeholder="老师念的 6 位码，例如 ABC123" maxlength="10" autocapitalize="characters">
+            </label>
+            <label class="login-field">
+               <span class="login-field-label">你的姓名</span>
+               <input class="text-field block" id="registerDisplayName" autocomplete="name" placeholder="老师在名单里看到的名字">
+            </label>
+            <label class="login-field">
+               <span class="login-field-label">用户名</span>
+               <input class="text-field block" id="registerUsername" autocomplete="username" spellcheck="false" placeholder="自己起一个，用来登录">
+            </label>
+            <label class="login-field">
+               <span class="login-field-label">设置密码</span>
+               <input class="text-field block" type="password" id="registerPassword" autocomplete="new-password" placeholder="至少 10 个字符">
+            </label>
+            <div class="field-error" id="registerError"></div>
+            <button class="btn btn-primary login-submit" type="submit">注册并加入班级</button>
+            <p class="login-hint">
+               用户名和密码由你自己定，不需要邮箱。姓名要写真名，老师按它在名单里认人。<br>
+               拿错了？<button type="button" class="login-link" data-student-mode="pick">回去重选</button>　
+               已经有账号了？<button type="button" class="login-link" data-student-mode="login">直接登录</button>
+            </p>
+         </form>
+      </div>
+   </div>
+</main>
+
+<footer class="login-foot">
+   <span>CAIE 9618 (2027–2029)</span>
+   <span class="dot">·</span>
+   <span>本产品不是 Cambridge 官方产品，也未获得官方授权</span>
+</footer>
+
+<script src="js/storage.js?v=2"></script>
+<script src="js/auth-store.js?v=1"></script>
+<script src="js/cloud-client.js?v=2"></script>
+<script src="js/login-page.js?v=1"></script>
+</body>
+</html>

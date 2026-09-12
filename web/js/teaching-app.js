@@ -62,13 +62,19 @@
 
    function savePosition(sectionId, scrollTop) {
       if (!sectionId) return;
+      var moved = !savedPosition || savedPosition.chapterId !== chapter.id || savedPosition.sectionId !== sectionId;
       var value = {
          chapterId: chapter.id,
          sectionId: sectionId,
-         scrollTop: Math.max(0, Math.round(Number(scrollTop) || 0))
+         scrollTop: Math.max(0, Math.round(Number(scrollTop) || 0)),
+         updatedAt: Date.now()
       };
       savedPosition = value;
       window.CAIEStorage.set(POSITION_KEY, value);
+      /* 上传的只有章号和小节号。scrollTop 留在这台设备：
+         两块屏幕宽窄不同，同一个像素位置本来就不是同一段内容。
+         滚动会不停触发这个函数，所以只有换了小节才值得往上传。 */
+      if (moved && window.SyncEngine) window.SyncEngine.notePosition(chapter.id, sectionId);
    }
 
    function saveCurrentPosition() {
@@ -751,9 +757,9 @@
          var expanded = live && homeExpanded[liveChapter.id] === true;
          var dots = live
             ? liveChapter.sections.map(function (section) {
-                 return '<span class="ch-dot' + (isDoneFor(liveChapter, section.id) ? " done" : "") + '" data-step="' + section.id + '" title="' +
+                 return '<span class="ch-dot' + (isDoneFor(liveChapter, section.id) ? " done" : "") + '" data-step="' + section.id + '" data-tip="' +
                     esc(section.id + " " + plainText(section.title)) + '"></span>';
-              }).join("") + (liveChapter.chapterTasks.length ? '<span class="ch-dot star' + (isDoneFor(liveChapter, "chapterTask") ? " done" : "") + '" data-step="chapterTask" title="章末大题"></span>' : "")
+              }).join("") + (liveChapter.chapterTasks.length ? '<span class="ch-dot star' + (isDoneFor(liveChapter, "chapterTask") ? " done" : "") + '" data-step="chapterTask" data-tip="章末大题"></span>' : "")
             : "";
          var action = live
             ? '<button class="btn btn-primary" data-resume data-open-chapter="' + liveChapter.id + '" data-open-section="' + firstUnfinishedFor(liveChapter) + '">' +
@@ -1072,8 +1078,22 @@
       return { chapter: target, sectionId: params.s || "home" };
    }
 
+   /* 人只要自己翻过页或滚动过，云端的阅读位置就不再插手：
+      把正在看的内容抽走比少同步一次更糟。
+      开头这一小段不算：首次渲染和位置恢复本身就会触发一次滚动，
+      那不是人翻的页。 */
+   var navigatedThisSession = false;
+   var bootedAt = Date.now();
+   var SETTLE_MS = 1200;
+
+   function currentSectionId() {
+      var current = $(".section-doc:not([hidden])");
+      return current ? current.dataset.section : null;
+   }
+
    function boot() {
       var requested = requestedLocation();
+      if (requested) navigatedThisSession = true;
       var resumeChapter = requested ? requested.chapter : (savedPosition && course.chapters.filter(function (item) {
          return item.id === Number(savedPosition.chapterId);
       })[0]);
@@ -1091,6 +1111,7 @@
       renderCurrentChapter(resumeSection, resumeScrollTop);
 
       $("#readerScroll").addEventListener("scroll", function () {
+         if (Date.now() - bootedAt > SETTLE_MS) navigatedThisSession = true;
          saveCurrentPosition();
       }, { passive: true });
 
@@ -1108,6 +1129,29 @@
       window.addEventListener("storage", function (event) {
          if (!event.key || event.key === "caie.teaching.progress.v1") syncProgressFromStorage();
       });
+
+      /* 云端把另一台设备上已完成的小节合并进来之后，目录进度点和完成度要跟着变。
+         合并是单调的：只会多出「已完成」，不会把这里已经完成的退回去。 */
+      document.addEventListener("teaching-progress-merged", function () { refreshProgressUI(); });
+
+      if (window.SyncEngine) {
+         window.SyncEngine.useTeaching({
+            readPosition: function () { return savedPosition; },
+            /*
+             * 另一台设备读到哪儿了。只认章号和小节号，滚动位置从 0 开始——
+             * 它从来不上传，也就没有可恢复的值。
+             * 已经自己翻过页就不再打断：跳走会把人从正在看的内容上带离。
+             */
+            applyPosition: function (position) {
+               if (navigatedThisSession) return;
+               var target = course.chapters.filter(function (item) { return item.id === Number(position.chapterId); })[0];
+               if (!target) return;
+               if (target.id === chapter.id && position.sectionId === currentSectionId()) return;
+               if (orderOf(target).indexOf(position.sectionId) < 0) return;
+               openChapter(String(target.id), position.sectionId);
+            }
+         });
+      }
 
       document.addEventListener("click", function (e) {
          var homeToggle = e.target.closest("[data-toggle-home-chapter]");
@@ -1130,6 +1174,7 @@
          }
          var openChapterButton = e.target.closest("[data-open-chapter]");
          if (openChapterButton) {
+            navigatedThisSession = true;
             saveCurrentPosition();
             openChapter(openChapterButton.dataset.openChapter, openChapterButton.dataset.openSection);
             if (window.innerWidth < 900) $("#toc").classList.add("collapsed");
@@ -1137,6 +1182,7 @@
          }
          var link = e.target.closest("[data-goto]");
          if (link && link.dataset.goto) {
+            navigatedThisSession = true;
             saveCurrentPosition();
             show(link.dataset.goto);
             // 窄屏时目录是盖在正文上的浮层，选完就让开

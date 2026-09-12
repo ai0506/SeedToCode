@@ -77,14 +77,21 @@ function persist() {
    persistProjects();
 }
 
-function persistProjects() {
+/* 把眼前这份 state 写回它所属的项目。落盘和「算出有哪些改动要同步」都要先经过它，
+   否则 projects 里还是上一次的样子。 */
+function flushStateIntoProjects() {
    const current = projects.find(function (p) { return p.id === currentProjectId; });
-   if (current) {
-      current.docs = clone(state.docs);
-      current.activeId = state.activeId;
-      current.runtimeFiles = clone(state.runtimeFiles);
-   }
+   if (!current) return;
+   current.docs = clone(state.docs);
+   current.activeId = state.activeId;
+   current.runtimeFiles = clone(state.runtimeFiles);
+}
+
+function persistProjects() {
+   flushStateIntoProjects();
    STORAGE.set(PROJECTS_KEY, { schemaVersion: 1, activeProjectId: currentProjectId, settings: clone(state.settings), projects: projects });
+   // 未登录时这一步什么都不做；同步永远排在本地保存之后，失败也不回头影响本地。
+   if (window.SyncEngine) window.SyncEngine.noteLocalChange();
 }
 
 function projectName() {
@@ -1522,6 +1529,7 @@ $('moreMenu').addEventListener('click', function (ev) {
       save();
       toast('运行环境已重置为演示数据');
    }
+   if (a === 'cloudRun') requestCloudRun();
    if (a === 'about') showDialog('aboutDialog');
 });
 
@@ -1993,6 +2001,422 @@ function setInputWaiting(waiting, variable, suggest) {
 
 function escapeHtml(s) {
    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/* ---------------- 云端：项目同步与云端运行 ----------------
+ *
+ * 这一段只做两件事：把本地项目的样子交给 SyncEngine，以及在已有的运行面板里
+ * 多提供一次「在云端跑」。本地编辑、本地保存和本地运行的代码路径一行没动——
+ * 云端不可用、没登录、断网，上面那些照常工作。
+ */
+const CLOUD = window.CloudClient;
+const SYNC = window.SyncEngine;
+const CLOUD_COPY_TAG = '云端副本';
+
+function cloudUuid() {
+   if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+   return 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+}
+
+/* 运行时文件传上去的是「内容」，id 和文件名走同步实体自己的字段，不重复放一份。 */
+function runtimeContentOf(file) {
+   return file.kind === 'records'
+      ? { kind: 'records', recordType: file.recordType || '', records: clone(file.records || []) }
+      : { kind: 'text', lines: clone(file.lines || []) };
+}
+
+function runtimeFileFrom(id, name, content) {
+   const value = content && typeof content === 'object' ? content : {};
+   return value.kind === 'records'
+      ? { id: id, name: name, kind: 'records', recordType: typeof value.recordType === 'string' ? value.recordType : '', records: Array.isArray(value.records) ? value.records : [] }
+      : { id: id, name: name, kind: 'text', lines: Array.isArray(value.lines) ? value.lines : [] };
+}
+
+function cloudFilesOf(project) {
+   const files = (project.docs || []).map(function (doc) {
+      return { id: doc.id, kind: 'source', name: doc.name, content: typeof doc.source === 'string' ? doc.source : '' };
+   });
+   (project.runtimeFiles || []).forEach(function (file) {
+      files.push({ id: file.id, kind: 'runtime', name: file.name, content: runtimeContentOf(file) });
+   });
+   return files;
+}
+
+/*
+ * 这个项目是不是「出厂默认、一个字没改过」。
+ *
+ * 编辑器首次加载就会自动建一个带示例文件的默认项目，所以哪怕全新的浏览器
+ * 也「有 1 个项目」。登录时把它当成「未登录时留下的内容」去问要不要并入，
+ * 对什么都没做过的人就是纯粹的噪音——所以内容与出厂样例完全一致时跳过。
+ * 只要动过一个字、改过项目名、加删过文件，就不再是出厂状态，照常询问。
+ */
+function isPristineProject(project) {
+   if (project.name !== '我的项目') return false;
+   const docs = project.docs || [];
+   if (docs.length !== SAMPLES.docs.length) return false;
+   const sameDocs = SAMPLES.docs.every(function (sample, index) {
+      const doc = docs[index];
+      return doc && doc.id === sample.id && doc.name === sample.name && doc.source === sample.source;
+   });
+   if (!sameDocs) return false;
+   const runtimeFiles = project.runtimeFiles || [];
+   if (runtimeFiles.length !== SAMPLES.runtimeFiles.length) return false;
+   return SAMPLES.runtimeFiles.every(function (sample, index) {
+      return JSON.stringify(runtimeFiles[index]) === JSON.stringify(sample);
+   });
+}
+
+/* 同步只看代码文件和运行时文件。当前打开的是哪个项目、哪个文件、滚到哪里、
+   主题、字号这些是这台设备的事，一律不上传。 */
+function cloudCollect() {
+   flushStateIntoProjects();
+   return projects.map(function (project) {
+      return {
+         id: project.id,
+         name: project.name,
+         pristine: isPristineProject(project),
+         files: cloudFilesOf(project)
+      };
+   });
+}
+
+/*
+ * pull 和冲突处理都直接改 projects。改完必须尽快回流到 state 并落盘：
+ * state 才是编辑器眼前那一份，下一次保存会用 state 覆盖 projects——
+ * 只改 projects 不回流，新加进来的文件（包括冲突副本）会在下一次保存时被抹掉。
+ * 用 0ms 定时器把一次 pull 里的多次改动并成一遍重画。
+ */
+let cloudNeedsRender = false;
+let cloudRenderTimer = null;
+
+function cloudScheduleRender() {
+   cloudNeedsRender = true;
+   if (cloudRenderTimer) return;
+   cloudRenderTimer = setTimeout(function () { cloudRenderTimer = null; cloudAfterPull(); }, 0);
+}
+
+function cloudProjectById(id) {
+   return projects.find(function (project) { return project.id === id; }) || null;
+}
+
+function cloudApplyProject(project) {
+   if (cloudProjectById(project.id)) return;
+   projects.push({ id: project.id, name: project.name, docs: [], activeId: null, runtimeFiles: [] });
+   cloudScheduleRender();
+}
+
+function cloudRenameProject(id, name) {
+   const project = cloudProjectById(id);
+   if (!project || isLessonProject(project) || isReservedProjectName(name)) return;
+   project.name = name;
+   cloudScheduleRender();
+}
+
+/* 另一台设备删掉的项目也在这里消失，但本地至少保留一个：
+   编辑器的每一条路径都假设当前项目存在。 */
+function cloudRemoveProject(id) {
+   if (projects.length <= 1) return false;
+   const index = projects.findIndex(function (project) { return project.id === id; });
+   if (index < 0) return true;
+   projects.splice(index, 1);
+   if (currentProjectId === id) currentProjectId = projects[0].id;
+   cloudScheduleRender();
+   return true;
+}
+
+function cloudApplyFile(projectId, file) {
+   const project = cloudProjectById(projectId);
+   if (!project) return;
+   if (file.kind === 'runtime') {
+      project.runtimeFiles = project.runtimeFiles || [];
+      const existingRuntime = project.runtimeFiles.find(function (item) { return item.id === file.id; });
+      const next = runtimeFileFrom(file.id, file.name, file.content);
+      if (existingRuntime) Object.assign(existingRuntime, next);
+      else project.runtimeFiles.push(next);
+   } else {
+      project.docs = project.docs || [];
+      const existingDoc = project.docs.find(function (item) { return item.id === file.id; });
+      if (existingDoc) {
+         existingDoc.name = file.name;
+         existingDoc.source = typeof file.content === 'string' ? file.content : '';
+         existingDoc.updatedAt = Date.now();
+      } else {
+         project.docs.push({ id: file.id, name: file.name, source: typeof file.content === 'string' ? file.content : '', updatedAt: Date.now() });
+      }
+   }
+   cloudScheduleRender();
+}
+
+function cloudRemoveFile(projectId, fileId) {
+   const project = cloudProjectById(projectId);
+   if (!project) return true;
+   project.docs = (project.docs || []).filter(function (doc) { return doc.id !== fileId; });
+   project.runtimeFiles = (project.runtimeFiles || []).filter(function (file) { return file.id !== fileId; });
+   cloudScheduleRender();
+   return true;
+}
+
+/*
+ * 编辑器出厂就带着这几份演示文件，每台设备上的 id 和内容都一模一样。
+ * 一个字都没改过的演示文件不是「本地那一份」，只是出厂内容——
+ * 这时直接采用云端那一版，而不是在它旁边再摆一个副本；
+ * 否则每台新设备第一次登录都会凭空多出四五个「（云端副本）」。
+ */
+function isUntouchedSample(fileId, localFile) {
+   const sample = SAMPLES.docs.concat(SAMPLES.runtimeFiles).find(function (item) { return item.id === fileId; });
+   if (!sample || !localFile) return false;
+   return localFile.kind === 'source'
+      ? localFile.content === sample.source
+      : JSON.stringify(localFile.content) === JSON.stringify(runtimeContentOf(sample));
+}
+
+/*
+ * 冲突副本：本地那一份一个字都不动，服务端那一份作为同一个项目里的新文件出现。
+ * 用的是现有的命名规则（重名自动编号）和现有的项目体系，没有另开一套比较界面。
+ * 返回 true 表示「本地那一份只是没动过的出厂内容，已经直接采用云端版本」。
+ */
+function cloudAddConflictCopy(projectId, localFileId, serverFile) {
+   const project = cloudProjectById(projectId);
+   if (!project) return false;
+   const localFile = cloudFilesOf(project).find(function (file) { return file.id === localFileId; });
+   if (isUntouchedSample(localFileId, localFile)) {
+      cloudApplyFile(projectId, { id: localFileId, kind: serverFile.kind, name: serverFile.name, content: serverFile.content });
+      return true;
+   }
+   if (serverFile.kind === 'runtime') {
+      project.runtimeFiles = project.runtimeFiles || [];
+      const dot = serverFile.name.lastIndexOf('.');
+      const base = stripExt(serverFile.name) + '（' + CLOUD_COPY_TAG + '）' + (dot > 0 ? serverFile.name.slice(dot) : '.txt');
+      const copy = runtimeFileFrom('rf-' + cloudUuid(), uniqueName(project.runtimeFiles, base), serverFile.content);
+      project.runtimeFiles.push(copy);
+   } else {
+      project.docs = project.docs || [];
+      const wanted = ensureExt(stripExt(serverFile.name) + '（' + CLOUD_COPY_TAG + '）');
+      project.docs.push({
+         id: 'doc-' + cloudUuid(),
+         name: uniqueName(project.docs, wanted, true),
+         source: typeof serverFile.content === 'string' ? serverFile.content : '',
+         updatedAt: Date.now()
+      });
+   }
+   cloudScheduleRender();
+   toast('云端有一份不同的「' + serverFile.name + '」，已作为副本放进当前项目。');
+   return false;
+}
+
+/*
+ * pull 改过 projects 之后，把当前项目重新读回 state 并重画。
+ *
+ * 这里可以放心整份重读：pull 只在「本地这一份没被改过」时才写本地
+ * （内容一致、本地没有、或者还是原封不动的出厂演示文件）；
+ * 本地真的改过的文件走的是冲突副本那条路，不会被碰。
+ * 编辑器要求「总有一个可编辑的文件」，所以空项目要补一个。
+ */
+function cloudAfterPull() {
+   if (cloudRenderTimer) { clearTimeout(cloudRenderTimer); cloudRenderTimer = null; }
+   if (!cloudNeedsRender) return;
+   cloudNeedsRender = false;
+   const openId = state.activeId;
+   syncStateFromCurrentProject();
+   if (!state.docs.length) {
+      const blank = { id: 'doc-' + Date.now(), name: 'Main.pseudocode', source: '// Main.pseudocode\n', updatedAt: Date.now() };
+      state.docs = [blank];
+      state.activeId = blank.id;
+   } else {
+      state.activeId = state.docs.some(function (doc) { return doc.id === openId; }) ? openId : state.docs[0].id;
+   }
+   code.value = activeDoc().source;
+   $('docName').value = activeDoc().name;
+   renderProjectLabel();
+   renderFiles();
+   renderRuntimeFiles();
+   renderEditor();
+   runLint();
+   persistProjects();
+}
+
+if (SYNC) {
+   SYNC.useProjects({
+      collect: cloudCollect,
+      findProject: cloudProjectById,
+      findFile: function (projectId, fileId) {
+         const project = cloudProjectById(projectId);
+         if (!project) return null;
+         return cloudFilesOf(project).find(function (file) { return file.id === fileId; }) || null;
+      },
+      applyProject: cloudApplyProject,
+      renameProject: cloudRenameProject,
+      removeProject: cloudRemoveProject,
+      applyFile: cloudApplyFile,
+      removeFile: cloudRemoveFile,
+      addConflictCopy: cloudAddConflictCopy,
+      afterPull: cloudAfterPull
+   });
+}
+
+/* ---------------- 云端运行 ---------------- */
+
+let cloudRunInputs = [];
+let cloudRunBusy = false;
+
+function cloudRunAvailable() {
+   return Boolean(CLOUD && CLOUD.available() && window.AuthStore && window.AuthStore.isSignedIn());
+}
+
+/*
+ * 同一台设备换账号后，旧账号的项目仍可本地编辑和运行，但绝不能把它的
+ * 快照发送到当前账号的云端。游客自己留下的项目也要先明确选择「并入」。
+ */
+function cloudRunHoldMessage() {
+   const hold = SYNC && SYNC.pendingHold ? SYNC.pendingHold() : null;
+   if (hold && hold.fromGuest) {
+      return '这是登录前保留在本机的项目。请先在账户面板选择「并入」，再使用云端运行。';
+   }
+   return '这是这台设备上一位用户留下的项目，只能本地运行，不能发送到你的云端账号。';
+}
+
+function cloudRunBlockedByProjectHold() {
+   return Boolean(SYNC && SYNC.isProjectHeld && SYNC.isProjectHeld(currentProjectId));
+}
+
+/*
+ * 快照取自编辑器内存里的当前内容，不等同步完成，也不让服务端按 projectId 回读文件：
+ * 本地改到 revision 12、云端还停在 11 的时候，跑的必须是眼前这一版。
+ * projectId 只用于归属和权限。
+ */
+function cloudRunSnapshot() {
+   flushStateIntoProjects();
+   const entry = activeDoc();
+   const files = state.docs.map(function (doc) {
+      return { id: doc.id, kind: 'source', name: doc.name, content: doc.id === entry.id ? code.value : (doc.source || '') };
+   });
+   state.runtimeFiles.forEach(function (file) {
+      files.push({ id: file.id, kind: 'runtime', name: file.name, content: runtimeContentOf(file) });
+   });
+   return { entryFileId: entry.id, files: files };
+}
+
+function needsInputs(source) {
+   return /(^|\n)\s*INPUT\b/.test(source);
+}
+
+function requestCloudRun() {
+   if (run.active || cloudRunBusy) return;
+   if (!CLOUD || !CLOUD.available()) { toast('云端功能暂未连接。'); return; }
+   if (!cloudRunAvailable()) { toast('登录后可使用云端运行'); return; }
+   if (cloudRunBlockedByProjectHold()) { toast(cloudRunHoldMessage()); return; }
+   if (!needsInputs(code.value)) { startCloudRun([]); return; }
+   $('cloudRunInputs').value = cloudRunInputs.join('\n');
+   $('cloudRunError').textContent = '';
+   showDialog('cloudRunDialog');
+   $('cloudRunInputs').focus();
+}
+
+$('cloudRunStart').addEventListener('click', function () {
+   const raw = $('cloudRunInputs').value;
+   cloudRunInputs = raw === '' ? [] : raw.replace(/\r\n?/g, '\n').split('\n');
+   closeDialogs();
+   startCloudRun(cloudRunInputs);
+});
+
+async function startCloudRun(inputs) {
+   // 输入弹窗打开后可能发生过切换账号等状态变化，因此在发送前再守一次。
+   if (cloudRunBlockedByProjectHold()) { toast(cloudRunHoldMessage()); return; }
+   const snapshot = cloudRunSnapshot();
+   cloudRunBusy = true;
+   run = { active: true, controller: null, pending: false, fileTouched: false };
+   showTab('output');
+   $('console').innerHTML = '';
+   $('runBtn').disabled = true;
+   setStatus('云端运行中…', 'running');
+   println('已提交到云端运行（使用编辑器中的当前内容）。', 'sys');
+
+   try {
+      const projectId = await SYNC.ensureProject(currentProjectId, projectName());
+      const result = await CLOUD.request('/api/runs', {
+         method: 'POST',
+         body: {
+            projectId: projectId,
+            requestId: cloudUuid(),
+            runtimeVersion: 'web-1',
+            inputs: inputs,
+            snapshot: snapshot
+         }
+      });
+      renderCloudRunResult(result);
+   } catch (error) {
+      failCloudRun(error);
+   } finally {
+      cloudRunBusy = false;
+      $('runBtn').disabled = false;
+   }
+}
+
+/* 输出、变量、错误和虚拟文件变更全部走现有的那一套渲染，不另起一套结果页面。 */
+function renderCloudRunResult(result) {
+   (result.outputs || []).forEach(function (line) { println(line); });
+   if (result.error) {
+      const line = result.error.range && result.error.range.start ? result.error.range.start.line : 1;
+      println('运行时错误 ' + result.error.code + '（行 ' + line + '）：' + runtimeMessage(result.error), 'err');
+      setStatus('运行时错误 · 行 ' + line, 'error');
+   } else if (result.status !== 'completed') {
+      setStatus('云端运行未正常结束', 'error');
+   }
+   if (result.status === 'completed' && result.virtualFiles) {
+      // 先写回本地工作副本（finishRun 负责），再由保存触发同步队列。
+      run.fileTouched = true;
+   }
+   finishRun(result);
+   if (result.error && result.error.messageKey === 'runtime.input.exhausted') {
+      println('云端运行不能中途等待输入，请一次把输入补齐后重试。', 'sys');
+   }
+}
+
+function failCloudRun(error) {
+   const code = error && error.code;
+   if (code === 'SERVER_BUSY') {
+      // 额度、限流和排队过载对使用者是同一件事，不暴露任何内部数字。
+      println('服务器繁忙，请稍后再试。', 'sys');
+      setStatus('服务器繁忙', 'error');
+      toast('服务器繁忙，请稍后再试。');
+   } else if (CLOUD && CLOUD.isTooLarge(error)) {
+      println(error.message, 'err');
+      setStatus('文件过大', 'error');
+      toast('文件过大：' + error.message);
+   } else if (code === 'UNAUTHENTICATED') {
+      println('登录后可使用云端运行。', 'sys');
+      setStatus('未登录', 'error');
+      toast('登录后可使用云端运行');
+   } else if (code === 'LOCAL_PROJECT_HELD') {
+      println('这个项目只保留在本机，未发送到云端。', 'sys');
+      setStatus('仅本地运行', 'error');
+      toast(cloudRunHoldMessage());
+   } else if (code === 'OFFLINE') {
+      println('网络暂时不可用，云端运行没有开始。本地运行不受影响。', 'sys');
+      setStatus('网络不可用', 'error');
+   } else {
+      println((error && error.message) || '云端运行没有成功。', 'err');
+      setStatus('云端运行失败', 'error');
+   }
+   // 云端失败不碰本地文件，也不影响之后的本地运行。
+   run.active = false;
+   run.controller = null;
+   run.pending = false;
+   $('runBtn').hidden = false;
+   $('stopBtn').hidden = true;
+   setInputWaiting(false);
+}
+
+function syncCloudRunMenuState() {
+   const item = document.querySelector('[data-action="cloudRun"]');
+   if (!item) return;
+   const ready = cloudRunAvailable();
+   item.querySelector('kbd').textContent = ready ? '' : (CLOUD && CLOUD.available() ? '需登录' : '未连接');
+}
+
+if (CLOUD) {
+   CLOUD.subscribe(syncCloudRunMenuState);
+   syncCloudRunMenuState();
 }
 
 /* ---------------- 启动 ---------------- */

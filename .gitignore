@@ -1,3 +1,5 @@
 node_modules/
 packages/*/dist/
 .DS_Store
+server/.wrangler/
+server/node_modules/

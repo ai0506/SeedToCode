@@ -37,8 +37,8 @@
 | Ch1 | Production |
 | Ch2 | Production |
 | Ch3 | Production |
-| Ch4–7 | Production |
-| Ch8–23 | Planned |
+| Ch4–16 | Production |
+| Ch17–23 | Planned |
 
 ## Product and local storage
 
@@ -51,7 +51,64 @@
 | Storage facade (`CAIEStorage`) | Complete |
 | Legacy localStorage migration mirror | Complete |
 | IndexedDB entity initialization | Complete |
+| Persistent random `deviceId` | Complete |
 | Page reads fully from IndexedDB entities | Planned |
-| Cloud sync/auth/cloud run | Planned |
+| Cloudflare Worker/D1 local scaffold | Complete |
+| Auth API | Complete |
+| Personal project sync API | Complete |
+| Cloud run API | Complete |
+| Teaching progress API | Complete |
+| Practice submission API（章末大题） | Complete |
+| Teacher/class/assignment API | Complete |
+| 班级码自助入班与锁定 | Complete |
+| 自出题作业条目 API | Complete |
+| 老师手动评分与评语 API | Complete |
 
-说明：当前页面已经通过 `CAIEStorage` 统一访问本地存储，并将 editor/teaching 旧数据镜像到 IndexedDB；为保证同步启动和 `file://` 兼容，页面读取仍使用兼容快照，尚未完成“完全由 IndexedDB entity 读取”的最终切换。多项目当前由编辑器的 `seedtocode.projects.v1` 注册表保存，教学数据仍按独立旧 key 通过 facade 访问。
+## Cloud client (pages)
+
+| Area | Status |
+|---|---|
+| `CloudClient` / `AuthStore` | Complete |
+| `SyncQueue`（持久化、可重试） | Complete |
+| `SyncEngine`（pull / push / conflict） | Complete |
+| 账户入口（邮箱链接、学生激活与登录） | Complete |
+| 独立登录页与安全回跳 | Complete |
+| 个人项目与文件同步、冲突副本、tombstone | Complete |
+| 云端运行（内存快照、结果复用现有渲染） | Complete |
+| 教学完成状态、阅读位置、题目草稿同步 | Complete |
+| 章末大题提交记录（服务端判分、教师可读） | Complete |
+| 老师面板（班级、学生、进度、章末大题提交） | Complete |
+| 老师布置、编辑与删除作业 | Complete |
+| 老师查看作业提交与迟交标记 | Complete |
+| 学生作业清单与作业提交 | Complete |
+| 自出题作业编辑器、运行与提交 | Complete |
+| 老师手动评分、评语与学生查看 | Complete |
+| 本地数据归属与换人登录保护 | Complete |
+| Cloudflare Workers 与远端 D1 部署 | Complete |
+| Resend 生产邮件配置 | Planned |
+
+说明：当前页面已经通过 `CAIEStorage` 统一访问本地存储，并将 editor/teaching 旧数据镜像到 IndexedDB；为保证同步启动和 `file://` 兼容，页面读取仍使用兼容快照，尚未完成“完全由 IndexedDB entity 读取”的最终切换。多项目当前由编辑器的 `seedtocode.projects.v1` 注册表保存，教学数据仍按独立旧 key 通过 facade 访问。`deviceId` 是浏览器安装首次生成并持久化的随机 UUID（localStorage 为准，同一个值补写进 IndexedDB meta），不使用设备指纹。
+
+页面已接入云端：登录不是使用编辑器的前提，未登录、未配置 API、断网或会话失效时，本地编辑、保存、学习、做题和本地运行全部照常，且不启动同步队列。云端能力只认页面自身 origin（认证 `/auth/*`，其余 `/api/*`），会话为服务端写入的 HttpOnly cookie，页面只保存 `/auth/me` 返回的公开身份。同步队列持久化在本地，刷新与关闭页面不丢；队列只记录实体标识，内容与 `expectedRevision` 都在发送前从本地读取。项目同步覆盖 source 与 runtime 文件，不同步 `activeId`、当前项目、滚动位置或编辑器偏好；冲突保留本地内容并把服务端版本落成同项目内的“（云端副本）”文件；删除按带 revision 的 tombstone 上传，服务端 tombstone 只在本地未修改时才删除本地文件。云端运行执行编辑器内存中的 immutable snapshot，`projectId` 只用于归属；结果复用现有 `ExecutionResult` 渲染，运行时文件变更先写回本地再进队列；`SERVER_BUSY` 只显示统一繁忙提示，超限单独显示“文件过大”。教学完成状态只向“已完成”单调合并，阅读位置只同步 `chapterId`/`sectionId`（`scrollTop` 保持设备本地），题目草稿按 `章号/题号` 同步并在冲突时保留本地、把服务端版本存为可恢复草稿。章末大题的 `sectionId` 为 `chapterTask`，与普通小节一样同步完成状态和阅读位置，并出现在教师可读的班级进度中。章末大题的每一次「提交」还会写入 `practice_submissions` 并保留为不可变记录，教师可读取自己班级成员的答案内容与服务端判定的分数；分数和通过状态只由服务端重新判分产生，不读取客户端上传的值。小节练习题不进入提交记录，仍然只是学生自己的草稿。
+
+`web/teacher.html` 是老师面板：左侧班级列表（可新建），右侧三个标签——学生（新建学生并取一次性激活码、重置激活码）、进度（学生 × 章的完成度矩阵）、章末大题（提交记录，可按题号筛选、在「每人最新」与「全部提交」之间切换、查看学生代码）。入口只在账户面板里对老师出现。未登录、非老师、云端未配置时这一页落到一条说明上，不影响其他页面。新建班级和添加学生是带字段标签和说明的表单式弹窗，写明用户名（登录用、3–32 位英文字母数字和 `. _ -`、不区分大小写、建好不能改）与姓名（只用于名单显示、必填、之后可改）的区别。老师可以改学生在名单上的显示名（`PUT /api/classes/:classId/students/:studentId`），用户名没有对应入口——那是登录身份，改了学生就登不进来。
+
+教学进度是每一小节一个带节号的方格（完成填色、章末大题用 ★ 和暖色收尾），而不是一章只给一个汇总数字——老师要看的是「哪一节卡住了」。作业提交由老师手动打分：自动判分不再以分数形式出现（学生可无限重传、界面会指出哪个用例没过，肯改的人必然迭代到满分，那个数字只区分做完与放弃），界面上只留一个「代码跑通了没有」的小圆点，成绩以老师给的分为准；学生在作业清单里能看到老师给的分。
+
+「作业」标签可以布置作业（老师自己写题：标题、题目内容、可选提示，可选截止日期）、编辑（标题、截止时间、题目都可改）和删除，并查看提交情况：学生 × 题目的矩阵，没交的也列出来，点开看学生代码。作业删除是 tombstone：师生两侧都不再看到、不能再提交，但已交的答案保留，并在提示条中提供短时「撤销」（与编辑器删代码文件同一套交互），撤销会真正把作业恢复回来——`assignment_submissions` 对 `assignment_id` 是级联删除，真删会连学生已判分的作业一起销毁。编辑时移除某道题，学生之前交的记录同样保留。
+
+学生这一侧：`web/assignments.html` 是作业页，逐题显示状态、老师给的分和完整评语；顶栏对学生显示「作业」入口（老师对应的是「班级面板」），账户浮层只保留一句概览和一条到该页的链接；做题页顶栏对被布置的题目显示作业标记，老师批改过的话分数和评语直接摆在作答区顶上；做题页顶栏对被布置的题目显示「作业」标记，按一次「提交」同时交一份作业提交。作业提交只送答案内容，分数由服务端用已发布题目重新判分，客户端算出的结果只用于当场展示。断网时提交进同步队列，恢复后补交。截止时间只提示不拦截：过期后仍然可以提交，做题页和作业清单会标明「现在提交算迟交」，老师端在对应格子上显示「迟交」。迟交按当前截止时间现算，老师改了截止时间，之前那些提交的迟交与否也跟着变。
+
+同步元数据记录本地内容属于哪个账号：登录账号与记录不符时，登录前就在设备上的项目、文件、完成状态和草稿会整批挂起，本地照常使用但不上传；未登录时攒下的内容由账户面板问一次是否并入，其余情况不问也不并。
+
+服务端项目与文件的 id 在本地 id 后附加当前用户短哈希：服务端 `projects.id` 与 `project_files.id` 是全局主键，而本地存在 `project-default`、`doc-main` 这类跨用户相同的常量 id。
+
+服务端当前有未部署的 Worker/D1 本地骨架、认证 API、个人项目同步 API、云端运行 API 和第一版 teacher/class/assignment/progress API：老师/个人学习者可走邮箱一次性链接，老师可创建班级及 student 并获得一次性 activation code，也可布置多题作业；teacher 可为自己班级的 student 撤销会话、旧密码和旧激活码后返回一次性新 activation code。邮箱链接、学生激活和学生登录均按标识符限流，邮箱受限时仍维持已接受响应，避免通过响应判断账号状态。student 只能读取自己的班级作业并提交答案，老师只能读取自己班级成员的进度和提交。作业提交由服务端使用已发布教学题目的 `grade()` 重算，客户端声称的分数/通过状态不会被读取或保存。教学位置只保存 `chapterId` 与 `sectionId`，按最后写入取胜，`scrollTop` 不上传；个人练习草稿已有 revision 条件写入、`operationId` 幂等重试和包含服务器草稿的 409 冲突响应。已登录用户可通过项目/文件 revision 条件写入、`operationId` 幂等重试和 tombstone 删除同步个人项目。云端运行会先验证 immutable snapshot 和虚拟文件，再记入隐藏额度账本并执行既有 CAIE runtime；输入、快照和执行资源均有服务端限制，账本耗尽时只返回通用繁忙提示。页面已接入认证、个人项目同步、云端运行、教学进度/位置/草稿、老师班级/学生/作业/提交记录页面和学生作业清单；生产邮件也未配置。本地开发使用 `scripts/dev-proxy.mjs` 提供同源外壳（`/auth` 与 `/api` 转发给 `wrangler dev`，其余为静态文件），它只服务本机联测，不属于产品运行时。登录在独立的 `web/login.html`，分两步：先在横排的三张卡（学生 / 老师 / 个人学习者，各带图标和一句说明）里选身份，点「继续」之后三张卡收起成一行，只显示该身份要填的字段；学生的「首次激活」是表单里的一个文字链接而不是又一层切换器。激活码为 6 位无歧义字符，不区分大小写。班级码形如 `ABC123`（三字母 + 三数字），每位老师最多 5 个班级，服务端校验、前端到上限时把「新建班级」置灰。登录页的学生这一步先问「老师给了你什么」（我已经有账号了 / 一个用户名和一串码 / 只有一个班级的码），按学生实际拿到的东西描述而不是用「激活码」「班级码」这类术语，选完才进对应的表单，每个表单都能退回重选。激活码校验会同时尝试归一化后的形状和原样输入，早先发出的长格式码不会因为格式变更而失效。
+
+老师可以随时锁定班级的自助注册（面板顶部班级码旁的锁形开关，悬浮有自定义说明）：锁上之后凭班级码注册返回「这个班级暂时不能加入」，老师自己创建学生和已在班里的学生都不受影响。这是班级码流出去之后唯一的止血手段——码永不过期也不能换。
+
+学生进班有两条路并存：老师建号发一次性激活码，或老师念班级码、学生自己注册（姓名 + 用户名 + 密码，不需要邮箱，注册完直接在班里）。自助注册按来源 IP 限流且只有失败计数。个人学习者不参与班级。顶栏的账户浮层不再承载任何表单——未登录时点它直接去登录页并带上 `next`，登录完跳回原来那一页（`next` 只接受同目录下的 `xxx.html`，外站和绝对路径一律丢弃）；浮层只负责已登录之后的事：身份、同步状态、作业清单、班级面板、退出。
+
+已部署到 Cloudflare Workers：`https://seedtocode-api.example.invalid`，绑定远端 D1 `seedtocode`（`00000000-0000-0000-0000-000000000000`），8 个 migration 已应用。`ENVIRONMENT` 为 `production`，一次性登录 token 不再回给调用方，会话 cookie 带 `Secure`。静态页由同一个 Worker 用 Workers Assets 同源托管（`html_handling: "none"` 保持 `.html` 链接原样，根路径由 Worker 重定向到 `/index.html`）。
+
+生产邮件尚未配置：`RESEND_API_KEY`、`EMAIL_FROM`、`APP_ORIGIN` 三个 secret 都没设，因此老师和个人学习者的邮箱登录返回 `EMAIL_NOT_CONFIGURED`，暂时无法登录；学生的用户名密码登录和班级码自助注册不依赖邮件。未登录的本地编辑、学习、做题和本地运行在线上完整可用；已部署的云端 API 需先完成生产邮箱配置后才能完整开放。尚未绑定自定义域名。

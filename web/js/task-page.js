@@ -123,7 +123,13 @@
          ? "Chapter " + chapter.id + " 章末大题"
          : "Chapter " + found.section.id;
       $("#statusSyllabus").textContent = (found.isChapterTask ? chapter.syllabus : found.section.syllabus).join(" / ");
-      $("#backToLesson").href = lessonHref(chapter, stepId);
+      /* 从作业点进来的，返回就该回作业——回课文会把人丢到完全不同的上下文里。 */
+      if (params.from === "assignments") {
+         $("#backToLesson").href = "assignments.html";
+         $("#backToLesson").textContent = "‹ 我的作业";
+      } else {
+         $("#backToLesson").href = lessonHref(chapter, stepId);
+      }
 
       $("#statement").innerHTML = T.renderStatement(task, found.isChapterTask);
       $("#workspace").innerHTML = T.renderWorkspace(task);

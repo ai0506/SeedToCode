@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作业题 · SeedToCode</title>
+<link rel="stylesheet" href="css/styles.css?v=23">
+<link rel="stylesheet" href="css/teaching.css?v=15">
+<link rel="stylesheet" href="css/task.css?v=6">
+<link rel="stylesheet" href="css/custom-task.css?v=1">
+</head>
+<body>
+
+<!--
+   老师自己出的题。
+   和课程题目不同：没有测试用例、不判分、不给对错反馈——学生写完自己运行看结果，
+   成绩由老师批改。所以这一页只要三样：题面、一个能写能跑的编辑器、提交。
+-->
+
+<header class="topbar">
+   <div class="topbar-left">
+      <a class="btn btn-ghost" href="assignments.html">‹ 我的作业</a>
+      <div class="brand-block">
+         <span class="brand">SeedToCode<span class="brand-dim">Learn</span></span>
+         <span class="brand-tag">Based on CAIE 9618</span>
+      </div>
+   </div>
+   <div class="topbar-center">
+      <div class="learn-title">
+         <span class="lt-ch" id="ctAssignment"></span>
+         <span class="lt-sec" id="ctDue"></span>
+      </div>
+   </div>
+   <div class="topbar-right">
+      <span class="assignment-slot" data-assignment-slot>老师出的题</span>
+      <a class="btn btn-ghost fixed-btn wide" href="index.html">编辑器</a>
+   </div>
+</header>
+
+<main class="task-split" id="split">
+   <section class="task-pane task-pane-left">
+      <div class="pane-head"><span class="pane-kicker">题目</span></div>
+      <div class="pane-scroll">
+         <h1 class="task-h1" id="ctTitle"></h1>
+         <div class="ct-prompt" id="ctPrompt"></div>
+         <div class="ct-guidance" id="ctGuidance" hidden>
+            <div class="ct-guidance-head">老师的提示</div>
+            <div class="ct-guidance-body" id="ctGuidanceBody"></div>
+         </div>
+      </div>
+   </section>
+
+   <div class="split-handle" id="splitHandle" role="separator" aria-orientation="vertical" tabindex="0"></div>
+
+   <section class="task-pane task-pane-right">
+      <div class="pane-head">
+         <span class="pane-kicker">作答</span>
+         <span class="spacer"></span>
+         <span class="small muted">写完点「运行」自己看结果；这道题不自动判分，由老师批改</span>
+      </div>
+      <div class="pane-scroll">
+         <div class="task-feedback" id="ctFeedback" hidden></div>
+         <textarea id="ctCode" class="ct-code" spellcheck="false" aria-label="你的作答"></textarea>
+         <div class="ct-actions">
+            <button class="btn btn-primary fixed-btn wide" id="ctRun">▶ 运行</button>
+            <button class="btn btn-danger fixed-btn wide" id="ctStop" hidden>■ 停止</button>
+            <span class="spacer"></span>
+            <span class="small muted" id="ctSaveState"></span>
+            <button class="btn btn-primary fixed-btn wide" id="ctSubmit">提交</button>
+         </div>
+         <div class="ct-console-head">运行结果</div>
+         <pre class="ct-console" id="ctConsole"></pre>
+         <div class="ct-input-row" id="ctInputRow" hidden>
+            <input class="text-field" id="ctInput" placeholder="程序在等输入" aria-label="输入">
+            <button class="btn small fixed-btn" id="ctSend">送入</button>
+         </div>
+      </div>
+   </section>
+</main>
+
+<div class="task-missing" id="ctMissing" hidden>
+   <h1 id="ctMissingTitle">没有找到这道题</h1>
+   <p class="muted" id="ctMissingBody">链接里的题目不在你的作业里。</p>
+   <p><a class="btn btn-primary" href="assignments.html">回到我的作业</a></p>
+</div>
+
+<div class="toast" id="toast" hidden><span id="toastText"></span><button id="toastAction" hidden></button></div>
+<div class="tooltip" id="tooltip" hidden></div>
+
+<script src="js/caie-spec.js"></script>
+<script src="js/lang.js?v=11"></script>
+<script src="js/language-engine.js?v=12"></script>
+<script src="js/language-adapter.js?v=9"></script>
+<script src="js/runtime-engine.js?v=10"></script>
+<script src="js/runtime-messages.js?v=3"></script>
+<script src="js/tooltip.js?v=1"></script>
+<script src="js/storage.js?v=2"></script>
+<script src="js/auth-store.js?v=1"></script>
+<script src="js/cloud-client.js?v=3"></script>
+<script src="js/sync-queue.js?v=1"></script>
+<script src="js/sync-engine.js?v=2"></script>
+<script src="js/custom-task-page.js?v=1"></script>
+</body>
+</html>

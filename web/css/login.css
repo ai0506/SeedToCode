@@ -1,0 +1,110 @@
+/* 独立登录页。
+ * 原来这些表单挤在 300px 的下拉面板里，两层身份切换叠着不同的字段。
+ * 这里给它整页的地方：身份是三个并列的选项，选中哪个才显示哪个的字段。
+ * 仍然遵守全局约定：反馈只用 background / color / box-shadow / opacity，
+ * 出现和消失的内容有常驻槽位，body 不横向滚动。 */
+
+.login-body {
+   min-height: 100vh; display: flex; flex-direction: column;
+   background: var(--bg); color: var(--text); font-family: var(--font-ui); font-size: 13px;
+}
+
+.login-top {
+   display: flex; align-items: center; gap: 12px; height: var(--topbar-h); flex: 0 0 var(--topbar-h);
+   padding: 0 14px; background: var(--bg-panel); border-bottom: 1px solid var(--border);
+}
+.login-top .spacer { flex: 1; }
+.login-brand { text-decoration: none; color: inherit; }
+
+.login-main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 40px 16px 56px; }
+
+.login-card {
+   width: 100%; max-width: 420px;
+   background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px;
+   padding: 26px 28px 24px; box-shadow: 0 10px 34px rgba(0, 0, 0, .06);
+}
+.login-title { margin: 0 0 8px; font-size: 19px; font-weight: 600; }
+.login-lead { margin: 0 0 22px; color: var(--text-dim); line-height: 1.75; }
+.login-label { margin: 0 0 8px; font-size: 12px; font-weight: 600; color: var(--text-dim); }
+
+/* 三种身份横排三张卡，各带一个大图标——竖排太占篇幅又不好区分 */
+.role-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.role-option {
+   display: flex; flex-direction: column; align-items: center; gap: 7px;
+   padding: 16px 8px 14px; text-align: center; font: inherit; cursor: pointer;
+   background: var(--bg); color: var(--text);
+   border: 1px solid var(--border); border-radius: 8px;
+   transition: background-color .12s ease, box-shadow .12s ease;
+}
+.role-option:hover { background: var(--bg-sunken); }
+.role-option:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+/* 选中用 inset 阴影画边线，不改 border 宽度，卡片尺寸不会跳 */
+.role-option[aria-checked="true"] {
+   background: var(--accent-soft);
+   box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.role-icon { display: block; height: 34px; }
+.role-icon svg {
+   width: 34px; height: 34px; fill: none;
+   stroke: var(--text-faint); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+   transition: stroke .12s ease;
+}
+.role-option:hover .role-icon svg { stroke: var(--text-dim); }
+.role-option[aria-checked="true"] .role-icon svg { stroke: var(--accent); }
+.role-name { font-weight: 600; font-size: 12.5px; }
+.role-desc { font-size: 11px; color: var(--text-faint); line-height: 1.5; }
+.role-option[aria-checked="true"] .role-desc { color: var(--accent); opacity: .8; }
+
+.login-continue { margin-top: 16px; }
+.login-continue[disabled] { opacity: .45; cursor: default; }
+
+/* 选定身份之后顶上这一行，替代三张卡 */
+.login-chosen {
+   display: flex; align-items: center; gap: 10px;
+   padding: 10px 12px; border-radius: 6px; background: var(--accent-soft);
+}
+.login-chosen-name { flex: 1; min-width: 0; font-weight: 600; color: var(--accent); }
+
+.login-form { margin-top: 20px; }
+.login-field { display: block; margin-bottom: 12px; }
+.login-field-label { display: block; margin-bottom: 5px; font-size: 12px; color: var(--text-dim); }
+.login-field .text-field { height: 34px; font-size: 13px; }
+
+.login-submit { width: 100%; height: 36px; font-size: 13px; }
+.login-hint { margin: 12px 0 0; font-size: 11.5px; color: var(--text-faint); line-height: 1.7; }
+
+/* 文字按钮：行内切换「登录 / 激活」，不额外占一行控件 */
+.login-link {
+   border: 0; background: transparent; padding: 0; font: inherit; font-size: 11.5px;
+   color: var(--accent); cursor: pointer; text-decoration: underline;
+}
+.login-link:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); border-radius: 3px; }
+
+/* 云端未配置、已登录、发信成功都用它，位置固定在卡片顶部 */
+.login-notice { margin-bottom: 4px; }
+.login-notice p { margin: 0 0 14px; line-height: 1.8; }
+.login-notice[data-state="ok"] p { color: var(--accent); }
+.login-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.login-foot {
+   display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;
+   padding: 0 16px 24px; color: var(--text-faint); font-size: 11px; text-align: center;
+}
+.login-foot .dot { opacity: .5; }
+
+@media (max-width: 480px) {
+   .login-main { padding: 20px 12px 40px; }
+   .login-card { padding: 20px 18px 18px; }
+   /* 窄屏三张卡挤不下，退回竖排，图标缩小放左边 */
+   .role-list { grid-template-columns: 1fr; }
+   .role-option { flex-direction: row; align-items: center; gap: 12px; text-align: left; padding: 11px 13px; }
+   .role-icon { height: 26px; }
+   .role-icon svg { width: 26px; height: 26px; }
+   .role-desc br { display: none; }
+}
+
+/* 「老师给了你什么」这一屏：沿用身份卡的样子，但竖排、不带图标，
+   因为这三项是并列的情境描述，靠文字读，不靠图标认。 */
+.path-list { grid-template-columns: 1fr; gap: 6px; }
+.path-option { flex-direction: column; align-items: flex-start; text-align: left; padding: 11px 13px; gap: 2px; }
+.path-option .role-desc { line-height: 1.55; }

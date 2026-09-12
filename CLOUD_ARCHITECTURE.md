@@ -2,6 +2,8 @@
 
 本文是当前项目从“纯浏览器本地应用”扩展到可选云服务时的第一版边界。未登录用户仍可完整使用本地编辑、教学和本地运行；云端能力不是本地能力的前置依赖。
 
+当前实现状态：`server/` 的 Worker/D1、认证、项目同步、云端运行、教学进度、草稿、班级、作业、自出题和老师评分接口均已实现；`web/` 已接入独立登录页、账户、同步、云端运行、老师面板、学生作业页和自出题作业流程。Worker 已部署并绑定远端 D1，生产 Resend 邮件 secret 尚未配置，因此老师和个人学习者邮箱登录仍不可用。本文件后文的“实施顺序”是边界契约，不表示这些步骤仍按原顺序待实现。
+
 ## 1. 能力分层
 
 | 能力 | 未登录 | learner | student | teacher |
@@ -34,6 +36,8 @@ Database                      用户、班级、项目元数据、版本和教�
 Object storage                大文件或历史版本；数据库只保存元数据和小文件
 Email provider                Resend，只从服务端发送一次性链接/验证码
 ```
+
+当前部署：Cloudflare Workers 单个 Worker 同时承担 API 和静态页（Workers Assets，`../web`），因此天然同源，HttpOnly 会话 cookie 可用；数据库是远端 D1 `seedtocode`。执行仍与 API 同进程，尚未拆成独立的执行 worker。
 
 部署平台可以在实现阶段确定；无论使用哪一家云厂商，执行 worker 都必须与 API 进程隔离。不能把 `eval`、任意 Node API、真实磁盘或出站网络暴露给用户程序。
 
@@ -74,11 +78,11 @@ Email provider                Resend，只从服务端发送一次性链接/验�
 
 核心表/实体：
 
-- `users(id, email, account_type, status, created_at)`：email 唯一；`account_type` 为 `teacher`、`student` 或 `individual_learner`；不要用含义模糊的 `learner` 覆盖个人学习者和班级学生；
+- `users(id, email, role, status, created_at)`：email 唯一；`role` 固定为 `teacher`、`student` 或 `learner`；`learner` 是自主注册的个人学习者，不能与 teacher 管理的 `student` 混用；
 - `auth_tokens(id, user_id, purpose, token_hash, expires_at, consumed_at)`：只存 hash，一次性使用；
-- `classes(id, teacher_id, name, join_code, ...)`；
-- `class_members(class_id, user_id, display_name, status, ...)`；
-- `student_credentials` 不保存明文密码；teacher 创建学生时设置用户名并生成一次性 `activationCode`，学生首次使用 `username + activationCode` 设置密码，激活码失效；
+- `classes(id, teacher_id, name, join_code, ...)`：每位老师最多 5 个班（服务端校验）；`join_code` 形如 `ABC123`（三字母 + 三数字，字母去掉 I O），要念给学生抄，所以固定形状比随机混排好记；它有唯一约束，生成时撞车就换一个重试。学生凭它自己注册即可进班（`POST /auth/student/register`，只要班级码、姓名、用户名和密码，不需要邮箱）；老师可以用 `PUT /api/classes/:classId/join-lock` 随时关掉这条路（`join_locked_at`），关掉后返回 `CLASS_JOIN_LOCKED` 而不是「码不正确」——码没抄错的学生需要知道是班级关了，代价是这条响应等于承认该码存在，但知道一个码有效却进不去拿不到任何东西；这一次不清限流计数，否则锁着的班可以被无限试。锁只挡自助注册，老师创建学生和已在班里的学生都不受影响；
+- `class_members(class_id, user_id, display_name, status, ...)`：`display_name` 只是老师认人用的标签，没有安全含义，teacher 可以随时改；`users.username` 是登录身份，建好之后没有修改入口；
+- `student_credentials` 不保存明文密码；密码用 PBKDF2-SHA256，但 Cloudflare Workers 把**单次**迭代硬性限制在 100000（超过抛 `NotSupportedError`，本地 Miniflare 不强制，所以只会在真实环境暴露），因此改为串联多轮派生：每轮把上一轮输出当作下一轮输入，有效工作量是各轮之和，而每轮都不触碰平台上限。哈希连同参数一起存成 `pbkdf2$<轮数>x<每轮迭代>$<十六进制>`，以后再调参数旧密码仍然验得出来；存的参数当前运行时算不出来时按「密码不正确」处理，不让异常冒成 500。teacher 创建学生时设置用户名并生成一次性 `activationCode`，学生首次使用 `username + activationCode` 设置密码，激活码失效；
 - `assignments(id, class_id, due_at, ...)`、`assignment_items(assignment_id, task_id, position, ...)` 和 `assignment_submissions(...)`；一个 assignment 从第一版起支持多道题；
 - `teaching_progress(user_id, chapter_id, section_id, state, score, updated_at, revision)`。
 
@@ -86,7 +90,7 @@ Email provider                Resend，只从服务端发送一次性链接/验�
 
 ### 邮箱流程
 
-邮箱注册/登录默认使用 Resend 发送 magic link 或短期 OTP，链接/验证码一次性、短时有效、限速并防止枚举邮箱。`learner` 和 `teacher` 自主邮箱注册并完成验证；`student` 不要求邮箱，由 teacher 创建用户名并获得一次性 `activationCode`。学生首次使用 `username + activationCode` 设置自己的密码，激活码服务端只存 hash、成功后立即失效；之后使用用户名和密码登录，不依赖邮箱。teacher 可以重置密码，但不能读取已保存的明文密码。
+邮箱注册/登录默认使用 Resend 发送 magic link 或短期 OTP，链接/验证码一次性、短时有效、限速并防止枚举邮箱。`learner` 和 `teacher` 自主邮箱注册并完成验证；`student` 不要求邮箱，有两条进班的路，两者并存：一是 teacher 创建用户名并把一次性 `activationCode` 给学生（一人一个，适合小班或需要预先指定名单）；二是 teacher 把班级码念给全班，学生自己选用户名和密码注册并直接加入该班（一班一个、可重复用，人多时省事）。自助注册按来源 IP 限流而不是按班级码——枚举的人每次换一个码，按码限流挡不住；而且只有失败才计数，否则一个教室几十个学生共用一个出口 IP，第一节课就会把全班锁在门外。个人学习者不参与班级。学生首次使用 `username + activationCode` 设置自己的密码，激活码服务端只存 hash、成功后立即失效；它是老师念给学生、学生手抄进去的，所以用 6 位无歧义字符（字母表去掉 `I O 0 1`），提交时统一大写并去掉空格横线，抄成小写或带分隔都能用。强度上 32^6 ≈ 10.7 亿，配合按用户名的激活限流（15 分钟 5 次）、一次性和 7 天过期足够；会话 token 和邮箱登录链接仍然是 32 字节随机串，那两样不需要人抄。之后使用用户名和密码登录，不依赖邮箱。teacher 可以为自己班级的 student 重置凭据：撤销该学生全部会话和旧激活码、生成一次性新 `activationCode`，但不能读取任何明文密码。
 
 ## 5. 同步模型
 
@@ -111,7 +115,7 @@ Email provider                Resend，只从服务端发送一次性链接/验�
 
 迁移必须是可重复、可回滚的版本化流程：首次启动先读取旧 blob，校验并生成一个默认项目及上述分域记录，再写入新本地格式；只有新格式成功落盘后才标记迁移完成。旧 key 至少保留一个版本周期，清除本地数据时一并清除新旧格式。迁移期间不能改变代码内容、运行时文件内容或教学完成状态。
 
-`ProjectStore` 不应只暴露一个 `load/save(state)`，而应按领域提供事务边界，例如 `listProjects`、`readProjectFiles`、`writeFileIfRevision`、`deleteFile`、`readPreferences`、`writeTeachingProgress`、`enqueueSyncOperation`。当前编辑器已经提供多项目的新建、切换、重命名和删除入口，但底层仍处于兼容注册表阶段；最终 entity store 仍按多项目设计，避免再次迁移文件模型。
+`ProjectStore` 不应只暴露一个 `load/save(state)`，而应按领域提供事务边界，例如 `listProjects`、`readProjectFiles`、`writeFileIfRevision`、`deleteFile`、`readPreferences`、`writeTeachingProgress`、`enqueueSyncOperation`。当前编辑器已经提供多项目的新建、切换、重命名和删除入口；页面通过 `CAIEStorage` 统一访问本地存储并镜像到 IndexedDB，但读取仍保留兼容快照，最终 entity-only 读取尚未完成。
 
 ### 文件版本
 
@@ -132,7 +136,6 @@ If-Match: <baseRevision>
 - 教学当前位置：只同步 `chapterId` 和 `sectionId`，使用 last-write-wins；`scrollTop` 保持设备本地，不上传也不参与冲突；
 - 分数和提交记录：按提交时间保留为不可变记录，个人练习归入 `practice_submissions`，布置作业归入 `assignment_submissions`；
 - 布置作业的提交只接受答案内容（代码/填空文本、输入记录和客户端版本），服务端必须用 `packages/exercise` 的判题逻辑重新运行并计算分数/通过状态，不能接受或信任客户端上传的 `score`、`passed` 或“已通过检查”字段；客户端计算结果只能作为即时展示，不能成为 teacher 可见成绩的依据；
-- 布置作业的提交只接受答案内容（代码/填空文本、输入记录和客户端版本），服务端必须用 `packages/exercise` 的判题逻辑重新运行并计算分数/通过状态，不能接受或信任客户端上传的 `score`、`passed` 或“已通过检查”字段；客户端计算结果只能作为即时展示，不能成为 teacher 可见成绩的依据；
 - 题目草稿：按版本冲突处理，不能把旧草稿覆盖新草稿；
 - 删除也是带 revision 的 tombstone，保留一段时间，防止离线设备把已删除文件复活。
 
@@ -140,13 +143,21 @@ If-Match: <baseRevision>
 
 `ProjectStore` 只负责本地项目/文件，`TeachingStore` 只负责本地教学状态，`SyncQueue` 只负责持久化待同步操作，`SyncEngine` 负责 push/pull/conflict；游客模式不依赖后三者。所有本地实体都带 `storageSchemaVersion`。浏览器安装首次生成随机 UUID `deviceId` 并持久化；它只用于 `updatedByDevice`、`operationId`、冲突来源和同步日志，不使用设备指纹。数据迁移按 `v1 → v2 → v3` 逐级执行，不能跳过版本或静默重置数据。
 
+同步队列只记录“哪个实体”，内容与 `expectedRevision` 都在真正发送前从本地读取：排队期间的多次修改因此自动合并为最后一版，而排队期间拿到的新版本号也不会作废。
+
+### 服务端实体 id 的分配
+
+服务端 `projects.id` 与 `project_files.id` 是全局主键，而本地 id 中存在 `project-default`、`doc-main` 这类每台设备都相同的常量。客户端因此不能直接把本地 id 当作服务端 id：第二个用户会永久撞在第一个用户已占用的主键上。服务端 id 由本地 id 加当前用户的短哈希派生——同一用户在任意设备上得到同一个 id，不同用户一定不同。tombstone 之后重建的文件改用新的服务端 id，本地 id 保持不变，因此页面引用不受影响。
+
+编辑器出厂自带的演示文件在每台设备上 id 与内容都相同。内容未被修改过的演示文件不算“本地那一份”，pull 时直接采用服务端版本而不是生成冲突副本；只要用户改过一个字，就走正常的冲突副本路径。
+
 ### 大小上限
 
 所有上限由服务端校验并在客户端做提前提示：单代码文件、单运行时文件、单项目总量、单次上传请求和历史版本数量都要有限制。具体数字应作为服务端策略版本配置，而不是散落在页面脚本中；超限错误要明确告诉用户“文件过大”，不能伪装成服务器繁忙。
 
 ## 6. 实施顺序
 
-1. 抽象 `ProjectStore`、`TeachingStore`、`SyncQueue` 和 `SyncEngine` 的接口，并完成本地数据迁移：把现有单一 `caie9618.editor.v1` blob 拆成默认项目、source/runtime 文件、设备状态、偏好、gate/completion、position、个人练习草稿与提交记录；保留旧格式兼容读取、`storageSchemaVersion`、`deviceId`、失败回滚和可重复迁移。当前页面已有多项目 UI，但页面读取尚未完全切换为 IndexedDB entity；本阶段完全不接云端。
+1. 抽象 `ProjectStore`、`TeachingStore`、`SyncQueue` 和 `SyncEngine` 的接口，并完成本地数据迁移：把现有单一 `caie9618.editor.v1` blob 拆成默认项目、source/runtime 文件、设备状态、偏好、gate/completion、position、个人练习草稿与提交记录；保留旧格式兼容读取、`storageSchemaVersion`、`deviceId`、失败回滚和可重复迁移。接口和迁移已落地；页面读取仍保留兼容快照，最终 entity-only 读取是剩余事项。
 2. 多项目 UI 已完成：新建、重命名、切换和删除项目，且不改变本地编辑与本地运行路径。
 3. 加认证和会话状态；实现 `learner`/`teacher` 邮箱认证与 `student` 的 username + activationCode 激活。
 4. 加项目/文件同步、revision、离线队列和冲突副本；先只同步个人项目。
@@ -154,4 +165,36 @@ If-Match: <baseRevision>
 6. 加 teacher/class/member/assignment/assignment_items/progress API 与页面；最后接入跨设备教学进度。
 7. 每一步都保留功能开关和回滚路径：云端不可用时显示服务器繁忙，不能让本地运行失效。
 
-首个可交付垂直切片应是“邮箱登录 → 新建个人项目 → 在第二个设备看到代码 → 冲突时生成副本”，而不是一次同时实现班级、作业、云端运行和实时同步。
+教学进度与位置的 `sectionId` 接受两种形状：`2.3` / `2.3.1`，以及章末大题的 `chapterTask`。章末大题在课程数据里没有小节号，但它和普通小节一样要跨设备同步，并且要进入教师可见的班级进度，所以是一等的 section 标识而不是本机特例；每章至多一个，`(user_id, chapter_id, section_id)` 主键天然够用，不需要额外的表或迁移。课文关卡（`GATES_KEY`）是设备本地的重放记录，不属于同步范围；跨设备同步的是小节完成状态本身。
+
+章末大题的**每一次「提交」**都会写入 `practice_submissions`，按提交时间保留为不可变记录，教师可以读取自己班级成员的全部记录（答案内容、服务端分数、通过状态、失败层级）。这条记录只接受答案内容：分数和通过状态一律由服务端用已发布题目重新判定，客户端上传的 `score` / `passed` 不会被读取或保存。
+
+范围刻意收窄在章末大题：小节练习题仍然只是学生自己的草稿（`practice_drafts`，只有本人可读），服务端会拒绝非章末大题的提交。提交按用户限速，超出时返回统一的繁忙提示，由客户端同步队列稍后重试——本地判题和本地作答全程不受影响，记录只是晚一点落库。`client_submission_id` 按用户唯一，重试同一次提交只会留下一行；不同的提交使用不同的队列 entity，因此同一道题的多次尝试不会互相覆盖。
+
+提交记录是队列中唯一把内容放进 payload 的操作：它记的是按下「提交」那一刻的那一份，而不是「这道题现在写成什么样」。
+
+### 班级作业
+
+**作业题一律由老师自己写**（纯文本题面 + 可选提示），不再支持把课程里已发布的题目勾成作业：学生做没做章末大题，老师在「进度」里本来就看得到，再布置一遍只和课程自身的推进重复，学生也分不清哪个是作业、哪个是课程内容。条目存在 `assignment_items` 里，`task_id` 当通用条目键——自出题用 `custom:<uuid>`。早先勾选的课程题目仍然读得出来（`kind: "task"`），编辑旧作业时以可移除的形式原样带着，不会被静默丢掉——那样学生已经交在那些题上的答案就和作业脱钩了。
+
+自出题刻意不带判题数据：成绩已经由老师手动给，预先定义题目换来的只剩「题目只有那 40 道」的限制。学生那边要的只是题面、一个能写能跑的编辑器和提交（`custom-task.html`），不判分也不给对错反馈；提交后 `server_score` 留空表示「没有自动结果」，而不是记成 0 分——0 分会被误读成「跑不通」。结构化出题（示例输入输出、起始代码）留待以后用 AI 把老师的自由文本整理成结构，手填那些字段上手成本高、错一个字符就全乱。
+
+老师在班级面板布置作业（一份可含多题，截止日期可选）。学生在账户面板看到「我的作业」，题号直接链到做题页；做题页对被布置的题目显示标记，一次「提交」同时产生一条作业提交。
+
+老师可以改一份已经布置出去的作业（标题、截止时间、题目），也可以撤掉它。撤掉是 tombstone 而不是真删：`assignment_submissions` 对 `assignment_id` 是 `ON DELETE CASCADE`，真删会把学生已经交上来、已经判过分的答案一起销毁。打上 `deleted_at` 之后师生两侧都不再列出，也不能再提交，记录仍然保留；编辑时被移除的题目，学生之前交的记录同样保留。删除后会给一条短时「撤销」提示，撤销走 `POST /api/classes/:classId/assignments/:assignmentId/restore`，把 `deleted_at` 清掉即可——题目和已交的答案一直都在，不需要重建。撤销是真删除之后的真恢复，而不是「先不删、等提示消失再删」：后者在那几秒里关掉页面就永远删不掉了。
+
+截止时间只用于提示，不拦截提交：过期后学生照样能交，两侧都标成迟交。迟交按当前截止时间现算而不是提交时写死，老师改了截止时间，之前那些提交的迟交与否也跟着变。拦住只会让已经晚了的人干脆不交。
+
+**自动判分不是成绩，而且不再以分数形式出现。** 判分是三层：L0 语法阻断、L1 题目要求未满足，两者直接 0 分且不跑用例；L2 才跑测试，分数 = 通过用例数 ÷ 总用例数。题目中位 5 个用例，所以取值只有 0/20/40/60/80/100。更要命的是学生可以无限次重复提交，做题页还会指出哪个用例没过，肯掉头改的人必然迭代到满分——这个数字实际只区分「做完了」和「放弃了」，摆成分数还会先入为主地影响老师。所以界面上只保留一个「代码跑通了没有」的小圆点（省掉老师逐份手跑代码），成绩由老师手动给：`PUT /api/classes/:classId/submissions/:submissionId/grade`，接受 0–100 的整数分和评语，两者至少给一个；分数可以反复改（批改本来就会回头调整），也可以只写评语不给分（记为「已阅」）。老师分和自动分分开存、互不覆盖，学生在作业清单里看得到老师给的分和评语——看不到的话打分就白打了。
+
+作业提交只接受答案内容：服务端用 `packages/exercise` 的判题逻辑重新运行并计算分数与通过状态，客户端上传的 `score` / `passed` 不会被读取或保存。提交经同步队列发出，断网时留在队列里，恢复后补交，判题界面一点都不等它。老师看到的是「学生 × 题目」的矩阵，每格取该学生该题最近一次提交，没交的也列出来。
+
+### 本地数据的归属
+
+同步元数据记录本地这批内容属于哪个账号。登录的账号与记录不符时，此刻已经在设备上的项目、文件、完成状态和题目草稿会被整批**挂起**：本地照常读写、照常运行，但一律不上传。教室里同一台机器换人登录是常态，而完成状态是单调的——一旦记进账号就撤不回来，教师还看得见，所以这一条不做例外。
+
+出厂默认项目不算「登录前留下的内容」：编辑器首次加载就会自动建一个带示例文件的项目，拿它去问「要不要并入」，对什么都没做过的新用户就是纯噪音。内容与出厂样例完全一致（项目名、全部代码文件的 id/名称/内容、全部运行时文件都逐一相同）时跳过；只要动过一个字、改过项目名或增删过文件，就不再是出厂状态，照常询问。
+
+挂起分两种来源：上一位登录用户留下的，不问也不并；未登录时攒下的，账户面板问一次「要不要并入这个账号」，答应了才解除。两种情况下本地内容都原样保留，不删除、不覆盖。登录之后新完成的小节、新写的草稿和新建的文件不受挂起影响，照常同步。
+
+当前仓库状态：`server/` 已建立 Worker/D1 本地骨架并部署到 Cloudflare，并已完成可本地验证的认证、个人项目同步、云端运行、班级/student/作业提交、教学完成状态、教学位置和个人练习草稿 API。老师与个人学习者使用 15 分钟一次性邮箱链接；学生使用 `username + activationCode` 设置密码，之后以用户名和密码登录；会话只存 HttpOnly cookie 中的随机 token，数据库只保存其哈希。teacher 可创建班级、student 和多题作业，也可为自己班级的 student 撤销会话、旧密码和旧激活码后生成一次性新激活码；student 只能读取自己的班级作业并提交答案；teacher 只能读取自己班级成员的进度和提交。限流被挡时会把还要等多久一起返回（`retryAfterSeconds`，文案写成「请 N 分钟后再试」）——只说「稍后再试」的话，被挡住的人只会继续点。学生激活和登录的上限是 10 次 / 15 分钟：5 次太紧，老师念错一位、学生抄串一行就能耗掉，而激活码是 32^6 ≈ 10.7 亿，10 次/15 分钟平均仍需上千年才可能撞出来。邮箱链接、学生激活和学生密码登录都按标识符限流，邮箱入口在受限时仍返回相同的已接受响应以避免枚举。课程作业提交只接受答案内容，服务端根据已发布课程题目重新判分，完全忽略客户端的分数或通过字段；自出题提交不自动判分，老师分数和评语单独保存。教学位置仅保存 `chapterId` 和 `sectionId` 并按最后写入取胜，`scrollTop` 不写入服务端；个人练习草稿以 revision 条件写入、`operationId` 幂等重试，旧版本返回 409 和完整服务器草稿。开发模式只返回一次性 token 以便本地测试，不发送邮件；生产邮件须显式配置 Resend、发件人和站点来源。项目与文件写入要求 `operationId` 和 `expectedRevision`；冲突返回 409 与服务器版本摘要，删除保留 tombstone，同名实体可在 tombstone 后重建。云端运行会先验证 snapshot 和虚拟文件，再记入隐藏额度账本；服务端只用请求中的入口代码与运行时文件重新解析和执行，不从数据库回读代码；账本耗尽统一返回“服务器繁忙，请稍后再试”。页面已接入独立登录页、认证、个人项目同步、云端运行、教学完成状态、阅读位置、个人练习草稿、老师班级/学生/作业/提交记录页面、学生作业清单和自出题作业页：客户端分为 `CloudClient`（API 与会话）、`AuthStore`（仅公开会话状态）、`SyncQueue`（持久化待同步操作）与 `SyncEngine`（pull/push/conflict）四个模块，游客不启动后两者。首个垂直切片“邮箱登录 → 个人项目 → 第二个设备看到代码 → 冲突时生成副本”已在本地 Worker/D1 上完成浏览器验证。Worker 已完成生产部署并绑定远端 D1；Resend 配置仍未完成。本地联测使用 `scripts/dev-proxy.mjs` 提供同源外壳，第一版客户端只支持同源 `/auth` 与 `/api`，没有为跨域 cookie 做任何放宽。

@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SeedToCode · CAIE 9618</title>
-<link rel="stylesheet" href="css/styles.css?v=22">
+<link rel="stylesheet" href="css/styles.css?v=23">
+<link rel="stylesheet" href="css/account.css?v=1">
 </head>
 <body>
 
@@ -58,6 +59,8 @@
             <button data-action="switchProject"><span class="menu-label">切换项目…</span><kbd></kbd></button>
             <button data-action="renameProject"><span class="menu-label">重命名项目…</span><kbd></kbd></button>
             <button data-action="deleteProject"><span class="menu-label">删除当前项目</span><kbd></kbd></button>
+            <hr>
+            <button data-action="cloudRun"><span class="menu-label">云端运行</span><kbd></kbd></button>
             <hr>
             <button data-action="settings"><span class="menu-label">设置</span><kbd></kbd></button>
             <button data-action="resetRuntime"><span class="menu-label">清空运行环境</span><kbd></kbd></button>
@@ -348,6 +351,19 @@
    </div>
 </div>
 
+<div class="dialog dialog-sm" id="cloudRunDialog" hidden role="dialog" aria-label="云端运行输入">
+   <div class="dialog-head"><span>云端运行 · 输入</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p class="muted small dialog-meta">云端运行不会中途停下来等输入。程序每遇到一次 <code class="mono">INPUT</code> 就取走一行，按顺序写好。</p>
+      <textarea id="cloudRunInputs" class="plain-area" spellcheck="false" aria-label="输入序列" placeholder="每行一个输入"></textarea>
+      <div class="field-error" id="cloudRunError"></div>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-primary small fixed-btn" id="cloudRunStart">运行</button>
+      </div>
+   </div>
+</div>
+
 <div class="drop-overlay" id="dropOverlay" hidden>
    <div class="drop-card">
       <div class="drop-title" id="dropTitle">松开以导入为代码文件</div>
@@ -366,7 +382,12 @@
 <script src="js/runtime-engine.js?v=9"></script>
 <script src="js/lang.js?v=11"></script>
 <script src="js/runtime-messages.js?v=3"></script>
-<script src="js/storage.js?v=1"></script>
-<script src="js/app.js?v=27"></script>
+<script src="js/storage.js?v=2"></script>
+<script src="js/auth-store.js?v=1"></script>
+<script src="js/cloud-client.js?v=1"></script>
+<script src="js/sync-queue.js?v=1"></script>
+<script src="js/sync-engine.js?v=1"></script>
+<script src="js/app.js?v=28"></script>
+<script src="js/account-ui.js?v=1"></script>
 </body>
 </html>

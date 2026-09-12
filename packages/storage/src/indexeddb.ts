@@ -33,10 +33,11 @@ export function openStorageDatabase(name = STORAGE_DB_NAME): Promise<IDBDatabase
   });
 }
 
-export async function getDeviceId(database: IDBDatabase): Promise<string> {
+export async function getDeviceId(database: IDBDatabase, preferred?: string): Promise<string> {
   const current = await readMeta(database, "device");
-  if (current?.deviceId) return current.deviceId;
-  const deviceId = crypto.randomUUID();
+  if (current?.deviceId && (!preferred || current.deviceId === preferred)) return current.deviceId;
+  // 同步启动的存储 facade 先生成了 id，这里采用同一个，避免两处各记一个设备。
+  const deviceId = preferred ?? crypto.randomUUID();
   await writeMeta(database, { id: "device", deviceId });
   return deviceId;
 }

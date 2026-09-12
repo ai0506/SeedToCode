@@ -6,7 +6,7 @@
 
 当前状态以 [`../PROJECT_STATE.md`](../PROJECT_STATE.md) 为准。本文件保留实施计划和阶段上下文；其中的计划性、阶段性或历史性描述不替代当前状态文档。
 
-当前仓库状态（据 `updates.md` 至 2609091216、`README.md`）：
+当前仓库状态：以 [`../PROJECT_STATE.md`](../PROJECT_STATE.md) 为唯一当前事实来源；本节只保留实施计划的背景，不再用旧的 `updates.md` 时间点代表状态。
 
 - `packages/language`：**静态检查与格式化已完成**，Core 与 Advanced 全覆盖（记录、枚举、指针、集合、文本/随机文件、OOP）。
 - `packages/runtime`：**阶段 4**。除基本类型、表达式、`IF`/`CASE`、三种循环、数组、记录之外，过程与函数（含 `BYVAL`/`BYREF`、递归、调用栈）与文本/随机虚拟文件也已真实执行。
@@ -14,7 +14,7 @@
 - `packages/exercise`：**首版**。特征提取（`FEATURE_IDS` + AST 遍历）、输出比对、L0→L2 判题编排已可用。
 - `packages/teaching-content`：**Chapter 1–16（AS 全部）已完成**并全部通过引擎校验。
 
-判题能力已经覆盖到文件为止，只剩 A Level 的 Advanced 特性。
+判题能力已经覆盖到文件和 AS 综合内容；当前课程索引中的 AS Chapter 1–16 已接入页面，A Level Chapter 17–23 尚未登记为生产教学内容。
 
 ## 2. 章节的可判题能力矩阵
 
@@ -64,7 +64,7 @@
 ### 阶段 T1 — 判题引擎（首版已完成）
 
 `packages/exercise` 已实现特征提取、约束求值、输出比对、L0→L2 判题编排；期望输出生成由 `scripts/generate-teaching-expected.mjs` 承担（`npm run teaching:expected` 写入，`npm test` 以 `--check` 比对）。
-尚未做：失败次数与揭示阈值（属界面侧状态，随 T2 一起做）、`forbid` 命中行号的精确定位。
+仍待完善：失败次数与揭示阈值不跨刷新保存；`forbid` 命中行号的精确定位仍不是当前判题契约。
 
 验收：
 
@@ -83,9 +83,9 @@
 尚未做：
 
 - 每题失败次数只在内存里，刷新后揭示阈值会重新计数。
-- 学生作答的保存与恢复。
-- 迷你编辑器还只是 `textarea`：没有三空格缩进、`<-` 自动转 `←`、实时诊断这些编辑器已有的能力。
-- 多章导航：目录只展开当前章；主页已能列全 23 章，当前已上线的 Chapter 1–7 可进入。
+- 学生作答已经支持本地保存与恢复，并可选同步为个人草稿；提交前不显示实时诊断，诊断和判题在提交时执行。
+- 做题区仍以 `textarea` 为输入层，但已有三空格缩进、`<-` 自动转 `←`、语法着色和行号。
+- 多章导航：目录只展开当前章；主页已能列全 23 章，当前已上线的 Chapter 1–16（AS 全部）可进入。
 
 - 学习模式与编辑器模式的切换（不是两个网站，共用同一个编辑器组件）。
 - 五类元素的渲染组件 + quiz 的四种题型（`single-choice` / `true-false` / `click-line` / `fill-blank`；`order` 与 `multi-choice` 已废弃，`trace-table` 见待定章 X1）+ 关卡逐段解锁 + 判题结果面板。
@@ -179,7 +179,7 @@ trace table、dry run、三类错误、用运行器观察执行、测试数据�
 
 ## 4.5 接手前必读
 
-阶段性状态、问题的发现方式与风险清单都在 [07-HANDOFF.md](07-HANDOFF.md)。通用校验与 Chapter 2 已完成；下一步直接写 Chapter 3，并在首次用到新特征前补其 AST 提取测试。
+阶段性状态、问题的发现方式与风险清单都在 [07-HANDOFF.md](07-HANDOFF.md)。AS Chapter 1–16 已完成并接入页面；下一步进入 A Level Chapter 17，并在首次用到新特征前补其 AST 提取测试，同时等待对应 Advanced 运行时能力。
 
 ## 5. 已决与待决
 

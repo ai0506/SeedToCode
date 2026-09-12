@@ -54,6 +54,90 @@
 
    var progress = readStore(PROGRESS_KEY);
 
+   /* 云端只在登录后才有；没有 SyncEngine、没登录、断网，下面这些调用都是空转，
+      本地做题、存草稿、记进度一律照旧。 */
+   function sync() { return window.SyncEngine || null; }
+
+   /* 提交记录里附带的客户端版本，只用于排查「这份答案是哪一版页面交的」。 */
+   var CLIENT_VERSION = "web-1";
+
+   /** 这道题属于哪些还在进行中的作业。未登录、不是学生或云端不可用时为空。 */
+   var assignmentsForTask = {};
+
+   function noteAssignmentsFor(taskId, root) {
+      var client = window.CloudClient;
+      if (!client || !client.available()) return;
+      void client.assignments().then(async function (list) {
+         var mine = (list || []).filter(function (item) {
+            return (item.items || []).some(function (entry) { return entry.kind === "task" && entry.id === taskId; });
+         });
+         assignmentsForTask[taskId] = mine;
+         if (!mine.length) return;
+         markAssignmentBadge(taskId);
+         // 老师批过的话，把分数和评语直接摆到作答区顶上——
+         // 学生本来要点开右上角浮层才看得到分，还看不到评语。
+         await showTeacherFeedback(mine, taskId, root);
+      });
+   }
+
+   async function showTeacherFeedback(list, taskId, root) {
+      var client = window.CloudClient;
+      var latest = null;
+      for (var i = 0; i < list.length; i += 1) {
+         try {
+            var data = await client.request("/api/assignments/" + encodeURIComponent(list[i].id) + "/submissions");
+            (data.submissions || []).forEach(function (row) {
+               if (row.taskId !== taskId || !row.graded) return;
+               if (!latest || row.submittedAt > latest.submittedAt) latest = row;
+            });
+         } catch (error) { /* 看不到批改不影响做题 */ }
+      }
+      if (!latest || !root) return;
+      var slot = $(".task-feedback", root);
+      if (!slot) {
+         slot = document.createElement("div");
+         slot.className = "task-feedback";
+         var body = $(".mini-editor", root) || root.firstElementChild;
+         if (body && body.parentNode) body.parentNode.insertBefore(slot, body);
+         else root.insertBefore(slot, root.firstChild);
+      }
+      slot.innerHTML =
+         '<div class="task-feedback-head">老师已批改' +
+         (latest.teacherScore === null ? "" : '<span class="task-feedback-score">' + latest.teacherScore + " 分</span>") +
+         "</div>" +
+         (latest.teacherComment ? '<div class="task-feedback-body"></div>' : "");
+      if (latest.teacherComment) $(".task-feedback-body", slot).textContent = latest.teacherComment;
+   }
+
+   function submitToAssignments(taskId, source) {
+      var list = assignmentsForTask[taskId];
+      if (!list || !list.length || !sync()) return;
+      list.forEach(function (item) {
+         sync().noteAssignmentSubmission(item.id, taskId, source, CLIENT_VERSION);
+      });
+   }
+
+   /*
+    * 做题页顶部那条「作业」标记：只在这道题确实是作业时出现。
+    * 过了截止时间也照样能交——只是标成迟交，让学生自己心里有数。
+    * 服务端不拦，这里也不拦；拦住只会让已经晚了的人干脆不交。
+    */
+   function markAssignmentBadge(taskId) {
+      var slot = document.querySelector("[data-assignment-slot]");
+      if (!slot) return;
+      var list = assignmentsForTask[taskId] || [];
+      if (!list.length) { slot.textContent = ""; slot.hidden = true; return; }
+      var now = Date.now();
+      var overdue = list.filter(function (item) { return item.dueAt && item.dueAt < now; });
+      slot.hidden = false;
+      slot.dataset.state = overdue.length === list.length ? "late" : "";
+      if (list.length > 1) {
+         slot.textContent = "作业 · " + list.length + " 份" + (overdue.length ? "（" + overdue.length + " 份已过截止）" : "");
+         return;
+      }
+      slot.textContent = "作业 · " + list[0].title + (overdue.length ? " · 已过截止，现在提交算迟交" : "");
+   }
+
    var Progress = {
       keyFor: function (chapterId, sectionId) { return chapterId + "/" + sectionId; },
       /** 从 localStorage 重新读一遍。做题页改了进度之后，课文页靠这个对齐。 */
@@ -64,6 +148,26 @@
       setDone: function (chapterId, sectionId) {
          progress[Progress.keyFor(chapterId, sectionId)] = true;
          writeStore(PROGRESS_KEY, progress);
+         // 只往「已完成」这一个方向合并，永远不会上传「未完成」。
+         if (sync()) sync().noteProgress(chapterId, sectionId);
+      },
+      /** 云端拿回来的完成状态：只加不减。 */
+      mergeCompleted: function (items) {
+         var changed = false;
+         items.forEach(function (item) {
+            var key = Progress.keyFor(item.chapterId, item.sectionId);
+            if (progress[key] === true) return;
+            progress[key] = true;
+            changed = true;
+         });
+         if (changed) writeStore(PROGRESS_KEY, progress);
+         return changed;
+      },
+      list: function () {
+         return Object.keys(progress).filter(function (key) { return progress[key] === true; }).map(function (key) {
+            var parts = key.split("/");
+            return { chapterId: Number(parts[0]), sectionId: parts.slice(1).join("/") };
+         });
       }
    };
 
@@ -82,13 +186,83 @@
          var all = readStore(ANSWER_KEY);
          all[Answers.keyFor(chapterId, taskId)] = code;
          writeStore(ANSWER_KEY, all);
+         if (sync()) sync().noteDraft(chapterId, taskId);
       },
       clear: function (chapterId, taskId) {
          var all = readStore(ANSWER_KEY);
          delete all[Answers.keyFor(chapterId, taskId)];
          writeStore(ANSWER_KEY, all);
+      },
+      /** 本地这道题还没有草稿时，才采用云端那一份。 */
+      adopt: function (chapterId, taskId, code) {
+         var all = readStore(ANSWER_KEY);
+         var key = Answers.keyFor(chapterId, taskId);
+         if (typeof all[key] === "string") return false;
+         all[key] = code;
+         writeStore(ANSWER_KEY, all);
+         return true;
+      },
+      list: function () {
+         var all = readStore(ANSWER_KEY);
+         return Object.keys(all).filter(function (key) { return typeof all[key] === "string"; }).map(function (key) {
+            var parts = key.split("/");
+            return { chapterId: Number(parts[0]), taskId: parts.slice(1).join("/"), source: all[key] };
+         });
       }
    };
+
+   /*
+    * 草稿冲突：两台设备写了同一道题的同一版之后的不同内容。
+    * 本地那一份原样留着，云端那一份单独存成可恢复草稿——
+    * 作答区顶上会多一行提示，由学生自己决定要不要换过去。绝不自动覆盖。
+    */
+   var DraftConflicts = {
+      all: function () {
+         var value = window.CAIEStorage.get(window.CAIEStorage.key.draftConflicts, {});
+         return value && typeof value === "object" ? value : {};
+      },
+      get: function (chapterId, taskId) {
+         var item = DraftConflicts.all()[Answers.keyFor(chapterId, taskId)];
+         return item && typeof item.source === "string" ? item : null;
+      },
+      record: function (chapterId, taskId, source, revision) {
+         if (typeof source !== "string") return;
+         var all = DraftConflicts.all();
+         all[Answers.keyFor(chapterId, taskId)] = { source: source, revision: revision, at: Date.now() };
+         window.CAIEStorage.set(window.CAIEStorage.key.draftConflicts, all);
+      },
+      clear: function (chapterId, taskId) {
+         var all = DraftConflicts.all();
+         delete all[Answers.keyFor(chapterId, taskId)];
+         window.CAIEStorage.set(window.CAIEStorage.key.draftConflicts, all);
+      }
+   };
+
+   if (window.SyncEngine) {
+      window.SyncEngine.useTeaching({
+         listCompleted: Progress.list,
+         applyCompleted: function (items) {
+            if (Progress.mergeCompleted(items)) document.dispatchEvent(new CustomEvent("teaching-progress-merged"));
+         },
+         listDrafts: Answers.list,
+         readDraft: Answers.get,
+         applyDraft: function (chapterId, taskId, source) {
+            if (Answers.adopt(chapterId, taskId, source)) {
+               document.dispatchEvent(new CustomEvent("teaching-draft-adopted", { detail: { chapterId: chapterId, taskId: taskId } }));
+            }
+         },
+         replaceDraft: function (chapterId, taskId, source) {
+            var all = readStore(ANSWER_KEY);
+            all[Answers.keyFor(chapterId, taskId)] = source;
+            writeStore(ANSWER_KEY, all);
+            document.dispatchEvent(new CustomEvent("teaching-draft-adopted", { detail: { chapterId: chapterId, taskId: taskId } }));
+         },
+         addDraftConflict: function (chapterId, taskId, source, revision) {
+            DraftConflicts.record(chapterId, taskId, source, revision);
+            document.dispatchEvent(new CustomEvent("teaching-draft-conflict", { detail: { chapterId: chapterId, taskId: taskId } }));
+         }
+      });
+   }
 
    /* ---------------- 特征名 ---------------- */
 
@@ -329,6 +503,8 @@
            hl(task.lockedStarterCode.replace(/\n+$/, "")) + "</code></pre></div></div>"
          : "";
       return (
+         // 云端草稿与本地不一致时才会有内容；平时是一个空的、不占位的槽。
+         '<div class="draft-conflict" data-draft-conflict hidden></div>' +
          '<div class="mini-editor">' +
          '<div class="mini-editor-head"><span>你的作答</span><span class="spacer"></span>' +
          '<span class="save-slot" data-state="idle"></span>' +
@@ -707,12 +883,69 @@
       var composing = false;
       var saveTimer = null;
 
+      // 这道题是不是老师布置的作业：异步问一次，拿到了再标记，问不到就当不是。
+      noteAssignmentsFor(task.id, root);
+
       wireHints(root);
 
       if (!textarea) return { textarea: null };
 
       var saved = opts.chapterId != null ? Answers.get(opts.chapterId, task.id) : null;
       textarea.value = saved != null ? saved : (task.starterCode || "");
+
+      /*
+       * 云端那一份和本地不一样时只多出一行提示，本地作答一个字都不动。
+       * 要不要换成云端那一版，由学生自己按——没有自动合并，也没有弹窗。
+       */
+      /* 云端草稿是在这一页打开之后才到的。只有学生还一个字没写（作答区仍是起始代码）
+         才把它填进来——已经动手写了就绝不替换。 */
+      var pristine = saved == null;
+      var suppressSave = false;
+      document.addEventListener("teaching-draft-adopted", function (event) {
+         var detail = event.detail || {};
+         if (detail.chapterId !== opts.chapterId || detail.taskId !== task.id) return;
+         if (!pristine || textarea.value !== (task.starterCode || "")) return;
+         var adopted = Answers.get(opts.chapterId, task.id);
+         if (adopted == null) return;
+         textarea.value = adopted;
+         // 内容就是刚从云端拿到的那一份，没有要写回去的东西，只是让行号和着色跟上。
+         suppressSave = true;
+         textarea.dispatchEvent(new Event("input", { bubbles: true }));
+         suppressSave = false;
+      });
+
+      var conflictSlot = $("[data-draft-conflict]", root);
+      function renderDraftConflict() {
+         if (!conflictSlot || opts.chapterId == null) return;
+         var conflict = DraftConflicts.get(opts.chapterId, task.id);
+         if (!conflict) { conflictSlot.hidden = true; conflictSlot.innerHTML = ""; return; }
+         conflictSlot.hidden = false;
+         conflictSlot.innerHTML =
+            '<span class="draft-conflict-text">这道题在另一台设备上也改过，云端那一份和这里不一样。本地这一份已经保留。</span>' +
+            '<span class="spacer"></span>' +
+            '<button class="btn btn-ghost small fixed-btn" data-draft-use>用云端那一份</button>' +
+            '<button class="btn btn-ghost small fixed-btn" data-draft-dismiss>保留本地</button>';
+      }
+      if (conflictSlot) {
+         conflictSlot.addEventListener("click", function (event) {
+            if (opts.chapterId == null) return;
+            if (event.target.closest("[data-draft-use]")) {
+               var conflict = DraftConflicts.get(opts.chapterId, task.id);
+               if (conflict) {
+                  textarea.value = conflict.source;
+                  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+                  Answers.set(opts.chapterId, task.id, conflict.source);
+               }
+            }
+            DraftConflicts.clear(opts.chapterId, task.id);
+            renderDraftConflict();
+         });
+         document.addEventListener("teaching-draft-conflict", function (event) {
+            var detail = event.detail || {};
+            if (detail.chapterId === opts.chapterId && detail.taskId === task.id) renderDraftConflict();
+         });
+         renderDraftConflict();
+      }
 
       if (gutter) wireGutter(textarea, gutter, lockedLineCount(task));
       if (highlight) wireHighlight(textarea, highlight);
@@ -725,7 +958,7 @@
       }
 
       function scheduleSave() {
-         if (opts.chapterId == null) return;
+         if (opts.chapterId == null || suppressSave) return;
          if (saveSlot) { saveSlot.dataset.state = "saving"; saveSlot.textContent = "保存中"; }
          clearTimeout(saveTimer);
          saveTimer = setTimeout(function () {
@@ -745,6 +978,7 @@
       textarea.addEventListener("compositionstart", function () { composing = true; });
       textarea.addEventListener("compositionend", function () { composing = false; scheduleSave(); });
       textarea.addEventListener("input", function () {
+         if (!suppressSave) pristine = false;
          if (!composing) convertTrailingAsciiArrow(textarea);
          scheduleSave();
       });
@@ -781,6 +1015,22 @@
             taughtFeatures: opts.taughtFeatures || []
          });
          if (result.failedLayer === "L2") failedRuns += 1;
+         /*
+          * 章末大题的每一次提交都留一条记录，老师看得到。
+          * 只送答案内容，不送这里算出来的 passed —— 服务端会重新判一遍，
+          * 客户端的结果只用于眼前这一屏。入队即走，判题结果照常立刻显示；
+          * 未登录、断网或云端未配置时这一步是空转，做题完全不受影响。
+          */
+         if (task.kind === "chapterTask" && opts.chapterId != null && sync()) {
+            sync().noteSubmission(opts.chapterId, task.id, source, CLIENT_VERSION);
+         }
+         /*
+          * 这道题如果是老师布置的作业，同一次「提交」还要交一份作业提交。
+          * 和上面那条一样只送答案内容：服务端会用已发布题目重新判分，
+          * 这里算出来的 passed 只用于眼前这一屏，不作为老师看到的成绩。
+          * 排进队列就返回，断网时也不会拦住判题。
+          */
+         submitToAssignments(task.id, source);
          renderVerdict(verdict, result, failedRuns, task, function (passResult) {
             if (opts.onPass) opts.onPass(passResult);
          });
@@ -812,6 +1062,7 @@
       featureLabel: featureLabel,
       progress: Progress,
       answers: Answers,
+      draftConflicts: DraftConflicts,
       locate: locate,
       taughtFeaturesFor: taughtFeaturesFor,
       stepIdFor: stepIdFor,

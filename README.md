@@ -9,9 +9,10 @@
 - 阶段 4 运行时：变量、表达式、过程、函数、调用栈，以及文本文件和随机文件的虚拟执行。
 - 教学课程、交互式小节题和章末题；题目使用真实的语言分析器、运行时和判题核心。
 - 独立做题页：左侧题面、右侧作答，带行号、输入输出用例、分级提示、判题结果和进度保存。
-- 所有数据保存在浏览器本地，不需要后端服务或数据库。
+- 本地优先：编辑、教学、做题和本地运行不依赖后端；登录后可选接入云端同步、云端运行和班级教学。
 - 支持多个本地项目；每个项目独立保存代码文件和运行时虚拟文件，项目入口位于编辑器左侧栏顶部。
-- 本地存储正在从旧版 `localStorage` blob 迁移到 `CAIEStorage` + IndexedDB entity 模型；旧用户数据会保留并迁移，云端同步尚未接入。
+- 本地存储正在从旧版 `localStorage` blob 迁移到 `CAIEStorage` + IndexedDB entity 模型；旧用户数据会保留并迁移，页面仍通过兼容快照读取。
+- 页面已接入认证、个人项目同步、云端运行、教学进度/草稿同步、老师面板、学生作业页和自出题作业；服务端已部署到 Cloudflare Workers 并绑定远端 D1，生产邮箱登录仍待配置。
 
 ## 快速开始
 
@@ -52,9 +53,14 @@ npm test
 | `packages/exercise` | 教学题目的语法特征提取、输出比对和分层判题 |
 | `packages/test-cases` | 结构化验收语料 |
 | `packages/teaching-content` | 课程章节、题目、参考解、期望输出和浏览器发布数据 |
+| `server/` | Cloudflare Worker 入口、D1 migrations 和后端 API（本地开发与线上部署配置） |
 | `web/index.html` | 主编辑器页面 |
 | `web/teaching.html` | 教学课程页 |
 | `web/task.html` | 独立做题页 |
+| `web/teacher.html` | 老师班级、学生、进度和作业面板 |
+| `web/login.html` | 老师、个人学习者和学生的独立登录/激活页 |
+| `web/assignments.html` | 学生作业清单、提交状态、分数和评语 |
+| `web/custom-task.html` | 自出题作业的编辑、运行和提交页 |
 | `tests/pseudocode-samples` | 合法、非法和边界伪代码样本 |
 | `teaching/` | 教学模块的课程规划、内容规格、模板和交接文档 |
 

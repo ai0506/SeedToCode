@@ -111,3 +111,30 @@
    .split-handle { display: none; }
    .task-pane-right .mini-editor-body:not(.locked-body) { min-height: 220px; }
 }
+
+/* 顶栏的「作业」标记：只在这道题确实被布置过时出现，不占常驻宽度 */
+.assignment-slot[data-state="late"] { background: var(--danger-soft); color: var(--danger); }
+.assignment-slot {
+   display: inline-block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+   height: 20px; line-height: 20px; padding: 0 8px; border-radius: 10px;
+   font-size: 11px; background: var(--warn-soft); color: var(--warn);
+}
+
+/* 老师的批改结果直接摆在作答区顶上：学生原来得点开右上角浮层才看得到分，
+   而且只有分没有评语——评语才是他真正该读的东西。 */
+.task-feedback {
+   margin-bottom: 12px; padding: 10px 12px; border-radius: 6px;
+   background: var(--accent-soft); border: 1px solid transparent;
+}
+.task-feedback-head {
+   display: flex; align-items: center; gap: 8px;
+   font-size: 12px; font-weight: 600; color: var(--accent);
+}
+.task-feedback-score {
+   margin-left: auto; padding: 0 8px; height: 20px; line-height: 20px; border-radius: 10px;
+   background: var(--accent); color: #fff; font-size: 11.5px; font-variant-numeric: tabular-nums;
+}
+.task-feedback-body {
+   margin-top: 6px; font-size: 12.5px; line-height: 1.7; color: var(--text);
+   white-space: pre-wrap; word-break: break-word;
+}

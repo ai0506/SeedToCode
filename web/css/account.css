@@ -1,0 +1,79 @@
+/* 账户入口。只在现有顶栏右侧多一个按钮和一个下拉面板，
+ * 版式沿用 .menu / .btn / .text-field / .field-error，不引入新的视觉语言。
+ * 布局稳定性照旧：状态文字进常驻高度槽位，出现与消失只改 opacity 与颜色。 */
+
+.account-wrap { position: relative; }
+
+.account-btn { max-width: 150px; }
+.account-btn .account-btn-text {
+   display: inline-block; max-width: 118px; overflow: hidden;
+   text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom;
+}
+.account-dot {
+   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+   background: var(--text-faint); margin-right: 6px; vertical-align: middle;
+}
+.account-btn[data-state="in"] .account-dot { background: var(--accent); }
+.account-btn[data-state="syncing"] .account-dot { background: var(--warn); }
+.account-btn[data-state="offline"] .account-dot { background: var(--danger); }
+
+/* 版式照抄顶栏「更多 ▾」的浮层，但不复用 .menu 那个类：
+   .menu button 会把面板里的 .btn 一律拉平成菜单项的样子。 */
+.account-panel {
+   position: absolute; right: 0; top: 32px; z-index: 40; width: 300px;
+   background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius);
+   box-shadow: 0 8px 26px rgba(0, 0, 0, .12);
+   padding: 10px 12px 12px;
+   max-height: min(78vh, 560px); overflow-y: auto; scrollbar-gutter: stable;
+}
+.account-panel h4 {
+   margin: 0 0 6px; font-size: 12px; font-weight: 600; color: var(--text-dim);
+}
+.account-panel p { margin: 0 0 8px; line-height: 1.6; }
+.account-panel hr { border: 0; border-top: 1px solid var(--border); margin: 10px 0; }
+.account-row { display: flex; align-items: center; gap: 8px; }
+.account-row + .account-row { margin-top: 8px; }
+.account-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.account-note { min-height: 32px; font-size: 11.5px; line-height: 1.5; color: var(--text-dim); }
+.account-note[data-state="error"] { color: var(--danger); }
+.account-note[data-state="ok"] { color: var(--accent); }
+.account-identity { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-meta { font-size: 11.5px; color: var(--text-dim); }
+/* 和两个按钮同一行：占满左边剩下的宽度，太长就省略，不换行把按钮挤下去 */
+.account-status-line {
+   flex: 1; min-width: 0; font-size: 11.5px; color: var(--text-dim);
+   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.account-footer { align-items: center; }
+.account-blocked { margin: 6px 0 0; padding-left: 16px; font-size: 11.5px; color: var(--danger); }
+.account-blocked li { margin-bottom: 2px; }
+
+/* 题目草稿的云端冲突提示。只在真的有冲突时占位，平时是 hidden 的空槽。 */
+.draft-conflict {
+   display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+   padding: 6px 10px; border-radius: var(--radius);
+   background: var(--warn-soft); color: var(--warn);
+   font-size: 11.5px; line-height: 1.5;
+}
+.draft-conflict .spacer { flex: 1; }
+.draft-conflict-text { min-width: 0; }
+
+/* ---------- 我的作业（学生） ---------- */
+
+.account-assignment { margin-bottom: 8px; }
+.account-assignment-title { font-size: 12.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-overdue { color: var(--danger); }
+.account-tasks { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.account-task {
+   display: inline-block; height: 20px; line-height: 20px; padding: 0 7px; border-radius: 4px;
+   font-family: var(--font-mono); font-size: 11px; text-decoration: none;
+   background: var(--bg-sunken); color: var(--text-dim);
+   transition: background-color .12s ease, color .12s ease;
+}
+a.account-task:hover { background: var(--accent-soft); color: var(--accent); }
+
+/* 老师给的分挂在题号后面，学生打开面板就能看到批改结果 */
+.account-task-score {
+   display: inline-block; margin-left: 5px; padding: 0 5px; border-radius: 3px;
+   background: var(--accent); color: #fff; font-size: 10px; font-weight: 600;
+}

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>班级 · SeedToCode</title>
+<link rel="stylesheet" href="css/styles.css?v=23">
+<link rel="stylesheet" href="css/account.css?v=1">
+<link rel="stylesheet" href="css/teacher.css?v=1">
+</head>
+<body>
+
+<!--
+   老师面板外壳。左侧班级、右侧三个标签（学生 / 进度 / 章末大题）。
+   全部内容由 js/teacher-app.js 从服务端接口渲染，这里只保留固定框架。
+
+   这一页对非老师是可见但无内容的：未登录、不是老师、云端未配置，
+   都会在正文区落到一条说明上，页面本身不报错，也不影响其他页面。
+-->
+
+<header class="topbar">
+   <div class="topbar-left">
+      <button class="icon-btn" id="toggleClasses" data-tip="显示或隐藏班级列表" aria-label="班级列表">
+         <svg class="icon-panel" viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="1.5" y="2.5" width="13" height="11" rx="2.5"></rect>
+            <line x1="6.5" y1="2.5" x2="6.5" y2="13.5"></line>
+         </svg>
+      </button>
+      <div class="brand-block">
+         <span class="brand">SeedToCode<span class="brand-dim">Teach</span></span>
+         <span class="brand-tag">Based on CAIE 9618</span>
+      </div>
+   </div>
+
+   <div class="topbar-center">
+      <div class="learn-title">
+         <span class="lt-ch" id="classTitle"></span>
+         <span class="lt-sec mono" id="classMeta"></span>
+         <button class="join-lock" id="joinLockBtn" hidden aria-pressed="false">
+            <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true">
+               <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+               <path class="shackle" d="M8 11V7.5a4 4 0 0 1 8 0V11"></path>
+               <path class="shackle-open" d="M8 11V7.5a4 4 0 0 1 7.5-2"></path>
+            </svg>
+            <span class="join-lock-text" id="joinLockText"></span>
+         </button>
+      </div>
+   </div>
+
+   <div class="topbar-right">
+      <a class="btn btn-ghost fixed-btn wide" href="teaching.html" data-tip="回到 CAIE 9618 课程">学习</a>
+      <a class="btn btn-ghost fixed-btn wide" href="index.html" data-tip="回到编辑器">编辑器</a>
+   </div>
+</header>
+
+<main class="workspace">
+   <aside class="sidebar" id="classSidebar">
+      <div class="panel-head">
+         <span>班级</span>
+         <span class="head-actions">
+            <button class="icon-btn small" id="newClassBtn" data-tip="新建班级" aria-label="新建班级">＋</button>
+         </span>
+      </div>
+      <ul class="file-list" id="classList"></ul>
+      <div class="panel-foot">
+         <p class="muted small">学生账号由老师创建，<br>首次使用激活码设置密码。</p>
+      </div>
+   </aside>
+
+   <section class="teacher-area">
+      <div class="tabs" id="teacherTabs">
+         <button class="tab active" data-tab="students">学生<span class="tab-badge" id="badgeStudents"></span></button>
+         <button class="tab" data-tab="progress">进度</button>
+         <button class="tab" data-tab="submissions">章末大题<span class="tab-badge" id="badgeSubmissions"></span></button>
+         <button class="tab" data-tab="assignments">作业<span class="tab-badge" id="badgeAssignments"></span></button>
+         <span class="spacer"></span>
+         <span class="teacher-refresh-slot">
+            <span class="muted small" id="refreshState"></span>
+            <button class="btn btn-ghost small fixed-btn" id="refreshBtn">刷新</button>
+         </span>
+      </div>
+
+      <!-- 未登录 / 不是老师 / 云端未配置，都落到这里 -->
+      <div class="teacher-gate" id="teacherGate" hidden>
+         <h1 id="gateTitle"></h1>
+         <p class="muted" id="gateBody"></p>
+      </div>
+
+      <div class="teacher-panels" id="teacherPanels">
+         <div class="tab-panel active" id="panel-students">
+            <div class="panel-sub">
+               <span>班级成员</span>
+               <span class="head-actions">
+                  <button class="btn btn-primary small fixed-btn wide" id="addStudentBtn">添加学生</button>
+               </span>
+            </div>
+            <div class="teacher-scroll"><div id="studentsBody"></div></div>
+         </div>
+
+         <div class="tab-panel" id="panel-progress">
+            <div class="panel-sub">
+               <span>教学进度</span>
+               <span class="muted small" id="progressHint"></span>
+            </div>
+            <div class="teacher-scroll"><div id="progressBody"></div></div>
+         </div>
+
+         <div class="tab-panel" id="panel-submissions">
+            <div class="panel-sub">
+               <span>章末大题提交</span>
+               <span class="head-actions">
+                  <div class="segmented" id="submissionScope" role="radiogroup" aria-label="显示范围">
+                     <button role="radio" data-scope="latest" aria-checked="true">每人最新</button>
+                     <button role="radio" data-scope="all" aria-checked="false">全部提交</button>
+                  </div>
+                  <select class="text-field" id="taskFilter" aria-label="按题号筛选"></select>
+               </span>
+            </div>
+            <div class="teacher-scroll"><div id="submissionsBody"></div></div>
+         </div>
+
+         <div class="tab-panel" id="panel-assignments">
+            <div class="panel-sub">
+               <span id="assignmentSubTitle">班级作业</span>
+               <span class="head-actions">
+                  <button class="btn btn-ghost small fixed-btn" id="backToAssignments" hidden>‹ 作业列表</button>
+                  <button class="btn btn-ghost small fixed-btn" id="editAssignmentBtn" hidden>编辑</button>
+                  <button class="btn btn-danger small fixed-btn" id="deleteAssignmentBtn" hidden>删除</button>
+                  <button class="btn btn-primary small fixed-btn wide" id="newAssignmentBtn">布置作业</button>
+               </span>
+            </div>
+            <div class="teacher-scroll"><div id="assignmentsBody"></div></div>
+         </div>
+      </div>
+   </section>
+</main>
+
+<footer class="statusbar">
+   <span>老师面板</span>
+   <span class="dot">·</span>
+   <span id="statusClass"></span>
+   <span class="spacer"></span>
+   <span class="status-slot" id="statusCount"></span>
+   <span class="dot">·</span>
+   <span>CAIE 9618 (2027–2029)</span>
+</footer>
+
+<div class="overlay" id="overlay" hidden></div>
+
+<div class="dialog dialog-sm" id="confirmDialog" hidden role="dialog" aria-label="确认">
+   <div class="dialog-head"><span id="confirmTitle">确认</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p id="confirmBody" class="confirm-body"></p>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-danger small fixed-btn" id="confirmOk">确定</button>
+      </div>
+   </div>
+</div>
+
+<!-- 激活码只显示这一次，所以给一个可以直接选中复制的只读输入框 -->
+<div class="dialog dialog-sm" id="codeDialog" hidden role="dialog" aria-label="激活码">
+   <div class="dialog-head"><span id="codeTitle">激活码</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p class="muted small dialog-meta" id="codeDesc"></p>
+      <input id="codeValue" class="text-field block mono" readonly spellcheck="false" aria-label="激活码">
+      <div class="field-error" id="codeHint"></div>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" id="codeCopy">复制</button>
+         <button class="btn btn-primary small fixed-btn" data-close>知道了</button>
+      </div>
+   </div>
+</div>
+
+<div class="dialog dialog-form" id="studentDialog" hidden role="dialog" aria-label="学生">
+   <div class="dialog-head"><span id="studentDialogTitle">添加学生</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <div class="form-field" id="studentUsernameField">
+         <label class="form-label" for="studentUsernameInput">用户名</label>
+         <p class="form-note">学生登录时输入的名字。3–32 位，只能用英文字母、数字和 <code>.</code> <code>_</code> <code>-</code>，不能有中文或空格；不区分大小写。<strong>建好之后不能修改</strong>，想换只能删了重建。</p>
+         <input id="studentUsernameInput" class="text-field block" spellcheck="false" autocomplete="off" placeholder="例如 li-hua 或 s2026001">
+      </div>
+      <div class="form-field">
+         <label class="form-label" for="studentNameInput">姓名</label>
+         <p class="form-note">只用于你在名单、进度和作业里认人，学生登录时用不到。必填，写真名最省事；<strong>之后可以随时改</strong>。</p>
+         <input id="studentNameInput" class="text-field block" autocomplete="off" placeholder="例如 李华">
+      </div>
+      <div class="field-error" id="studentDialogError"></div>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-primary small fixed-btn" id="studentDialogOk">添加</button>
+      </div>
+   </div>
+</div>
+
+<div class="dialog dialog-form" id="classDialog" hidden role="dialog" aria-label="新建班级">
+   <div class="dialog-head"><span>新建班级</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <div class="form-field">
+         <label class="form-label" for="classNameInput">班级名称</label>
+         <p class="form-note">只用于你自己区分班级，学生看不到。建好后会生成一个 6 位班级码，念给学生就能让他们自己注册进班。</p>
+         <input id="classNameInput" class="text-field block" autocomplete="off" placeholder="例如 高二(3)班 或 A Level CS 2026">
+      </div>
+      <div class="field-error" id="classDialogError"></div>
+      <div class="dialog-actions">
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-primary small fixed-btn" id="classDialogOk">创建</button>
+      </div>
+   </div>
+</div>
+
+<div class="dialog" id="assignDialog" hidden role="dialog" aria-label="布置作业">
+   <div class="dialog-head"><span id="assignDialogTitle">布置作业</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p class="muted small dialog-meta" id="assignDialogDesc">自己写题目，一次可以布置多道。学生写完自己运行，成绩由你批改。</p>
+      <div class="assign-row">
+         <input id="assignTitle" class="text-field" placeholder="作业标题" spellcheck="false" autocomplete="off" aria-label="作业标题">
+         <input id="assignDue" class="text-field" type="date" aria-label="截止日期">
+      </div>
+      <!-- 作业题一律由老师自己写。
+           课程里的章末大题不再能被勾成作业：学生做没做，老师在「进度」里本来就看得到，
+           布置一遍只会和课程自身的推进重复，学生也分不清哪个是作业、哪个是课程内容。 -->
+      <div class="assign-legacy" id="assignLegacy" hidden>
+         <div class="custom-item-label">这份作业里还有从课程勾选的题目（旧数据，现在不再支持新增）</div>
+         <div class="assign-legacy-list" id="assignLegacyList"></div>
+      </div>
+
+      <div class="assign-custom" id="assignCustom">
+         <div class="assign-custom-list" id="customList"></div>
+         <button type="button" class="btn btn-ghost small fixed-btn wide" id="customAdd">＋ 再加一题</button>
+         <p class="form-note" style="margin-top:8px">
+            自己出的题只有题面和提示，<strong>不会自动判分</strong>：学生写完自己点运行看结果，分数由你批改。
+            排版就按普通文字写，换行会原样显示。
+         </p>
+      </div>
+
+      <div class="field-error" id="assignError"></div>
+      <div class="dialog-actions">
+         <span class="muted small" id="assignCount"></span>
+         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-primary small fixed-btn" id="assignOk">布置</button>
+      </div>
+   </div>
+</div>
+
+<div class="dialog" id="answerDialog" hidden role="dialog" aria-label="学生答案">
+   <div class="dialog-head"><span id="answerTitle">学生答案</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
+   <div class="dialog-body">
+      <p class="muted small dialog-meta" id="answerMeta"></p>
+      <div class="answer-code"><pre id="answerCode" class="mono"></pre></div>
+
+      <!-- 打分。自动判分只是参考信号，成绩以这里为准。 -->
+      <div class="grade-box" id="gradeBox" hidden>
+         <div class="grade-row">
+            <label class="form-label" for="gradeScore">分数</label>
+            <input id="gradeScore" class="text-field grade-score" inputmode="numeric" autocomplete="off" placeholder="0–100">
+            <span class="muted small" id="gradeAuto"></span>
+         </div>
+         <textarea id="gradeComment" class="plain-area grade-comment" spellcheck="false"
+                   placeholder="给学生的评语（可选）。自动判分看不出思路和写法，这里写的才是他真正能看到的反馈。"></textarea>
+         <div class="field-error" id="gradeError"></div>
+      </div>
+
+      <div class="dialog-actions">
+         <span class="muted small" id="gradeState"></span>
+         <button class="btn btn-ghost small fixed-btn" data-close>关闭</button>
+         <button class="btn btn-primary small fixed-btn" id="gradeSave" hidden>保存评分</button>
+      </div>
+   </div>
+</div>
+
+<div class="toast" id="toast" hidden><span id="toastText"></span><button id="toastAction" hidden></button></div>
+<div class="tooltip" id="tooltip" hidden></div>
+
+<script src="js/caie-spec.js"></script>
+<script src="js/lang.js?v=11"></script>
+<script src="js/teaching-content.js?v=23"></script>
+<script src="js/tooltip.js?v=1"></script>
+<script src="js/storage.js?v=2"></script>
+<script src="js/auth-store.js?v=1"></script>
+<script src="js/cloud-client.js?v=1"></script>
+<script src="js/sync-queue.js?v=1"></script>
+<script src="js/sync-engine.js?v=1"></script>
+<script src="js/account-ui.js?v=1"></script>
+<script src="js/teacher-app.js?v=1"></script>
+</body>
+</html>

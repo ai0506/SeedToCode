@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "seedtocode-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-11",
+  "vars": {
+    // 生产必须是 production：development 下 /auth/email/start 会把一次性登录
+    // token 直接回给调用方（本机联调用），公开部署时那等于谁都能登录成谁。
+    // 它同时决定会话 cookie 加不加 Secure。
+    "ENVIRONMENT": "production"
+  },
+  // 静态页和 API 必须同源：会话是 HttpOnly cookie，跨源就拿不到，
+  // 客户端也只认页面自己的 origin。路径能匹配到 web/ 里的文件就直接返回，
+  // 匹配不到（/api/*、/auth/*、/health）才落到 Worker。
+  "assets": {
+    "directory": "../web",
+    /*
+     * 用默认的 auto-trailing-slash：地址栏是 /teaching、/teacher 这种无后缀形式，
+     * 和其它项目一致。
+     *
+     * 页面里的链接仍然写成 `teaching.html`，故意的——双击打开本地 HTML 文件
+     * （file:// 协议）时没有服务端，只有带后缀的相对路径才找得到文件。
+     * 线上这些链接会被 307 换成无后缀形式，多一跳，换来的是两种用法都成立。
+     */
+    "html_handling": "auto-trailing-slash"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "seedtocode",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

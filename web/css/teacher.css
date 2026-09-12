@@ -1,0 +1,239 @@
+/* 老师面板。骨架沿用 styles.css 的 .workspace / .sidebar / .tabs / .data-table，
+ * 这里只补三件 styles.css 里没有的东西：正文区容器、进度矩阵、提交列表。
+ * 布局稳定性照旧：状态文字有常驻槽位，宽内容自己横向滚动，body 不横向滚动。 */
+
+.teacher-area { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg); }
+.teacher-panels { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.teacher-scroll { flex: 1; min-height: 0; overflow: auto; scrollbar-gutter: stable; padding: 10px 12px 16px; }
+
+/* 刷新状态是会变的文字，给固定宽度，免得「刷新中…」把按钮推来推去 */
+.teacher-refresh-slot { display: flex; align-items: center; gap: 8px; padding-right: 6px; }
+.teacher-refresh-slot .muted { width: 76px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.panel-sub .head-actions { display: flex; align-items: center; gap: 8px; }
+.panel-sub .text-field { height: 24px; font-size: 12px; }
+
+/* 未登录 / 不是老师 / 云端未连接 */
+.teacher-gate { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; padding: 32px; text-align: center; }
+.teacher-gate h1 { margin: 0; font-size: 16px; font-weight: 600; }
+.teacher-gate p { margin: 0; max-width: 420px; line-height: 1.7; }
+
+/* 空状态与载入态共用一个常驻高度，切换时表格位置不跳 */
+.teacher-empty { min-height: 96px; display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: 12px; }
+
+/* styles.css 把 .data-table 最后一列染成数字色（那是变量表的约定），这里不需要 */
+.teacher-scroll .data-table td:last-child { color: inherit; }
+.teacher-scroll .data-table { min-width: 100%; }
+.teacher-scroll .data-table th { position: sticky; top: 0; background: var(--bg); z-index: 1; }
+.teacher-scroll .data-table td.num { font-variant-numeric: tabular-nums; }
+.teacher-scroll .data-table td.actions { text-align: right; white-space: nowrap; }
+
+.state-chip {
+   display: inline-block; height: 18px; line-height: 18px; padding: 0 8px; border-radius: 9px;
+   font-size: 11px; background: var(--bg-sunken); color: var(--text-dim);
+}
+.state-chip[data-state="active"] { background: var(--accent-soft); color: var(--accent); }
+.state-chip[data-state="pending"] { background: var(--warn-soft); color: var(--warn); }
+.state-chip[data-state="passed"] { background: var(--accent-soft); color: var(--accent); }
+.state-chip[data-state="failed"] { background: var(--danger-soft); color: var(--danger); }
+
+/* 进度矩阵：章数多，横向自己滚；学生一列钉住，滚动时还知道看的是谁 */
+.matrix-wrap { overflow-x: auto; scrollbar-gutter: stable; }
+.matrix { border-collapse: collapse; font-size: 12px; }
+.matrix th, .matrix td { border-bottom: 1px solid var(--border); padding: 6px 8px; text-align: center; white-space: nowrap; }
+.matrix th { color: var(--text-faint); font-size: 11px; font-weight: 500; position: sticky; top: 0; background: var(--bg); z-index: 1; }
+.matrix .who {
+   position: sticky; left: 0; z-index: 2; background: var(--bg);
+   text-align: left; min-width: 150px; max-width: 220px; overflow: hidden; text-overflow: ellipsis;
+}
+.matrix thead .who { z-index: 3; }
+.matrix .total { font-variant-numeric: tabular-nums; color: var(--text-dim); }
+.matrix .cell { font-variant-numeric: tabular-nums; color: var(--text-faint); min-width: 42px; }
+.matrix .cell[data-done="some"] { color: var(--text); background: var(--bg-sunken); }
+.matrix .cell[data-done="all"] { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.matrix tbody tr:hover .cell { box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, .012); }
+
+.who-name { display: block; overflow: hidden; text-overflow: ellipsis; }
+.who-id { display: block; font-size: 10.5px; color: var(--text-faint); overflow: hidden; text-overflow: ellipsis; }
+
+/* 学生答案预览：只读，行号跟着走 */
+.answer-code {
+   max-height: 46vh; overflow: auto; scrollbar-gutter: stable;
+   background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 8px 10px;
+}
+.answer-code pre { margin: 0; font-size: 12.5px; line-height: 1.55; white-space: pre; }
+.text-field.mono { font-family: var(--font-mono); }
+
+/* ---------- 布置作业 ---------- */
+
+.assign-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.assign-row #assignTitle { flex: 1; min-width: 0; }
+.assign-row #assignDue { width: 148px; flex: 0 0 148px; }
+
+/* 题目多选。不用原生 checkbox：整行可点，勾只改 color/background，行高不变。 */
+.assign-picker {
+   height: 300px; overflow-y: auto; scrollbar-gutter: stable;
+   border: 1px solid var(--border); border-radius: 4px; padding: 4px; background: var(--bg);
+}
+.assign-chapter {
+   position: sticky; top: -4px; background: var(--bg); z-index: 1;
+   padding: 6px 8px 4px; font-size: 11px; color: var(--text-faint);
+}
+.assign-task {
+   display: flex; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 8px;
+   border: 0; background: transparent; color: var(--text); font: inherit; text-align: left;
+   border-radius: 4px; cursor: pointer; transition: background-color .12s ease;
+}
+.assign-task:hover { background: var(--bg-sunken); }
+.assign-task:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.assign-task[aria-checked="true"] { background: var(--accent-soft); }
+/* 勾位常驻，选中只换字符与颜色，不挤动标题 */
+.assign-check { width: 14px; flex: 0 0 14px; text-align: center; color: var(--text-faint); }
+.assign-task[aria-checked="true"] .assign-check { color: var(--accent); }
+.assign-task-id { font-family: var(--font-mono); font-size: 11.5px; width: 52px; flex: 0 0 52px; color: var(--text-dim); }
+.assign-task-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.assign-task-kind { font-size: 10.5px; color: var(--text-faint); }
+.dialog-actions #assignCount { margin-right: auto; font-variant-numeric: tabular-nums; }
+
+/* 作业列表行：整行可点进提交详情 */
+.assign-list { list-style: none; margin: 0; padding: 0; }
+.assign-list li {
+   display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+   border-bottom: 1px solid var(--border); cursor: pointer;
+   transition: background-color .12s ease;
+}
+.assign-list li:hover { background: var(--bg-sunken); }
+.assign-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.assign-meta { font-size: 11.5px; color: var(--text-faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.assign-due[data-state="over"] { color: var(--danger); }
+.assign-tasks { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+
+/* 迟交只是一枚标记，不改变判分，也从不拦截提交 */
+.state-chip[data-state="late"] { background: var(--warn-soft); color: var(--warn); }
+.late-chip { margin-left: 4px; }
+
+/* ---------- 表单式弹窗 ----------
+   原来「添加学生」复用的是通用输入框弹窗：两个输入框紧挨着、只有占位符没有标签，
+   分不清哪个是登录用的、哪个是显示用的。改成每个字段各有标签和一句说明。 */
+
+.dialog-form { width: min(470px, calc(100vw - 32px)); }
+.dialog-form .dialog-body { padding: 16px 18px 14px; }
+
+.form-field + .form-field { margin-top: 18px; }
+.form-label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 12.5px; }
+.form-note {
+   margin: 0 0 8px; font-size: 11.5px; line-height: 1.65; color: var(--text-dim);
+}
+.form-note code {
+   font-family: var(--font-mono); font-size: 11px;
+   background: var(--bg-sunken); border-radius: 3px; padding: 0 3px;
+}
+.form-note strong { color: var(--text); font-weight: 600; }
+.dialog-form .text-field.block { height: 32px; }
+.dialog-form .dialog-actions { margin-top: 14px; }
+
+/* ---------- 班级自助注册开关 ----------
+   班级码一旦流出去就收不回来，这个开关是唯一的止血手段，所以要看得见：
+   一个锁形图标 + 当前状态文字，悬浮用自定义提示说明开关的后果。 */
+
+.join-lock {
+   display: inline-flex; align-items: center; gap: 5px;
+   height: 22px; padding: 0 9px 0 7px; margin-left: 10px;
+   font: inherit; font-size: 11.5px; cursor: pointer;
+   border: 1px solid var(--border); border-radius: 11px;
+   background: var(--bg-panel); color: var(--text-dim);
+   transition: background-color .12s ease, color .12s ease, box-shadow .12s ease;
+}
+.join-lock:hover { background: var(--bg-sunken); color: var(--text); }
+.join-lock:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+/* 锁上是要引起注意的状态，用暖色；开放是常态，保持安静 */
+.join-lock[aria-pressed="true"] {
+   background: var(--warn-soft); color: var(--warn); border-color: transparent;
+}
+.lock-icon { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* 开着的时候画开口的锁梁，锁上换成闭合的——形状本身就说明状态，不只靠颜色 */
+.join-lock[aria-pressed="true"] .shackle-open,
+.join-lock[aria-pressed="false"] .shackle { display: none; }
+.join-lock-text { white-space: nowrap; }
+
+/* ---------- 打分 ---------- */
+
+.grade-box { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.grade-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.grade-row .form-label { margin: 0; }
+.grade-score { width: 78px; height: 30px; text-align: center; font-variant-numeric: tabular-nums; }
+.grade-comment { height: 68px; font-family: var(--font-ui); font-size: 12.5px; }
+.dialog-actions #gradeState { margin-right: auto; }
+
+/* 代码跑通与否只是一个小圆点，不占分数的位置——它不是成绩 */
+.run-dot {
+   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+   margin-left: 5px; vertical-align: middle; background: var(--border-strong);
+}
+.run-dot[data-ok="yes"] { background: var(--accent); }
+.run-dot[data-ok="no"] { background: var(--danger); opacity: .55; }
+#gradeAuto[data-ok="no"] { color: var(--danger); }
+
+/* 矩阵里的成绩：只显示老师给的分 */
+.score-chip {
+   display: inline-block; min-width: 30px; height: 18px; line-height: 18px; padding: 0 7px;
+   border-radius: 9px; font-size: 11px; font-variant-numeric: tabular-nums;
+   background: var(--accent-soft); color: var(--accent); font-weight: 600;
+}
+.score-chip[data-graded="false"] { background: var(--bg-sunken); color: var(--text-faint); font-weight: 400; }
+
+/* ---------- 进度：每一小节一个方块 ----------
+   原来一章只给一个 x/y，老师看不出是哪一节卡住了。 */
+
+.chapter-cell { padding: 7px 6px; }
+.sec-row { display: inline-flex; gap: 3px; }
+/* 每一节一个方格，节号写在里面——够大才看得清、点得中，也不用数第几个 */
+.sec-box {
+   display: inline-flex; align-items: center; justify-content: center;
+   width: 20px; height: 20px; border-radius: 4px;
+   font-size: 10.5px; font-variant-numeric: tabular-nums; line-height: 1;
+   background: var(--bg-sunken); color: var(--text-faint);
+   box-shadow: inset 0 0 0 1px var(--border);
+   transition: background-color .12s ease, color .12s ease;
+}
+.sec-box[data-done="yes"] { background: var(--accent); color: #fff; box-shadow: none; font-weight: 600; }
+/* 章末大题用星号和暖色收尾，和普通小节一眼分得开 */
+.sec-box.star[data-done="no"] { box-shadow: inset 0 0 0 1px var(--border-strong); color: var(--text-dim); }
+.sec-box.star[data-done="yes"] { background: var(--warn); color: #fff; }
+.matrix .chapter-cell[data-done="all"] { background: var(--accent-soft); }
+.matrix .chapter-cell[data-done="some"] { background: var(--bg-sunken); }
+
+/* ---------- 自己出题 ---------- */
+
+.assign-mode { width: 100%; margin-bottom: 10px; }
+.assign-mode button { flex: 1; }
+.assign-custom { max-height: 300px; overflow-y: auto; scrollbar-gutter: stable; }
+.custom-item {
+   border: 1px solid var(--border); border-radius: 6px; padding: 10px 11px; margin-bottom: 8px;
+   background: var(--bg);
+}
+.custom-item-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.custom-item-head .text-field { flex: 1; height: 28px; }
+.custom-item textarea {
+   display: block; width: 100%; font-family: var(--font-ui); font-size: 12.5px; line-height: 1.7;
+   padding: 7px 9px; border: 1px solid var(--border-strong); border-radius: 4px;
+   background: var(--bg-panel); color: var(--text); resize: vertical;
+}
+.custom-item textarea:focus { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.custom-prompt { height: 84px; margin-bottom: 6px; }
+.custom-guidance { height: 50px; }
+.custom-item-label { font-size: 11px; color: var(--text-faint); margin-bottom: 3px; }
+
+/* 旧作业里从课程勾选的题目：只能看和移除，不能再新增 */
+.assign-legacy { margin-bottom: 10px; padding: 9px 11px; border-radius: 6px; background: var(--bg-sunken); }
+.assign-legacy-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.legacy-chip {
+   display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 4px 0 9px;
+   border-radius: 11px; background: var(--bg-panel); border: 1px solid var(--border);
+   font-family: var(--font-mono); font-size: 11px;
+}
+.legacy-chip button {
+   border: 0; background: transparent; color: var(--text-faint); cursor: pointer;
+   font: inherit; padding: 0 4px; border-radius: 50%;
+}
+.legacy-chip button:hover { color: var(--danger); }

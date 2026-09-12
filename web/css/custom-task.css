@@ -1,0 +1,37 @@
+/* 老师自出题的做题页。没有用例、没有判题反馈，所以比课程题目简单得多。 */
+
+.ct-prompt {
+   font-size: 13.5px; line-height: 1.85; white-space: pre-wrap; word-break: break-word;
+}
+.ct-guidance {
+   margin-top: 18px; padding: 11px 13px; border-radius: 6px; background: var(--hint-soft);
+}
+.ct-guidance-head { font-size: 12px; font-weight: 600; color: var(--hint); margin-bottom: 5px; }
+.ct-guidance-body { font-size: 12.5px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+
+.ct-code {
+   display: block; width: 100%; height: 300px; resize: vertical;
+   font-family: var(--font-mono); font-size: 13px; line-height: var(--editor-line-height);
+   padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius);
+   background: var(--bg-panel); color: var(--text); tab-size: 3;
+   transition: box-shadow .12s ease;
+}
+.ct-code:focus { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+
+.ct-actions { display: flex; align-items: center; gap: 8px; margin: 10px 0 14px; }
+.ct-actions .spacer { flex: 1; }
+/* 「已保存 / 保存中」是会变的文字，给固定宽度，免得把提交按钮推来推去 */
+.ct-actions .muted { width: 56px; text-align: right; }
+
+.ct-console-head { font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
+.ct-console {
+   margin: 0; min-height: 90px; max-height: 260px; overflow: auto; scrollbar-gutter: stable;
+   padding: 9px 11px; border-radius: var(--radius); background: var(--bg-sunken);
+   font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap;
+}
+.ct-console .err { color: var(--danger); }
+.ct-console .sys { color: var(--text-faint); }
+.ct-console .in { color: var(--hint); }
+
+.ct-input-row { display: flex; gap: 8px; margin-top: 10px; }
+.ct-input-row .text-field { flex: 1; }
