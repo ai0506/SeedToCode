@@ -612,8 +612,23 @@ function indentSelection(remove) {
 }
 
 let composing = false;
-code.addEventListener('compositionstart', function () { composing = true; });
-code.addEventListener('compositionend', function () { composing = false; onEdit(); });
+/*
+ * 中文输入法在选定候选字之前会把拼音显示在光标处，那串字是 textarea **自己**
+ * 那层文字画的——而 `#code` 为了让下面的语法着色层透出来设了 `color: transparent`，
+ * 于是拼音也一并透明了：打字时什么都看不见，直到落字才冒出来。
+ *
+ * 合成期间把这两层对调：textarea 的文字显出来，语法着色层藏起来。代价是这段时间
+ * 没有语法颜色——但那只有敲一个词的工夫，而看不见正在打的拼音是根本没法用。
+ * 选区矩形同样要收起来：合成串不在 code.value 里，按它算出来的位置一定是错的。
+ */
+function setComposing(on) {
+   composing = on;
+   $('codeArea').dataset.composing = on ? 'yes' : 'no';
+   if (on) $('selectionMarks').innerHTML = '';
+}
+
+code.addEventListener('compositionstart', function () { setComposing(true); });
+code.addEventListener('compositionend', function () { setComposing(false); onEdit(); });
 
 code.addEventListener('input', function () {
    if (composing) return;
@@ -1336,7 +1351,70 @@ $('lintToggle').addEventListener('click', function () {
 /* ---------------- 查找替换 ---------------- */
 let matches = [], matchIndex = -1, charWidth = 0;
 
-/* 等宽字体的字符宽度：用于在编辑器里自行绘制匹配高亮 */
+/*
+ * 选区和查找高亮不是浏览器画的——`#code::selection` 被设成透明（原生选区会盖住
+ * 下面的语法着色层），矩形由我们自己摆。原来算横坐标用的是「列数 × 单字符宽度」，
+ * 在纯 ASCII 行上没问题，一旦行内有中文（等宽字体里占两格）或 Tab（跳到下一个
+ * 制表位）就整段偏出去：实测一行 6 个汉字，矩形左边就差了 45px，而选中的范围
+ * 本身是对的——看起来就是「选中位置不对但选对了」。
+ *
+ * 改成量高亮层。它和 textarea 共用字体、字号、行高和 padding，而且正是用户眼睛
+ * 看到的那一层，用 Range 在它上面取矩形，按定义就对得齐，也不必再分别处理宽字符、
+ * Tab、连字各自的规则。纵向仍用 行号 × 行高 算——那部分本来就是对的，而且
+ * getClientRects 给的是字形顶端（比行盒顶端低 2.5px 左右），直接用反而会偏。
+ *
+ * charWidth 保留作兜底：高亮层还没渲染、或者它的文本长度和 code.value 对不上时
+ * （理论上不该发生），退回旧算法总比不画强。
+ */
+
+/** 第 offset 个字符落在高亮层的哪个文本节点上。 */
+function locateInHighlight(offset) {
+   const walker = document.createTreeWalker(highlight, NodeFilter.SHOW_TEXT);
+   let pos = 0, node, last = null;
+   while ((node = walker.nextNode())) {
+      last = node;
+      const len = node.nodeValue.length;
+      if (offset <= pos + len) return { node: node, offset: offset - pos };
+      pos += len;
+   }
+   return last ? { node: last, offset: last.nodeValue.length } : null;
+}
+
+/** 高亮层的纯文本长度；和 code.value 对不上就说明两层不同步，测量不可信。 */
+function highlightInSync() {
+   return highlight.textContent.length === code.value.length;
+}
+
+/**
+ * [from, to) 这段文字在 origin 坐标系里的横向范围。
+ * 同一行内可能落在多个 token span 上，取它们的并集。
+ */
+function measureSpan(from, to, origin) {
+   const a = locateInHighlight(from);
+   const b = locateInHighlight(to);
+   if (!a || !b) return null;
+   const range = document.createRange();
+   try {
+      range.setStart(a.node, a.offset);
+      range.setEnd(b.node, b.offset);
+   } catch (e) {
+      return null;
+   }
+   const rects = range.getClientRects();
+   if (!rects.length) {
+      // 空的一段（例如只选中了行尾的换行）：取塌缩位置，宽度交给调用方兜底
+      const caret = range.getBoundingClientRect();
+      return { left: caret.left - origin.left, width: 0 };
+   }
+   let left = Infinity, right = -Infinity;
+   for (let i = 0; i < rects.length; i++) {
+      left = Math.min(left, rects[i].left);
+      right = Math.max(right, rects[i].right);
+   }
+   return { left: left - origin.left, width: right - left };
+}
+
+/* 等宽字体的字符宽度：测量不可用时的兜底 */
 function measureCharWidth() {
    const probe = document.createElement('span');
    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;'
@@ -1364,17 +1442,30 @@ function renderSelectionMarks() {
    const end = Math.max(code.selectionStart, code.selectionEnd);
    const starts = lineStarts();
    const lh = lineHeight();
+   /* 原点取一次就够：下面这一串只读不写，浏览器不会因此反复重排。 */
+   const origin = box.getBoundingClientRect();
+   const canMeasure = highlightInSync();
    let html = '';
    starts.forEach(function (lineStart, lineIndex) {
       const lineEnd = lineIndex + 1 < starts.length ? starts[lineIndex + 1] - 1 : code.value.length;
       if (end <= lineStart || start > lineEnd) return;
       const segmentStart = Math.max(start, lineStart);
       const segmentEnd = Math.min(end, lineEnd);
-      const col = segmentStart - lineStart;
       const includesNewline = lineIndex + 1 < starts.length && end > lineEnd;
-      const chars = Math.max(includesNewline ? 1 : 0, segmentEnd - segmentStart);
+      const span = canMeasure ? measureSpan(segmentStart, segmentEnd, origin) : null;
+      let left, width;
+      if (span) {
+         left = span.left;
+         // 选到了行尾的换行时留一小段，表示这一行的换行也在选区里
+         width = Math.max(includesNewline ? 6 : 2, span.width);
+      } else {
+         const col = segmentStart - lineStart;
+         const chars = Math.max(includesNewline ? 1 : 0, segmentEnd - segmentStart);
+         left = 16 + col * charWidth;
+         width = Math.max(2, chars * charWidth);
+      }
       html += '<div class="sm" style="top:' + (lineIndex * lh) + 'px;left:'
-         + (16 + col * charWidth).toFixed(1) + 'px;width:' + Math.max(2, chars * charWidth).toFixed(1) + 'px"></div>';
+         + left.toFixed(1) + 'px;width:' + width.toFixed(1) + 'px"></div>';
    });
    box.innerHTML = html;
 }
@@ -1391,14 +1482,17 @@ function renderFindMarks() {
    const q = $('findInput').value;
    const starts = lineStarts();
    const lh = lineHeight();
+   const origin = box.getBoundingClientRect();
+   const canMeasure = highlightInSync();
    let html = '';
    matches.slice(0, 500).forEach(function (off, i) {
       let ln = 0;
       // starts 递增，线性扫描足够（单文档规模）
       for (let k = starts.length - 1; k >= 0; k--) { if (starts[k] <= off) { ln = k; break; } }
-      const col = off - starts[ln];
-      const left = 16 + col * charWidth;
-      const width = Math.max(2, q.length * charWidth);
+      // 和选区同一个道理：命中的词或它前面的文字里有中文/Tab 时，按列数推算会偏
+      const span = canMeasure ? measureSpan(off, off + q.length, origin) : null;
+      const left = span ? span.left : 16 + (off - starts[ln]) * charWidth;
+      const width = span ? Math.max(2, span.width) : Math.max(2, q.length * charWidth);
       html += '<div class="fm' + (i === matchIndex ? ' current' : '') + '" style="top:' + (ln * lh)
          + 'px;left:' + left.toFixed(1) + 'px;width:' + width.toFixed(1) + 'px"></div>';
    });
