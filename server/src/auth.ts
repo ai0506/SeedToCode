@@ -24,6 +24,7 @@ type TokenRow = {
   status: string;
   pending_password_hash?: string | null;
   pending_password_salt?: string | null;
+  registration_ip_hash?: string | null;
 };
 
 const textEncoder = new TextEncoder();
@@ -43,6 +44,11 @@ const PASSWORD_ROUNDS = 3;
 const LEGACY_PASSWORD_ITERATIONS = 210_000;
 const LEGACY_PASSWORD_ROUNDS = 1;
 const EMAIL_START_MAX_ATTEMPTS = 5;
+/* 非学生账号必须先付出邮件成本，不能只按邮箱限流。来源 IP 只是短期风险
+   信号，不是身份：学生班级码流程不走这里，教室共用出口不会受影响。 */
+const EMAIL_REGISTER_IP_MAX_ATTEMPTS = 3;
+const EMAIL_VERIFIED_IP_MAX_ACCOUNTS = 3;
+const EMAIL_VERIFIED_IP_WINDOW_MS = 24 * 60 * 60 * 1000;
 /*
  * 学生激活和登录的尝试上限。
  *
@@ -96,7 +102,8 @@ export function expiredCookieHeader(env: Env): string {
 export async function startEmailRegistration(
   db: D1Database,
   env: Env,
-  input: unknown
+  input: unknown,
+  clientIp: string
 ): Promise<{ developmentToken?: string }> {
   const body = objectBody(input);
   const email = normaliseEmail(body.email);
@@ -107,6 +114,8 @@ export async function startEmailRegistration(
      人就对着收件箱一直等一封不会来的信。 */
   const gate = await allowAttempt(db, "email_register", email, EMAIL_START_MAX_ATTEMPTS, now);
   if (!gate.allowed) throw throttled(gate.retryAfterSeconds);
+  const ipGate = await allowAttempt(db, "email_register_ip", clientIp, EMAIL_REGISTER_IP_MAX_ATTEMPTS, now);
+  if (!ipGate.allowed) throw throttled(ipGate.retryAfterSeconds);
   const existing = await db.prepare(
     "SELECT id, role, email, username, status, password_hash, password_salt FROM users WHERE email = ?1"
   ).bind(email).first<UserRow>();
@@ -114,9 +123,25 @@ export async function startEmailRegistration(
   let userId: string;
   if (!existing) {
     userId = crypto.randomUUID();
-    await db.prepare(
-      "INSERT INTO users (id, email, role, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'pending_email', ?4, ?4)"
-    ).bind(userId, email, role, now).run();
+    const aliasKey = emailAliasKey(email);
+    const alias = await db.prepare("SELECT user_id FROM email_aliases WHERE alias_key = ?1")
+      .bind(aliasKey).first<{ user_id: string }>();
+    if (alias) throw accountExists();
+    try {
+      // D1 batch 会将两条写入作为同一个事务回滚；唯一键同时挡住并发请求。
+      await db.batch([
+        db.prepare(
+          "INSERT INTO users (id, email, role, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'pending_email', ?4, ?4)"
+        ).bind(userId, email, role, now),
+        db.prepare("INSERT INTO email_aliases (alias_key, user_id, created_at) VALUES (?1, ?2, ?3)")
+          .bind(aliasKey, userId, now)
+      ]);
+    } catch (caught) {
+      const winner = await db.prepare("SELECT user_id FROM email_aliases WHERE alias_key = ?1")
+        .bind(aliasKey).first<{ user_id: string }>();
+      if (winner && winner.user_id !== userId) throw accountExists();
+      throw caught;
+    }
   } else {
     if (existing.role === "student" || existing.role !== role || (existing.status !== "active" && existing.status !== "pending_email")) {
       throw new AuthError("ACCOUNT_EXISTS", 409, "这个邮箱已经注册过，请直接登录。", { alreadyRegistered: true });
@@ -139,8 +164,11 @@ export async function startEmailRegistration(
   await db.batch([
     db.prepare("DELETE FROM auth_tokens WHERE user_id = ?1 AND purpose = 'email_login' AND consumed_at IS NULL").bind(userId),
     db.prepare(
-      "INSERT INTO auth_tokens (id, user_id, purpose, token_hash, expires_at, created_at, pending_password_hash, pending_password_salt) VALUES (?1, ?2, 'email_login', ?3, ?4, ?5, ?6, ?7)"
-    ).bind(crypto.randomUUID(), userId, tokenHash, now + EMAIL_TOKEN_TTL_MS, now, passwordHash, passwordSalt)
+      "INSERT INTO auth_tokens (id, user_id, purpose, token_hash, expires_at, created_at, pending_password_hash, pending_password_salt, registration_ip_hash) VALUES (?1, ?2, 'email_login', ?3, ?4, ?5, ?6, ?7, ?8)"
+    ).bind(
+      crypto.randomUUID(), userId, tokenHash, now + EMAIL_TOKEN_TTL_MS, now, passwordHash, passwordSalt,
+      await digest("email_registration_source\u0000" + clientIp)
+    )
   ]);
 
   if (env.ENVIRONMENT === "development") return { developmentToken: token };
@@ -194,6 +222,10 @@ function invalidEmailCredentials(): AuthError {
   return new AuthError("INVALID_CREDENTIALS", 401, "邮箱或密码不正确。若还没有账号，请先注册。");
 }
 
+function accountExists(): AuthError {
+  return new AuthError("ACCOUNT_EXISTS", 409, "这个邮箱已经注册过，请直接登录。", { alreadyRegistered: true });
+}
+
 /*
  * 点验证链接。密码就是在这一刻才第一次写进 users——在此之前那串哈希只存在于
  * 这条 token 记录上，谁都改不动已有账号。
@@ -204,7 +236,7 @@ export async function verifyEmailLogin(db: D1Database, env: Env, input: unknown)
   const now = Date.now();
   const row = await db.prepare(
     `SELECT auth_tokens.id, auth_tokens.user_id, auth_tokens.expires_at, auth_tokens.consumed_at,
-            auth_tokens.pending_password_hash, auth_tokens.pending_password_salt,
+            auth_tokens.pending_password_hash, auth_tokens.pending_password_salt, auth_tokens.registration_ip_hash,
             users.role, users.email, users.username, users.status
        FROM auth_tokens JOIN users ON users.id = auth_tokens.user_id
       WHERE auth_tokens.token_hash = ?1 AND auth_tokens.purpose = 'email_login'`
@@ -216,6 +248,12 @@ export async function verifyEmailLogin(db: D1Database, env: Env, input: unknown)
     && (row.status === "pending_email" || row.status === "active");
   if (!usable || !row || !row.pending_password_hash || !row.pending_password_salt) {
     throw new AuthError("INVALID_TOKEN", 401, "验证链接无效或已过期。请重新注册一次，会发一封新的给你。");
+  }
+  if (row.status === "pending_email" && row.registration_ip_hash) {
+    const verifiedGate = await allowAttempt(
+      db, "email_verified_ip", row.registration_ip_hash, EMAIL_VERIFIED_IP_MAX_ACCOUNTS, now, EMAIL_VERIFIED_IP_WINDOW_MS
+    );
+    if (!verifiedGate.allowed) throw throttled(verifiedGate.retryAfterSeconds);
   }
   await db.batch([
     db.prepare("UPDATE auth_tokens SET consumed_at = ?1 WHERE id = ?2 AND consumed_at IS NULL").bind(now, row.id),
@@ -417,6 +455,12 @@ function normaliseEmail(value: unknown): string {
   return email;
 }
 
+function emailAliasKey(email: string): string {
+  const at = email.lastIndexOf("@");
+  const plus = email.indexOf("+");
+  return plus >= 0 && plus < at ? email.slice(0, plus) + email.slice(at) : email;
+}
+
 function emailRole(value: unknown): "teacher" | "learner" {
   if (value === "teacher" || value === "learner") return value;
   throw new AuthError("INVALID_ROLE", 400, "请选择老师或个人学习者身份。");
@@ -485,18 +529,22 @@ async function digest(value: string): Promise<string> {
 
 type AttemptResult = { allowed: boolean; retryAfterSeconds: number };
 
-async function allowAttempt(db: D1Database, scope: string, identifier: string, maximum: number, now: number): Promise<AttemptResult> {
+async function allowAttempt(
+  db: D1Database, scope: string, identifier: string, maximum: number, now: number, windowMs = AUTH_ATTEMPT_WINDOW_MS
+): Promise<AttemptResult> {
   const keyHash = await digest(scope + "\u0000" + identifier);
-  await db.prepare("DELETE FROM auth_rate_limits WHERE updated_at <= ?1").bind(now - AUTH_ATTEMPT_WINDOW_MS * 2).run();
+  // 长窗口的注册额度与普通 15 分钟登录额度共表；不能让一次短窗口调用
+  // 顺手删掉仍在 24 小时窗口内的记录。
+  await db.prepare("DELETE FROM auth_rate_limits WHERE updated_at <= ?1").bind(now - EMAIL_VERIFIED_IP_WINDOW_MS * 2).run();
   await db.prepare(
     "INSERT INTO auth_rate_limits (key_hash, scope, window_started_at, attempts, updated_at) VALUES (?1, ?2, ?3, 1, ?3) ON CONFLICT(key_hash) DO UPDATE SET window_started_at = CASE WHEN auth_rate_limits.window_started_at <= ?4 THEN excluded.window_started_at ELSE auth_rate_limits.window_started_at END, attempts = CASE WHEN auth_rate_limits.window_started_at <= ?4 THEN 1 ELSE auth_rate_limits.attempts + 1 END, updated_at = excluded.updated_at"
-  ).bind(keyHash, scope, now, now - AUTH_ATTEMPT_WINDOW_MS).run();
+  ).bind(keyHash, scope, now, now - windowMs).run();
   const row = await db.prepare("SELECT attempts, window_started_at FROM auth_rate_limits WHERE key_hash = ?1")
     .bind(keyHash).first<{ attempts: number; window_started_at: number }>();
   const attempts = row?.attempts ?? maximum + 1;
   if (attempts <= maximum) return { allowed: true, retryAfterSeconds: 0 };
   // 告诉调用方还要等多久：不说清楚的话，被挡住的人只会一直重试
-  const windowEnds = (row?.window_started_at ?? now) + AUTH_ATTEMPT_WINDOW_MS;
+  const windowEnds = (row?.window_started_at ?? now) + windowMs;
   return { allowed: false, retryAfterSeconds: Math.max(1, Math.ceil((windowEnds - now) / 1000)) };
 }
 

@@ -82,7 +82,9 @@ export default {
     if (!env.DB) return error("SERVER_NOT_CONFIGURED", "服务器尚未配置。", 503, context);
     try {
       if (url.pathname === "/auth/email/register" && request.method === "POST") {
-        const result = await startEmailRegistration(env.DB, env, await request.json());
+        // Cloudflare 在生产入口写入真实来源；本机联调仍可用固定值。
+        const clientIp = request.headers.get("cf-connecting-ip") || "local";
+        const result = await startEmailRegistration(env.DB, env, await request.json(), clientIp);
         return json({ accepted: true, ...result, requestId: context.requestId }, 202);
       }
       if (url.pathname === "/auth/email/login" && request.method === "POST") {

@@ -34,6 +34,11 @@ const MAX_FILE_NAME_LENGTH = 180;
 const MAX_FILE_BYTES = 256 * 1024;
 const MAX_PROJECT_BYTES = 2 * 1024 * 1024;
 const MAX_PROJECT_FILES = 200;
+const STUDENT_MAX_PROJECTS = 10;
+const STANDARD_MAX_PROJECTS = 50;
+const STUDENT_MAX_ACCOUNT_BYTES = 5 * 1024 * 1024;
+const STANDARD_MAX_ACCOUNT_BYTES = 20 * 1024 * 1024;
+const SYNC_WRITE_WINDOW_MS = 15 * 60 * 1000;
 
 export class SyncError extends Error {
   constructor(public readonly code: string, public readonly status: number, message: string, public readonly extra: Record<string, unknown> = {}) {
@@ -92,22 +97,32 @@ export async function writeProject(db: D1Database, user: AuthenticatedUser, proj
   const now = Date.now();
   if (!current) {
     if (expectedRevision !== null) throw new SyncError("SYNC_CONFLICT", 409, "项目版本已变化。", { server: null });
-    await db.batch([
-      operationInsert(db, operationId, user.id, entity, now),
-      db.prepare(
-        "INSERT INTO projects (id, owner_id, name, revision, created_at, updated_at) VALUES (?1, ?2, ?3, 1, ?4, ?4)"
-      ).bind(projectId, user.id, name, now)
-    ]);
+    await checkAccountProjectLimit(db, user);
+    try {
+      await db.batch([
+        operationInsert(db, operationId, user.id, entity, now),
+        db.prepare(
+          "INSERT INTO projects (id, owner_id, name, revision, created_at, updated_at) VALUES (?1, ?2, ?3, 1, ?4, ?4)"
+        ).bind(projectId, user.id, name, now)
+      ]);
+    } catch (caught) {
+      throw mutationError(caught, user);
+    }
     return { project: publicProject(await ownedProject(db, user, projectId, false)), idempotent: false };
   }
   if (current.owner_id !== user.id) throw new SyncError("NOT_FOUND", 404, "项目不存在。");
   if (current.deleted_at !== null) throw conflict("SYNC_CONFLICT", "项目已被删除。", publicProject(current));
   if (expectedRevision !== current.revision) throw conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(current));
-  const results = await db.batch([
-    operationInsert(db, operationId, user.id, entity, now),
-    db.prepare("UPDATE projects SET name = ?1, revision = revision + 1, updated_at = ?2 WHERE id = ?3 AND revision = ?4")
-      .bind(name, now, projectId, expectedRevision)
-  ]);
+  let results: D1Result<unknown>[];
+  try {
+    results = await db.batch([
+      operationInsert(db, operationId, user.id, entity, now),
+      db.prepare("UPDATE projects SET name = ?1, revision = revision + 1, updated_at = ?2 WHERE id = ?3 AND revision = ?4")
+        .bind(name, now, projectId, expectedRevision)
+    ]);
+  } catch (caught) {
+    throw mutationError(caught, user);
+  }
   await ensureMutationApplied(results[1], () => conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(current)));
   return { project: publicProject(await ownedProject(db, user, projectId, false)), idempotent: false };
 }
@@ -123,12 +138,18 @@ export async function deleteProject(db: D1Database, user: AuthenticatedUser, pro
   if (current.deleted_at !== null) throw conflict("SYNC_CONFLICT", "项目已被删除。", publicProject(current));
   if (expectedRevision !== current.revision) throw conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(current));
   const now = Date.now();
-  const results = await db.batch([
-    operationInsert(db, operationId, user.id, entity, now),
-    db.prepare("UPDATE projects SET deleted_at = ?1, revision = revision + 1, updated_at = ?1 WHERE id = ?2 AND revision = ?3")
-      .bind(now, projectId, expectedRevision)
-  ]);
+  let results: D1Result<unknown>[];
+  try {
+    results = await db.batch([
+      operationInsert(db, operationId, user.id, entity, now),
+      db.prepare("UPDATE projects SET deleted_at = ?1, revision = revision + 1, updated_at = ?1 WHERE id = ?2 AND revision = ?3")
+        .bind(now, projectId, expectedRevision)
+    ]);
+  } catch (caught) {
+    throw mutationError(caught, user);
+  }
   await ensureMutationApplied(results[1], async () => conflict("SYNC_CONFLICT", "项目版本已变化。", publicProject(await projectById(db, projectId) ?? current)));
+  await reclaimProjectBytes(db, projectId);
   return { project: publicProject(await ownedProject(db, user, projectId, true)), idempotent: false };
 }
 
@@ -157,32 +178,42 @@ export async function writeFile(db: D1Database, user: AuthenticatedUser, project
   ).bind(project.id, name).first<{ id: string }>();
   if (sameName && sameName.id !== fileId) throw new SyncError("NAME_CONFLICT", 409, "项目中已存在同名文件。", { fileId: sameName.id });
   await checkProjectLimits(db, project.id, current, contentBytes);
+  await checkAccountStorageLimit(db, user, current, contentBytes);
   const now = Date.now();
   const contentHash = await sha256(content);
 
   if (!current) {
     if (expectedRevision !== null) throw new SyncError("SYNC_CONFLICT", 409, "文件版本已变化。", { server: null });
-    await db.batch([
-      operationInsert(db, operationId, user.id, entity, now),
-      db.prepare(
-        `INSERT INTO project_files (id, project_id, kind, name, content, revision, content_hash, updated_by_device, created_at, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?7, ?8, ?8)`
-      ).bind(fileId, project.id, kind, name, content, contentHash, deviceId, now)
-    ]);
+    try {
+      await db.batch([
+        operationInsert(db, operationId, user.id, entity, now),
+        db.prepare(
+          `INSERT INTO project_files (id, project_id, kind, name, content, revision, content_hash, updated_by_device, created_at, updated_at)
+           VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6, ?7, ?8, ?8)`
+        ).bind(fileId, project.id, kind, name, content, contentHash, deviceId, now)
+      ]);
+    } catch (caught) {
+      throw mutationError(caught, user);
+    }
     return { file: publicFile(await requiredFile(db, project.id, fileId), true), idempotent: false };
   }
   if (current.deleted_at !== null) throw conflict("SYNC_CONFLICT", "文件已被删除。", publicFile(current, false));
   if (current.kind !== kind) throw conflict("SYNC_CONFLICT", "文件类型已变化。", publicFile(current, false));
   if (expectedRevision !== current.revision) throw conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(current, false));
-  const results = await db.batch([
-    operationInsert(db, operationId, user.id, entity, now),
-    db.prepare(
-      `UPDATE project_files
-          SET name = ?1, content = ?2, content_hash = ?3, updated_by_device = ?4,
-              revision = revision + 1, updated_at = ?5
-        WHERE id = ?6 AND project_id = ?7 AND revision = ?8 AND deleted_at IS NULL`
-    ).bind(name, content, contentHash, deviceId, now, fileId, project.id, expectedRevision)
-  ]);
+  let results: D1Result<unknown>[];
+  try {
+    results = await db.batch([
+      operationInsert(db, operationId, user.id, entity, now),
+      db.prepare(
+        `UPDATE project_files
+            SET name = ?1, content = ?2, content_hash = ?3, updated_by_device = ?4,
+                revision = revision + 1, updated_at = ?5
+          WHERE id = ?6 AND project_id = ?7 AND revision = ?8 AND deleted_at IS NULL`
+      ).bind(name, content, contentHash, deviceId, now, fileId, project.id, expectedRevision)
+    ]);
+  } catch (caught) {
+    throw mutationError(caught, user);
+  }
   await ensureMutationApplied(results[1], async () => conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(await requiredFile(db, project.id, fileId), false)));
   return { file: publicFile(await requiredFile(db, project.id, fileId), true), idempotent: false };
 }
@@ -200,16 +231,48 @@ export async function deleteFile(db: D1Database, user: AuthenticatedUser, projec
   if (current.deleted_at !== null) throw conflict("SYNC_CONFLICT", "文件已被删除。", publicFile(current, false));
   if (expectedRevision !== current.revision) throw conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(current, false));
   const now = Date.now();
-  const results = await db.batch([
-    operationInsert(db, operationId, user.id, entity, now),
-    db.prepare(
-      `UPDATE project_files
-          SET deleted_at = ?1, updated_by_device = ?2, revision = revision + 1, updated_at = ?1
-        WHERE id = ?3 AND project_id = ?4 AND revision = ?5 AND deleted_at IS NULL`
-    ).bind(now, deviceId, fileId, project.id, expectedRevision)
-  ]);
+  let results: D1Result<unknown>[];
+  try {
+    results = await db.batch([
+      operationInsert(db, operationId, user.id, entity, now),
+      db.prepare(
+        /*
+         * 连内容一起清空。tombstone 只需要「这个 id 被删过」这件事——拉取时
+         * 删除的文件本来就不返回 content（见 publicFile），也没有任何恢复接口。
+         * 留着内容的后果是：它仍然占着 D1 的真实字节，却因为配额统计排除了
+         * deleted_at 非空的行而不计入用量。传满→删掉→再传满可以无限循环，
+         * 账户空间上限等于不存在。
+         */
+        `UPDATE project_files
+            SET deleted_at = ?1, content = '', updated_by_device = ?2, revision = revision + 1, updated_at = ?1
+          WHERE id = ?3 AND project_id = ?4 AND revision = ?5 AND deleted_at IS NULL`
+      ).bind(now, deviceId, fileId, project.id, expectedRevision)
+    ]);
+  } catch (caught) {
+    throw mutationError(caught, user);
+  }
   await ensureMutationApplied(results[1], async () => conflict("SYNC_CONFLICT", "文件版本已变化。", publicFile(await requiredFile(db, project.id, fileId), false)));
   return { file: publicFile(await requiredFile(db, project.id, fileId), false), idempotent: false };
+}
+
+/*
+ * 项目删除之后把它名下文件的内容清空。
+ *
+ * 为什么不放进删除那一批：`UPDATE project_files ... WHERE project_id = ?` 会**逐行**
+ * 触发 0011 的写入限流（`BEFORE UPDATE OF content`），删一个 200 文件的项目就要吃掉
+ * 200 次写配额；一旦撞上上限，触发器 ABORT 会把整个删除一起回滚——用户就再也删不掉
+ * 那个项目了。删除是用户要的结果，不能因为回收字节而失败。
+ *
+ * 所以放在删除成功之后，并且**尽力而为**：失败就让字节先留着，不往上抛。留下来的
+ * 那部分由 0012 那种一次性清理兜底。
+ */
+async function reclaimProjectBytes(db: D1Database, projectId: string): Promise<void> {
+  try {
+    await db.prepare("UPDATE project_files SET content = '' WHERE project_id = ?1 AND content <> ''")
+      .bind(projectId).run();
+  } catch {
+    // 回收失败不影响删除本身
+  }
 }
 
 function publicProject(project: ProjectRow) {
@@ -283,8 +346,21 @@ function operationInsert(db: D1Database, operationId: string, userId: string, en
   ).bind(operationId, userId, entity, now);
 }
 
+/*
+ * 这条语句到底改到目标行了没有。
+ *
+ * 判据是「至少改到一行」，**不能要求恰好等于 1**：0011 的写入限流触发器会在同一条
+ * 语句里再往 `service_rate_limits` 写一行，D1 把触发器造成的写入也算进 `meta.changes`，
+ * 于是每次 UPDATE 的 changes 都是 2。此前写成 `!== 1`，结果是**更新文件、删除文件、
+ * 重命名项目、删除项目全部返回假的 SYNC_CONFLICT**——写入其实已经生效，客户端却当成
+ * 冲突去建云端副本。
+ *
+ * 反过来，真冲突时一行都匹配不上：UPDATE 的 WHERE 带着 revision 守卫，没匹配到行
+ * 时 BEFORE UPDATE 触发器根本不会触发，changes 就是 0。所以 `< 1` 既挡得住真冲突，
+ * 又不会被触发器的额外写入误伤。
+ */
 async function ensureMutationApplied(result: D1Result<unknown>, onConflict: () => SyncError | Promise<SyncError>): Promise<void> {
-  if (!result.meta || result.meta.changes !== 1) throw await onConflict();
+  if (!result.meta || (result.meta.changes ?? 0) < 1) throw await onConflict();
 }
 
 async function checkProjectLimits(db: D1Database, projectId: string, current: FileRow | null, nextBytes: number): Promise<void> {
@@ -300,6 +376,61 @@ async function checkProjectLimits(db: D1Database, projectId: string, current: Fi
   if ((total?.bytes ?? 0) - previousBytes + nextBytes > MAX_PROJECT_BYTES) {
     throw new SyncError("PROJECT_TOO_LARGE", 413, "项目内容超过大小上限。", { maxBytes: MAX_PROJECT_BYTES });
   }
+}
+
+function accountLimits(user: AuthenticatedUser): { maxProjects: number; maxBytes: number } {
+  return user.role === "student"
+    ? { maxProjects: STUDENT_MAX_PROJECTS, maxBytes: STUDENT_MAX_ACCOUNT_BYTES }
+    : { maxProjects: STANDARD_MAX_PROJECTS, maxBytes: STANDARD_MAX_ACCOUNT_BYTES };
+}
+
+async function checkAccountProjectLimit(db: D1Database, user: AuthenticatedUser): Promise<void> {
+  const limits = accountLimits(user);
+  const row = await db.prepare("SELECT COUNT(*) AS count FROM projects WHERE owner_id = ?1 AND deleted_at IS NULL")
+    .bind(user.id).first<CountRow>();
+  if ((row?.count ?? 0) >= limits.maxProjects) {
+    throw new SyncError("ACCOUNT_PROJECT_LIMIT", 413, "云端项目数已达到上限。", { maxProjects: limits.maxProjects });
+  }
+}
+
+async function checkAccountStorageLimit(
+  db: D1Database, user: AuthenticatedUser, current: FileRow | null, nextBytes: number
+): Promise<void> {
+  const limits = accountLimits(user);
+  const total = await db.prepare(
+    `SELECT COALESCE(SUM(length(CAST(project_files.content AS BLOB))), 0) AS bytes
+       FROM project_files JOIN projects ON projects.id = project_files.project_id
+      WHERE projects.owner_id = ?1 AND projects.deleted_at IS NULL AND project_files.deleted_at IS NULL`
+  ).bind(user.id).first<BytesRow>();
+  const previousBytes = current && current.deleted_at === null ? textEncoder.encode(current.content).byteLength : 0;
+  if ((total?.bytes ?? 0) - previousBytes + nextBytes > limits.maxBytes) {
+    throw new SyncError("ACCOUNT_STORAGE_LIMIT", 413, "云端空间已满。", { maxBytes: limits.maxBytes });
+  }
+}
+
+function mutationError(caught: unknown, user: AuthenticatedUser): SyncError {
+  const message = caught instanceof Error ? caught.message : "";
+  const limits = accountLimits(user);
+  if (message.includes("SYNC_WRITE_THROTTLED")) {
+    return new SyncError(
+      "SYNC_WRITE_THROTTLED", 429, "云端同步过于频繁，请稍后自动重试。",
+      { retryAfterSeconds: syncRetryAfterSeconds() }
+    );
+  }
+  if (message.includes("ACCOUNT_PROJECT_LIMIT")) {
+    return new SyncError("ACCOUNT_PROJECT_LIMIT", 413, "云端项目数已达到上限。", { maxProjects: limits.maxProjects });
+  }
+  if (message.includes("ACCOUNT_STORAGE_LIMIT")) {
+    return new SyncError("ACCOUNT_STORAGE_LIMIT", 413, "云端空间已满。", { maxBytes: limits.maxBytes });
+  }
+  if (caught instanceof Error) throw caught;
+  throw new SyncError("SERVER_DATA_INVALID", 500, "云端数据未保存。");
+}
+
+function syncRetryAfterSeconds(): number {
+  const now = Date.now();
+  const windowEnds = (Math.floor(now / SYNC_WRITE_WINDOW_MS) + 1) * SYNC_WRITE_WINDOW_MS;
+  return Math.max(1, Math.ceil((windowEnds - now) / 1000));
 }
 
 function objectBody(input: unknown): Record<string, unknown> {
