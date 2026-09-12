@@ -1,0 +1,249 @@
+/* 布置作业页。
+ *
+ * 只服务 assign.html。公共控件（.btn / .text-field / .form-field / .dialog / .toast）
+ * 都在 styles.css 里，这里只写这一页自己的骨架、题目卡片和日期选择器。
+ *
+ * 稳定性上有两处是故意的：
+ * - 题面和提示的文本框是定高的，不随内容自动长高——长高会把它下面的每一张卡片往下推。
+ * - 日期选择器的月格永远 6 行，换月时高度不变。
+ */
+
+/* ---------- 骨架 ---------- */
+
+.assign-main { flex: 1; display: flex; min-height: 0; }
+
+.draft-slot {
+   /* 定宽也定高：内容清空时不能塌成 0 高，否则顶栏里它旁边的东西会跟着挪 */
+   width: 132px; flex: 0 0 132px; height: 18px; line-height: 18px; text-align: right;
+   font-size: 11.5px; color: var(--text-faint);
+   font-variant-numeric: tabular-nums;
+   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* 返回是这一页最该看得见的出口：不是幽灵按钮里最淡的那一个。 */
+.back-btn { color: var(--text); border-color: var(--border-strong); }
+
+/* ---------- 左侧大纲 ---------- */
+
+.assign-outline {
+   width: 212px; flex: 0 0 212px; display: flex; flex-direction: column;
+   background: var(--bg-panel); border-right: 1px solid var(--border);
+}
+.ao-count { font-variant-numeric: tabular-nums; letter-spacing: 0; text-transform: none; }
+
+.ao-list {
+   list-style: none; margin: 0; padding: 4px;
+   overflow-y: auto; scrollbar-gutter: stable; flex: 1; min-height: 0;
+}
+.ao-list li {
+   display: flex; align-items: center; gap: 7px; height: 28px; padding: 0 8px;
+   border-radius: 4px; cursor: pointer; font-size: 12.5px;
+   transition: background-color .12s ease;
+}
+.ao-list li:hover { background: var(--bg-sunken); }
+/* 选中用底色，不用 border 宽度、不用字重——那两样都会让这一列来回抖。 */
+.ao-list li.active { background: var(--accent-soft); }
+.ao-no {
+   width: 28px; flex: 0 0 28px; font-size: 11px; color: var(--text-faint);
+   font-variant-numeric: tabular-nums;
+}
+.ao-list li.active .ao-no { color: var(--accent); }
+.ao-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ao-name[data-empty="yes"] { color: var(--text-faint); }
+.ao-list li.meta .ao-no { font-size: 12px; }
+
+.block-btn { width: 100%; }
+
+/* ---------- 右侧正文 ---------- */
+
+.assign-sheet { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg); }
+
+.sheet-scroll {
+   flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable;
+   padding: 16px 18px 24px;
+}
+
+/* 草稿提示条。只在进页面时出现，动作做完原地换文字、不收起来。 */
+.draft-notice {
+   max-width: 760px; margin: 0 auto 14px;
+   display: flex; align-items: center; gap: 10px;
+   /* 定高：做完动作之后这条的文字会换成结果，长短不一样；高度不定死的话，
+      下面整叠卡片会跟着往上跳一格。按两行留够，窄屏放到三行；文案都写得很短，
+      正常情况下用不满。 */
+   height: 56px; padding: 8px 12px;
+   background: var(--warn-soft); border-radius: 8px;
+   font-size: 12px; line-height: 1.6; color: var(--warn);
+}
+.draft-notice[data-kind="done"] { background: var(--bg-sunken); color: var(--text-dim); }
+.dn-text {
+   flex: 1; min-width: 0;
+   /* 万一哪天文案写长了，宁可截断也不要把这一条撑高 */
+   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+/* 按钮的槽位也常驻，做完之后只是淡出——收起来同样会让这一条变窄、文字重排 */
+.draft-notice .btn {
+   flex: 0 0 auto;
+   transition: opacity .12s ease;
+}
+.draft-notice .btn[data-spent="yes"] { opacity: 0; pointer-events: none; }
+@media (max-width: 560px) {
+   .draft-notice { height: 76px; }
+   .dn-text { -webkit-line-clamp: 3; }
+}
+
+.assign-card {
+   max-width: 760px; margin: 0 auto 14px;
+   background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px;
+   /* 大纲点过来时高亮一下，用 box-shadow 而不是 border，卡片尺寸不会变 */
+   transition: box-shadow .17s ease;
+}
+.assign-card[data-focus="yes"] { box-shadow: 0 0 0 1.5px var(--accent); }
+
+.card-head {
+   display: flex; align-items: center; gap: 8px;
+   height: 36px; padding: 0 12px; border-bottom: 1px solid var(--border);
+}
+.card-kicker {
+   font-size: 11px; letter-spacing: .4px; text-transform: uppercase; color: var(--text-faint);
+}
+.card-no {
+   width: 46px; flex: 0 0 46px; font-size: 11.5px; color: var(--text-faint);
+   font-variant-numeric: tabular-nums;
+}
+.card-head .item-title { flex: 1; min-width: 0; height: 26px; }
+.card-body { padding: 14px 12px 12px; }
+
+.form-field + .form-field { margin-top: 16px; }
+.form-label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 12.5px; }
+.form-note {
+   margin: 0 0 7px; font-size: 11.5px; line-height: 1.65; color: var(--text-dim);
+}
+.form-note strong { color: var(--text); font-weight: 600; }
+
+.item-label {
+   display: flex; align-items: baseline; gap: 8px;
+   font-size: 11.5px; color: var(--text-faint); margin: 0 0 4px;
+}
+.item-label + .item-area { margin-bottom: 12px; }
+.item-hint { color: var(--text-faint); }
+
+/* 定高：写长了在框里自己滚，不去推下面的卡片。 */
+.item-area {
+   display: block; width: 100%; font: inherit; font-size: 12.5px; line-height: 1.7;
+   padding: 8px 9px; border: 1px solid var(--border-strong); border-radius: 4px;
+   background: var(--bg); color: var(--text); resize: none;
+   overflow-y: auto; scrollbar-gutter: stable;
+   transition: box-shadow .12s ease;
+}
+.item-area:focus { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.item-prompt { height: 168px; }
+.item-guidance { height: 84px; }
+
+/* 删除按钮常驻占位，只切 opacity——否则悬停时标题输入框会被挤窄。 */
+.item-remove { opacity: 0; pointer-events: none; transition: opacity .12s ease, background-color .12s ease, color .12s ease; }
+.assign-card:hover .item-remove,
+.assign-card:focus-within .item-remove { opacity: 1; pointer-events: auto; }
+.item-remove:hover { color: var(--danger); }
+
+.sheet-tail { max-width: 760px; margin: 0 auto; text-align: center; }
+.sheet-tail .form-note { margin-top: 10px; text-align: left; }
+
+/* ---------- 底部操作条 ---------- */
+
+.sheet-foot {
+   flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+   padding: 10px 18px; border-top: 1px solid var(--border); background: var(--bg-panel);
+}
+/* 校验信息的槽位常驻：它出现时不能把两个按钮顶走。 */
+.foot-msg {
+   flex: 1; min-width: 0; height: var(--field-error-h); line-height: var(--field-error-h);
+   font-size: 11.5px; color: var(--danger);
+   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ---------- 门禁 ---------- */
+
+.assign-gate {
+   flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+   gap: 6px; padding: 32px; text-align: center;
+}
+.assign-gate h1 { margin: 0; font-size: 16px; font-weight: 600; }
+.assign-gate p { margin: 0; max-width: 420px; line-height: 1.7; }
+.gate-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+/* ---------- 旧课程题 ---------- */
+
+.legacy-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.legacy-chip {
+   display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 5px 0 8px;
+   border-radius: 4px; background: var(--bg-sunken); color: var(--text-dim);
+   font-family: var(--font-mono); font-size: 11.5px;
+}
+.legacy-chip button {
+   border: 0; background: transparent; color: var(--text-faint); cursor: pointer;
+   font: inherit; line-height: 1; padding: 2px 3px; border-radius: 3px;
+   transition: color .12s ease;
+}
+.legacy-chip button:hover { color: var(--danger); }
+.legacy-chip button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+
+/* ---------- 自定义日期选择器（替代原生 input[type=date]） ---------- */
+
+.date-trigger {
+   display: inline-flex; align-items: center; gap: 7px;
+   font: inherit; height: 28px; padding: 0 10px; width: 176px; flex: 0 0 176px;
+   border: 1px solid var(--border-strong); border-radius: 4px;
+   background: var(--bg); color: var(--text); cursor: pointer; text-align: left;
+   transition: background-color .12s ease, box-shadow .12s ease;
+}
+.date-trigger:hover { background: var(--bg-sunken); }
+.date-trigger:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.date-trigger[aria-expanded="true"] { box-shadow: 0 0 0 3px var(--ring); }
+.date-icon { width: 14px; height: 14px; flex: 0 0 14px; }
+.date-icon rect, .date-icon line { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; }
+.date-text {
+   flex: 1; min-width: 0; font-size: 12.5px; font-variant-numeric: tabular-nums;
+   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.date-text[data-empty="yes"] { color: var(--text-faint); }
+
+.due-row { display: flex; align-items: center; gap: 8px; }
+
+.datepicker {
+   position: fixed; z-index: 60; width: 252px; padding: 8px;
+   background: var(--bg-panel); border: 1px solid var(--border-strong);
+   border-radius: 8px; box-shadow: 0 14px 40px rgba(0, 0, 0, .2);
+}
+.dp-head { display: flex; align-items: center; justify-content: space-between; height: 26px; }
+.dp-month { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dp-week, .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-week { margin: 6px 0 2px; }
+.dp-week span { height: 18px; line-height: 18px; text-align: center; font-size: 11px; color: var(--text-faint); }
+.dp-day {
+   height: 30px; border: 0; border-radius: 4px; font: inherit; font-size: 12px;
+   background: transparent; color: var(--text); cursor: pointer;
+   font-variant-numeric: tabular-nums;
+   transition: background-color .12s ease, color .12s ease;
+}
+.dp-day:hover { background: var(--bg-sunken); }
+.dp-day:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.dp-day[data-outside="yes"] { color: var(--text-faint); }
+.dp-day[data-today="yes"] { box-shadow: inset 0 0 0 1.5px var(--border-strong); }
+.dp-day[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.dp-day[aria-pressed="true"]:hover { background: var(--accent); }
+.dp-foot { display: flex; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
+.dp-foot .spacer { flex: 1; }
+
+/* ---------- 窄屏 ---------- */
+
+@media (max-width: 780px) {
+   /* 大纲在这个宽度下抢走的比给的多；正文本身已经是从上到下的顺序。 */
+   .assign-outline { display: none; }
+   .sheet-scroll { padding: 12px 12px 20px; }
+   .sheet-foot { padding: 10px 12px; }
+   .date-trigger { width: 156px; flex-basis: 156px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+   .assign-card, .ao-list li, .date-trigger, .dp-day, .item-area, .item-remove { transition: none; }
+}

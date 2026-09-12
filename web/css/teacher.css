@@ -66,36 +66,10 @@
 .answer-code pre { margin: 0; font-size: 12.5px; line-height: 1.55; white-space: pre; }
 .text-field.mono { font-family: var(--font-mono); }
 
-/* ---------- 布置作业 ---------- */
+/* ---------- 班级作业 ---------- */
 
-.assign-row { display: flex; gap: 8px; margin-bottom: 8px; }
-.assign-row #assignTitle { flex: 1; min-width: 0; }
-.assign-row #assignDue { width: 148px; flex: 0 0 148px; }
-
-/* 题目多选。不用原生 checkbox：整行可点，勾只改 color/background，行高不变。 */
-.assign-picker {
-   height: 300px; overflow-y: auto; scrollbar-gutter: stable;
-   border: 1px solid var(--border); border-radius: 4px; padding: 4px; background: var(--bg);
-}
-.assign-chapter {
-   position: sticky; top: -4px; background: var(--bg); z-index: 1;
-   padding: 6px 8px 4px; font-size: 11px; color: var(--text-faint);
-}
-.assign-task {
-   display: flex; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 8px;
-   border: 0; background: transparent; color: var(--text); font: inherit; text-align: left;
-   border-radius: 4px; cursor: pointer; transition: background-color .12s ease;
-}
-.assign-task:hover { background: var(--bg-sunken); }
-.assign-task:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
-.assign-task[aria-checked="true"] { background: var(--accent-soft); }
-/* 勾位常驻，选中只换字符与颜色，不挤动标题 */
-.assign-check { width: 14px; flex: 0 0 14px; text-align: center; color: var(--text-faint); }
-.assign-task[aria-checked="true"] .assign-check { color: var(--accent); }
-.assign-task-id { font-family: var(--font-mono); font-size: 11.5px; width: 52px; flex: 0 0 52px; color: var(--text-dim); }
-.assign-task-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.assign-task-kind { font-size: 10.5px; color: var(--text-faint); }
-.dialog-actions #assignCount { margin-right: auto; font-variant-numeric: tabular-nums; }
+/* 布置和编辑作业已经独立成 assign.html（样式在 css/assign.css），
+   这一页只剩下作业列表和提交矩阵。 */
 
 /* 作业列表行：整行可点进提交详情 */
 .assign-list { list-style: none; margin: 0; padding: 0; }
@@ -109,6 +83,100 @@
 .assign-meta { font-size: 11.5px; color: var(--text-faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .assign-due[data-state="over"] { color: var(--danger); }
 .assign-tasks { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+
+/* ---------- 作业详情：左右两栏 ----------
+   左边是这份作业出了什么题（题面、提示），右边是提交矩阵。
+   两栏各自滚动，所以详情模式下外层容器自己不滚——由 data-mode 切换。 */
+
+.teacher-scroll[data-mode="detail"] {
+   overflow: hidden; display: flex; padding: 0;
+}
+.teacher-scroll[data-mode="detail"] > div { flex: 1; min-width: 0; min-height: 0; }
+
+.assign-detail { height: 100%; display: flex; min-height: 0; }
+
+.ad-side {
+   width: 340px; flex: 0 0 340px; display: flex; flex-direction: column; min-height: 0;
+   border-right: 1px solid var(--border); background: var(--bg-panel);
+}
+.ad-meta { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.ad-due { font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.ad-due[data-state="over"] { color: var(--danger); }
+.ad-stat { margin-top: 3px; font-size: 11.5px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+.ad-task-list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; padding: 8px; }
+
+.ad-task {
+   padding: 9px 10px; border-radius: 6px; cursor: pointer;
+   transition: background-color .12s ease, box-shadow .12s ease;
+}
+.ad-task + .ad-task { margin-top: 4px; }
+.ad-task:hover { background: var(--bg-sunken); }
+.ad-task:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+/* 选中用底色和内描边，不用 border 宽度——那会把整列往下顶 2px */
+.ad-task[data-active="yes"] { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+
+.ad-task-head { display: flex; align-items: baseline; gap: 7px; margin-bottom: 5px; }
+.ad-task-no { font-size: 11px; color: var(--text-faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ad-task-name {
+   flex: 1; min-width: 0; font-size: 12.5px; font-weight: 500;
+   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* 「这道题交了几个人」定宽，数字变化不推动题名 */
+.ad-task-count {
+   width: 36px; flex: 0 0 36px; text-align: right;
+   font-size: 11px; color: var(--text-faint); font-variant-numeric: tabular-nums;
+}
+/* 题面是老师敲的普通文字，换行原样显示；长题面自己在框里滚，不撑开整列 */
+.ad-task-prompt {
+   font-size: 12px; line-height: 1.65; color: var(--text-dim);
+   white-space: pre-wrap; word-break: break-word;
+   max-height: 168px; overflow-y: auto; scrollbar-gutter: stable;
+}
+.ad-task-guidance {
+   margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border);
+   font-size: 11.5px; line-height: 1.65; color: var(--text-faint);
+   white-space: pre-wrap; word-break: break-word;
+}
+.ad-g-head { display: block; font-size: 10.5px; letter-spacing: .3px; color: var(--text-faint); margin-bottom: 2px; }
+
+.ad-main { flex: 1; min-width: 0; min-height: 0; overflow: auto; scrollbar-gutter: stable; padding: 10px 12px 16px; }
+
+/* 列头两行定高：滚到哪一列都还知道是第几题，题名超出省略号，全名交给悬浮提示 */
+.assign-matrix .task-col { max-width: 150px; }
+.assign-matrix .tc-no { display: block; font-size: 10.5px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.assign-matrix .tc-name {
+   display: block; max-width: 134px; color: var(--text-dim);
+   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.assign-matrix .done-col { min-width: 54px; font-variant-numeric: tabular-nums; }
+.assign-matrix .when-col { min-width: 96px; font-variant-numeric: tabular-nums; color: var(--text-faint); }
+/* 汇总：全交齐了才上色，一眼能扫出没交齐的那几格 */
+.assign-matrix .total[data-full="yes"] { color: var(--accent); }
+.assign-matrix .total[data-full="no"] { color: var(--text-dim); }
+.assign-matrix tfoot td {
+   border-top: 1px solid var(--border-strong); border-bottom: 0;
+   position: sticky; bottom: 0; background: var(--bg); font-size: 11.5px;
+}
+.assign-matrix tfoot .who { z-index: 3; color: var(--text-faint); }
+/* 左边点中的那道题，这一列亮起来。只有底色变化，几何一动不动。 */
+.assign-matrix [data-col][data-active="yes"] { background: var(--accent-soft); }
+
+/* 横向空间不够时先收窄题面栏，再不够就改成上下叠——两栏各占一半的话，
+   矩阵和题面都读不成。上面那栏限高，下面的矩阵永远还看得见。 */
+@media (max-width: 1060px) {
+   .ad-side { width: 280px; flex-basis: 280px; }
+   .assign-matrix .task-col { max-width: 120px; }
+   .assign-matrix .tc-name { max-width: 104px; }
+}
+@media (max-width: 840px) {
+   .assign-detail { flex-direction: column; }
+   .ad-side {
+      width: auto; flex: 0 0 auto; max-height: 44%;
+      border-right: 0; border-bottom: 1px solid var(--border);
+   }
+   .ad-task-prompt { max-height: 120px; }
+}
 
 /* 迟交只是一枚标记，不改变判分，也从不拦截提交 */
 .state-chip[data-state="late"] { background: var(--warn-soft); color: var(--warn); }
@@ -205,37 +273,3 @@
 .matrix .chapter-cell[data-done="all"] { background: var(--accent-soft); }
 .matrix .chapter-cell[data-done="some"] { background: var(--bg-sunken); }
 
-/* ---------- 自己出题 ---------- */
-
-.assign-mode { width: 100%; margin-bottom: 10px; }
-.assign-mode button { flex: 1; }
-.assign-custom { max-height: 300px; overflow-y: auto; scrollbar-gutter: stable; }
-.custom-item {
-   border: 1px solid var(--border); border-radius: 6px; padding: 10px 11px; margin-bottom: 8px;
-   background: var(--bg);
-}
-.custom-item-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-.custom-item-head .text-field { flex: 1; height: 28px; }
-.custom-item textarea {
-   display: block; width: 100%; font-family: var(--font-ui); font-size: 12.5px; line-height: 1.7;
-   padding: 7px 9px; border: 1px solid var(--border-strong); border-radius: 4px;
-   background: var(--bg-panel); color: var(--text); resize: vertical;
-}
-.custom-item textarea:focus { outline: none; box-shadow: 0 0 0 3px var(--ring); }
-.custom-prompt { height: 84px; margin-bottom: 6px; }
-.custom-guidance { height: 50px; }
-.custom-item-label { font-size: 11px; color: var(--text-faint); margin-bottom: 3px; }
-
-/* 旧作业里从课程勾选的题目：只能看和移除，不能再新增 */
-.assign-legacy { margin-bottom: 10px; padding: 9px 11px; border-radius: 6px; background: var(--bg-sunken); }
-.assign-legacy-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.legacy-chip {
-   display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 4px 0 9px;
-   border-radius: 11px; background: var(--bg-panel); border: 1px solid var(--border);
-   font-family: var(--font-mono); font-size: 11px;
-}
-.legacy-chip button {
-   border: 0; background: transparent; color: var(--text-faint); cursor: pointer;
-   font: inherit; padding: 0 4px; border-radius: 50%;
-}
-.legacy-chip button:hover { color: var(--danger); }

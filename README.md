@@ -12,7 +12,7 @@
 - 本地优先：编辑、教学、做题和本地运行不依赖后端；登录后可选接入云端同步、云端运行和班级教学。
 - 支持多个本地项目；每个项目独立保存代码文件和运行时虚拟文件，项目入口位于编辑器左侧栏顶部。
 - 本地存储正在从旧版 `localStorage` blob 迁移到 `CAIEStorage` + IndexedDB entity 模型；旧用户数据会保留并迁移，页面仍通过兼容快照读取。
-- 页面已接入认证、个人项目同步、云端运行、教学进度/草稿同步、老师面板、学生作业页和自出题作业；老师/个人学习者首次注册验证邮箱，之后使用邮箱密码登录；服务端已部署到 Cloudflare Workers 并绑定远端 D1；`RESEND_API_KEY` / `EMAIL_FROM` / `APP_ORIGIN` 三个 secret 均已设置，但真实投递尚未验证成功。
+- 页面已接入认证、个人项目同步、云端运行、教学进度/草稿同步、老师面板、学生作业页和自出题作业；老师/个人学习者首次注册验证邮箱，之后使用邮箱密码登录；服务端已部署到 Cloudflare Workers 并绑定远端 D1；`RESEND_API_KEY` / `EMAIL_FROM` / `APP_ORIGIN` 三个 secret 均已设置，Resend 接受发信（用官方测试地址验过），只差一次往真实邮箱的投递确认。
 
 ## 快速开始
 
@@ -58,6 +58,7 @@ npm test
 | `web/learn.html` | 学习：教学课程页（线上 `/learn`） |
 | `web/task.html` | 独立做题页 |
 | `web/classes.html` | 班级：老师的班级、学生、进度和作业面板（线上 `/classes`） |
+| `web/assign.html` | 布置作业：老师写题、定截止日期的独立页面（线上 `/assign`） |
 | `web/login.html` | 老师、个人学习者和学生的独立登录/激活页 |
 | `web/assignments.html` | 学生作业清单、提交状态、分数和评语 |
 | `web/custom-task.html` | 自出题作业的编辑、运行和提交页 |

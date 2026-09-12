@@ -7,7 +7,7 @@
 <title>班级 · SeedToCode</title>
 <link rel="stylesheet" href="css/styles.css?v=26">
 <link rel="stylesheet" href="css/account.css?v=2">
-<link rel="stylesheet" href="css/teacher.css?v=2">
+<link rel="stylesheet" href="css/teacher.css?v=5">
 </head>
 <body>
 
@@ -133,7 +133,7 @@
                   <button class="btn btn-primary small fixed-btn wide" id="newAssignmentBtn">布置作业</button>
                </span>
             </div>
-            <div class="teacher-scroll"><div id="assignmentsBody"></div></div>
+            <div class="teacher-scroll" id="assignmentsScroll"><div id="assignmentsBody"></div></div>
          </div>
       </div>
    </section>
@@ -213,40 +213,6 @@
    </div>
 </div>
 
-<div class="dialog" id="assignDialog" hidden role="dialog" aria-label="布置作业">
-   <div class="dialog-head"><span id="assignDialogTitle">布置作业</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
-   <div class="dialog-body">
-      <p class="muted small dialog-meta" id="assignDialogDesc">自己写题目，一次可以布置多道。学生写完自己运行，成绩由你批改。</p>
-      <div class="assign-row">
-         <input id="assignTitle" class="text-field" placeholder="作业标题" spellcheck="false" autocomplete="off" aria-label="作业标题">
-         <input id="assignDue" class="text-field" type="date" aria-label="截止日期">
-      </div>
-      <!-- 作业题一律由老师自己写。
-           课程里的章末大题不再能被勾成作业：学生做没做，老师在「进度」里本来就看得到，
-           布置一遍只会和课程自身的推进重复，学生也分不清哪个是作业、哪个是课程内容。 -->
-      <div class="assign-legacy" id="assignLegacy" hidden>
-         <div class="custom-item-label">这份作业里还有从课程勾选的题目（旧数据，现在不再支持新增）</div>
-         <div class="assign-legacy-list" id="assignLegacyList"></div>
-      </div>
-
-      <div class="assign-custom" id="assignCustom">
-         <div class="assign-custom-list" id="customList"></div>
-         <button type="button" class="btn btn-ghost small fixed-btn wide" id="customAdd">＋ 再加一题</button>
-         <p class="form-note" style="margin-top:8px">
-            自己出的题只有题面和提示，<strong>不会自动判分</strong>：学生写完自己点运行看结果，分数由你批改。
-            排版就按普通文字写，换行会原样显示。
-         </p>
-      </div>
-
-      <div class="field-error" id="assignError"></div>
-      <div class="dialog-actions">
-         <span class="muted small" id="assignCount"></span>
-         <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
-         <button class="btn btn-primary small fixed-btn" id="assignOk">布置</button>
-      </div>
-   </div>
-</div>
-
 <div class="dialog" id="answerDialog" hidden role="dialog" aria-label="学生答案">
    <div class="dialog-head"><span id="answerTitle">学生答案</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
    <div class="dialog-body">
@@ -286,6 +252,6 @@
 <script src="js/sync-queue.js?v=1"></script>
 <script src="js/sync-engine.js?v=1"></script>
 <script src="js/account-ui.js?v=7"></script>
-<script src="js/teacher-app.js?v=3"></script>
+<script src="js/teacher-app.js?v=5"></script>
 </body>
 </html>

@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8123", "--directory", "web"],
       "port": 8123
+    },
+    {
+      "name": "seedtocode-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "server", "run", "dev", "--", "--port", "8787", "--ip", "127.0.0.1"],
+      "port": 8787
     }
   ]
 }

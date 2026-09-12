@@ -78,7 +78,7 @@
 | `prompt()` | 自定义 Modal + 输入框 + 常驻高度的内联校验 | `askText()` |
 | `title="..."` 悬浮文字 | 自定义 Tooltip | `data-tip`，`js/tooltip.js` |
 | `<select>` | 分段控件（选项 ≤ 4）或自定义下拉列表 | `.login-choice` / `role="radiogroup"` |
-| `<input type="date">` | 自定义日期选择器 | **待实现** |
+| `<input type="date">` | 自定义日期选择器 | `.datepicker`，`web/assign.html` + `js/assign-page.js` |
 | `<input type="checkbox">` | `role="switch"` 自定义开关 | `.switch-ctl` |
 | `<input type="range">` | 自定义步进器 | 设置里的字号 |
 | `<input type="color">` | 自定义色板 | 暂无需求 |
@@ -168,5 +168,4 @@ window.__snap.size;
 | 位置 | 问题 | 状态 |
 |---|---|---|
 | `web/classes.html:120` `#taskFilter` | 原生 `<select>` 按题号筛选 | 待修 |
-| `web/classes.html:222` `#assignDue` | 原生 `<input type="date">`，弹浏览器日历 | 待修，随「布置作业独立成页」一并处理 |
 | `web/lab.html:380` `#importInput` | `<input type="file" hidden>` | 符合 2.2 例外，不修 |

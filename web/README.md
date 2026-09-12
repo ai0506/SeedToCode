@@ -44,7 +44,8 @@ node scripts/dev-proxy.mjs
 | `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分 |
 | `assignments.html` + `js/assignments-page.js` + `css/assignments.css` | 学生的作业页：每道题的状态、老师给的分与评语 |
 | `login.html` + `js/login-page.js` + `css/login.css` | 独立登录页：先问登录还是注册，再选身份（学生 / 老师 / 个人学习者），最后才是对应的表单；三步共用一个高度受控容器，换屏做一次短过渡 |
-| `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、布置作业与查看作业提交 |
+| `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、作业列表与作业详情（左栏题面、右栏提交矩阵） |
+| `assign.html` + `js/assign-page.js` + `css/assign.css` | 布置 / 编辑一份班级作业：左侧大纲、右侧逐题写题面和提示，自定义日期选择器，本地草稿 |
 
 ## 语言规范文档
 
