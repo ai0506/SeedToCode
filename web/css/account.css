@@ -80,3 +80,12 @@ a.account-task:hover { background: var(--accent-soft); color: var(--accent); }
    display: inline-block; margin-left: 5px; padding: 0 5px; border-radius: 3px;
    background: var(--accent); color: #fff; font-size: 10px; font-weight: 600;
 }
+
+/* 云端空间提示：只在快满时出现，所以不留常驻槽位——它不是会来回切换的状态，
+   是一次性的告知，出现之后就一直在，直到用户清出空间。 */
+.account-quota {
+   margin: 6px 0 0; padding: 7px 9px; border-radius: 6px;
+   font-size: 11.5px; line-height: 1.6;
+   background: var(--warn-soft); color: var(--warn);
+}
+.account-quota[data-level="full"] { background: var(--danger-soft); color: var(--danger); }

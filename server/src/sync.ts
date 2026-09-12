@@ -64,7 +64,26 @@ export async function listProjects(db: D1Database, user: AuthenticatedUser) {
     group.push(publicFile(file, true));
     filesByProject.set(file.project_id, group);
   }
-  return projects.results.map((project) => ({ ...publicProject(project), files: filesByProject.get(project.id) ?? [] }));
+  /*
+   * 顺带把账户用量带回去。这里不额外查库：项目和文件本来就全读出来了，
+   * 直接在内存里数一遍。客户端只在接近上限时提示，平时不显示——界面空间
+   * 紧张，常驻一个「云端空间」展位不值得。
+   */
+  const usedBytes = files.results.reduce(
+    (sum, file) => (file.deleted_at === null ? sum + textEncoder.encode(file.content).byteLength : sum),
+    0
+  );
+  const activeProjects = projects.results.filter((project) => project.deleted_at === null).length;
+  const limits = accountLimits(user);
+  return {
+    projects: projects.results.map((project) => ({ ...publicProject(project), files: filesByProject.get(project.id) ?? [] })),
+    account: {
+      projects: activeProjects,
+      maxProjects: limits.maxProjects,
+      bytes: usedBytes,
+      maxBytes: limits.maxBytes
+    }
+  };
 }
 
 export async function assertProjectOwner(db: D1Database, user: AuthenticatedUser, projectId: string): Promise<void> {
@@ -376,6 +395,38 @@ async function checkProjectLimits(db: D1Database, projectId: string, current: Fi
   if ((total?.bytes ?? 0) - previousBytes + nextBytes > MAX_PROJECT_BYTES) {
     throw new SyncError("PROJECT_TOO_LARGE", 413, "项目内容超过大小上限。", { maxBytes: MAX_PROJECT_BYTES });
   }
+}
+
+/*
+ * 免部署的服务开关。
+ *
+ * 出事时（被刷、成本失控、上游故障）唯一的止血手段原本是改代码重新部署，
+ * 那至少几分钟，还得有人跑得动部署。现在改一行 D1 就能关掉某项云端能力：
+ *   UPDATE service_config SET value='0', updated_at=unixepoch()*1000 WHERE key='cloud_sync_enabled';
+ *
+ * **缺行、读失败都按「开启」处理**：这张表自己出问题时，不应该把整个云端连带关掉。
+ * 在 isolate 内缓存 30 秒，避免每个请求多一次查询；关掉之后最迟 30 秒生效。
+ */
+const SERVICE_FLAG_TTL_MS = 30 * 1000;
+const serviceFlagCache = new Map<string, { value: boolean; at: number }>();
+
+export async function serviceEnabled(db: D1Database, key: string): Promise<boolean> {
+  const cached = serviceFlagCache.get(key);
+  const now = Date.now();
+  if (cached && now - cached.at < SERVICE_FLAG_TTL_MS) return cached.value;
+  let value = true;
+  try {
+    const row = await db.prepare("SELECT value FROM service_config WHERE key = ?1").bind(key).first<{ value: string }>();
+    if (row && row.value === "0") value = false;
+  } catch {
+    value = true;
+  }
+  serviceFlagCache.set(key, { value, at: now });
+  return value;
+}
+
+export function serviceDisabledError(): SyncError {
+  return new SyncError("SERVICE_DISABLED", 503, "云端同步暂时关闭，本地编辑和运行不受影响。");
 }
 
 function accountLimits(user: AuthenticatedUser): { maxProjects: number; maxBytes: number } {

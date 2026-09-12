@@ -84,6 +84,7 @@
          "<hr>" +
          '<div data-account-assignments></div>' +
          holdNotice() +
+         '<p class="account-quota" data-account-quota hidden></p>' +
          '<ul class="account-blocked" data-account-blocked hidden></ul>' +
          /* 状态文字和两个按钮排在同一行：分两行的话，左边一句话、右边两个按钮，
             中间那块空白会把视线拉成一道斜线。 */
@@ -223,6 +224,7 @@
       var status = ENGINE.status();
       var line = panel.querySelector("[data-account-status]");
       if (line) line.textContent = statusText(status);
+      refreshQuota(status);
       var list = panel.querySelector("[data-account-blocked]");
       if (list) {
          var blocked = status.blocked || [];
@@ -236,6 +238,33 @@
          }).join("");
       }
       refreshButton(status);
+   }
+
+   /*
+    * 云端空间只在**快满时**说一句，平时一个字都不占。
+    *
+    * 常驻一个「已用 3.2 / 5 MB」的展位，在这个界面里是纯粹的噪音：绝大多数人
+    * 一辈子用不到上限，而顶栏和账户浮层的空间本来就紧。真正需要被告知的只有
+    * 一种人——快撞墙的那个，而且他需要在撞墙**之前**知道。
+    */
+   var QUOTA_WARN_AT = 0.8;
+
+   function refreshQuota(status) {
+      var box = panel.querySelector("[data-account-quota]");
+      if (!box) return;
+      var account = status && status.account;
+      if (!account || !account.maxBytes || !account.maxProjects) { box.hidden = true; return; }
+      var byBytes = account.bytes / account.maxBytes;
+      var byProjects = account.projects / account.maxProjects;
+      var worst = Math.max(byBytes, byProjects);
+      if (worst < QUOTA_WARN_AT) { box.hidden = true; return; }
+      box.hidden = false;
+      box.dataset.level = worst >= 1 ? "full" : "warn";
+      box.textContent = byProjects >= byBytes
+         ? "云端项目已用 " + account.projects + " / " + account.maxProjects +
+           (byProjects >= 1 ? "，已满，删掉不用的项目才能再同步新的。" : "，快满了。")
+         : "云端空间已用 " + Math.round(byBytes * 100) + "%" +
+           (byBytes >= 1 ? "，已满，删掉不用的文件才能再同步。" : "，快满了。");
    }
 
    function refreshButton(status) {
