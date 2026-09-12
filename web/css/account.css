@@ -34,7 +34,10 @@
 .account-row { display: flex; align-items: center; gap: 8px; }
 .account-row + .account-row { margin-top: 8px; }
 .account-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
-.account-note { min-height: 32px; font-size: 11.5px; line-height: 1.5; color: var(--text-dim); }
+/* 操作结果（已并入 / 已开始同步 / 出错原因）落在这里。槽位常驻，免得一有反馈
+   就把整块往下推；但只留一行的高度——原来是 32px，没有反馈时看着就是一块空白。 */
+.account-note:not(:empty) { margin-top: 8px; }
+.account-note { min-height: 1.5em; font-size: 11.5px; line-height: 1.5; color: var(--text-dim); }
 .account-note[data-state="error"] { color: var(--danger); }
 .account-note[data-state="ok"] { color: var(--accent); }
 .account-identity { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -128,8 +128,20 @@ body {
    position: relative;
    z-index: 46;
 }
-.topbar-left, .topbar-right { display: flex; align-items: center; gap: 8px; }
-.topbar-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
+/*
+ * 左右两块按 flex-basis: 0 平分中间剩下的宽度，所以中间那块落在**页面**正中，
+ * 而不是「左右两块之间」的正中。以前中间是 flex: 1、左右按内容宽，左边（品牌 +
+ * 导航）和右边（账户）宽度一差，标题就偏了——作业页最明显，左边一大块、右边只
+ * 有一个账户按钮。
+ *
+ * 左右两块不给 min-width: 0，故意的：flex 项的自动最小尺寸就是内容宽度，
+ * 宽度不够平分时它们只退回按内容排（标题略偏），不会被压扁让内容互相盖住。
+ * 能让的是中间：宽度紧张时文档名先截短（它本来就有 ellipsis），
+ * 所以中间这块是可收缩的。
+ */
+.topbar-left, .topbar-right { display: flex; align-items: center; gap: 8px; flex: 1 1 0; }
+.topbar-right { justify-content: flex-end; }
+.topbar-center { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
 
 /* 图标 + 两行字是一组。26px 正好等于「SeedToCode」与「Based on CAIE 9618」
    两行叠起来的高度（13px/1.1 + 1px gap + 10px/1.1），窄屏下两行字藏起来时
@@ -151,7 +163,9 @@ body {
    font: inherit; font-weight: 500; height: var(--ctl-h);
    background: transparent; border: 1px solid transparent;
    border-radius: var(--radius); padding: 0 8px; color: var(--text);
-   text-align: center; width: 220px; flex: 0 0 220px;
+   /* 宽度紧张时让文档名先截短：它有 ellipsis，是顶栏里唯一可以少显示一点的东西。
+      不给它收缩的话，窄屏下整条顶栏撑出横向滚动。 */
+   text-align: center; width: 220px; flex: 0 1 220px; min-width: 0;
    text-overflow: ellipsis;
 }
 .doc-name:hover { border-color: var(--border); }

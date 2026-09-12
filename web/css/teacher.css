@@ -17,6 +17,8 @@
 .teacher-gate { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; padding: 32px; text-align: center; }
 .teacher-gate h1 { margin: 0; font-size: 16px; font-weight: 600; }
 .teacher-gate p { margin: 0; max-width: 420px; line-height: 1.7; }
+/* 走错页的人得有条出路，按当前身份给（见 teacher-app.js 的 gate()） */
+.teacher-gate .hw-gate-actions { display: flex; gap: 8px; margin-top: 10px; }
 
 /* 空状态与载入态共用一个常驻高度，切换时表格位置不跳 */
 .teacher-empty { min-height: 96px; display: flex; align-items: center; justify-content: center; color: var(--text-faint); font-size: 12px; }

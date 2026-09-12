@@ -251,6 +251,7 @@ function createProject(name) {
  * 菜单项现在只负责把那个列表打开，两个入口共用同一份 UI，不再有第二套切换方式。
  */
 function openProjectPicker() {
+   announcePopover('projects');
    // 侧栏收起来的时候列表不可见，先展开
    $('sidebar').classList.remove('collapsed');
    renderProjectLabel();
@@ -1489,6 +1490,7 @@ function openSnippets() {
    $('snippetList').innerHTML = CAIE.SNIPPETS.map(function (s, i) {
       return '<li data-i="' + i + '">' + escapeHtml(s.label) + '</li>';
    }).join('');
+   announcePopover('snippets');
    $('snippetPop').hidden = false;
 }
 $('snippetList').addEventListener('click', function (ev) {
@@ -1515,9 +1517,23 @@ document.addEventListener('click', function (ev) {
 });
 
 /* ---------------- 更多菜单 ---------------- */
+
+/* 同一时刻只留一个浮层：打开前先广播，别的浮层（账户浮层）听见就收起来；
+   也听别人的广播，别人开我就关。两边的按钮都 stopPropagation，
+   光靠「点外面就关」收不到对方那一次点击。 */
+function announcePopover(id) {
+   document.dispatchEvent(new CustomEvent('ui:popover-open', { detail: { id } }));
+}
+document.addEventListener('ui:popover-open', function (ev) {
+   if (!ev.detail || ev.detail.id !== 'more') $('moreMenu').hidden = true;
+   if (!ev.detail || ev.detail.id !== 'snippets') $('snippetPop').hidden = true;
+   if (!ev.detail || ev.detail.id !== 'projects') closeProjectPicker();
+});
 $('moreBtn').addEventListener('click', function (ev) {
    ev.stopPropagation();
-   $('moreMenu').hidden = !$('moreMenu').hidden;
+   const opening = $('moreMenu').hidden;
+   if (opening) announcePopover('more');
+   $('moreMenu').hidden = !opening;
 });
 $('moreMenu').addEventListener('click', function (ev) {
    const btn = ev.target.closest('[data-action]');

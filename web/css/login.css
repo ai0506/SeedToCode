@@ -70,7 +70,13 @@
 /* 三步共用的高度容器。换屏时 JS 在旧高度和新高度之间补一次 170ms 的过渡，
    过渡结束立刻把 height 交还给内容——留着定值的话，表单里冒出一行错误就撑不开。
    overflow: hidden 只在过渡期间有意义，但常开也无害，且能挡住淡入时的越界。 */
-.login-steps { overflow: hidden; }
+.login-steps {
+   overflow: hidden;
+   /* 焦点环是 3px 的 box-shadow，画在输入框外面。overflow: hidden 会把左右两侧
+      那一圈裁掉，看着像半截绿边。给容器留 4px 内边距再用等量负外边距拉回去：
+      位置一点没变，环有地方画了。 */
+   padding: 4px; margin: -4px;
+}
 
 /* 换屏的淡入。位移只有 5px：这是「换了一屏」的提示，不是一段动画表演。 */
 .login-step.is-entering { animation: login-step-in 170ms ease-out both; }
@@ -117,6 +123,9 @@
 .login-submit { width: 100%; height: 36px; font-size: 13px; }
 .login-submit[disabled] { cursor: default; }
 .login-hint { margin: 12px 0 0; font-size: 11.5px; color: var(--text-faint); line-height: 1.7; }
+/* 邮箱表单的这一行在「登录」时一行、「注册」时两行。两种文案共用一个定高槽位，
+   来回切时卡片不会长高又缩回去——同一屏之内的切换不走换步过渡（FRONTEND_RULES 1.3）。 */
+#emailHint { min-height: calc(2 * 1.7em); }
 
 /* 文字按钮：行内切换「登录 / 激活」，不额外占一行控件 */
 .login-link {
