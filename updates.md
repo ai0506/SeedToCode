@@ -465,3 +465,8 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 **`APP_ORIGIN` 已确认**为 `https://seedtocode.example.invalid`（使用者提供），验证邮件里的链接指的是自定义域名而不是 workers.dev，`PROJECT_STATE.md` 里那条「尚未确认」去掉。
 **新增 `CLAUDE.md`**：定位是「路由 + 陷阱」，不复述其它文档——按问题指到唯一权威的那一份，加上踩过的坑（共用文件的缓存版本号要在所有页面一起提、`web/js` 是 IIFE 不是模块、不要照抄文档里的「尚未」而不核实、FRONTEND_RULES 的自动检查只覆盖静态文本、编辑器是透明 textarea + 高亮层不能按列数算位置、同步的 meta 迁移必须幂等、教学内容按章声明执行档）。**尚未部署。**
 [CodeX][2609130013] 新增根目录 `AGENTS.md`，基于当前 TypeScript workspace、浏览器构建产物、Cloudflare Worker/D1、本地优先同步、CAIE 规则与教学/前端验收契约，明确任务前阅读顺序、跨层边界、验证与缓存版本同步要求；结合 `CLAUDE.md` 补充 IIFE 页面层、幂等同步迁移、真实浏览器布局检查、教学执行档与技术记录规范。本次仅新增开发协作说明并恢复误清空的既有 `updates.md` 内容；未运行测试（Markdown 与协作规则改动）。
+[ClaudeCode][2609130018] 已合并并部署。PR #5（三个提交：编辑器选区与输入法、同步元数据迁移幂等 + `CLAUDE.md`、纳入 Codex 的 `AGENTS.md`）用 merge commit 合进 `main`（`4bf0e79`），远端分支已删。在 `main` 上 `npm test` 43 文件 653 项全绿、`server` 的 `tsc --noEmit` 通过、`d1 migrations list --remote` 报 `No migrations to apply` 之后部署，Version ID `57c44fae-87a0-42d6-9aa8-5f7c5ca535bd`。
+**线上复验（自定义域名 `https://seedtocode.example.invalid`）**：九条路由全部 200；`lab` 引用 `app.js?v=32` + `styles.css?v=27` + `sync-engine.js?v=3`，且 `/classes`、`/learn`、`/task` 三页的共用文件版本与之**完全一致**（这次专门查了这一项——共用文件版本分叉正是上一条记录里修掉的隐患）；直接抓线上脚本确认修复代码在位（`app.js` 命中 `measureSpan`/`locateInHighlight`/`setComposing` 共 9 处，`sync-engine.js` 命中幂等判断 1 处）。
+**在生产页面上实测了两个编辑器修复**，不是只看文件版本号：选区四种场景偏差**全部为 0**（中文之后、中文本身、Tab 之后、纯 ASCII）；输入法合成事件走一遍，合成中 textarea 文字色 `rgb(36,36,31)`、高亮层 `hidden`，合成后回到 `rgba(0,0,0,0)`。控制台除未登录的 `/auth/me` 401 外无报错。
+**同步那条修复未在生产端到端验证**：需要一个真实登录会话反复刷新看网络记录，本机已用真账号验过（连续三次刷新只剩一个 `GET /api/projects`），线上只核到了代码在位。
+此前记录里的「尚未部署」自此作废（2609130003、2609130010 两条）。
