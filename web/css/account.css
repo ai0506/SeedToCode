@@ -16,6 +16,9 @@
 .account-btn[data-state="in"] .account-dot { background: var(--accent); }
 .account-btn[data-state="syncing"] .account-dot { background: var(--warn); }
 .account-btn[data-state="offline"] .account-dot { background: var(--danger); }
+/* 有内容等着决定要不要并入账号：这不是错误，但用户必须点开才能处理，
+   所以点要跳出来。只改颜色，不改尺寸——按钮的几何不能因为状态而变。 */
+.account-btn[data-state="attention"] .account-dot { background: var(--warn); box-shadow: 0 0 0 3px var(--warn-soft); }
 
 /* 版式照抄顶栏「更多 ▾」的浮层，但不复用 .menu 那个类：
    .menu button 会把面板里的 .btn 一律拉平成菜单项的样子。 */
