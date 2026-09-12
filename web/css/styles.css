@@ -450,15 +450,9 @@ kbd {
    background: transparent;
    color: transparent;
 }
-/*
- * 输入法合成期间（中文拼音还没选定候选字）两层对调：textarea 自己的文字显出来，
- * 语法着色层藏起来。正在打的拼音是 textarea 那层画的，跟着 `color` 走——
- * 不这么做就是一片空白，直到落字才冒出来，没法用。
- * 这段时间没有语法颜色，但也就是敲一个词的工夫。
- */
-.code-area[data-composing="yes"] #code { color: var(--text); }
-.code-area[data-composing="yes"] #code::selection { background: var(--sel); color: var(--text); }
-.code-area[data-composing="yes"] .highlight { visibility: hidden; }
+/* 合成期间不再对调图层。正在打的拼音由着色层自己画出来（合成串在不在 code.value
+   里都行，见 app.js 的 compositionupdate 处理），textarea 始终透明，语法颜色一个
+   都不丢——「显出 textarea、藏起着色层」那条老路已经整个去掉了。 */
 .selection-marks { position: absolute; inset: 10px 0 200px 0; z-index: 2; pointer-events: none; }
 .selection-marks .sm {
    position: absolute; height: var(--editor-line-height);
