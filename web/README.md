@@ -35,8 +35,8 @@ node scripts/dev-proxy.mjs
 | `js/storage.js` | `CAIEStorage` 浏览器存储 facade：旧 key 兼容读取、IndexedDB 初始化、迁移镜像、云端相关 key 和 `deviceId()` |
 | `js/auth-store.js` | `AuthStore`：只保存 `/auth/me` 返回的公开身份，不保存任何登录凭据 |
 | `js/cloud-client.js` | `CloudClient`：API 定位（同源 `/auth` 与 `/api`）、`credentials: "include"` 请求、错误归一、会话状态 |
-| `js/sync-queue.js` | `SyncQueue`：待上传操作的本地持久化、幂等 `operationId`、退避重试与不可重试项 |
-| `js/sync-engine.js` | `SyncEngine`：pull / push / 冲突；项目与教学两个适配器由对应页面注册 |
+| `js/sync-queue.js` | `SyncQueue`：按账号分桶的待上传操作、幂等 `operationId`、entity generation、退避重试与不可重试项；不可变提交不折叠 |
+| `js/sync-engine.js` | `SyncEngine`：按账号恢复 revision/server-id metadata，负责 pull / push / 冲突；项目与教学两个适配器由对应页面注册 |
 | `js/account-ui.js` | 顶栏主导航（实验室 / 学习 / 作业 \| 班级，按身份出）与账户入口：自行插入现有顶栏，身份、同步状态、作业概览、退出 |
 | `css/account.css` | 账户面板、云端空间提示与题目草稿冲突提示的样式，不改动既有版式 |
 | `learn.html` + `js/teaching-app.js` | 教学页：课文、关卡、进度；题目位置只放入口卡 |

@@ -160,11 +160,11 @@ If-Match: <baseRevision>
 - 题目草稿：按版本冲突处理，不能把旧草稿覆盖新草稿；
 - 删除也是带 revision 的 tombstone，保留一段时间，防止离线设备把已删除文件复活。
 
-同步队列必须具备幂等 `operationId`，网络失败可重试；刷新、关闭页面或退出登录都不能丢失尚未上传的本地变更。同步失败不阻止本地编辑和本地运行。
+同步队列必须具备幂等 `operationId`，网络失败可重试；刷新、关闭页面或退出登录都不能丢失尚未上传的本地变更。队列与同步 metadata 均按账号分桶：账号切换只切换当前分桶，不能清除另一账号的待发操作、revision 或云端 ID 映射；in-flight 请求刷新后以同一个 `operationId` 重放。同步失败不阻止本地编辑和本地运行。
 
 `ProjectStore` 只负责本地项目/文件，`TeachingStore` 只负责本地教学状态，`SyncQueue` 只负责持久化待同步操作，`SyncEngine` 负责 push/pull/conflict；游客模式不依赖后三者。所有本地实体都带 `storageSchemaVersion`。浏览器安装首次生成随机 UUID `deviceId` 并持久化；它只用于 `updatedByDevice`、`operationId`、冲突来源和同步日志，不使用设备指纹。数据迁移按 `v1 → v2 → v3` 逐级执行，不能跳过版本或静默重置数据。
 
-同步队列只记录“哪个实体”，内容与 `expectedRevision` 都在真正发送前从本地读取：排队期间的多次修改因此自动合并为最后一版，而排队期间拿到的新版本号也不会作废。
+同步队列只记录“哪个实体”，内容与 `expectedRevision` 都在真正发送前从本地读取：排队期间的多次修改因此自动合并为最后一版，而排队期间拿到的新版本号也不会作废。每条可折叠状态带 entity generation，发送中的旧 generation 的成功或失败不能确认、阻塞或清除更新 generation；作业和章末题提交是不可变事件，不参与合并或容量淘汰。
 
 ### 服务端实体 id 的分配
 

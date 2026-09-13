@@ -76,9 +76,8 @@ var status = { state: "idle", pending: 0, blocked: [], lastPullAt: 0, lastError:
       };
    }
 
-   var meta = (function () {
-      var saved = STORAGE.get(KEY, null);
-      if (!saved || typeof saved !== "object" || saved.schemaVersion !== 1) return emptyMeta(null);
+   function normaliseMeta(saved, userId) {
+      if (!saved || typeof saved !== "object" || saved.schemaVersion !== 1) return emptyMeta(userId);
       saved.projects = saved.projects || {};
       saved.files = saved.files || {};
       saved.teaching = saved.teaching || { progress: {}, drafts: {}, position: null };
@@ -113,9 +112,44 @@ var status = { state: "idle", pending: 0, blocked: [], lastPullAt: 0, lastError:
       });
       saved.files = migratedFiles;
       return saved;
-   })();
+   }
 
-   function saveMeta() { STORAGE.set(KEY, meta); }
+   /*
+    * v1 只保存当前一位用户的 metadata；队列 v2 已经分桶，metadata 也必须同行，
+    * 否则 A → B → A 虽能找回 A 的 outbox，却会因丢掉 revision/serverId 映射而把
+    * 已同步内容误判成新建或删除。guest 是本机未登录数据的显式桶，不能自动发送。
+    */
+   function metaBucketKey(userId) { return userId ? "user:" + userId : "guest"; }
+
+   function migrateMetaStore(saved) {
+      var store = { schemaVersion: 2, buckets: {} };
+      if (saved && typeof saved === "object" && saved.schemaVersion === 2 && saved.buckets && typeof saved.buckets === "object") {
+         Object.keys(saved.buckets).forEach(function (key) {
+            var candidate = saved.buckets[key];
+            var ownerId = candidate && typeof candidate.userId === "string" ? candidate.userId : null;
+            store.buckets[key] = normaliseMeta(candidate, ownerId);
+         });
+         return store;
+      }
+      if (saved && typeof saved === "object") {
+         var legacyOwner = typeof saved.userId === "string" ? saved.userId : null;
+         store.buckets[metaBucketKey(legacyOwner)] = normaliseMeta(saved, legacyOwner);
+      }
+      return store;
+   }
+
+   var metaStore = migrateMetaStore(STORAGE.get(KEY, null));
+   var activeMetaKey = metaBucketKey(null);
+
+   function metaFor(userId) {
+      var key = metaBucketKey(userId);
+      if (!metaStore.buckets[key]) metaStore.buckets[key] = emptyMeta(userId);
+      return metaStore.buckets[key];
+   }
+
+   var meta = metaFor(null);
+
+   function saveMeta() { STORAGE.set(KEY, metaStore); }
 
    /**
     * 换人登录时，把此刻已经在本地的内容整批挂起。
@@ -162,15 +196,20 @@ var status = { state: "idle", pending: 0, blocked: [], lastPullAt: 0, lastError:
    function bindUser(userId) {
       if (meta.userId === userId) { QUEUE.bind(userId); saveMeta(); return; }
       var previousOwner = meta.userId;
-      meta = emptyMeta(userId);
+      var nextKey = metaBucketKey(userId);
+      var hasExistingBucket = !!metaStore.buckets[nextKey];
+      meta = metaFor(userId);
+      activeMetaKey = nextKey;
       /*
        * 这里只记下「要挂起，上一位是谁」。真正有哪些内容要挂起，等到第一次比对时再算：
        * 登录可能发生在页面注册项目/教学适配器之前，那个时刻去问适配器会得到空集合，
        * 挂起也就形同虚设。
        */
-      meta.hold.previousOwner = previousOwner;
-      meta.hold.needsProjects = true;
-      meta.hold.needsTeaching = true;
+      if (!hasExistingBucket) {
+         meta.hold.previousOwner = previousOwner;
+         meta.hold.needsProjects = true;
+         meta.hold.needsTeaching = true;
+      }
       QUEUE.bind(userId);
       saveMeta();
    }

@@ -99,7 +99,7 @@
 | `web/` 前端层自动化测试 | 部分：规则检查与纯逻辑已覆盖，页面交互仍靠手测 |
 | 找回密码接口（老师/个人学习者） | 有意不做，见 `CLOUD_ARCHITECTURE.md` §4 |
 
-说明：当前页面已经通过 `CAIEStorage` 统一访问本地存储，并将 editor/teaching 旧数据镜像到 IndexedDB；为保证同步启动和 `file://` 兼容，页面读取仍使用兼容快照，尚未完成“完全由 IndexedDB entity 读取”的最终切换。多项目当前由编辑器的 `seedtocode.projects.v1` 注册表保存，教学数据仍按独立旧 key 通过 facade 访问。`deviceId` 是浏览器安装首次生成并持久化的随机 UUID（localStorage 为准，同一个值补写进 IndexedDB meta），不使用设备指纹。
+说明：当前页面已经通过 `CAIEStorage` 统一访问本地存储，并将 editor/teaching 旧数据镜像到 IndexedDB；为保证同步启动和 `file://` 兼容，页面读取仍使用兼容快照，尚未完成“完全由 IndexedDB entity 读取”的最终切换。多项目当前由编辑器的 `seedtocode.projects.v1` 注册表保存，教学数据仍按独立旧 key 通过 facade 访问。`deviceId` 是浏览器安装首次生成并持久化的随机 UUID（localStorage 为准，同一个值补写进 IndexedDB meta），不使用设备指纹。同步队列与项目/文件/教学同步 metadata 按账号分桶保存；账号切换不会丢掉另一账号的待发操作、revision 或 server-id 映射，重新登录原账号会恢复其分桶。可折叠状态以实体 generation 防止旧请求回调影响新编辑；章末题和作业提交是不可变事件，不会因同实体合并或队列容量而丢失。
 
 页面已接入云端：登录不是使用编辑器的前提，未登录、未配置 API、断网或会话失效时，本地编辑、保存、学习、做题和本地运行全部照常，且不启动同步队列。云端能力只认页面自身 origin（认证 `/auth/*`，其余 `/api/*`），会话为服务端写入的 HttpOnly cookie，页面只保存 `/auth/me` 返回的公开身份。同步队列持久化在本地，刷新与关闭页面不丢；队列只记录实体标识，内容与 `expectedRevision` 都在发送前从本地读取。项目同步覆盖 source 与 runtime 文件，不同步 `activeId`、当前项目、滚动位置或编辑器偏好；冲突保留本地内容并把服务端版本落成同项目内的“（云端副本）”文件；删除按带 revision 的 tombstone 上传，服务端 tombstone 只在本地未修改时才删除本地文件。云端运行执行编辑器内存中的 immutable snapshot，`projectId` 只用于归属；结果复用现有 `ExecutionResult` 渲染，运行时文件变更先写回本地再进队列；`SERVER_BUSY` 只显示统一繁忙提示，超限单独显示“文件过大”。教学完成状态只向“已完成”单调合并，阅读位置只同步 `chapterId`/`sectionId`（`scrollTop` 保持设备本地），题目草稿按 `章号/题号` 同步并在冲突时保留本地、把服务端版本存为可恢复草稿。章末大题的 `sectionId` 为 `chapterTask`，与普通小节一样同步完成状态和阅读位置，并出现在教师可读的班级进度中。章末大题的每一次「提交」还会写入 `practice_submissions` 并保留为不可变记录，教师可读取自己班级成员的答案内容与服务端判定的分数；分数和通过状态只由服务端重新判分产生，不读取客户端上传的值。小节练习题不进入提交记录，仍然只是学生自己的草稿。
 
