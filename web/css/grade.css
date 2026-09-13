@@ -118,8 +118,20 @@
 .g-meta-row { display: flex; gap: 8px; font-size: 11.5px; line-height: 20px; }
 .g-meta-k { flex: 0 0 54px; color: var(--text-faint); }
 .g-meta-v { flex: 1; min-width: 0; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* 「这个学生还没交」这类说明有也得占着位置，没有也得占着 */
-.g-note { min-height: 34px; margin: -6px 0 10px; font-size: 11.5px; line-height: 1.6; color: var(--text-faint); }
+/*
+ * 「这个学生还没交」这类说明：**定高**，不是 min-height。
+ *
+ * 原来写的是 `min-height: 34px` + 相对行高，凭感觉估的——那句话在 296px 宽的右栏里
+ * 实际占两行 37px，于是从一个交过的学生切到一个没交的，这一格长 3px，底下的分数、
+ * 评语、保存和「上一个 / 下一个」整列跟着往下挪（实测 16 个元素在动）。
+ * 现在行高写死 18px、高度写死两行 36px：一行还是两行都占同样的位置。
+ * 文案要保证在最窄的那一档（≤1180px 时右栏 248px）也不超过两行。
+ */
+.g-note {
+   height: 36px; margin: -6px 0 10px;
+   font-size: 11.5px; line-height: 18px; color: var(--text-faint);
+   overflow: hidden;
+}
 /* 自动检查只在课程题目上有。自出题没有用例，那一格说的是「没有」，不是「没跑通」 */
 .g-meta-v[data-auto="yes"] { color: var(--accent); }
 .g-meta-v[data-auto="no"] { color: var(--warn); }
