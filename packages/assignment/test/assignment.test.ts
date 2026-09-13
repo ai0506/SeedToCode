@@ -7,6 +7,7 @@ import {
   firstIncomplete,
   isLate,
   monthGrid,
+  orderAssignments,
   parseDraft,
   sameDay,
   serializeDraft,
@@ -247,5 +248,60 @@ describe("提交矩阵的汇总", () => {
     expect(all.perTask).toEqual([3, 3]);
     expect(all.perStudent).toEqual([2, 2, 2]);
     expect(all.submitted).toBe(all.total);
+  });
+});
+
+describe("作业列表的次序", () => {
+  /* 判据是「先分完成与否，再在段内分紧迫与新旧」，所以每个断言都只拿 id 比次序，
+     不比对象——列表上真正被看见的就是这个先后。 */
+  const ids = (rows: Array<{ id: string }>) => rows.map((row) => row.id);
+  type Row = { id: string; finished: boolean; dueAt: number | null; createdAt: number };
+  const order = (rows: Row[]) => ids(orderAssignments(rows, (row) => row));
+
+  it("没做完的整体排在做完的前面，哪怕做完的那份截止更早", () => {
+    expect(order([
+      { id: "早就交完的", finished: true, dueAt: 100, createdAt: 10 },
+      { id: "还没交的", finished: false, dueAt: 900, createdAt: 20 }
+    ])).toEqual(["还没交的", "早就交完的"]);
+  });
+
+  it("没做完的里面，截止越近越靠上；已经过期的排在最前", () => {
+    expect(order([
+      { id: "下周", finished: false, dueAt: 900, createdAt: 30 },
+      { id: "今晚", finished: false, dueAt: 300, createdAt: 20 },
+      { id: "已过期", finished: false, dueAt: 100, createdAt: 10 }
+    ])).toEqual(["已过期", "今晚", "下周"]);
+  });
+
+  it("不限时间的没有紧迫可言，排在未完成段的末尾", () => {
+    expect(order([
+      { id: "不限时间", finished: false, dueAt: null, createdAt: 99 },
+      { id: "下周到期", finished: false, dueAt: 900, createdAt: 10 }
+    ])).toEqual(["下周到期", "不限时间"]);
+  });
+
+  it("做完的一段只看新旧：新的在上", () => {
+    expect(order([
+      { id: "旧", finished: true, dueAt: 100, createdAt: 10 },
+      { id: "新", finished: true, dueAt: 900, createdAt: 90 }
+    ])).toEqual(["新", "旧"]);
+  });
+
+  it("两个不限时间的未完成作业之间，也是新的在上", () => {
+    expect(order([
+      { id: "旧", finished: false, dueAt: null, createdAt: 10 },
+      { id: "新", finished: false, dueAt: null, createdAt: 90 }
+    ])).toEqual(["新", "旧"]);
+  });
+
+  it("完全等价的两份保持传入次序（排序是稳定的）", () => {
+    expect(order([
+      { id: "先来的", finished: false, dueAt: 100, createdAt: 10 },
+      { id: "后来的", finished: false, dueAt: 100, createdAt: 10 }
+    ])).toEqual(["先来的", "后来的"]);
+  });
+
+  it("空列表不报错", () => {
+    expect(order([])).toEqual([]);
   });
 });

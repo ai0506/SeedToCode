@@ -29,6 +29,7 @@ var CAIEAssignment = (() => {
     firstIncomplete: () => firstIncomplete,
     isLate: () => isLate,
     monthGrid: () => monthGrid,
+    orderAssignments: () => orderAssignments,
     parseDraft: () => parseDraft,
     sameDay: () => sameDay,
     serializeDraft: () => serializeDraft,
@@ -146,6 +147,21 @@ var CAIEAssignment = (() => {
       });
     });
     return { perTask, perStudent, submitted, total: studentIds.length * taskIds.length };
+  }
+  function orderAssignments(rows, read) {
+    return rows.map((row, index) => ({ row, index, key: read(row) })).sort((a, b) => {
+      if (a.key.finished !== b.key.finished) return a.key.finished ? 1 : -1;
+      if (!a.key.finished) {
+        const dueA = a.key.dueAt ?? null;
+        const dueB = b.key.dueAt ?? null;
+        if (dueA === null !== (dueB === null)) return dueA === null ? 1 : -1;
+        if (dueA !== null && dueB !== null && dueA !== dueB) return dueA - dueB;
+      }
+      const madeA = a.key.createdAt ?? 0;
+      const madeB = b.key.createdAt ?? 0;
+      if (madeA !== madeB) return madeB - madeA;
+      return a.index - b.index;
+    }).map((entry) => entry.row);
   }
   return __toCommonJS(index_exports);
 })();

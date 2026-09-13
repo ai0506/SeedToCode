@@ -60,3 +60,9 @@
    max-height: 260px; overflow: auto; scrollbar-gutter: stable;
    white-space: pre-wrap; word-break: break-word;
 }
+
+/* 交齐了的作业排在列表底部（次序规则在 packages/assignment 的 orderAssignments）。
+   位置本身说明不了「为什么它在那儿」，所以卡片自己也淡一档——只改 opacity
+   和底色，不动任何几何（FRONTEND_RULES 1.1）。 */
+.hw-card[data-done="true"] { opacity: .72; }
+.hw-card[data-done="true"]:hover { opacity: 1; }
