@@ -468,13 +468,27 @@
          return;
       }
       var now = Date.now();
-      $("assignmentsBody").innerHTML = '<ul class="assign-list">' + assignments.map(function (item) {
+      /*
+       * 次序和学生那一页用同一个函数（packages/assignment 的 orderAssignments，有测试）：
+       * 先分做完没做完，再在没做完的里面按紧迫程度排。老师这边的「做完」＝**没有待批的**，
+       * 不是「过了截止时间」——过了截止但还有二十份没批，那份才最该排在最上面。
+       * 待批数由服务端一次 GROUP BY 数好（pendingCount），不用为两个数字把全班的代码拉一遍。
+       */
+      var ordered = CORE.orderAssignments(assignments, function (item) {
+         return { finished: !item.pendingCount, dueAt: item.dueAt, createdAt: item.createdAt };
+      });
+      $("assignmentsBody").innerHTML = '<ul class="assign-list">' + ordered.map(function (item) {
          var overdue = item.dueAt && item.dueAt < now;
+         var pending = item.pendingCount || 0;
          return '<li data-assignment-id="' + esc(item.id) + '">' +
             '<span class="assign-title">' + esc(item.title) + "</span>" +
             /* 原来这里逐条列 `自出题 自出题`，一个字的信息都没有。题名在详情里看，
                列表上只需要知道有几道。 */
             '<span class="assign-tasks">' + (item.items || []).length + " 道题</span>" +
+            /* 列表上最该回答的是「哪一份还等着我批」。槽位常驻，批完只换文字和颜色，
+               不删节点——否则批完一份，整行的其余部分就横着挪一下。 */
+            '<span class="assign-meta assign-pending" data-pending="' + (pending > 0) + '">' +
+            (pending ? pending + " 份待批" : item.submittedCount ? "已批完" : "还没人交") + "</span>" +
             '<span class="assign-meta assign-due" data-state="' + (overdue ? "over" : "") + '">' + esc(dueLabel(item.dueAt)) + "</span>" +
             "</li>";
       }).join("") + "</ul>";
@@ -524,6 +538,15 @@
 
    function taskLabel(entry) {
       return entry.kind === "custom" ? (entry.title || "自出题") : entry.id;
+   }
+
+   /* 批改自己一页（grade.html）：那里有题面、能运行、能一路切学生和题目。
+      弹框做不到这三件事里的任何一件。 */
+   function gradeHref(assignmentId, studentId, itemId) {
+      return "grade.html?class=" + encodeURIComponent(currentClassId) +
+         "&a=" + encodeURIComponent(assignmentId) +
+         "&s=" + encodeURIComponent(studentId) +
+         "&i=" + encodeURIComponent(itemId);
    }
 
    /** 左栏：这份作业出了什么题。题面和提示按原文显示，换行照旧。 */
@@ -582,7 +605,13 @@
          var done = counts.perStudent[studentIndex];
          var cells = tasks.map(function (entry, index) {
             var item = latest[student.id + "/" + entry.id];
-            if (!item) return '<td class="cell" data-col="' + index + '">未交</td>';
+            /* 每一格都通向批改页——包括「未交」那一格：老师在那儿也要能看到题面、
+               能顺着切到下一个人，而不是对着一个死格子。 */
+            var href = gradeHref(assignment.id, student.id, entry.id);
+            if (!item) {
+               return '<td class="cell" data-col="' + index + '">' +
+                  '<a class="btn btn-ghost small fixed-btn cell-link" href="' + esc(href) + '">未交</a></td>';
+            }
             if (item.submittedAt > newest) newest = item.submittedAt;
             // 迟交只是标出来，不改变判分，也从来没有拦过提交。
             var late = isLate(assignment, item);
@@ -595,11 +624,20 @@
             var mark = item.graded
                ? '<span class="score-chip" data-graded="true">' + (item.teacherScore === null ? "已阅" : item.teacherScore) + "</span>"
                : '<span class="score-chip" data-graded="false">待批</span>';
-            var runDot = '<span class="run-dot" data-ok="' + (item.serverPassed ? "yes" : "no") + '"' +
-               ' data-tip="' + (item.serverPassed ? "代码跑通了全部用例" : "有用例没跑通") + '（仅供参考，不是成绩）"></span>';
-            return '<td class="cell" data-col="' + index + '"><button class="btn btn-ghost small fixed-btn" data-assignment-answer="' + esc(item.id) + '">' +
+            /*
+             * 自动判分只在**课程题目**上有：老师自己出的题没有测试用例，服务端也从来
+             * 没有跑过它（submitAssignment 里 custom 一路直接跳过判分）。这里原来不管
+             * 三七二十一都画一个红点、写「有用例没跑通」——而那道题根本没有用例。
+             * 一句凭空捏造的坏消息，老师照着它扣分就成了冤枉。没有自动结果就不画点。
+             */
+            var runDot = item.autoGraded
+               ? '<span class="run-dot" data-ok="' + (item.serverPassed ? "yes" : "no") + '"' +
+                 ' data-tip="' + (item.serverPassed ? "代码跑通了全部用例" : "有用例没跑通") + '（仅供参考，不是成绩）"></span>'
+               : '<span class="run-dot" data-ok="none" data-tip="这道题没有测试用例，系统不判分"></span>';
+            return '<td class="cell" data-col="' + index + '">' +
+               '<a class="btn btn-ghost small fixed-btn cell-link" href="' + esc(href) + '">' +
                mark + runDot + (late ? '<span class="state-chip late-chip" data-state="late">迟交</span>' : "") +
-               "</button></td>";
+               "</a></td>";
          }).join("");
          return "<tr>" +
             '<td class="who"><span class="who-name">' + esc(student.displayName) + '</span><span class="who-id">' + esc(student.username) + "</span></td>" +
@@ -812,32 +850,21 @@
       } catch (error) { toast(describeError(error)); }
    }
 
+   /**
+    * 章末大题的提交：只看代码，不评分。
+    *
+    * 班级作业的批改已经搬到 grade.html 去了（那里有题面、能运行、能一路切学生和
+    * 题目），所以这个弹框现在只服务「章末大题」那一栏——那是学生自己的练习记录，
+    * 本来就不评分。原来这里那套打分控件跟着一起删掉了：留着它只会有第二个入口，
+    * 两处慢慢分叉。
+    */
    function openAnswer(submissionId) {
-      var item = submissions.filter(function (row) { return row.id === submissionId; })[0]
-         || assignmentSubmissions.filter(function (row) { return row.id === submissionId; })[0];
+      var item = submissions.filter(function (row) { return row.id === submissionId; })[0];
       if (!item) return;
-      var parentAssignment = assignments.filter(function (row) { return row.id === openAssignmentId; })[0];
-      var lateMark = isLate(parentAssignment, item) ? " · 迟交" : "";
-      $("answerTitle").textContent = (item.displayName || item.username || "学生") + " · " + item.taskId + lateMark;
-      $("answerMeta").textContent = when(item.submittedAt) + "　成绩由你给，下面的代码是学生提交的原文。";
+      $("answerTitle").textContent = (item.displayName || item.username || "学生") + " · " + item.taskId;
+      $("answerMeta").textContent = when(item.submittedAt) + "　这是学生自己的练习记录，不评分。";
+      $("answerState").textContent = item.serverPassed ? "代码跑通了全部用例" : "有用例没跑通";
 
-      // 只有班级作业的提交能打分；章末大题那一栏是学生自己的练习记录，不评分
-      var gradable = Boolean(openAssignmentId) && assignmentSubmissions.some(function (row) { return row.id === item.id; });
-      $("gradeBox").hidden = !gradable;
-      $("gradeSave").hidden = !gradable;
-      gradingSubmissionId = gradable ? item.id : null;
-      if (gradable) {
-         $("gradeScore").value = item.teacherScore === null || item.teacherScore === undefined ? "" : String(item.teacherScore);
-         $("gradeComment").value = item.teacherComment || "";
-         $("gradeError").textContent = "";
-         /* 只说「跑通了没有」，不给数字：给了数字就会被当成分数参考，而它并不是。
-            这一条的用处仅仅是省掉老师逐份手跑一遍代码。 */
-         $("gradeAuto").textContent = item.serverPassed ? "代码跑通了全部用例" : "有用例没跑通";
-         $("gradeAuto").dataset.ok = item.serverPassed ? "yes" : "no";
-         $("gradeState").textContent = item.graded ? "已于 " + when(item.gradedAt) + " 评分" : "尚未评分";
-      } else {
-         $("gradeState").textContent = item.serverPassed ? "代码跑通了全部用例" : "有用例没跑通";
-      }
       var code = item.answerContent || "";
       var highlighted = null;
       if (window.LANG && typeof window.LANG.highlight === "function") {
@@ -846,37 +873,6 @@
       if (highlighted) $("answerCode").innerHTML = highlighted;
       else $("answerCode").textContent = code;
       showDialog("answerDialog");
-   }
-
-   var gradingSubmissionId = null;
-
-   async function saveGrade() {
-      if (!gradingSubmissionId) return;
-      var raw = $("gradeScore").value.trim();
-      var comment = $("gradeComment").value.trim();
-      var score = null;
-      if (raw !== "") {
-         if (!/^\d{1,3}$/.test(raw) || Number(raw) > 100) { $("gradeError").textContent = "分数需为 0–100 的整数。"; return; }
-         score = Number(raw);
-      }
-      if (score === null && !comment) { $("gradeError").textContent = "填个分数或写句评语。"; return; }
-      try {
-         var data = await CLIENT.request(
-            "/api/classes/" + encodeURIComponent(currentClassId) + "/submissions/" + encodeURIComponent(gradingSubmissionId) + "/grade",
-            { method: "PUT", body: { score: score, comment: comment || null } }
-         );
-         // 就地更新这一条，不整页刷新——批改是连着做的，刷新会打断
-         assignmentSubmissions.forEach(function (row) {
-            if (row.id !== gradingSubmissionId) return;
-            row.teacherScore = data.submission.teacherScore;
-            row.teacherComment = data.submission.teacherComment;
-            row.gradedAt = data.submission.gradedAt;
-            row.graded = true;
-         });
-         closeDialogs();
-         renderAssignments();
-         toast(score === null ? "已记下评语。" : "已评 " + score + " 分。");
-      } catch (error) { $("gradeError").textContent = describeError(error); }
    }
 
    /* ---------------- 事件 ---------------- */
@@ -902,8 +898,6 @@
          })();
       });
 
-      $("gradeSave").addEventListener("click", function () { void saveGrade(); });
-      $("gradeScore").addEventListener("keydown", function (e) { if (e.key === "Enter") $("gradeSave").click(); });
       $("joinLockBtn").addEventListener("click", function () { void toggleJoinLock(); });
       $("newClassBtn").addEventListener("click", openClassDialog);
       $("classDialogOk").addEventListener("click", function () { void createClass(); });
@@ -933,8 +927,6 @@
       $("assignmentsBody").addEventListener("click", function (event) {
          var task = event.target.closest(".ad-task");
          if (task) { highlightColumn(Number(task.dataset.col)); return; }
-         var answer = event.target.closest("[data-assignment-answer]");
-         if (answer) { openAnswer(answer.dataset.assignmentAnswer); return; }
          var row = event.target.closest("li[data-assignment-id]");
          if (row) void openAssignment(row.dataset.assignmentId);
       });

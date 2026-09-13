@@ -1,0 +1,141 @@
+/* 批改作业页 grade.html
+ *
+ * 依赖 styles.css 的设计变量、teaching.css 的 .mini-editor（学生代码用的就是
+ * 学生写它时那一套两层编辑器）、teacher.css 的 .state-chip、custom-task.css 的
+ * .ct-console / .ct-guidance。这里只加这一页自己的三栏外壳。
+ *
+ * 版式规则和其余页面一致：
+ *  - body 不滚，只有各栏自己的滚动容器滚，且都有 scrollbar-gutter: stable
+ *  - 交互反馈只用 background / color / box-shadow / opacity
+ *  - 会变的文字进固定宽度槽位（顶栏的待批数、评分的保存状态）
+ */
+
+.grade-main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+/* 顶栏那句「还有 N 份待批」会在 5–10 个字之间变，给定宽槽位，
+   否则每批完一份，旁边的「刷新」按钮就横着挪一下（FRONTEND_RULES 1.2）。 */
+.g-progress-slot { width: 92px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- 题目切换条 ---------- */
+
+.g-tasks {
+   flex: 0 0 auto;
+   display: flex; gap: 6px; align-items: stretch;
+   padding: 8px 14px; border-bottom: 1px solid var(--border);
+   background: var(--bg-sunken);
+   overflow-x: auto; overflow-y: hidden;
+}
+.g-task-item {
+   flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+   max-width: 280px; height: 30px; padding: 0 11px;
+   border: 0; border-radius: var(--radius);
+   background: var(--bg-panel); color: var(--text-dim);
+   box-shadow: inset 0 0 0 1px var(--border);
+   font-family: inherit; font-size: 12px; cursor: pointer;
+   transition: background .12s ease, color .12s ease, box-shadow .12s ease;
+}
+.g-task-item:hover { background: var(--active-line); color: var(--text); }
+/* 选中态只换底色、字色和内描边——不动 border 宽度，也不加粗 */
+.g-task-item[aria-current="true"] {
+   background: var(--active-line); color: var(--text);
+   box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.g-task-no { flex: 0 0 auto; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.g-task-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-task-state { flex: 0 0 auto; font-size: 11px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.g-task-state[data-pending="true"] { color: var(--warn); }
+
+/* ---------- 三栏 ---------- */
+
+.grade-body { flex: 1; display: flex; min-height: 0; }
+
+.g-side {
+   flex: 0 0 228px; width: 228px;
+   display: flex; flex-direction: column; min-height: 0;
+   border-right: 1px solid var(--border);
+   background: var(--bg-panel);
+}
+/* 「2/3 已交」的宽度随数字变，定宽，否则切一道题左栏标题就抖 1px */
+#gSideCount { display: inline-block; width: 58px; text-align: right; font-variant-numeric: tabular-nums; }
+.g-students {
+   flex: 1; margin: 0; padding: 6px; list-style: none;
+   overflow-y: auto; scrollbar-gutter: stable;
+}
+.g-students li { margin: 0 0 3px; }
+.g-student {
+   display: flex; align-items: center; gap: 7px;
+   width: 100%; height: 40px; padding: 0 9px;
+   border: 0; border-radius: var(--radius);
+   background: transparent; color: var(--text);
+   font-family: inherit; font-size: 12.5px; text-align: left; cursor: pointer;
+   transition: background .12s ease, box-shadow .12s ease;
+}
+.g-student:hover { background: var(--active-line); }
+.g-student[aria-current="true"] { background: var(--active-line); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.g-student-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.g-student-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-student-id { font-size: 10.5px; color: var(--text-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 「未交 / 待批 / 87 分」宽度不一，给定宽槽位，免得右边的迟交标记跟着晃 */
+.g-student-state { flex: 0 0 46px; width: 46px; text-align: right; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.g-student-state[data-state="todo"] { color: var(--text-faint); }
+.g-student-state[data-state="pending"] { color: var(--warn); }
+.g-student-state[data-state="graded"] { color: var(--accent); }
+/* 迟交标记只有一部分人有，槽位常驻，不让整行左右跳（FRONTEND_RULES 1.3） */
+.late-slot { flex: 0 0 18px; width: 18px; background: transparent; }
+.g-student .state-chip { flex: 0 0 auto; }
+
+.g-center { flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; padding: 0; }
+/* 题面这一条带**高度固定**，不随题面长短变。跟着内容走的话，从一道长题切到一道
+   短题，底下的编辑器、运行按钮、输出框会整体往上跳一大截（FRONTEND_RULES 第 1 条）。
+   长题面在带子里自己滚。 */
+.g-prompt-scroll {
+   flex: 0 0 26vh; height: 26vh; overflow-y: auto; scrollbar-gutter: stable;
+   padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.g-prompt { font-size: 13px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+.g-editor { margin: 12px 16px 0; }
+/* 高度**定死**，不随代码行数变。min-height 的话，从 9 行的那个学生切到 8 行的那个，
+   编辑器会矮一行，底下的运行按钮和输出框跟着往上跳一格——切一个班三十个人就跳
+   三十次（FRONTEND_RULES 第 1 条）。长的代码在框里自己滚。 */
+.g-editor .mini-editor-body { height: 232px; min-height: 232px; }
+.g-run-row { display: flex; align-items: center; gap: 8px; padding: 10px 16px; }
+/* 「提交于 …」会在有无迟交之间变长，给定宽槽位 */
+.g-run-row .muted { width: 190px; text-align: right; }
+.g-console { margin: 0 16px 14px; flex: 1; min-height: 80px; }
+.g-center .ct-input-row { padding: 0 16px 14px; margin: 0; }
+
+.g-grade {
+   flex: 0 0 296px; width: 296px;
+   display: flex; flex-direction: column; min-height: 0;
+   border-left: 1px solid var(--border);
+   background: var(--bg-panel);
+}
+.g-grade-scroll { flex: 1; overflow-y: auto; scrollbar-gutter: stable; padding: 12px 14px; }
+
+/* 三行定高：提交 / 自动检查 / 批改。值一律单行，太长的用省略号，完整内容交给悬浮提示。
+   让它跟着文字长短伸缩的话，切一个学生整个右栏就上下跳一次。 */
+.g-meta { height: 78px; margin-bottom: 14px; padding: 9px 11px; border-radius: var(--radius); background: var(--bg-sunken); }
+.g-meta-row { display: flex; gap: 8px; font-size: 11.5px; line-height: 20px; }
+.g-meta-k { flex: 0 0 54px; color: var(--text-faint); }
+.g-meta-v { flex: 1; min-width: 0; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 「这个学生还没交」这类说明有也得占着位置，没有也得占着 */
+.g-note { min-height: 34px; margin: -6px 0 10px; font-size: 11.5px; line-height: 1.6; color: var(--text-faint); }
+/* 自动检查只在课程题目上有。自出题没有用例，那一格说的是「没有」，不是「没跑通」 */
+.g-meta-v[data-auto="yes"] { color: var(--accent); }
+.g-meta-v[data-auto="no"] { color: var(--warn); }
+.g-meta-v[data-auto="none"] { color: var(--text-faint); }
+
+.g-grade .grade-comment { width: 100%; min-height: 120px; }
+.g-grade-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+/* 「已保存」出现与消失都不许推动旁边的按钮 */
+.g-saved-slot { flex: 0 0 52px; width: 52px; text-align: right; }
+.g-nav { display: flex; gap: 8px; margin-top: 16px; }
+.g-nav .btn { flex: 1; }
+.g-nav-note { margin: 6px 0 0; line-height: 1.6; }
+
+/* 窄屏：学生栏和评分栏收窄，三栏仍然并排——批改本来就需要横向空间，
+   叠成一列会让「对照题面看代码」这件事失效。 */
+@media (max-width: 1180px) {
+   .g-side { flex-basis: 176px; width: 176px; }
+   .g-grade { flex-basis: 248px; width: 248px; }
+}

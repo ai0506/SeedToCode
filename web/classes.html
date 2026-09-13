@@ -7,7 +7,7 @@
 <title>班级 · SeedToCode</title>
 <link rel="stylesheet" href="css/styles.css?v=29">
 <link rel="stylesheet" href="css/account.css?v=4">
-<link rel="stylesheet" href="css/teacher.css?v=5">
+<link rel="stylesheet" href="css/teacher.css?v=6">
 </head>
 <body>
 
@@ -213,28 +213,19 @@
    </div>
 </div>
 
+<!--
+   章末大题的提交：只看代码，不评分——那是学生自己的练习记录。
+   班级作业的批改在 grade.html，那里有题面、能运行、能一路切学生和题目；
+   这个弹框里原来那套打分控件跟着搬走了，留着只会是第二个入口，两处慢慢分叉。
+-->
 <div class="dialog" id="answerDialog" hidden role="dialog" aria-label="学生答案">
    <div class="dialog-head"><span id="answerTitle">学生答案</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
    <div class="dialog-body">
       <p class="muted small dialog-meta" id="answerMeta"></p>
       <div class="answer-code"><pre id="answerCode" class="mono"></pre></div>
-
-      <!-- 打分。自动判分只是参考信号，成绩以这里为准。 -->
-      <div class="grade-box" id="gradeBox" hidden>
-         <div class="grade-row">
-            <label class="form-label" for="gradeScore">分数</label>
-            <input id="gradeScore" class="text-field grade-score" inputmode="numeric" autocomplete="off" placeholder="0–100">
-            <span class="muted small" id="gradeAuto"></span>
-         </div>
-         <textarea id="gradeComment" class="plain-area grade-comment" spellcheck="false"
-                   placeholder="给学生的评语（可选）。自动判分看不出思路和写法，这里写的才是他真正能看到的反馈。"></textarea>
-         <div class="field-error" id="gradeError"></div>
-      </div>
-
       <div class="dialog-actions">
-         <span class="muted small" id="gradeState"></span>
-         <button class="btn btn-ghost small fixed-btn" data-close>关闭</button>
-         <button class="btn btn-primary small fixed-btn" id="gradeSave" hidden>保存评分</button>
+         <span class="muted small" id="answerState"></span>
+         <button class="btn btn-primary small fixed-btn" data-close>关闭</button>
       </div>
    </div>
 </div>
@@ -246,13 +237,13 @@
 <script src="js/lang.js?v=11"></script>
 <script src="js/teaching-content.js?v=25"></script>
 <script src="js/tooltip.js?v=1"></script>
-<script src="js/assignment-core.js?v=1"></script>
+<script src="js/assignment-core.js?v=2"></script>
 <script src="js/storage.js?v=2"></script>
 <script src="js/auth-store.js?v=1"></script>
 <script src="js/cloud-client.js?v=5"></script>
 <script src="js/sync-queue.js?v=2"></script>
 <script src="js/sync-engine.js?v=6"></script>
 <script src="js/account-ui.js?v=11"></script>
-<script src="js/teacher-app.js?v=6"></script>
+<script src="js/teacher-app.js?v=7"></script>
 </body>
 </html>
