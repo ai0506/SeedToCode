@@ -103,7 +103,7 @@ git diff --check
 - 改教学题目或参考解后，运行 `npm run teaching:expected` 更新期望输出，再运行验证；不要手写或跳过快照生成。
 - 修改 `web/` 后，除自动测试外做真实浏览器检查。使用 `.claude/launch.json` 定义的 `web-static` 或 `seedtocode-dev` 配置启动预览，不要临时用 Bash 启动服务器；后者用于同源 Worker + 本地 D1 联测。纯静态预览不能证明云端能力。
 - 改 Worker 路由、认证、同步、运行或 migration 时，做 server typecheck 和对应本地 API/浏览器链路检查。`wrangler deploy --dry-run`、本地 D1、缓存的远端引用都不等于生产部署或生产验证。
-- 请求部署时，先在 `server/` 检查远端 migration 状态，再执行 `npx wrangler deploy`；没有用户明确授权，不要部署、写远端 D1 或改变线上配置。
+- 请求部署时，先在 `server/` 检查远端 migration 状态，再执行 `npx wrangler deploy`；没有用户明确授权，不要部署、写远端 D1 或改变线上配置。Worker 部署成功或 `workers.dev` 返回新资源，均不能证明自定义域名已更新：发布后还必须直接检查自定义域名的 `/health` 和本次改动的静态资源版本；若域名仍返回旧版本，先只读排查路由/绑定，未经明确确认不得猜测或改写生产路由。
 - 不修改源代码以“修正”失败测试的期望；先判断是规范、运行时、输出快照还是测试本身出错。
 
 每次完成任何修改（包括文档）后，在根目录 `updates.md` 追加 UTF-8 的一行记录，格式固定为：

@@ -584,3 +584,4 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 [CodeX][2609131558] 补充 SYNC_QUEUE_FIX_PLAN.md 的实施风险控制：要求本地原子持久化、跨标签协调、统一 Unicode 名称规范、二次同名冲突处理及删除后新意图语义，并扩展对应分期与验收矩阵；仅更新计划文档，未改同步实现、未执行测试或云端操作。
 [CodeX][2609131609] 实施同步队列 v2 第一阶段：队列与同步元数据改为按账号分桶，v1 记录可迁移，保存 generation、不可变提交与可恢复的 in-flight 重放，移除固定长度截断；新增队列/账号切换回归测试并统一 7 个页面的同步脚本缓存版本。验证：npm test（44 文件、665 项）及 git diff --check 通过；未部署、未写远端 D1。
 [CodeX][2609131619] 同步队列 v2 发布：更新云端架构、当前状态、Web 模块说明与 AGENTS.md 的账号分桶/generation/缓存版本教训；远端 D1 无待应用 migration，Wrangler dry-run 通过并部署 Worker df702a9f-3aa8-47d1-ad4d-cd00a14eec85。workers.dev 已验证 v=3/v=7 资源；自定义域名仍返回旧 HTML，未擅自修改其路由。验证：npm test（44 文件、665 项）、git diff --check 与本地浏览器加载通过。
+[CodeX][2609131621] 更正发布状态文档：自定义域名在无缓存响应中仍返回旧同步资源，不能视为已发布到当前 Worker；PROJECT_STATE.md、CLOUD_ARCHITECTURE.md 与 AGENTS.md 明确要求按自定义域名复验并在版本不一致时只读核对路由/绑定。验证：workers.dev 与自定义域名资源版本对比，未修改远端路由或 D1。
