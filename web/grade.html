@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="SeedToCode_favicon.png">
+<title>批改作业 · SeedToCode</title>
+<link rel="stylesheet" href="css/styles.css?v=29">
+<link rel="stylesheet" href="css/account.css?v=4">
+<link rel="stylesheet" href="css/teaching.css?v=16">
+<link rel="stylesheet" href="css/teacher.css?v=6">
+<link rel="stylesheet" href="css/grade.css?v=4">
+</head>
+<body>
+
+<!--
+   批改作业。
+
+   在这之前批改是班级面板里的一个弹框：一次只看得到一份提交，看完关掉、回到矩阵、
+   再点下一格。老师批一个班三十份，就要开关三十次弹框，而且弹框里既没有题面也
+   不能运行——想知道这段代码到底跑出什么，只能自己复制到实验室里去。
+
+   所以批改自己占一页，并且给足三样弹框给不了的东西：
+     · 题面就在旁边，对照着看学生写得对不对
+     · 代码能当场运行（本地运行，改了也不会回传给学生）
+     · 学生和题目都能直接切换，一路批到底不用回列表
+-->
+
+<header class="topbar">
+   <div class="topbar-left">
+      <a class="btn btn-ghost fixed-btn wide" id="backLink" href="classes.html">‹ 班级</a>
+      <div class="brand-lockup">
+         <img class="brand-logo" src="SeedToCode_favicon.png" alt="SeedToCode" width="26" height="26">
+         <div class="brand-block">
+            <span class="brand">SeedToCode</span>
+            <span class="brand-tag">Based on CAIE 9618</span>
+         </div>
+      </div>
+   </div>
+   <div class="topbar-center">
+      <div class="learn-title">
+         <span class="lt-ch" id="gAssignment"></span>
+         <span class="lt-sec" id="gDue"></span>
+      </div>
+   </div>
+   <div class="topbar-right">
+      <span class="muted small g-progress-slot" id="gProgress"></span>
+      <button class="btn btn-ghost small fixed-btn" id="gRefresh">刷新</button>
+   </div>
+</header>
+
+<!-- 未登录 / 不是老师 / 云端未配置，都落到这里 -->
+<div class="teacher-gate" id="gGate" hidden>
+   <h1 id="gateTitle"></h1>
+   <p class="muted" id="gateBody"></p>
+   <div class="hw-gate-actions" id="gateActions"></div>
+</div>
+
+<main class="grade-main" id="gMain">
+   <!-- 题目切换：一份作业里的几道题横着排，当前那道亮着 -->
+   <nav class="g-tasks" id="gTasks" aria-label="这份作业里的题目"></nav>
+
+   <div class="grade-body">
+      <aside class="g-side" id="gSideWrap">
+         <div class="panel-head"><span>学生</span><span class="head-actions"><span class="muted small" id="gSideCount"></span></span></div>
+         <ul class="g-students" id="gStudents"></ul>
+      </aside>
+
+      <section class="g-center">
+         <div class="pane-head">
+            <span class="pane-kicker">题目</span>
+            <span class="spacer"></span>
+            <span class="small muted" id="gTaskName"></span>
+         </div>
+         <div class="g-prompt-scroll">
+            <div class="g-prompt" id="gPrompt"></div>
+            <div class="ct-guidance" id="gGuidance" hidden>
+               <div class="ct-guidance-head">给学生的提示</div>
+               <div class="ct-guidance-body" id="gGuidanceBody"></div>
+            </div>
+         </div>
+
+         <div class="mini-editor g-editor">
+            <div class="mini-editor-head">
+               <span id="gCodeWho">学生的作答</span>
+               <span class="spacer"></span>
+               <span class="small muted">在这里改动只是为了试跑，不会回传给学生</span>
+               <button class="btn btn-ghost small fixed-btn" id="gRestore">复原</button>
+            </div>
+            <div class="mini-editor-body">
+               <div class="mini-gutter" id="gGutter" aria-hidden="true"></div>
+               <div class="mini-code">
+                  <pre class="mini-highlight" aria-hidden="true"><code></code></pre>
+                  <textarea id="gCode" spellcheck="false" wrap="off" aria-label="学生的作答"></textarea>
+               </div>
+            </div>
+         </div>
+
+         <div class="g-run-row">
+            <button class="btn btn-primary fixed-btn wide" id="gRun">▶ 运行</button>
+            <button class="btn btn-danger fixed-btn wide" id="gStop" hidden>■ 停止</button>
+            <span class="spacer"></span>
+            <span class="small muted" id="gSubmittedAt"></span>
+         </div>
+         <pre class="ct-console g-console" id="gConsole"></pre>
+         <div class="ct-input-row" id="gInputRow" hidden>
+            <input class="text-field" id="gInput" placeholder="程序在等输入" aria-label="输入">
+            <button class="btn small fixed-btn" id="gSend">送入</button>
+         </div>
+      </section>
+
+      <aside class="g-grade">
+         <div class="panel-head"><span>评分</span></div>
+         <div class="g-grade-scroll">
+            <div class="g-meta" id="gMeta"></div>
+            <p class="g-note" id="gNote"></p>
+
+            <div class="form-field">
+               <label class="form-label" for="gScore">分数</label>
+               <p class="form-note">0–100 的整数，可以留空只写评语。改完还能再改。</p>
+               <input id="gScore" class="text-field block grade-score" inputmode="numeric" autocomplete="off" placeholder="0–100">
+            </div>
+            <div class="form-field">
+               <label class="form-label" for="gComment">评语</label>
+               <p class="form-note">学生在「我的作业」里看得到这句话。</p>
+               <textarea id="gComment" class="plain-area grade-comment block" spellcheck="false"
+                         placeholder="写清楚哪儿对、哪儿要改。"></textarea>
+            </div>
+            <div class="field-error" id="gError"></div>
+            <div class="g-grade-actions">
+               <button class="btn btn-primary fixed-btn wide" id="gSave">保存评分</button>
+               <span class="muted small g-saved-slot" id="gSavedState"></span>
+            </div>
+            <div class="g-nav">
+               <button class="btn btn-ghost small fixed-btn wide" id="gPrev">‹ 上一个</button>
+               <button class="btn btn-ghost small fixed-btn wide" id="gNext">下一个 ›</button>
+            </div>
+            <p class="muted small g-nav-note">「下一个」会跳到这道题里下一个还没批的学生。</p>
+         </div>
+      </aside>
+   </div>
+</main>
+
+<div class="toast" id="toast" hidden><span id="toastText"></span><button id="toastAction" hidden></button></div>
+<div class="tooltip" id="tooltip" hidden></div>
+
+<script src="js/caie-spec.js"></script>
+<script src="js/lang.js?v=11"></script>
+<script src="js/code-input.js?v=1"></script>
+<script src="js/language-engine.js?v=13"></script>
+<script src="js/language-adapter.js?v=10"></script>
+<script src="js/runtime-engine.js?v=11"></script>
+<script src="js/runtime-messages.js?v=5"></script>
+<script src="js/teaching-content.js?v=25"></script>
+<script src="js/assignment-core.js?v=2"></script>
+<script src="js/tooltip.js?v=1"></script>
+<script src="js/storage.js?v=2"></script>
+<script src="js/auth-store.js?v=1"></script>
+<script src="js/cloud-client.js?v=5"></script>
+<script src="js/sync-queue.js?v=2"></script>
+<script src="js/sync-engine.js?v=6"></script>
+<script src="js/account-ui.js?v=11"></script>
+<script src="js/grade-page.js?v=2"></script>
+</body>
+</html>

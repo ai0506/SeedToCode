@@ -726,3 +726,28 @@ html[data-el-labels="on"] .block::after { opacity: 1; }
   white-space: pre;
 }
 .draft-table { font-family: var(--font-ui, system-ui, sans-serif); white-space: pre-wrap; }
+
+/* ---------- 题面提示 / 运行结果 / 等待输入 ----------
+   这三样最早长在 custom-task.css（学生做作业题那一页）里，后来老师的批改页
+   grade.html 也要一模一样的三样：题面下面的提示、一块运行输出、程序等输入时的那一行。
+   两边各留一份的话迟早分叉，所以挪到这里——两页本来就都加载 teaching.css。
+   类名保留 .ct- 前缀，只是因为它们生在那儿；现在它是共用组件，不是某一页的私有样式。 */
+
+.ct-guidance {
+   margin-top: 18px; padding: 11px 13px; border-radius: 6px; background: var(--hint-soft);
+}
+.ct-guidance-head { font-size: 12px; font-weight: 600; color: var(--hint); margin-bottom: 5px; }
+.ct-guidance-body { font-size: 12.5px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
+
+.ct-console-head { font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
+.ct-console {
+   margin: 0; min-height: 90px; max-height: 260px; overflow: auto; scrollbar-gutter: stable;
+   padding: 9px 11px; border-radius: var(--radius); background: var(--bg-sunken);
+   font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap;
+}
+.ct-console .err { color: var(--danger); }
+.ct-console .sys { color: var(--text-faint); }
+.ct-console .in { color: var(--hint); }
+
+.ct-input-row { display: flex; gap: 8px; margin-top: 10px; }
+.ct-input-row .text-field { flex: 1; }

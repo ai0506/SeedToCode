@@ -6,9 +6,9 @@
 <link rel="icon" type="image/png" href="SeedToCode_favicon.png">
 <title>作业题 · SeedToCode</title>
 <link rel="stylesheet" href="css/styles.css?v=29">
-<link rel="stylesheet" href="css/teaching.css?v=15">
+<link rel="stylesheet" href="css/teaching.css?v=16">
 <link rel="stylesheet" href="css/task.css?v=6">
-<link rel="stylesheet" href="css/custom-task.css?v=1">
+<link rel="stylesheet" href="css/custom-task.css?v=4">
 </head>
 <body>
 
@@ -16,6 +16,13 @@
    老师自己出的题。
    和课程题目不同：没有测试用例、不判分、不给对错反馈——学生写完自己运行看结果，
    成绩由老师批改。所以这一页只要三样：题面、一个能写能跑的编辑器、提交。
+
+   作答框和课程题用的是同一个编辑器（js/code-input.js）：三空格缩进、`<-` 自动转
+   `←`、行号、语法着色。在这之前它只是一个裸 textarea——同一个学生在课程题里养成
+   的手感，一到作业题就全部失效，而作业恰好是要交给老师看的那一份。
+
+   题目切换条在左栏顶上：一份作业往往不止一道题，原来每换一道都得退回作业列表
+   再点进来，中间还丢掉一次页面载入。
 -->
 
 <header class="topbar">
@@ -43,7 +50,12 @@
 
 <main class="task-split" id="split">
    <section class="task-pane task-pane-left">
-      <div class="pane-head"><span class="pane-kicker">题目</span></div>
+      <div class="pane-head">
+         <span class="pane-kicker">题目</span>
+         <span class="spacer"></span>
+         <span class="small muted ct-counter" id="ctCounter"></span>
+      </div>
+      <nav class="ct-switch" id="ctSwitch" aria-label="这份作业里的题目"></nav>
       <div class="pane-scroll">
          <h1 class="task-h1" id="ctTitle"></h1>
          <div class="ct-prompt" id="ctPrompt"></div>
@@ -51,6 +63,12 @@
             <div class="ct-guidance-head">老师的提示</div>
             <div class="ct-guidance-body" id="ctGuidanceBody"></div>
          </div>
+         <!--
+            老师给的分和评语放在**题目这一栏**，不放作答区。
+            放在作答区顶上的话，从一道批过的题切到一道没批的题，整个编辑器会往上跳
+            一大块（FRONTEND_RULES 第 1 条）；而且分数和评语说的本来就是这道题。
+         -->
+         <div class="task-feedback" id="ctFeedback" hidden></div>
       </div>
    </section>
 
@@ -63,8 +81,17 @@
          <span class="small muted">写完点「运行」自己看结果；这道题不自动判分，由老师批改</span>
       </div>
       <div class="pane-scroll">
-         <div class="task-feedback" id="ctFeedback" hidden></div>
-         <textarea id="ctCode" class="ct-code" spellcheck="false" aria-label="你的作答"></textarea>
+         <div class="mini-editor">
+            <div class="mini-editor-head"><span>你的作答</span><span class="spacer"></span>
+               <span class="small muted">三空格缩进 · <code class="mono">&lt;-</code> 自动转 <code class="mono">←</code></span></div>
+            <div class="mini-editor-body">
+               <div class="mini-gutter" id="ctGutter" aria-hidden="true"></div>
+               <div class="mini-code">
+                  <pre class="mini-highlight" aria-hidden="true"><code></code></pre>
+                  <textarea id="ctCode" spellcheck="false" wrap="off" placeholder="从这里开始写…" aria-label="你的作答"></textarea>
+               </div>
+            </div>
+         </div>
          <div class="ct-actions">
             <button class="btn btn-primary fixed-btn wide" id="ctRun">▶ 运行</button>
             <button class="btn btn-danger fixed-btn wide" id="ctStop" hidden>■ 停止</button>
@@ -93,6 +120,7 @@
 
 <script src="js/caie-spec.js"></script>
 <script src="js/lang.js?v=11"></script>
+<script src="js/code-input.js?v=1"></script>
 <script src="js/language-engine.js?v=13"></script>
 <script src="js/language-adapter.js?v=10"></script>
 <script src="js/runtime-engine.js?v=11"></script>
@@ -103,6 +131,6 @@
 <script src="js/cloud-client.js?v=5"></script>
 <script src="js/sync-queue.js?v=2"></script>
 <script src="js/sync-engine.js?v=6"></script>
-<script src="js/custom-task-page.js?v=3"></script>
+<script src="js/custom-task-page.js?v=5"></script>
 </body>
 </html>

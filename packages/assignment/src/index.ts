@@ -224,3 +224,46 @@ export function tally(
   });
   return { perTask, perStudent, submitted, total: studentIds.length * taskIds.length };
 }
+
+/* ---------------- 作业列表的次序 ---------------- */
+
+export type OrderKey = {
+  /** 这一份是不是已经「做完了」。学生端＝每道题都交了；老师端＝每一份提交都批过了。 */
+  finished: boolean;
+  dueAt?: number | null;
+  createdAt?: number | null;
+};
+
+/**
+ * 作业列表的次序。
+ *
+ * 服务端只按「截止时间升序、创建时间降序」排，那个次序里**做完的和没做的混在一起**：
+ * 一份两周前布置、早就交完的作业，只要截止时间靠前，就一直压在今晚要交的那份上面。
+ * 列表最该回答的问题是「我现在要做哪一份」，所以先按做没做分成两段：
+ *
+ *   1. 没做完的在上面。其中定了截止时间的按截止时间**升序**——越紧迫越靠上，
+ *      已经过期的排在最前（它才是最需要处理的那一件，不是可以忽略的那一件）。
+ *      不限时间的没有紧迫可言，排在这一段末尾，按新的在前。
+ *   2. 做完的在下面，一律按创建时间**降序**：新的相对靠上，旧的往下沉。
+ *
+ * 排序稳定（等价项保持传入次序），所以服务端次序仍然是最后一道兜底。
+ */
+export function orderAssignments<T>(rows: readonly T[], read: (row: T) => OrderKey): T[] {
+  return rows
+    .map((row, index) => ({ row, index, key: read(row) }))
+    .sort((a, b) => {
+      if (a.key.finished !== b.key.finished) return a.key.finished ? 1 : -1;
+      if (!a.key.finished) {
+        const dueA = a.key.dueAt ?? null;
+        const dueB = b.key.dueAt ?? null;
+        // 有截止时间的整体在前；两个都有就比截止时间
+        if ((dueA === null) !== (dueB === null)) return dueA === null ? 1 : -1;
+        if (dueA !== null && dueB !== null && dueA !== dueB) return dueA - dueB;
+      }
+      const madeA = a.key.createdAt ?? 0;
+      const madeB = b.key.createdAt ?? 0;
+      if (madeA !== madeB) return madeB - madeA;
+      return a.index - b.index;
+    })
+    .map((entry) => entry.row);
+}

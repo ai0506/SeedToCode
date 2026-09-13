@@ -332,7 +332,16 @@ export async function restoreAssignment(db: D1Database, teacher: AuthenticatedUs
 
 export async function listClassAssignments(db: D1Database, teacher: AuthenticatedUser, classId: string) {
   await ownedClass(db, teacher, classId);
-  return assignmentsForClass(db, classId);
+  const [assignments, progress] = await Promise.all([
+    assignmentsForClass(db, classId),
+    assignmentProgress(db, classId)
+  ]);
+  /* 只给老师这一路带上批改进度：学生那一路（listStudentAssignments）看的是自己交没交，
+     班上别人批到哪儿和他无关，也不该让他看见。 */
+  return assignments.map((assignment) => {
+    const counts = progress.get(assignment.id) ?? { submitted: 0, pending: 0 };
+    return { ...assignment, submittedCount: counts.submitted, pendingCount: counts.pending };
+  });
 }
 
 export async function listStudentAssignments(db: D1Database, student: AuthenticatedUser) {
@@ -674,6 +683,35 @@ async function assignmentsForClass(db: D1Database, classId: string) {
     "SELECT id, class_id, title, due_at, created_at, updated_at FROM assignments WHERE class_id = ?1 AND deleted_at IS NULL ORDER BY due_at IS NULL, due_at ASC, created_at DESC"
   ).bind(classId).all<AssignmentRow>();
   return attachItems(db, rows.results);
+}
+
+/**
+ * 每份作业批到哪儿了：收到几份、其中几份还没批。
+ *
+ * 老师面板的作业列表要按「还有没有待批的」排序——没批完的排在上面。前端自己算的话
+ * 得把每一份作业的全部提交（连着学生写的整段代码）都拉一遍，只为数两个数字；
+ * 一个班十份作业就是十次大响应。所以在这里一次 GROUP BY 数完。
+ *
+ * 只数**每人每题最近一次**：学生可以无限重传，按提交条数数会把改过三遍的那个人
+ * 算成三份待批。已经退班的学生不算（class_members 必须还是 active）。
+ */
+async function assignmentProgress(db: D1Database, classId: string): Promise<Map<string, { submitted: number; pending: number }>> {
+  const rows = await db.prepare(
+    "SELECT assignment_id, COUNT(*) AS submitted, SUM(CASE WHEN graded_at IS NULL THEN 1 ELSE 0 END) AS pending FROM (" +
+    "SELECT assignment_submissions.assignment_id AS assignment_id, assignment_submissions.graded_at AS graded_at, " +
+    "ROW_NUMBER() OVER (PARTITION BY assignment_submissions.assignment_id, assignment_submissions.student_id, assignment_submissions.task_id " +
+    "ORDER BY assignment_submissions.submitted_at DESC) AS rn " +
+    "FROM assignment_submissions " +
+    "JOIN assignments ON assignments.id = assignment_submissions.assignment_id " +
+    "JOIN class_members ON class_members.class_id = assignments.class_id AND class_members.user_id = assignment_submissions.student_id AND class_members.status = 'active' " +
+    "WHERE assignments.class_id = ?1 AND assignments.deleted_at IS NULL" +
+    ") WHERE rn = 1 GROUP BY assignment_id"
+  ).bind(classId).all<{ assignment_id: string; submitted: number; pending: number }>();
+  const out = new Map<string, { submitted: number; pending: number }>();
+  rows.results.forEach((row) => {
+    out.set(row.assignment_id, { submitted: Number(row.submitted) || 0, pending: Number(row.pending) || 0 });
+  });
+  return out;
 }
 
 async function gradeTask(taskId: string, source: string) {

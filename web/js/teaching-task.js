@@ -16,7 +16,9 @@
    var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
    var REVEAL_AFTER = 3;   // 同一题连续失败这么多次之后，才揭示具体用例
-   var INDENT = "   ";     // CAIE 伪代码一级缩进＝三空格
+   /* 作答框的输入约定（三空格缩进、`<-` 转 `←`、行号、着色）在 js/code-input.js 里，
+      课程题、作业题和老师批改页共用同一份实现。 */
+   var CODE = window.CAIECodeInput;
 
    /* ---------------- 文本 ---------------- */
 
@@ -478,24 +480,10 @@
       return locked.replace(/\n+$/, "").split("\n").length;
    }
 
-   function gutterHtml(from, to) {
-      var html = "";
-      for (var i = from; i <= to; i += 1) html += "<span>" + i + "</span>";
-      return html;
-   }
-
-   /**
-    * 作答区和课文里的示例代码必须长得一样——学生照着有颜色的例子写，
-    * 写出来的却是一片灰字，会以为自己写的不是同一种东西。
-    * 高亮器缺席时退回纯转义，作答区绝不能因为着色失败就变成空白。
-    */
-   function hl(source) {
-      var text = String(source == null ? "" : source);
-      if (window.LANG && typeof window.LANG.highlight === "function") {
-         try { return window.LANG.highlight(text); } catch (error) { /* 退回纯文本 */ }
-      }
-      return esc(text);
-   }
+   /* 行号、着色和输入约定都在 js/code-input.js（全局 CAIECodeInput）里，
+      作业题页和老师批改页用的是同一份——这里不留副本。 */
+   var gutterHtml = CODE.gutterHtml;
+   var hl = CODE.highlight;
 
    function renderWorkspace(task) {
       var lockedLines = lockedLineCount(task);
@@ -535,186 +523,6 @@
          '<div class="verdict-scroll"></div></div>' +
          '<div class="next-step" hidden></div>'
       );
-   }
-
-   /* ---------------- 作答框的输入约定 ---------------- */
-
-   /**
-    * 作答框和主编辑器遵守相同的赋值输入约定。
-    * 只转换刚输入的 `<-`，并且绝不改写字符串、字符字面量或注释里的文字。
-    */
-   function isInLiteralOrComment(line, column) {
-      var quote = null;
-      for (var i = 0; i < column; i += 1) {
-         var character = line[i];
-         if (quote) {
-            if (character === quote) quote = null;
-            continue;
-         }
-         if (character === '"' || character === "'") { quote = character; continue; }
-         if (character === "/" && line[i + 1] === "/") return true;
-      }
-      return quote !== null;
-   }
-
-   function convertTrailingAsciiArrow(textarea) {
-      var end = textarea.selectionStart;
-      if (end < 2 || textarea.value.slice(end - 2, end) !== "<-") return false;
-      var lineStart = textarea.value.lastIndexOf("\n", end - 1) + 1;
-      var line = textarea.value.slice(lineStart, end);
-      if (isInLiteralOrComment(line, end - 2 - lineStart)) return false;
-      textarea.setRangeText("←", end - 2, end, "end");
-      // setRangeText 不会派发 input 事件，着色层和行号槽都只在 input 事件里重绘：
-      // 不补发一次，画面还停在转换前的「<-」，而真实光标已经站到只有一个字符的
-      // 「←」后面，视觉上就成了「卡在 < 和 - 中间」，得等下一次真实按键才会重绘对齐。
-      textarea.dispatchEvent(new Event("input", { bubbles: true }));
-      return true;
-   }
-
-   function convertAsciiArrowsInPastedCode(text) {
-      return text.split("\n").map(function (line) {
-         var output = "";
-         var quote = null;
-         for (var i = 0; i < line.length; i += 1) {
-            var character = line[i];
-            if (quote) {
-               output += character;
-               if (character === quote) quote = null;
-               continue;
-            }
-            if (character === '"' || character === "'") { quote = character; output += character; continue; }
-            if (character === "/" && line[i + 1] === "/") { output += line.slice(i); break; }
-            if (character === "<" && line[i + 1] === "-") { output += "←"; i += 1; continue; }
-            output += character;
-         }
-         return output;
-      }).join("\n");
-   }
-
-   /* 和主编辑器一样走 execCommand：直接赋值 value 会清空浏览器的撤销栈，
-      Tab 缩进之后就再也 Ctrl+Z 不回去了。 */
-   function applyEdit(textarea, start, end, text, caret) {
-      textarea.focus();
-      textarea.setSelectionRange(start, end);
-      var ok = false;
-      try {
-         ok = text === ""
-            ? document.execCommand("delete")
-            : document.execCommand("insertText", false, text);
-      } catch (e) { ok = false; }
-      if (!ok) {
-         textarea.value = textarea.value.slice(0, start) + text + textarea.value.slice(end);
-         textarea.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-      var pos = caret === undefined ? start + text.length : caret;
-      textarea.setSelectionRange(pos, pos);
-   }
-
-   /** Tab / Shift+Tab / 行首退格：全部按三空格的停靠点走，与主编辑器一致。 */
-   function wireIndenting(textarea) {
-      function lineInfo() {
-         var s = textarea.selectionStart;
-         var start = textarea.value.lastIndexOf("\n", s - 1) + 1;
-         var end = textarea.value.indexOf("\n", s);
-         if (end === -1) end = textarea.value.length;
-         return { start: start, end: end, text: textarea.value.slice(start, end) };
-      }
-
-      textarea.addEventListener("keydown", function (event) {
-         if (event.isComposing || event.keyCode === 229) return;
-
-         if (event.key === "Tab") {
-            event.preventDefault();
-            var s = textarea.selectionStart;
-            var e = textarea.selectionEnd;
-            if (s !== e && textarea.value.slice(s, e).indexOf("\n") >= 0) {
-               var blockStart = textarea.value.lastIndexOf("\n", s - 1) + 1;
-               var blockEnd = textarea.value.indexOf("\n", e);
-               if (blockEnd === -1) blockEnd = textarea.value.length;
-               var original = textarea.value.slice(blockStart, blockEnd);
-               var block = original.split("\n").map(function (line) {
-                  if (!event.shiftKey) return INDENT + line;
-                  var lead = (line.match(/^ */) || [""])[0].length;
-                  return lead ? line.slice(((lead - 1) % 3) + 1) : line;
-               }).join("\n");
-               if (block === original) return;
-               applyEdit(textarea, blockStart, blockEnd, block);
-               textarea.setSelectionRange(blockStart, blockStart + block.length);
-               return;
-            }
-            if (event.shiftKey) {
-               var li = lineInfo();
-               var lead2 = (li.text.match(/^ */) || [""])[0].length;
-               if (lead2 > 0) {
-                  var cut = ((lead2 - 1) % 3) + 1;
-                  applyEdit(textarea, li.start, li.start + cut, "", Math.max(li.start, s - cut));
-               }
-               return;
-            }
-            applyEdit(textarea, s, e, INDENT);
-            return;
-         }
-
-         if (event.key === "Enter") {
-            // 只延续当前缩进，不自动补结束符——作答区没有主编辑器的结构感知。
-            var info = lineInfo();
-            var indent = (info.text.match(/^ */) || [""])[0];
-            if (!indent) return;
-            event.preventDefault();
-            applyEdit(textarea, textarea.selectionStart, textarea.selectionEnd, "\n" + indent);
-            return;
-         }
-
-         if (event.key === "Backspace" && textarea.selectionStart === textarea.selectionEnd) {
-            var caret = textarea.selectionStart;
-            var row = lineInfo();
-            var column = caret - row.start;
-            if (column > 0 && /^ +$/.test(row.text.slice(0, column))) {
-               event.preventDefault();
-               applyEdit(textarea, caret - (((column - 1) % 3) + 1), caret, "");
-            }
-         }
-      });
-   }
-
-   /**
-    * 行号槽。诊断按行号说话，作答区没有行号等于让学生自己数。
-    * offset 是锁定片段的行数——编号必须和提交上去的整段源码对齐，
-    * 否则「第 5 行」指到的位置和学生数出来的差好几行。
-    */
-   function wireGutter(textarea, gutter, offset) {
-      var from = (offset || 0) + 1;
-      function paint() {
-         var count = textarea.value.split("\n").length;
-         if (gutter.childElementCount === count) return;
-         gutter.innerHTML = gutterHtml(from, offset + count);
-      }
-      textarea.addEventListener("input", paint);
-      textarea.addEventListener("scroll", function () { gutter.scrollTop = textarea.scrollTop; }, { passive: true });
-      paint();
-   }
-
-   /**
-    * 着色层垫在透明 textarea 底下，两层的字体、行高、内边距和换行方式必须逐项一致，
-    * 否则光标会和看到的字错位。两层都不换行（textarea 上是 wrap="off"），
-    * 所以横向滚动也要跟着同步，不然长行一划出去颜色就掉队了。
-    */
-   function wireHighlight(textarea, layer) {
-      var code = layer.querySelector("code") || layer;
-      var last = null;
-      function paint() {
-         if (textarea.value === last) return;
-         last = textarea.value;
-         // 末行是空行时补一个零宽字符，不然着色层会比 textarea 矮一行、滚动量对不上
-         code.innerHTML = hl(last) + (/\n$/.test(last) ? "\u200b" : "");
-      }
-      function sync() {
-         layer.scrollTop = textarea.scrollTop;
-         layer.scrollLeft = textarea.scrollLeft;
-      }
-      textarea.addEventListener("input", function () { paint(); sync(); });
-      textarea.addEventListener("scroll", sync, { passive: true });
-      paint();
    }
 
    /* ---------------- 判题结果 ---------------- */
@@ -885,7 +693,6 @@
       // 只统计「跑到用例这一层还没过」的次数：语法错误的提交不算，
       // 因为那时学生根本还没开始对付数据。
       var failedRuns = 0;
-      var composing = false;
       var saveTimer = null;
 
       // 这道题是不是老师布置的作业：异步问一次，拿到了再标记，问不到就当不是。
@@ -952,9 +759,9 @@
          renderDraftConflict();
       }
 
-      if (gutter) wireGutter(textarea, gutter, lockedLineCount(task));
-      if (highlight) wireHighlight(textarea, highlight);
-      wireIndenting(textarea);
+      /* 行号、着色层、三空格缩进、`<-` 转 `←`（含粘贴）一次装好，
+         实现在 js/code-input.js，和作业题页、老师批改页同一份。 */
+      CODE.attach(textarea, { gutter: gutter, highlight: highlight, lineOffset: lockedLineCount(task) });
 
       function markSaved() {
          if (!saveSlot) return;
@@ -980,23 +787,11 @@
             .join("\n");
       }
 
-      textarea.addEventListener("compositionstart", function () { composing = true; });
-      textarea.addEventListener("compositionend", function () { composing = false; scheduleSave(); });
+      // 箭头转换和粘贴归一化由 CODE.attach 负责；这里只管草稿。
+      textarea.addEventListener("compositionend", function () { scheduleSave(); });
       textarea.addEventListener("input", function () {
          if (!suppressSave) pristine = false;
-         if (!composing) convertTrailingAsciiArrow(textarea);
          scheduleSave();
-      });
-      textarea.addEventListener("paste", function (event) {
-         var clipboard = event.clipboardData || window.clipboardData;
-         var text = clipboard && clipboard.getData("text");
-         if (!text || text.indexOf("<-") < 0) return;
-         var converted = convertAsciiArrowsInPastedCode(text.replace(/\r\n?/g, "\n"));
-         if (converted === text) return;
-         event.preventDefault();
-         textarea.setRangeText(converted, textarea.selectionStart, textarea.selectionEnd, "end");
-         // 同样不会自动派发 input 事件，着色层和行号槽要靠这一下补发才会跟着粘贴内容重绘。
-         textarea.dispatchEvent(new Event("input", { bubbles: true }));
       });
 
       $("[data-act='reset']", root).addEventListener("click", function () {

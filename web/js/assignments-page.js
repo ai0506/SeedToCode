@@ -12,6 +12,9 @@
    var CLIENT = window.CloudClient;
    var AUTH = window.AuthStore;
    var course = (window.CAIETeaching && window.CAIETeaching.course) || { chapters: [] };
+   /* 列表次序在 packages/assignment 里（js/assignment-core.js 打成全局），那边有测试。
+      老师面板用的是同一个函数——两边的「哪份排在上面」必须是同一条规则。 */
+   var CORE = window.CAIEAssignment;
 
    function esc(value) {
       return String(value == null ? "" : value)
@@ -68,11 +71,25 @@
       var totalTasks = 0;
       var doneTasks = 0;
 
-      $("hwList").innerHTML = assignments.map(function (item) {
+      /*
+       * 服务端只按「截止时间升序、创建时间降序」排，那个次序里做完的和没做的混在
+       * 一起：两周前布置、早就交完的一份，只要截止更早就一直压在今晚要交的上面。
+       * 这一页最该回答的是「我现在要做哪一份」，所以先分做没做，再在未完成里按
+       * 紧迫程度排。判据是「每道题都交了」才算完成——批没批是老师的事，不是学生的。
+       */
+      var ordered = CORE.orderAssignments(assignments, function (item) {
+         var mine = submissions[item.id] || {};
+         var tasks = item.items || [];
+         var finished = tasks.length > 0 && tasks.every(function (entry) { return Boolean(mine[entry.id]); });
+         return { finished: finished, dueAt: item.dueAt, createdAt: item.createdAt };
+      });
+
+      $("hwList").innerHTML = ordered.map(function (item) {
          var mine = submissions[item.id] || {};
          var overdue = item.dueAt && item.dueAt < now;
          var tasks = item.items || [];
          var finished = tasks.filter(function (entry) { return mine[entry.id]; }).length;
+         var allDone = tasks.length > 0 && finished === tasks.length;
          totalTasks += tasks.length;
          doneTasks += finished;
 
@@ -111,12 +128,15 @@
                "</span></div>" + answer + comment;
          }).join("");
 
-         return '<section class="hw-card">' +
+         /* 排序把做完的沉到底下了，但光靠位置说明不了「为什么它在那儿」。
+            卡片自己也要说一句，否则学生只会觉得次序在乱跳。 */
+         return '<section class="hw-card" data-done="' + allDone + '">' +
             '<div class="hw-head"><span class="hw-title">' + esc(item.title) + "</span>" +
             '<span class="hw-due" data-late="' + Boolean(overdue) + '">' +
             (item.dueAt ? (overdue ? "已过截止 · " : "截止 ") + when(item.dueAt) : "不限时间") + "</span></div>" +
             '<div class="hw-progress">共 ' + tasks.length + " 道，已交 " + finished + " 道" +
-            (overdue ? "　现在提交算迟交，但仍然可以交" : "") + "</div>" +
+            (allDone ? "　这一份已经交齐了" : "") +
+            (overdue && !allDone ? "　现在提交算迟交，但仍然可以交" : "") + "</div>" +
             rows + "</section>";
       }).join("");
 
@@ -124,7 +144,8 @@
          和引号必须原样显示，也绝不能当成标记解析。 */
       var codeBlocks = document.querySelectorAll(".hw-answer-code");
       var index = 0;
-      assignments.forEach(function (item) {
+      // 必须按**画出来的那个次序**走：按原始次序遍历会把代码填进别人的那一块
+      ordered.forEach(function (item) {
          var mine = submissions[item.id] || {};
          (item.items || []).forEach(function (entry) {
             var sub = mine[entry.id];

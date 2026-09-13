@@ -1,37 +1,59 @@
-/* 老师自出题的做题页。没有用例、没有判题反馈，所以比课程题目简单得多。 */
+/* 老师自出题的做题页。没有用例、没有判题反馈，所以比课程题目简单得多。
+ *
+ * 老师的提示（.ct-guidance）、运行结果（.ct-console）和等待输入那一行（.ct-input-row）
+ * 搬去了 teaching.css：老师的批改页 grade.html 用的是同一批组件，两边各留一份迟早分叉。
+ * 这里只剩这一页自己的东西。 */
 
 .ct-prompt {
    font-size: 13.5px; line-height: 1.85; white-space: pre-wrap; word-break: break-word;
 }
-.ct-guidance {
-   margin-top: 18px; padding: 11px 13px; border-radius: 6px; background: var(--hint-soft);
-}
-.ct-guidance-head { font-size: 12px; font-weight: 600; color: var(--hint); margin-bottom: 5px; }
-.ct-guidance-body { font-size: 12.5px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; }
 
-.ct-code {
-   display: block; width: 100%; height: 300px; resize: vertical;
-   font-family: var(--font-mono); font-size: 13px; line-height: var(--editor-line-height);
-   padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius);
-   background: var(--bg-panel); color: var(--text); tab-size: 3;
-   transition: box-shadow .12s ease;
+/* 作答框本身是 css/teaching.css 里的 .mini-editor（和课程题目同一套两层结构）。
+   这里只给它一个下边距，别的都不要改——两层的字体、行高、内边距一旦在这儿被
+   覆盖掉一项，光标就会和看到的字错位。 */
+.mini-editor { margin-bottom: 4px; }
+.mini-editor-body { min-height: 260px; }
+
+/* 题目切换条：一份作业里的几道题横着排，当前那道亮着。
+   高度固定，换题时不许把下面的题面顶上顶下。 */
+.ct-switch {
+   display: flex; gap: 6px; align-items: stretch;
+   padding: 8px 14px; border-bottom: 1px solid var(--border);
+   background: var(--bg-sunken);
+   overflow-x: auto; overflow-y: hidden;
 }
-.ct-code:focus { outline: none; box-shadow: 0 0 0 3px var(--ring); }
+.ct-switch-item {
+   flex: 0 0 auto; display: flex; align-items: center; gap: 7px;
+   max-width: 240px; height: 30px; padding: 0 10px;
+   border: 0; border-radius: var(--radius);
+   background: var(--bg-panel); color: var(--text-dim);
+   box-shadow: inset 0 0 0 1px var(--border);
+   font-family: inherit; font-size: 12px; cursor: pointer;
+   transition: background .12s ease, color .12s ease, box-shadow .12s ease;
+}
+.ct-switch-item:hover { background: var(--active-line); color: var(--text); }
+/* 选中态只换底色、字色和内描边——不动 border 宽度，也不加粗（FRONTEND_RULES 1.2） */
+.ct-switch-item[aria-current="true"] {
+   background: var(--active-line); color: var(--text);
+   box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.ct-switch-no { flex: 0 0 auto; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.ct-switch-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ct-switch-state { flex: 0 0 auto; font-size: 11px; }
+.ct-switch-state[data-state="todo"] { color: var(--text-faint); }
+.ct-switch-state[data-state="done"] { color: var(--hint); }
+.ct-switch-state[data-state="graded"] { color: var(--accent); }
+/* 「第 N / M 题」宽度会变，给定宽槽位，免得把左边的标题推来推去 */
+.ct-counter { width: 78px; text-align: right; font-variant-numeric: tabular-nums; }
 
 .ct-actions { display: flex; align-items: center; gap: 8px; margin: 10px 0 14px; }
 .ct-actions .spacer { flex: 1; }
-/* 「已保存 / 保存中」是会变的文字，给固定宽度，免得把提交按钮推来推去 */
-.ct-actions .muted { width: 56px; text-align: right; }
+/* 「已保存 / 保存中」是会变的文字，给固定宽度，免得把提交按钮推来推去。
+   高度也要占住：空着的时候塌成 0，这一格自己就在行里上下挪一下（FRONTEND_RULES 1.3）。 */
+.ct-actions .muted { width: 56px; min-height: 16px; line-height: 16px; text-align: right; }
 
-.ct-console-head { font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
-.ct-console {
-   margin: 0; min-height: 90px; max-height: 260px; overflow: auto; scrollbar-gutter: stable;
-   padding: 9px 11px; border-radius: var(--radius); background: var(--bg-sunken);
-   font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap;
-}
-.ct-console .err { color: var(--danger); }
-.ct-console .sys { color: var(--text-faint); }
-.ct-console .in { color: var(--hint); }
 
-.ct-input-row { display: flex; gap: 8px; margin-top: 10px; }
-.ct-input-row .text-field { flex: 1; }
+/* 老师的批改摆在**题目**这一栏（题面、提示的下面），不在作答区顶上：
+   放在作答区的话，从一道批过的题切到一道没批的题，整个编辑器会往上跳一大块。
+   task.css 那份样式是按「贴在作答区顶上」写的，下边距在这里要换成上边距。 */
+.task-pane-left .task-feedback { margin: 18px 0 0; }

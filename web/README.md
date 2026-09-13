@@ -28,6 +28,7 @@ node scripts/dev-proxy.mjs
 | `js/language-adapter.js` | 结构化诊断的中文消息、范围及 TextEdit 页面适配 |
 | `js/runtime-engine.js` | 从 `packages/runtime` 生成的 IIFE 阶段 4 解释器 |
 | `js/lang.js` | 不改变源代码的轻量语法高亮 |
+| `js/code-input.js` | `CAIECodeInput`：作答框的输入约定，一份实现。三空格缩进（Tab / Shift+Tab / 行首退格按停靠点）、回车延续缩进、`<-` → `←`（含粘贴，字符串与注释内不动）、行号槽、着色层，全部走 `execCommand` 以保住原生撤销栈。课程题目、作业题和老师批改页共用——不留副本，副本会和被用的那一份悄悄分叉 |
 | `js/samples.js` | 新建项目的初始源文件（Main / BubbleSort / FileCopy）与运行时虚拟文件（Names.txt / Report.txt），另含历史样例快照 `legacy`，供「项目是否一个字没改过」的判断识别老设备上的旧出厂内容 |
 | `js/app.js` | 界面逻辑：项目、编辑器、文件管理、诊断展示、真实运行 |
 | `js/tooltip.js` | 共用的自定义悬浮提示：页面一律用 `data-tip`，不用原生 `title` |
@@ -40,12 +41,13 @@ node scripts/dev-proxy.mjs
 | `css/account.css` | 账户面板、云端空间提示与题目草稿冲突提示的样式，不改动既有版式 |
 | `learn.html` + `js/teaching-app.js` | 教学页：课文、关卡、进度；题目位置只放入口卡 |
 | `task.html` + `js/task-page.js` + `css/task.css` | 独立做题页：左题面 / 右作答，左右各自滚动 |
-| `js/teaching-task.js` | 两个教学页共用的题目实现：题面、作答区、判题、进度、草稿 |
-| `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分 |
-| `assignments.html` + `js/assignments-page.js` + `css/assignments.css` | 学生的作业页：每道题的状态、老师给的分与评语 |
+| `js/teaching-task.js` | 两个教学页共用的题目实现：题面、作答区、判题、进度、草稿。作答框的输入约定走 `code-input.js` |
+| `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分。左栏顶上一条题目切换条，同一份作业里的几道题就地换；作答框用共用的 `code-input.js` |
+| `assignments.html` + `js/assignments-page.js` + `css/assignments.css` | 学生的作业页：每道题的状态、老师给的分与评语。列表先按「每道题都交了」分两段，没交齐的在上面 |
 | `login.html` + `js/login-page.js` + `css/login.css` | 独立登录页：先问登录还是注册，再选身份（学生 / 老师 / 个人学习者），最后才是对应的表单；三步共用一个高度受控容器，换屏做一次短过渡 |
-| `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、作业列表与作业详情（左栏题面、右栏提交矩阵） |
+| `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、作业列表（按待批与否分段排序）与作业详情（左栏题面、右栏提交矩阵，每一格通向 `grade.html`） |
 | `js/assignment-core.js` | `packages/assignment` 的浏览器打包（全局 `CAIEAssignment`）：日期与月格、草稿快照、提交前校验、迟交判定、提交汇总。出题页和老师面板都用这一份，不留副本——副本会和被测的那份悄悄分叉 |
+| `grade.html` + `js/grade-page.js` + `css/grade.css` | 老师的批改页：左学生、中题面 + 学生代码 + 本地运行、右评分。题目和学生都能直接切，「下一个」跳到下一个还没批的人。代码用共用的 `code-input.js` 画，行号和学生那边一致 |
 | `assign.html` + `js/assign-page.js` + `css/assign.css` | 布置 / 编辑一份班级作业：左侧大纲、右侧逐题写题面和提示，自定义日期选择器，本地草稿 |
 
 ## 语言规范文档
@@ -101,6 +103,8 @@ node scripts/dev-proxy.mjs
 - 悬停、选中、聚焦只改变 background / color / box-shadow / opacity；选中态用 `box-shadow: inset` 画边线，不使用 border 宽度变化；焦点环用 `box-shadow` 与 `outline`，不挤压相邻元素。
 - 查找栏浮在编辑器之上（绝对定位），不再把编辑区往下推；输入行常驻，等待输入时只换底色与可用状态，控制台高度不变。
 - 所有滚动容器使用 `scrollbar-gutter: stable`；`body` 不滚动，弹层为 `position: fixed`，打开时背景不横向跳动。
+- 会跟着内容长短伸缩的区域一律定高，内部自己滚：批改页的题面条（26vh）、代码框、右栏那块三行的提交信息，作业题页的代码框。跟着内容走的话，切一个学生或切一道题，底下的按钮和输出框会整体跳一次——这三处都是先用文末的 `getBoundingClientRect` 快照法量出来才发现的（批改页切学生原本有 12 个元素在动，切题有 40 多个；改完两次都只剩被操作区域自己的内容变化）。
+- 老师给的分和评语放在作业题页的**题目**栏而不是作答区顶上：放作答区的话，从批过的题切到没批的题，整个编辑器会往上跳一大块。
 - 动效只用 `opacity` 与 `transform`，时长 0.12–0.15s。
 
 **不使用浏览器原生交互界面**
