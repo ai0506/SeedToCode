@@ -42,7 +42,7 @@ node scripts/dev-proxy.mjs
 | `learn.html` + `js/teaching-app.js` | 教学页：课文、关卡、进度；题目位置只放入口卡 |
 | `task.html` + `js/task-page.js` + `css/task.css` | 独立做题页：左题面 / 右作答，左右各自滚动 |
 | `js/teaching-task.js` | 两个教学页共用的题目实现：题面、作答区、判题、进度、草稿。作答框的输入约定走 `code-input.js` |
-| `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分。左栏顶上一条题目切换条，同一份作业里的几道题就地换；作答框用共用的 `code-input.js` |
+| `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分。左栏顶上一条题目切换条（未交 / 已改 / 已交 / 已批），同一份作业里的几道题就地换；作答框用共用的 `code-input.js`；「提交」是唯一的主按钮，内容和上次交的逐字节相同时它不可用（`aria-disabled`，悬浮说明为什么），避免堆出一串相同版本 |
 | `assignments.html` + `js/assignments-page.js` + `css/assignments.css` | 学生的作业页：每道题的状态、老师给的分与评语。列表先按「每道题都交了」分两段，没交齐的在上面 |
 | `login.html` + `js/login-page.js` + `css/login.css` | 独立登录页：先问登录还是注册，再选身份（学生 / 老师 / 个人学习者），最后才是对应的表单；三步共用一个高度受控容器，换屏做一次短过渡 |
 | `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、作业列表（按待批与否分段排序）与作业详情（左栏题面、右栏提交矩阵，每一格通向 `grade.html`） |

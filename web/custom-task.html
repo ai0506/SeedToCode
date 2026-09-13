@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="css/styles.css?v=29">
 <link rel="stylesheet" href="css/teaching.css?v=16">
 <link rel="stylesheet" href="css/task.css?v=6">
-<link rel="stylesheet" href="css/custom-task.css?v=4">
+<link rel="stylesheet" href="css/custom-task.css?v=5">
 </head>
 <body>
 
@@ -92,12 +92,19 @@
                </div>
             </div>
          </div>
+         <!--
+            「运行」退回普通按钮、「提交」做成这一行唯一的主按钮：两个都染成主色就
+            等于一个都不是主的，而交上去才是这一页真正要办的事。
+            提交状态是一个定宽三字的常驻槽位（未提交 / 有改动 / 已交过），
+            完整的一句话在按钮的 data-tip 里——这一行放不下整句。
+         -->
          <div class="ct-actions">
-            <button class="btn btn-primary fixed-btn wide" id="ctRun">▶ 运行</button>
+            <button class="btn fixed-btn wide" id="ctRun">▶ 运行</button>
             <button class="btn btn-danger fixed-btn wide" id="ctStop" hidden>■ 停止</button>
             <span class="spacer"></span>
             <span class="small muted" id="ctSaveState"></span>
-            <button class="btn btn-primary fixed-btn wide" id="ctSubmit">提交</button>
+            <span class="small ct-submit-state" id="ctSubmitState" data-state=""></span>
+            <button class="btn btn-primary ct-submit" id="ctSubmit">提交</button>
          </div>
          <div class="ct-console-head">运行结果</div>
          <pre class="ct-console" id="ctConsole"></pre>
@@ -131,6 +138,6 @@
 <script src="js/cloud-client.js?v=5"></script>
 <script src="js/sync-queue.js?v=3"></script>
 <script src="js/sync-engine.js?v=7"></script>
-<script src="js/custom-task-page.js?v=5"></script>
+<script src="js/custom-task-page.js?v=6"></script>
 </body>
 </html>
