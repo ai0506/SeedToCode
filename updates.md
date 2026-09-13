@@ -603,3 +603,9 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 **布局稳定性**（快照法实测）：敲一个字让按钮从「已提交」翻到「重新提交」、槽位从「已交过」翻到「有改动」、切换条从「已交」翻到「已改」，**移动的元素只有着色层的 `<code>` 自己**（内容宽了一个字符）。按钮宽度写死 96px 而不是 `min-width`（三种文案 2–4 个字），状态槽位定宽 42px 且空着时也占住行高。
 
 缓存版本号：`custom-task-page.js` 5→6、`custom-task.css` 4→5。`npm test` 43 文件 665 项全绿。
+已部署。PR #11 合进 `main`（`a64aa33`），远端分支已删；Worker 部署为 `0d9359e1-8803-4539-90da-d851ce8c4173`（这一版同时带着另一路合进来的同步队列分桶与 generation 恢复）。远端 D1 无待应用迁移，纯前端改动没动表结构。
+**线上复验**：`/custom-task` 的 `custom-task-page.js?v=6` / `custom-task.css?v=5` 都已生效；抓线上脚本确认 `stateOf`、`STATE_LABEL`、`submittedSourceOf`、`aria-disabled` 和「一模一样」那句文案都在位；页面结构里 `ctRun` 已不再是 `btn-primary`，`ct-submit` 与 `ctSubmitState` 都在。
+
+**这一轮最花时间的是一个假故障，记下来免得下次再踩。** deploy 一返回就 `curl`，连着四五次拿回来的都是上一版，`wrangler` 还一直说 `No updated asset files to upload`——看起来就像「部署没生效」。真相是 **Workers Assets 的更新有大约一分钟的传播延迟**，那句 `No updated asset files` 也是对的：文件早就传上去了，只是还没铺开。用一次性探针文件验的：往 `web/` 丢一个 `deploy-probe.txt` 再 deploy，wrangler 明确报「Found 1 new or modified static asset」，而它要过约一分钟才可取；探针一可取，`/custom-task` 同时就变成了 `?v=6`。判据要写成「等到」而不是「看一眼」：`until curl -s <url> | grep -q '<新版本号>'; do sleep 5; done`。这条坑已写进 `CLAUDE.md` 和 `AGENTS.md`。
+
+**顺带修正一处被这个延迟坑出来的错误结论。** `86cab1f` 把 `PROJECT_STATE.md` 里「自定义域名 `seedtocode.example.invalid`」从 Complete 降级成「已绑定但未指向当前 Worker 版本；当前返回旧静态资源，待核对路由/绑定」，依据是「自定义域名的 `/lab` 仍返回旧的 `sync-queue.js?v=2` / `sync-engine.js?v=6`，而 workers.dev 已是 `v=3` / `v=7`」。实测两个域名现在**返回的是同一份**：`/lab` 都是 `sync-queue.js?v=3` / `sync-engine.js?v=7`；探针文件在两边也是同时出现、同时消失。也就是说那次观察只是查得太早，不是路由或绑定的问题。状态改回 Complete，`AGENTS.md` 和 `CLOUD_ARCHITECTURE.md` 里相应的说法一并更正，并把「怎么核验才算数」写清楚。

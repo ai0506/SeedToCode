@@ -58,6 +58,14 @@ npm run build     # tsc + esbuild 打出 web/js/*.js
 
 **`web/js/*.js` 是 IIFE，不是模块。** 页面按 `<script src>` 顺序加载，跨文件通信走 `window.XXX`（`CloudClient`、`AuthStore`、`CAIEStorage`、`CAIEAssignment`…）。在浏览器控制台里 `typeof someFunction` 查不到是正常的，函数都在闭包里。
 
+**Workers Assets 的静态文件更新有大约一分钟的传播延迟，别把它当成「没部署上」。** `wrangler deploy` 返回之后立刻 `curl`，拿回来的还是上一版；这一轮我因此以为部署失败，白连发了四次 deploy，中间还看到 `No updated asset files to upload`（那句是对的——文件早就传上去了，只是生效还没铺开）。判据要用**等到**而不是**看一眼**：
+
+```bash
+until curl -s https://seedtocode.example.invalid/custom-task | grep -q 'custom-task-page.js?v=6'; do sleep 5; done
+```
+
+要区分「边缘缓存旧」和「压根没传上去」，就往 `web/` 里丢一个一次性探针文件再 deploy：探针能取到＝资源清单已经生效；探针 404 而 deploy 说传了＝还在传播中。验完记得删掉探针再 deploy 一次。
+
 **不要相信文档里的「尚未 / 待办」而不核实。** 这一轮就因为照抄 `PROJECT_STATE.md` 里一句过时的「尚未绑定自定义域名」而对使用者说了错话。涉及线上状态、配置、部署的说法，先用命令或 curl 验一次再讲。
 
 **`FRONTEND_RULES` 现在有自动化检查了**（`tests/frontend-rules.test.ts`），但它**只做静态文本检查**。第 1 条「一次交互只允许改变被操作对象自身的外观」需要真实布局引擎，jsdom 里所有 rect 都是 0——必须用那份文档末尾的 `getBoundingClientRect` 快照法在浏览器里量。存量违规冻在基线数组里，**修好一处删一行，不要往里加**。

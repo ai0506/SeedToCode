@@ -95,7 +95,7 @@
 | 本地数据归属与换人登录保护 | Complete |
 | Cloudflare Workers 与远端 D1 部署 | Complete |
 | Resend 生产邮件真实投递验证 | Complete（使用者已用真实邮箱收到验证信） |
-| 自定义域名 `seedtocode.example.invalid` | 已绑定但未指向当前 Worker 版本；当前返回旧静态资源，待核对路由/绑定 |
+| 自定义域名 `seedtocode.example.invalid` | Complete |
 | `web/` 前端层自动化测试 | 部分：规则检查与纯逻辑已覆盖，页面交互仍靠手测 |
 | 找回密码接口（老师/个人学习者） | 有意不做，见 `CLOUD_ARCHITECTURE.md` §4 |
 
@@ -126,7 +126,7 @@
 
 学生进班有两条路并存：老师建号发一次性激活码，或老师念班级码、学生自己注册（姓名 + 用户名 + 密码，不需要邮箱，注册完直接在班里）。自助注册按来源 IP 限流且只有失败计数。个人学习者不参与班级。顶栏的账户浮层不再承载任何表单——未登录时点它直接去登录页并带上 `next`，登录完跳回原来那一页（`next` 只接受同目录下的 `xxx.html`，外站和绝对路径一律丢弃）；浮层只负责已登录之后的事：身份、同步状态、作业概览、退出。跨页导航不在浮层里：四个一级目的地（实验室 / 学习 / 作业 / 班级）由 `account-ui.js` 渲染成品牌右边的一组分段控件，当前页是浮起来的那一枚且渲染成 `span` 而非 `a`；「作业」只对学生出、「班级」只对老师出，没有对应身份时那一枚仍占着同样宽度（两个词都是两个字），所以 `/auth/me` 回来前后顶栏几何不变。做题页（`task` / `custom-task`）是沉浸式子页，不放这组导航，左上角的「‹ 返回课文」「‹ 我的作业」就是它们的导航。
 
-已部署到 Cloudflare Workers：`https://seedtocode-api.example.invalid`（当前 Version ID `df702a9f-3aa8-47d1-ad4d-cd00a14eec85`，包含同步队列/元数据的账号分桶与 generation 恢复），绑定远端 D1 `seedtocode`（`00000000-0000-0000-0000-000000000000`）；14 个 migration 均已应用，本轮没有新增 migration。`ENVIRONMENT` 为 `production`，一次性登录 token 不再回给调用方，会话 cookie 带 `Secure`。静态页由同一个 Worker 用 Workers Assets 同源托管；地址栏是无后缀形式（`/lab`、`/learn`、`/classes`），而页面里的链接仍写成 `learn.html`，因为双击本地 HTML 文件时只有带后缀的相对路径找得到文件。页面改名（编辑器 `/` → `/lab`、`/teaching` → `/learn`、`/teacher` → `/classes`）之后，旧地址由 Worker 做 301：`/`、`/index`、`/index.html` → `/lab`，`/teaching(.html)` → `/learn`，`/teacher(.html)` → `/classes`，查询串原样带走。这些路径能落到 Worker，是因为 `web/` 下已经没有同名文件，资源服务匹配不到才会走过来。
+已部署到 Cloudflare Workers：`https://seedtocode-api.example.invalid`（当前 Version ID `0d9359e1-8803-4539-90da-d851ce8c4173`，含同步队列/元数据的账号分桶与 generation 恢复、独立的批改页 `/grade`、共用的作答框实现 `js/code-input.js`、作业列表按做完没做完分段排序、「自出题谎称有用例没跑通」的修复，以及作业提交按钮做明显并在「没改过」时挡住重复提交），绑定远端 D1 `seedtocode`（`00000000-0000-0000-0000-000000000000`）；14 个 migration 均已应用，本轮没有新增 migration。`ENVIRONMENT` 为 `production`，一次性登录 token 不再回给调用方，会话 cookie 带 `Secure`。静态页由同一个 Worker 用 Workers Assets 同源托管；地址栏是无后缀形式（`/lab`、`/learn`、`/classes`），而页面里的链接仍写成 `learn.html`，因为双击本地 HTML 文件时只有带后缀的相对路径找得到文件。页面改名（编辑器 `/` → `/lab`、`/teaching` → `/learn`、`/teacher` → `/classes`）之后，旧地址由 Worker 做 301：`/`、`/index`、`/index.html` → `/lab`，`/teaching(.html)` → `/learn`，`/teacher(.html)` → `/classes`，查询串原样带走。这些路径能落到 Worker，是因为 `web/` 下已经没有同名文件，资源服务匹配不到才会走过来。
 
 生产邮件：`RESEND_API_KEY`、`EMAIL_FROM`、`APP_ORIGIN` 三个 secret 都已设置，Resend **接受发信**。早先记的「投递失败、可能是发件域未验证」是**错的结论**：当时那次测试用的是 `@example.com` 地址，而 Resend 对这个 RFC 保留域名一律拒收，报的是 `422 validation_error / Invalid \`to\` field`——拒的是收件方，和发件域、API key 都没关系。改用 Resend 官方的测试收件地址 `delivered@resend.dev` 重试，注册接口返回 `accepted: true`，Worker 日志里没有任何 `resend.send_failed`，说明 API key 有效、`from` 地址也被接受（发件域没验证的话 Resend 会在这一步就拒）。最后一步的真实投递由使用者本人验过：往一个真实邮箱发注册验证信，信确实到达收件箱。（这一条是使用者确认的，不是本仓库的自动化检查能覆盖的——发信要花真实额度，也需要一个真人的邮箱。）
 
@@ -134,4 +134,4 @@
 
 另注意 `sendVerificationLink()` 失败时抛出发生在 users/auth_tokens 写入之后，投递失败会留下一行 `pending_email` 用户和一条未消费 token；它们不影响任何人登录，但会占着那个邮箱直到对方重新注册（重新注册会覆盖同一行并重发）。这次两次探测各留下一行，已从远端 D1 删除。
 
-学生的用户名密码登录和班级码自助注册不依赖邮件。未登录的本地编辑、学习、做题和本地运行在线上完整可用；生产邮箱配置及真实投递均已确认。`APP_ORIGIN` 已配置为 `https://seedtocode.example.invalid`。该自定义域名的 `/health` 虽可用，但当前 `/lab` 在无缓存响应中仍返回旧的 `sync-queue.js?v=2` / `sync-engine.js?v=6`；当前 Worker 的 `workers.dev` 地址已返回本轮的 `v=3` / `v=7`。因此自定义域名的路由/绑定尚未确认指向 Version ID `df702a9f-3aa8-47d1-ad4d-cd00a14eec85`，不能将其视为本轮发布已完成，待只读核对后再处理。
+学生的用户名密码登录和班级码自助注册不依赖邮件。未登录的本地编辑、学习、做题和本地运行在线上完整可用；生产邮箱配置及真实投递均已确认。`APP_ORIGIN` 已配置为 `https://seedtocode.example.invalid`。自定义域名 `https://seedtocode.example.invalid` 与 workers.dev 地址指向**同一个** Worker，静态资源也是同一份：实测两边的 `/lab` 都返回 `sync-queue.js?v=3` / `sync-engine.js?v=7`。（上一版这里写的「自定义域名仍返回旧静态资源、路由/绑定待核对」是**查得太早造成的误判**：Workers Assets 的更新有大约一分钟的传播延迟，`wrangler deploy` 一返回就 `curl`，拿回来的还是上一版。用一次性探针文件验过：deploy 之后探针要过约一分钟才可取，两个域名同时生效、同时失效，不存在只更新了一边的情况。判据要用「等到」而不是「看一眼」，见 `CLAUDE.md` 的坑。）
