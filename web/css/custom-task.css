@@ -40,8 +40,12 @@
 .ct-switch-no { flex: 0 0 auto; color: var(--text-faint); font-variant-numeric: tabular-nums; }
 .ct-switch-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ct-switch-state { flex: 0 0 auto; font-size: 11px; }
+/* 切换条上的状态和提交按钮旁边那一格是同一份判定（stateOf），配色也跟着对齐：
+   要动手的用暖色，办完的用主色。 */
+.ct-switch-state[data-state="empty"],
 .ct-switch-state[data-state="todo"] { color: var(--text-faint); }
-.ct-switch-state[data-state="done"] { color: var(--hint); }
+.ct-switch-state[data-state="dirty"] { color: var(--warn); }
+.ct-switch-state[data-state="sent"] { color: var(--hint); }
 .ct-switch-state[data-state="graded"] { color: var(--accent); }
 /* 「第 N / M 题」宽度会变，给定宽槽位，免得把左边的标题推来推去 */
 .ct-counter { width: 78px; text-align: right; font-variant-numeric: tabular-nums; }
@@ -51,6 +55,30 @@
 /* 「已保存 / 保存中」是会变的文字，给固定宽度，免得把提交按钮推来推去。
    高度也要占住：空着的时候塌成 0，这一格自己就在行里上下挪一下（FRONTEND_RULES 1.3）。 */
 .ct-actions .muted { width: 56px; min-height: 16px; line-height: 16px; text-align: right; }
+
+/* 提交是这一页真正要办的事，所以它是这一行唯一的主按钮，也比别的按钮高一点、宽一点。
+   「提交 / 重新提交 / 已提交」三种文案宽度不同，所以宽度**写死**不是 min-width——
+   否则每改一个字，按钮就自己变宽变窄一次（FRONTEND_RULES 1.2）。 */
+.ct-submit {
+   flex: 0 0 auto; width: 96px; height: 32px; font-size: 13.5px;
+}
+/* 内容和上次交的一模一样时按钮不可用：再交一遍只会在老师那里堆一条相同的记录。
+   用 aria-disabled 而不是原生 disabled——原生那个不派发鼠标事件，「为什么不能点」
+   那句 data-tip 就永远弹不出来。只改 opacity 和指针，不动尺寸。 */
+.ct-submit[aria-disabled="true"] { opacity: .45; cursor: default; }
+.ct-submit[aria-disabled="true"]:hover { box-shadow: none; }
+
+/* 提交状态：定宽三个字的常驻槽位，完整的一句话在按钮的 data-tip 里。
+   空着时也占住宽高，否则「还没写」和「未提交」之间一切换，提交按钮就横着挪一下。 */
+.ct-submit-state {
+   flex: 0 0 auto; width: 42px; min-height: 16px; line-height: 16px;
+   text-align: right; color: var(--text-faint);
+}
+.ct-submit-state[data-state="todo"] { color: var(--text-dim); }
+/* 「有改动」是要学生动手的那一格，用暖色；「已交过 / 已批改」用主色，表示这件事办完了 */
+.ct-submit-state[data-state="dirty"] { color: var(--warn); }
+.ct-submit-state[data-state="sent"],
+.ct-submit-state[data-state="graded"] { color: var(--accent); }
 
 
 /* 老师的批改摆在**题目**这一栏（题面、提示的下面），不在作答区顶上：

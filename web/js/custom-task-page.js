@@ -8,6 +8,10 @@
  *   1. 作答框是同一个编辑器（js/code-input.js）：三空格缩进、`<-` 自动转 `←`、
  *      行号、语法着色。原来这里是一个裸 textarea，Tab 直接跳走了焦点。
  *   2. 一份作业里的题可以就地切换，不必退回作业列表再点进来。
+ *
+ * 另外：提交按钮要一眼看得见（这一页真正要办的事是交上去，不是运行），而且当
+ * 眼前这份代码和上次交的**一模一样**时要把「不用再交」说出来并把按钮禁掉——
+ * 不说的话学生会一遍遍点，老师那边就堆出一串内容相同的版本。
  */
 (function () {
    "use strict";
@@ -127,7 +131,12 @@
 
    async function submit() {
       var source = $("ctCode").value;
+      // 按钮在这两种情况下已经是 aria-disabled 的；这里把原因说出来，而不是按下去没反应
       if (!source.trim()) { println("还没写任何代码，先写点东西再提交。", "sys"); return; }
+      if (source === submittedSourceOf(itemId)) {
+         println("这一份和你上次交的一模一样，不用再交一遍。", "sys");
+         return;
+      }
       $("ctSubmit").disabled = true;
       var task = itemId;
       try {
@@ -135,17 +144,107 @@
             method: "POST",
             body: { taskId: task, answerContent: source, clientVersion: "web-1" }
          });
-         println("已提交给老师。可以继续修改，再提交一次会留下新的记录。", "sys");
-         $("ctSaveState").textContent = "已提交";
-         /* 切换条上的「已交」要立刻跟上：提交完还显示「未交」，学生会以为没成功
-            又交一遍。本地先记下，再顺手把服务端那一份拉回来（拿不到也不影响）。 */
-         mySubmissions[task] = mySubmissions[task] || { taskId: task, submittedAt: Date.now(), graded: false };
-         mySubmissions[task].submittedAt = Date.now();
+         println("已提交给老师。可以继续修改，改完再交一次会留下新的记录。", "sys");
+         $("ctSaveState").textContent = "已保存";
+         /* 切换条和提交按钮要立刻跟上：提交完还显示「未交」，学生会以为没成功、
+            又交一遍——这正是要避免的那件事。本地先把「上次交的」换成刚交的这一份
+            （按钮随即变成禁用的「已提交」），再顺手把服务端那一份拉回来核一次。 */
+         /* 整条换掉，不是在旧的那条上改几个字段：刚交上去的这一份**还没被批**，
+            而旧的那条带着 graded / teacherScore / teacherComment。留着它们，界面会在
+            服务端那一份回来之前的一瞬间说「已批改 72 分」——说的是上一份的事。 */
+         mySubmissions[task] = {
+            taskId: task,
+            answerContent: source,
+            submittedAt: Date.now(),
+            graded: false,
+            teacherScore: null,
+            teacherComment: null
+         };
+         renderSubmitState();
          renderSwitch();
          void loadSubmissions();
       } catch (error) {
          println("提交失败：" + ((error && error.message) || "请稍后再试"), "err");
       } finally { $("ctSubmit").disabled = false; }
+   }
+
+   /* ---------------- 提交状态 ---------------- */
+
+   /* 切换条那一格上的字。只有这一份——按钮那边和切换条那边各写一份，迟早说出两句
+      互相矛盾的话。 */
+   var STATE_LABEL = { empty: "未交", todo: "未交", dirty: "已改", sent: "已交", graded: "已批" };
+
+   /**
+    * 眼前这份代码和某道题上次交上去的那一份是不是**一模一样**。
+    *
+    * 逐字节比，不做任何归一化（不去尾空格、不吃末尾空行）。因为界面上要说出口的
+    * 那句话是「和你上次交的一样」——一旦归一化，存在服务端的那一份和屏幕上这一份
+    * 就可能真的不同，而我们却在说它们一样。宁可把一个空格也算成改动：那至少是真的。
+    */
+   function submittedSourceOf(task) {
+      var sub = mySubmissions[task];
+      return sub && typeof sub.answerContent === "string" ? sub.answerContent : null;
+   }
+
+   function draftOf(task) {
+      if (task === itemId) return $("ctCode").value;
+      var draft = STORAGE.get(draftKey(task), null);
+      return typeof draft === "string" ? draft : "";
+   }
+
+   /**
+    * 一道题此刻处于四种状态之一。切换条和提交按钮用的是同一份判定——
+    * 两处各算一遍迟早会说出两句互相矛盾的话。
+    *   empty   还没写
+    *   todo    写了，没交过
+    *   dirty   交过，但现在这份和交上去的不一样
+    *   sent    交过，而且一个字都没改
+    *   graded  老师已经批了（且没再改过）
+    */
+   function stateOf(task) {
+      var submitted = submittedSourceOf(task);
+      var current = draftOf(task);
+      var sub = mySubmissions[task];
+      if (submitted === null) return current.trim() ? "todo" : "empty";
+      if (current !== submitted) return "dirty";
+      return sub && sub.graded ? "graded" : "sent";
+   }
+
+   /**
+    * 提交按钮和它旁边那个三字槽位。
+    *
+    * 内容和上次交的一模一样时按钮**禁掉**：再交一遍不会多出任何东西，只会在老师
+    * 那边堆一条内容相同的记录。完整的一句话放在 data-tip 里——这一行放不下整句，
+    * 而三个字说不清「为什么不能点」。
+    */
+   function renderSubmitState() {
+      var state = stateOf(itemId);
+      var button = $("ctSubmit");
+      var slot = $("ctSubmitState");
+      var text = { empty: "", todo: "未提交", dirty: "有改动", sent: "已交过", graded: "已批改" }[state];
+      slot.textContent = text;
+      slot.dataset.state = state;
+      button.textContent = state === "dirty" ? "重新提交" : state === "sent" || state === "graded" ? "已提交" : "提交";
+      /*
+       * 用 aria-disabled 而不是原生 disabled。原生 disabled 的按钮不派发鼠标事件，
+       * 于是 data-tip 永远弹不出来——而这里最该读到的恰恰是「为什么不能点」那一句。
+       * 点击由 submit() 自己挡（它会把原因打到运行结果里），所以按下去不是没反应。
+       */
+      button.setAttribute("aria-disabled", String(state === "empty" || state === "sent" || state === "graded"));
+      button.dataset.tip =
+         state === "empty" ? "先写点东西再提交"
+         : state === "dirty" ? "改过了。交上去会在老师那里留下新的一份"
+         : state === "todo" ? "交给老师。之后还能改，改完再交一次"
+         : "这一份和你上次交的一模一样，不用再交一遍";
+
+      /* 切换条上当前这一题的那一格也要跟着走。不整条重画（那是每敲一个字重建一次
+         innerHTML），只改这一格的字和状态——否则按钮说「有改动」、切换条还说「已交」，
+         同一屏上两句话互相打架。 */
+      var chip = $("ctSwitch").querySelector('[data-task="' + (window.CSS && CSS.escape ? CSS.escape(itemId) : itemId) + '"] .ct-switch-state');
+      if (chip) {
+         chip.textContent = STATE_LABEL[state];
+         chip.dataset.state = state;
+      }
    }
 
    /** 老师批过就把分数和评语摆在作答区顶上。 */
@@ -177,9 +276,11 @@
       if (tasks.length < 2) { $("ctSwitch").hidden = true; $("ctSwitch").innerHTML = ""; return; }
       $("ctSwitch").hidden = false;
       $("ctSwitch").innerHTML = tasks.map(function (entry, index) {
-         var sub = mySubmissions[entry.id];
-         var state = !sub ? "todo" : sub.graded ? "graded" : "done";
-         var label = !sub ? "未交" : sub.graded ? "已批" : "已交";
+         /* 和提交按钮用同一份判定（stateOf）：两处各算一遍，迟早会说出两句
+            互相矛盾的话。「已改」是这里新增的一格——学生一眼就看出哪道题
+            改过还没交，不用挨个点进去试。 */
+         var state = stateOf(entry.id);
+         var label = STATE_LABEL[state];
          return '<button class="ct-switch-item" data-task="' + esc(entry.id) + '"' +
             ' aria-current="' + (entry.id === itemId ? "true" : "false") + '">' +
             '<span class="ct-switch-no">第 ' + (index + 1) + " 题</span>" +
@@ -217,6 +318,7 @@
       $("ctSaveState").textContent = draft ? "已保存" : "";
       $("ctConsole").innerHTML = "";
       renderFeedback();
+      renderSubmitState();
       renderSwitch();
    }
 
@@ -228,6 +330,7 @@
          (data.submissions || []).forEach(function (row) { if (!byTask[row.taskId]) byTask[row.taskId] = row; });
          mySubmissions = byTask;
          renderFeedback();
+         renderSubmitState();
          renderSwitch();
       } catch (error) { /* 看不到自己的提交记录不影响做题 */ }
    }
@@ -255,7 +358,11 @@
 
       /* 行号、着色、三空格缩进、`<-` 转 `←` 一次装好——和课程题目同一份实现。 */
       editor = CODE.attach($("ctCode"), { gutter: $("ctGutter"), highlight: document.querySelector(".mini-code .mini-highlight") });
-      $("ctCode").addEventListener("input", scheduleSave);
+      $("ctCode").addEventListener("input", function () {
+         scheduleSave();
+         // 改一个字就可能从「已交过」变成「有改动」，这一句必须跟着每一次输入走
+         renderSubmitState();
+      });
 
       selectTask(wanted);
       await loadSubmissions();
