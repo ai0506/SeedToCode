@@ -34,12 +34,12 @@ window.SAMPLES = (function () {
     source: [
       '// 演示：一维数组 + 过程 + 嵌套循环',
       'DECLARE Numbers : ARRAY[1:6] OF INTEGER',
-      'DECLARE Index : INTEGER',
       '',
       'PROCEDURE BubbleSort(BYREF List : ARRAY[1:6] OF INTEGER)',
       '   DECLARE Temp : INTEGER',
-      '   DECLARE i : INTEGER',
-      '   DECLARE j : INTEGER',
+      // FOR 的控制变量由 FOR 那一行本身建立，不必事先 DECLARE——Pseudocode Guide
+      // §7.1 的例子就没有声明 Row / Column / Index。§2.4 只把显式声明称为 good
+      // practice，不是要求。出厂样例是学生看到的第一段代码，别教成「必须声明」。
       '   FOR i ← 1 TO 5',
       '      FOR j ← 1 TO 6 - i',
       '         IF List[j] > List[j + 1] THEN',
@@ -118,6 +118,47 @@ window.SAMPLES = (function () {
    * 「这台设备上有未登录时留下的内容，要并入吗」——他们其实什么都没动过。
    * 所以旧快照也要认。以后再改样例，同样往这里追加一份。
    */
+  /* 这一版之前出厂的 BubbleSort：过程里显式声明了 i 和 j。原文冻在这里，
+     因为下面两份历史快照都含它，而 bubbleDoc 已经改掉了——直接引用 bubbleDoc
+     的话，旧快照会跟着一起变，认不出任何一台老设备。 */
+  const legacyBubbleDoc = {
+    id: 'doc-bubble',
+    name: 'BubbleSort.pseudocode',
+    source: [
+      '// 演示：一维数组 + 过程 + 嵌套循环',
+      'DECLARE Numbers : ARRAY[1:6] OF INTEGER',
+      'DECLARE Index : INTEGER',
+      '',
+      'PROCEDURE BubbleSort(BYREF List : ARRAY[1:6] OF INTEGER)',
+      '   DECLARE Temp : INTEGER',
+      '   DECLARE i : INTEGER',
+      '   DECLARE j : INTEGER',
+      '   FOR i ← 1 TO 5',
+      '      FOR j ← 1 TO 6 - i',
+      '         IF List[j] > List[j + 1] THEN',
+      '            Temp ← List[j]',
+      '            List[j] ← List[j + 1]',
+      '            List[j + 1] ← Temp',
+      '         ENDIF',
+      '      NEXT j',
+      '   NEXT i',
+      'ENDPROCEDURE',
+      '',
+      'Numbers[1] ← 42',
+      'Numbers[2] ← 7',
+      'Numbers[3] ← 19',
+      'Numbers[4] ← 3',
+      'Numbers[5] ← 25',
+      'Numbers[6] ← 11',
+      '',
+      'CALL BubbleSort(Numbers)',
+      '',
+      'FOR Index ← 1 TO 6',
+      '   OUTPUT Numbers[Index]',
+      'NEXT Index'
+    ].join('\n')
+  };
+
   const legacy = [{
     docs: [
       {
@@ -141,7 +182,7 @@ window.SAMPLES = (function () {
           'ENDIF'
         ].join('\n')
       },
-      bubbleDoc,
+      legacyBubbleDoc,
       fileDoc,
       {
         id: 'doc-practice',
@@ -175,6 +216,12 @@ window.SAMPLES = (function () {
         ]
       }
     ]
+  }, {
+    /* 上一版出厂的一套：Main 和 FileCopy 就是现在这两份，只有 BubbleSort 里
+       多了 DECLARE i / DECLARE j。不认它的话，装了上一版、一个字没动过的人
+       一登录就会被问要不要并入。 */
+    docs: [mainDoc, legacyBubbleDoc, fileDoc],
+    runtimeFiles: [namesFile, reportFile]
   }];
 
   return { docs: docs, runtimeFiles: runtimeFiles, legacy: legacy };

@@ -29,7 +29,7 @@ node scripts/dev-proxy.mjs
 | `js/runtime-engine.js` | 从 `packages/runtime` 生成的 IIFE 阶段 4 解释器，含默认关闭的 `TraceSink` 逐步追踪接口 |
 | `js/lang.js` | 不改变源代码的轻量语法高亮 |
 | `js/code-input.js` | `CAIECodeInput`：作答框的输入约定，一份实现。三空格缩进（Tab / Shift+Tab / 行首退格按停靠点）、回车延续缩进、`<-` → `←`（含粘贴，字符串与注释内不动）、行号槽、着色层，全部走 `execCommand` 以保住原生撤销栈。课程题目、作业题和老师批改页共用——不留副本，副本会和被用的那一份悄悄分叉 |
-| `js/samples.js` | 新建项目的初始源文件（Main / BubbleSort / FileCopy）与运行时虚拟文件（Names.txt / Report.txt），另含历史样例快照 `legacy`，供「项目是否一个字没改过」的判断识别老设备上的旧出厂内容 |
+| `js/samples.js` | 新建项目的初始源文件（Main / BubbleSort / FileCopy）与运行时虚拟文件（Names.txt / Report.txt），另含历史样例快照 `legacy`，供「项目是否一个字没改过」的判断识别老设备上的旧出厂内容。**改出厂样例时必须往 `legacy` 追加一份改动前的原文，而且要把改到的那份文件原样冻下来、不要按变量引用**——`legacy` 里原本直接引用 `bubbleDoc`，改它会把旧快照一起改掉，老设备就一台也认不出来了 |
 | `js/app.js` | 界面逻辑：项目、编辑器、文件管理、诊断展示、本机运行与 trace table 渲染 |
 | `js/tooltip.js` | 共用的自定义悬浮提示：页面一律用 `data-tip`，不用原生 `title` |
 | `js/storage.js` | `CAIEStorage` 浏览器存储 facade：旧 key 兼容读取、IndexedDB 初始化、迁移镜像、云端相关 key 和 `deviceId()` |

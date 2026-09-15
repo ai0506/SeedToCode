@@ -755,3 +755,23 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 **线上复验**（在 `https://seedtocode.example.invalid` 上真点的，不是只看版本号）：打开 `/lab` → 切到自带的 `BubbleSort.pseudocode` → 运行 → 调试 → 放大，拿回 **120 行 14 列**、标题栏「已结束 · 共 120 步」、动作列 `DECLARE Numbers` 宽 143px（不是被均分的 80px）、表头 `Numbers[1]`（不是 `NUMBERS[1]`）。线上 `styles.css` 里 `dialog-xl` / `trace-dialog-wrap` / `table-layout: auto` / `text-transform: none` 都在，线上 `app.js` 里 `openTraceDialog` / `restoreTraceTable` / `setTraceStatus` / `setTraceExpandEnabled` 都在。
 
 **这次的「等到」等了两轮才算数。** 第一次 `until … grep -q 'styles.css?v=33'` 一退出就紧接着再取一次，拿回来的却是 `v=32`——**同一时刻不同边缘节点新旧并存**。所以判据从「取到一次新的」改成「**连续五次**都是新的，并且页面里同时有 `traceExpand` 和 `traceDialog`」。`CLAUDE.md` 那条坑说的是「别把传播延迟当成没部署上」，这次补上另一半：传播窗口里单次命中也不算数，要连着几次一致。
+
+[ClaudeCode][2609151005] 「FOR 的控制变量要不要 DECLARE」——查了官方原件，课文说错了，出厂样例也跟着改。使用者提的。
+
+**先查证，不凭印象。** `pseudocode_guide-9618.md` 就在仓库根目录，两处：
+- §2.4「It is **good practice** to declare variables explicitly in pseudocode.」——是 good practice，不是 must。全文搜 `must be declared` / `must declare` / `all variables`，**一次都没有**（只有枚举、记录、集合三种自定义类型用 "should be declared as follows"，那说的是写法格式）。
+- §7.1「The identifier **must be a variable of data type INTEGER**」——这个 must 管的是**类型**，不是「必须事先声明」。
+
+**最硬的证据是指南自己的例子**：§7.1 嵌套 FOR 的 `Row` / `Column`、§3 数组赋值例的 `Index`、§8 过程例的 `Side`，四个计数器**一个都没有 DECLARE**。其中数组那个例子尤其说明问题——紧挨着的上文刚写了 `DECLARE StudentNames : ARRAY[1:30] OF STRING`，数组声明了，计数器没声明，同一页里的对比不可能是疏忽。
+
+引擎行为本来就是对的（跑过：不声明无诊断、正常运行、追踪表照给一列；真正未绑定的名称才报 `binding.unboundName`），`CAIE_RULES.md` 的 `DECL-001` 也老老实实标着 RECOMMENDED。**错的只有一句课文**：`chapter-05.ts` 的「它必须是 `INTEGER`，和别的变量一样要先 `DECLARE`」——把一条 good practice 写成了要求，而且和剑桥自己的示范代码直接冲突。改成说清楚「必须是 INTEGER 是死的，不用事先 DECLARE，写出来也不算错」，并把指南的节号和例子写进正文，学生对着真题能自己核。
+
+**出厂样例 `BubbleSort.pseudocode` 去掉三处声明**：`DECLARE i`、`DECLARE j`、`DECLARE Index`——它们都是 FOR 计数器。`DECLARE Numbers`（数组）和 `DECLARE Temp`（普通局部变量）保留，样例因此正好演示出分界：**数组和普通变量声明，循环计数器不用**。新样例 0 诊断、排序结果不变（3 7 11 19 25 42）、追踪表仍是 14 列（少的 3 行正是那三条 DECLARE 语句）。
+
+**这里有个差点踩上的坑，值得记。** `samples.js` 的 `legacy` 快照原本**直接引用 `bubbleDoc` 变量**，不是冻下来的副本。照着改 `bubbleDoc` 的话，两份历史快照里的 BubbleSort 会跟着一起变——于是「出厂状态、一个字没改过」的判断（`isPristineProject` 逐字比对）对**所有**老设备都失配，这些人一登录就会被问一次「这台设备上有未登录时留下的内容，要并入吗」，而他们什么都没动过。这正是 `samples.js` 里那段注释警告过的事，只是注释没说清楚「别按变量引用」。所以把改动前的 BubbleSort 原文冻成 `legacyBubbleDoc`，`legacy[0]` 改为引用它，并追加 `legacy[1]`＝上一版正在出厂的那一套（新 Main + 旧 BubbleSort）。
+
+**验证用的是 `app.js` 自己的那两个函数**，不是我另写一份等价实现——从 `app.js` 里按花括号配对原样抠出 `matchesSampleSet` 和 `isPristineProject` 的源码，喂真实的 `SAMPLES` 跑：当前出厂 `true`、`legacy[0]` `true`、`legacy[1]` `true`、改一个字 `false`、改项目名 `false`。（「量 A 和 B 别让两边来自同一个源」——手抄一份等价实现会跟着我的假设走，抠源码不会。）
+
+浏览器实测：清空 IndexedDB 和 localStorage 模拟全新设备，出厂 BubbleSort 里确认没有 `DECLARE i` / `DECLARE Index`，问题面板 0 条，运行输出正确；学习页第 5 章读到的是新课文。`npm run teaching:expected` 重跑，197 组期望输出无变化（改的是正文，不涉及题目和用例）。
+
+缓存版本号（现查现提）：`samples.js` 2→3（只有 `lab.html` 引它）、`teaching-content.js` 25→26（五个页面一起）。`npm test` 90 文件 1356 项全绿。
