@@ -775,3 +775,6 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 浏览器实测：清空 IndexedDB 和 localStorage 模拟全新设备，出厂 BubbleSort 里确认没有 `DECLARE i` / `DECLARE Index`，问题面板 0 条，运行输出正确；学习页第 5 章读到的是新课文。`npm run teaching:expected` 重跑，197 组期望输出无变化（改的是正文，不涉及题目和用例）。
 
 缓存版本号（现查现提）：`samples.js` 2→3（只有 `lab.html` 引它）、`teaching-content.js` 25→26（五个页面一起）。`npm test` 90 文件 1356 项全绿。
+已部署。`a21fdd9` 推上 `main`，Worker 部署为 `af79c345-c55f-413b-ac6a-240670d3fe88`，部署前 `d1 migrations list --remote` 是「No migrations to apply」（纯前端）。线上 `samples.js?v=3` 与 `teaching-content.js?v=26` **连续五次**取到一致后才算数；线上的出厂 BubbleSort 确认 `DECLARE i` / `DECLARE j` / `DECLARE Index` 都没了，`DECLARE Numbers` 和 `DECLARE Temp` 还在，`legacy` 里三份历史快照的旧原文完好；在生产页面上读到的第 5 章课文就是订正后的那一段。
+
+**核验时被自己的 grep 骗了一下，记一笔。** 先用 `grep "不用事先"` 查线上 `teaching-content.js`，结果 0——差点当成「课文没部署上」。实际是 esbuild 把非 ASCII 打成了 `\uXXXX`（那个文件里有六万多处转义），中文根本不以字面形式存在；**本地产物一样查不到**，这就说明问题出在查法而不是部署。改用只在新句子里出现的 ASCII 片段（`MaxRow`、`good practice`）核，本地和线上各命中一次、字节数完全相同；最后直接在生产页面上读 `CAIETeaching` 拿到整段原文才算数。**对打包产物做中文字面量 grep 是无效的判据**——它的「没查到」和「真的没有」长得一模一样。
