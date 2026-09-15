@@ -692,7 +692,28 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
 .trace-dialog-wrap .trace-table { table-layout: auto; width: max-content; min-width: 100%; }
 /* 大窗口里不必再把长值截成 150px——省地方的理由在这儿不成立了 */
 .trace-dialog-wrap .trace-table td { max-width: 360px; }
-.trace-dialog-wrap .trace-table .trace-action { max-width: 420px; }
+
+/*
+ * 前四列（步骤 / 源码 / 动作 / 输出）**定宽**，不跟着内容走。
+ *
+ * 它们是「这一步是什么」的说明，真正要看的是后面那些变量列。交给 auto 布局的话，
+ * 动作列会被最长的那一行（`DECLARE Numbers`）撑到 143px，其余每一行都跟着留一大片
+ * 空白，而变量列被挤出屏幕——放大窗口的好处反倒被这几列吃掉了。
+ * 步骤是右对齐的数字、源码是「第 N 行」，宽度本来就可预测；动作超长的用省略号，
+ * 完整内容在源码那一行里本来就看得到。内边距也收窄：等宽字体在 10px 内边距下太空。
+ */
+.trace-dialog-wrap .trace-table th,
+.trace-dialog-wrap .trace-table td { padding-left: 6px; padding-right: 6px; }
+.trace-dialog-wrap .trace-table .trace-step { width: 40px; }
+.trace-dialog-wrap .trace-table .trace-source { width: 62px; }
+.trace-dialog-wrap .trace-table .trace-action { width: 104px; max-width: 104px; }
+/* 输出列**不定宽**：它大多是空的，定宽就等于白占一条。交给 auto 按实际内容排，
+   只给个上限防止一行长输出把整张表撑开；完整内容在「输出」标签里本来就有。 */
+.trace-dialog-wrap .trace-table .trace-output { max-width: 160px; }
+/* 表头没有这些类名（它是单独建的 th），按列序定同样的宽度 */
+.trace-dialog-wrap .trace-table thead th:nth-child(1) { width: 40px; }
+.trace-dialog-wrap .trace-table thead th:nth-child(2) { width: 62px; }
+.trace-dialog-wrap .trace-table thead th:nth-child(3) { width: 104px; }
 .trace-dialog-status { font-variant-numeric: tabular-nums; margin-right: 10px; }
 /* handle 表格与空状态共用固定高度区域，切换时面板不跳动 */
 .handle-region { min-height: 78px; }

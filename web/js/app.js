@@ -1259,7 +1259,11 @@ function makeTraceRow(row) {
    }
    cell(String(row.step), 'trace-step');
    cell('第 ' + line + ' 行', 'trace-source');
-   cell(row.label || '', 'trace-action');
+   /* 动作列在放大视图里是定宽的，长一点的（`RETURN BubbleSort` 这类）会被省略号截掉。
+      给它挂上完整文字的悬浮提示，截断就不再等于丢信息。短的不挂——每一行都弹一个
+      提示只会碍事。 */
+   const action = cell(row.label || '', 'trace-action');
+   if ((row.label || '').length > 12) action.dataset.tip = row.label;
    cell(row.output || '', 'trace-output');
    (traceRun.plan.columns || []).forEach(function (column) {
       const declaration = (row.declarations || []).find(function (item) { return item.variableId === column.variableId; });
