@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="SeedToCode_favicon.png">
 <title>实验室 · SeedToCode</title>
-<link rel="stylesheet" href="css/styles.css?v=29">
+<link rel="stylesheet" href="css/styles.css?v=30">
 <link rel="stylesheet" href="css/account.css?v=4">
 </head>
 <body>
@@ -151,7 +151,7 @@
       <div class="tabs" role="tablist">
          <button class="tab" data-tab="output" role="tab">输出<span class="tab-badge" id="tabOutputBadge"></span></button>
          <button class="tab" data-tab="problems" role="tab">问题<span class="tab-badge" id="tabProblemBadge"></span></button>
-         <button class="tab" data-tab="vars" role="tab">变量<span class="tab-badge"></span></button>
+         <button class="tab" data-tab="debug" role="tab">调试<span class="tab-badge"></span></button>
          <button class="tab" data-tab="files" role="tab">文件<span class="tab-badge"></span></button>
          <button class="icon-btn small collapse-results" id="toggleResults" data-tip="收起或展开结果面板" aria-label="收起结果面板">›</button>
       </div>
@@ -178,8 +178,9 @@
          <ul class="problem-list" id="problemList"></ul>
       </div>
 
-      <div class="tab-panel" id="panel-vars">
-         <div class="muted small pad" id="varsEmpty">运行或单步执行时显示变量、数组与调用栈。</div>
+      <div class="tab-panel" id="panel-debug">
+         <div class="sub-head">当前状态</div>
+         <div class="muted small pad" id="varsEmpty">本机运行时显示当前变量与调用栈。</div>
          <table class="data-table" id="varTable" hidden>
             <thead><tr><th>名称</th><th>种类</th><th>类型</th><th>值</th></tr></thead>
             <tbody></tbody>
@@ -188,6 +189,15 @@
             <div class="sub-head">调用栈</div>
             <ol id="stackList"></ol>
          </div>
+         <div class="trace-head sub-head">追踪表</div>
+         <div class="trace-empty muted small pad" id="traceEmpty">本机运行后在这里显示逐步追踪。</div>
+         <div class="trace-wrap" id="traceWrap" hidden>
+            <table class="data-table trace-table" id="traceTable">
+               <thead></thead>
+               <tbody></tbody>
+            </table>
+         </div>
+         <div class="trace-status muted small" id="traceStatus" aria-live="polite"></div>
       </div>
 
       <div class="tab-panel" id="panel-files">
@@ -389,7 +399,7 @@
 <script src="js/samples.js?v=2"></script>
 <script src="js/language-engine.js?v=13"></script>
 <script src="js/language-adapter.js?v=10"></script>
-<script src="js/runtime-engine.js?v=11"></script>
+<script src="js/runtime-engine.js?v=12"></script>
 <script src="js/lang.js?v=11"></script>
 <script src="js/runtime-messages.js?v=5"></script>
 <script src="js/storage.js?v=2"></script>
@@ -397,7 +407,7 @@
 <script src="js/cloud-client.js?v=5"></script>
 <script src="js/sync-queue.js?v=3"></script>
 <script src="js/sync-engine.js?v=7"></script>
-<script src="js/app.js?v=35"></script>
+<script src="js/app.js?v=36"></script>
 <script src="js/account-ui.js?v=11"></script>
 </body>
 </html>

@@ -28,5 +28,15 @@ export type {
   RuntimeType,
   RuntimeValue,
   RuntimeVirtualFile,
-  RuntimeVariable
+  RuntimeVariable,
+  TraceColumn,
+  TraceColumnState,
+  TraceDeclaration,
+  TraceFinish,
+  TraceOptions,
+  TracePlan,
+  TraceRow,
+  TraceSink,
+  TraceValue,
+  TraceWrite
 } from "./types.js";

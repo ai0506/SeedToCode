@@ -35,6 +35,7 @@
 | Pointers | Complete | `advanced-2027` |
 | Sets | Complete | `advanced-2027` |
 | OOP（构造器、继承、`SUPER`、多态、聚合） | Complete | `advanced-2027` |
+| 本机 trace table（主程序标量、控制流、BYREF 写入） | Complete | `core-2027` |
 
 ## Teaching
 
@@ -83,6 +84,7 @@
 | 独立登录页与安全回跳 | Complete |
 | 个人项目与文件同步、冲突副本、tombstone | Complete |
 | 云端运行（内存快照、结果复用现有渲染） | Complete |
+| 本机运行 trace table（页面内存、不同步） | Complete |
 | 教学完成状态、阅读位置、题目草稿同步 | Complete |
 | 章末大题提交记录（服务端判分、教师可读） | Complete |
 | 老师面板（班级、学生、进度、章末大题提交） | Complete |

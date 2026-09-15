@@ -299,6 +299,8 @@ executeSource(source, options) -> ExecutionController
 
 `ExecutionController` 暴露 `result` Promise、`provideInput(value)`、`stop()` 和只读变量快照。执行事件通过 `options.onEvent` 顺序发布；这保留了可重放事件契约，同时允许 `INPUT` 在同一运行任务中暂停、校验失败后重试并继续。
 
+`ExecutionOptions.trace` 是默认关闭的独立 `TraceSink`：它在语义动作完成后输出固定列计划和增量 `TraceRow`，不从 `ExecutionEvent` 或最终变量快照反推历史。第一期只追踪主程序标量；写入即使前后值相同也保留，BYREF 写入以主程序 storage identity 记录来源。trace 在本次执行内存中有界保留前段与尾段，不进入 `ExecutionResult`、项目存储、同步、云端运行响应或判题。
+
 ## 13. Parser 错误恢复
 
 - 词法错误恢复到当前行末，但保留换行 token。

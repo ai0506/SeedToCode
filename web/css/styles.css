@@ -107,7 +107,7 @@ body {
 }
 
 /* 所有滚动区域都保留滚动条槽位，避免内容增减时横向位移 */
-.editor-scroll, .console, .tab-panel, .file-list, .rt-file-list, .dialog-body, .snippet-pop ul {
+.editor-scroll, .console, .tab-panel, .file-list, .rt-file-list, .dialog-body, .snippet-pop ul, .trace-wrap {
    scrollbar-gutter: stable;
 }
 
@@ -644,6 +644,24 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
 
 .sub-head { height: 28px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-faint); flex: 0 0 28px; }
 .stack-box ol { margin: 0; padding: 0 10px 10px 26px; font-family: var(--font-mono); font-size: 12px; }
+
+/* 调试面板的 trace 自己滚动；宽列不会把 body 撑出横向滚动。 */
+.trace-head { border-top: 1px solid var(--border); margin-top: 4px; }
+.trace-empty { flex: 1; }
+.trace-wrap { flex: 1 1 140px; min-height: 140px; overflow: auto; scrollbar-gutter: stable; border-top: 1px solid var(--border); }
+.trace-table { min-width: max-content; font-family: var(--font-mono); }
+.trace-table th { position: sticky; top: 0; z-index: 1; background: var(--bg-panel); white-space: nowrap; }
+.trace-table td { height: 29px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.trace-table .trace-step { color: var(--text-faint); font-variant-numeric: tabular-nums; text-align: right; }
+.trace-table .trace-action { max-width: 180px; color: var(--text-dim); }
+.trace-table .trace-output { color: var(--tk-string); }
+.trace-table tr[data-trace-row] { cursor: pointer; }
+.trace-table tr[data-trace-row]:hover { background: var(--bg-sunken); }
+.trace-table tr.is-selected { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.trace-table td.trace-unassigned { color: var(--text-faint); }
+.trace-table td.trace-same-write { background: var(--warn-soft); color: var(--warn); }
+.trace-table .trace-omitted td { color: var(--text-faint); font-family: var(--font-ui); text-align: center; cursor: default; }
+.trace-status { height: 26px; flex: 0 0 26px; padding: 5px 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 /* handle 表格与空状态共用固定高度区域，切换时面板不跳动 */
 .handle-region { min-height: 78px; }
 

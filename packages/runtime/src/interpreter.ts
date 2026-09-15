@@ -46,7 +46,15 @@ import type {
   RuntimeValue,
   RuntimeVariable,
   RuntimeSetSnapshot,
-  RuntimeVirtualFile
+  RuntimeVirtualFile,
+  TraceDeclaration,
+  TraceColumnState,
+  TraceFinish,
+  TraceOptions,
+  TracePlan,
+  TraceRow,
+  TraceValue,
+  TraceWrite
 } from "./types.js";
 
 type Cell = {
@@ -57,6 +65,7 @@ type Cell = {
   initialized: boolean;
   value?: InternalValue;
   alias?: Cell;
+  traceId?: string;
 };
 
 type RuntimeArray = { kind: "array"; type: ArrayRuntimeType; elements: Map<string, Cell> };
@@ -67,7 +76,7 @@ type RuntimeSet = { kind: "set"; type: SetRuntimeType; values: Map<string, Inter
 type RuntimeEnum = { kind: "enum"; type: EnumRuntimeType; member: string };
 type InternalValue = number | string | boolean | RuntimeDate | RuntimeArray | RuntimeRecord | RuntimeObject | RuntimePointer | RuntimeSet | RuntimeEnum;
 type TypedValue = { type: RuntimeType; value: InternalValue };
-type PendingInput = { cell: Cell; range: SourceRange; resolve: () => void };
+type PendingInput = { cell: Cell; range: SourceRange; resolve: () => void; traceBefore?: TraceValue };
 type Frame = { id: string; name: string; cells: Map<string, Cell>; returnType?: RuntimeType; receiver?: RuntimeObject; classType?: ClassRuntimeType };
 type OpenHandle = { file: RuntimeVirtualFile; mode: TextFileMode; position: number };
 
@@ -85,6 +94,73 @@ const DEFAULTS = {
 };
 
 const encoder = new TextEncoder();
+
+/**
+ * Delivers a bounded, chronological trace without retaining a full run in
+ * memory. The first rows explain setup; the ring buffer preserves the point
+ * where a long or runaway run ends.
+ */
+class TraceCollector {
+  private readonly headCapacity: number;
+  private readonly tailCapacity: number;
+  private readonly tailRows: TraceRow[] = [];
+  private state = new Map<string, TraceColumnState>();
+  private tailState?: Map<string, TraceColumnState>;
+  private semanticSteps = 0;
+  private deliveredRows = 0;
+  private didTruncate = false;
+  private didFinish = false;
+
+  constructor(private readonly options: TraceOptions, private readonly plan: TracePlan) {
+    const limit = positiveInteger(options.maxRows, 2_000);
+    this.tailCapacity = Math.min(500, Math.max(1, Math.floor(limit / 4)));
+    this.headCapacity = Math.max(0, limit - this.tailCapacity);
+  }
+
+  start(): void { this.options.sink.started(this.plan); }
+
+  record(row: Omit<TraceRow, "step">): void {
+    const complete = { ...row, step: ++this.semanticSteps };
+    if (this.semanticSteps <= this.headCapacity) {
+      this.options.sink.row(complete);
+      this.deliveredRows += 1;
+      this.applyState(this.state, complete);
+      return;
+    }
+    if (!this.didTruncate) {
+      this.didTruncate = true;
+      this.tailState = cloneTraceState(this.state);
+      this.options.sink.truncated({ head: this.headCapacity, tailCapacity: this.tailCapacity });
+    }
+    if (this.tailRows.length === this.tailCapacity) this.applyState(this.tailState!, this.tailRows.shift()!);
+    this.tailRows.push(complete);
+    if (this.tailRows.length > this.tailCapacity) this.tailRows.shift();
+  }
+
+  finish(status: TraceFinish["status"]): void {
+    if (this.didFinish) return;
+    this.didFinish = true;
+    if (this.didTruncate) {
+      const skipped = Math.max(0, this.semanticSteps - this.headCapacity - this.tailRows.length);
+      this.options.sink.tail({ rows: this.tailRows, skipped, stateBefore: [...this.tailState!.values()] });
+    }
+    this.options.sink.finished({
+      status,
+      rows: this.deliveredRows + this.tailRows.length,
+      semanticSteps: this.semanticSteps,
+      truncated: this.didTruncate
+    });
+  }
+
+  private applyState(state: Map<string, TraceColumnState>, row: TraceRow): void {
+    for (const declaration of row.declarations ?? []) {
+      state.set(declaration.variableId, { variableId: declaration.variableId, declared: true, initialized: declaration.value.initialized });
+    }
+    for (const write of row.writes) {
+      state.set(write.variableId, { variableId: write.variableId, declared: true, initialized: write.after.initialized });
+    }
+  }
+}
 
 class RuntimeFault extends Error {
   constructor(readonly info: RuntimeErrorInfo) {
@@ -117,7 +193,8 @@ export class Interpreter {
   private readonly resolvingRecords = new Set<string>();
   private readonly loopControls = new Map<string, number>();
   private readonly outputs: string[] = [];
-  private readonly options: Required<Omit<ExecutionOptions, "onEvent" | "virtualFiles">> & Pick<ExecutionOptions, "onEvent">;
+  private readonly options: Required<Omit<ExecutionOptions, "onEvent" | "trace" | "virtualFiles">> & Pick<ExecutionOptions, "onEvent" | "trace">;
+  private readonly trace?: TraceCollector;
   private readonly initialFiles: RuntimeVirtualFile[];
   private readonly workingFiles: RuntimeVirtualFile[];
   private readonly handles = new Map<string, OpenHandle>();
@@ -145,7 +222,8 @@ export class Interpreter {
       yieldEverySteps: positiveInteger(options.yieldEverySteps, DEFAULTS.yieldEverySteps),
       random: options.random ?? Math.random,
       now: options.now ?? (() => performance.now()),
-      onEvent: options.onEvent
+      onEvent: options.onEvent,
+      trace: options.trace
     };
     this.initialFiles = cloneFiles(options.virtualFiles ?? []);
     this.workingFiles = cloneFiles(options.virtualFiles ?? []);
@@ -169,6 +247,7 @@ export class Interpreter {
       }
     }
     this.frames.push({ id: "main", name: "<main>", cells: this.cells });
+    if (options.trace) this.trace = new TraceCollector(options.trace, buildTracePlan(program));
     this.activeStartedAt = this.options.now();
     this.result = Promise.resolve().then(() => this.run());
   }
@@ -190,6 +269,7 @@ export class Interpreter {
     this.pendingInput = undefined;
     this.emit("input-accepted", pending.range, { variable: pending.cell.name, type: typeName(storage.type) });
     this.emitVariable("variable-changed", pending.range, pending.cell);
+    this.traceWrite(pending.range, pending.cell, pending.traceBefore, "input", `INPUT ${pending.cell.name}`);
     pending.resolve();
     return { accepted: true };
   }
@@ -213,10 +293,13 @@ export class Interpreter {
 
   private async run(): Promise<ExecutionResult> {
     this.emit("run-started", this.program.range, {});
+    this.trace?.start();
     if (this.diagnostics?.some(({ severity }) => severity === "error")) {
       const count = this.diagnostics.filter(({ severity }) => severity === "error").length;
       const error = faultInfo("RT1000", "runtime.preflightFailed", this.program.range, { count });
       this.emit("runtime-error", error.range, { error });
+      this.traceError(error);
+      this.trace?.finish("error");
       return this.finish("preflight-error", error);
     }
     const unsupported = findUnsupportedFeature(this.program, this.options.profile);
@@ -226,6 +309,8 @@ export class Interpreter {
         profile: this.options.profile
       });
       this.emit("runtime-error", error.range, { error });
+      this.traceError(error);
+      this.trace?.finish("error");
       return this.finish("preflight-error", error);
     }
     try {
@@ -235,16 +320,20 @@ export class Interpreter {
       this.closeAllHandles(true);
       this.pauseActiveClock();
       this.emit("run-completed", this.program.range, { steps: this.steps, activeTimeMs: this.activeTime(), virtualFiles: cloneFiles(this.workingFiles) });
+      this.trace?.finish("completed");
       return this.finish("completed");
     } catch (error) {
       this.closeAllHandles(true);
       this.pauseActiveClock();
       if (error instanceof Stopped) {
         this.emit("run-stopped", this.program.range, { steps: this.steps, activeTimeMs: this.activeTime() });
+        this.trace?.finish("stopped");
         return this.finish("stopped");
       }
       const fault = error instanceof RuntimeFault ? error.info : faultInfo("RT1999", "runtime.internalError", this.program.range);
       this.emit("runtime-error", fault.range, { error: fault });
+      this.traceError(fault);
+      this.trace?.finish("error");
       return this.finish("error", fault);
     }
   }
@@ -267,8 +356,10 @@ export class Interpreter {
           initialized: composite !== undefined,
           ...(composite !== undefined ? { value: composite } : {})
         };
+        this.attachMainTraceId(cell);
         this.currentFrame().cells.set(cell.normalizedName, cell);
         this.emitVariable("variable-declared", statement.range, cell);
+        this.traceDeclaration(statement.range, cell);
         return;
       }
       case "ConstantStatement": {
@@ -281,8 +372,10 @@ export class Interpreter {
           initialized: true,
           value: cloneValue(value.value)
         };
+        this.attachMainTraceId(cell);
         this.currentFrame().cells.set(cell.normalizedName, cell);
         this.emitVariable("variable-declared", statement.range, cell);
+        this.traceDeclaration(statement.range, cell);
         return;
       }
       case "DefineSetStatement": {
@@ -302,8 +395,10 @@ export class Interpreter {
       case "AssignmentStatement": {
         const cell = await this.resolveLocation(statement.target, true);
         const value = await this.evaluate(statement.value);
+        const before = this.traceValueFor(cell);
         this.assign(cell, value, statement.range);
         this.emitVariable("variable-changed", statement.range, cell);
+        this.traceWrite(statement.range, cell, before, "assign", `${cell.name} ←`);
         return;
       }
       case "InputStatement": {
@@ -311,7 +406,7 @@ export class Interpreter {
         if (cell.type.kind !== "primitive") this.fail("RT1105", "runtime.input.requiresPrimitive", statement.target.range);
         this.pauseActiveClock();
         await new Promise<void>((resolve) => {
-          this.pendingInput = { cell, range: statement.range, resolve };
+          this.pendingInput = { cell, range: statement.range, resolve, traceBefore: this.traceValueFor(cell) };
           this.emit("input-requested", statement.range, { variable: cell.name, type: typeName(cell.type) });
         });
         this.checkStopped();
@@ -322,6 +417,7 @@ export class Interpreter {
         for (const value of statement.values) parts.push(formatValue(await this.evaluate(value), value.range));
         const line = parts.join("");
         this.writeOutput(line, statement.range);
+        this.traceOutput(statement.range, line);
         return;
       }
       case "OpenFileStatement": {
@@ -408,7 +504,9 @@ export class Interpreter {
       case "IfStatement": {
         await this.tick(statement.condition.range, "condition-checked", { structure: "IF" });
         const condition = await this.evaluate(statement.condition);
-        await this.executeBlock(asBoolean(condition, statement.condition.range) ? statement.thenBranch : statement.elseBranch);
+        const result = asBoolean(condition, statement.condition.range);
+        this.traceCondition(statement.condition.range, "IF", result);
+        await this.executeBlock(result ? statement.thenBranch : statement.elseBranch);
         return;
       }
       case "CaseStatement": {
@@ -429,15 +527,17 @@ export class Interpreter {
         const step = statement.step ? asInteger(await this.evaluate(statement.step), statement.step.range) : 1;
         if (step === 0) this.fail("RT1501", "runtime.for.zeroStep", statement.step?.range ?? statement.range);
         let control = this.lookupCell(statement.control.normalizedName);
+        let implicitControl = false;
         if (!control) {
+          implicitControl = true;
           control = {
             name: statement.control.name,
             normalizedName: statement.control.normalizedName,
             kind: "loop-variable",
             type: primitive("INTEGER"),
-            initialized: true,
-            value: start
+            initialized: false
           };
+          this.attachMainTraceId(control);
           this.currentFrame().cells.set(control.normalizedName, control);
           this.emitVariable("variable-declared", statement.control.range, control);
         }
@@ -447,18 +547,28 @@ export class Interpreter {
         const controlStorage = storageCell(control);
         if (controlStorage.kind === "constant") this.fail("RT1005", "runtime.constant.cannotChange", statement.control.range, { name: control.name });
         let candidate = start;
+        const initialBefore = implicitControl ? uninitializedTraceValue() : this.traceValueFor(control);
         controlStorage.value = start;
         controlStorage.initialized = true;
         this.emitVariable("variable-changed", statement.range, control);
+        this.traceWrite(statement.range, control, initialBefore, "for-init", `FOR ${control.name} ← ${start}`);
         this.lockLoopControl(controlStorage.normalizedName);
         try {
+          let iteration = 0;
           while (true) {
             await this.tick(statement.range, "condition-checked", { structure: "FOR", value: candidate });
-            if (step > 0 ? candidate > end : candidate < end) break;
-            controlStorage.value = candidate;
-            this.emitVariable("variable-changed", statement.range, control);
+            const passes = step > 0 ? candidate <= end : candidate >= end;
+            this.traceCondition(statement.range, "FOR", passes);
+            if (!passes) break;
+            if (iteration > 0) {
+              const before = this.traceValueFor(control);
+              controlStorage.value = candidate;
+              this.emitVariable("variable-changed", statement.range, control);
+              this.traceWrite(statement.range, control, before, "for-next", `${control.name} ← ${candidate}`);
+            }
             await this.executeBlock(statement.body);
             candidate = checkedInteger(candidate + step, statement.range);
+            iteration += 1;
           }
         } finally {
           this.unlockLoopControl(controlStorage.normalizedName);
@@ -468,7 +578,9 @@ export class Interpreter {
       case "WhileStatement": {
         while (true) {
           await this.tick(statement.condition.range, "condition-checked", { structure: "WHILE" });
-          if (!asBoolean(await this.evaluate(statement.condition), statement.condition.range)) break;
+          const result = asBoolean(await this.evaluate(statement.condition), statement.condition.range);
+          this.traceCondition(statement.condition.range, "WHILE", result);
+          if (!result) break;
           await this.executeBlock(statement.body);
         }
         return;
@@ -477,7 +589,10 @@ export class Interpreter {
         do {
           await this.executeBlock(statement.body);
           await this.tick(statement.condition.range, "condition-checked", { structure: "REPEAT" });
-        } while (!asBoolean(await this.evaluate(statement.condition), statement.condition.range));
+          const result = asBoolean(await this.evaluate(statement.condition), statement.condition.range);
+          this.traceCondition(statement.condition.range, "REPEAT", result);
+          if (result) break;
+        } while (true);
         return;
       }
       case "RecordTypeDeclaration":
@@ -963,6 +1078,14 @@ export class Interpreter {
     };
     this.frames.push(frame);
     this.emit("frame-entered", declaration.range, { name: declaration.name, stack: this.stackNames(), variables: this.getVariables() });
+    this.trace?.record({
+      range: declaration.range,
+      frameId: frame.id,
+      kind: "call",
+      label: `CALL ${declaration.name}`,
+      writes: [],
+      call: { name: declaration.name, kind: declaration.kind === "ProcedureDeclaration" ? "procedure" : "function" }
+    });
     let returned: TypedValue | undefined;
     try {
       await this.executeBlock(declaration.body);
@@ -972,6 +1095,7 @@ export class Interpreter {
     } finally {
       this.frames.pop();
       this.emit("frame-exited", declaration.range, { name: declaration.name, stack: this.stackNames(), variables: this.getVariables() });
+      this.trace?.record({ range: declaration.range, frameId: frame.id, kind: "return", label: `RETURN ${declaration.name}`, writes: [] });
     }
     if (declaration.kind === "ProcedureDeclaration") {
       if (returned) this.fail("RT1909", "runtime.procedure.cannotReturnValue", declaration.range, { name: declaration.name });
@@ -1101,6 +1225,51 @@ export class Interpreter {
       field.initialized = true;
     }
     return record;
+  }
+
+  private attachMainTraceId(cell: Cell): void {
+    if (this.currentFrame().id === "main" && cell.type.kind === "primitive") cell.traceId = `main:${cell.normalizedName}`;
+  }
+
+  private traceValueFor(cell: Cell): TraceValue | undefined {
+    const storage = storageCell(cell);
+    return storage.traceId ? traceValue(storage) : undefined;
+  }
+
+  private traceDeclaration(range: SourceRange, cell: Cell): void {
+    const storage = storageCell(cell);
+    if (!this.trace || !storage.traceId) return;
+    const declaration: TraceDeclaration = { variableId: storage.traceId, name: cell.name, value: traceValue(storage) };
+    this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations: [declaration] });
+  }
+
+  private traceWrite(range: SourceRange, cell: Cell, before: TraceValue | undefined, cause: TraceWrite["cause"], label: string): void {
+    const storage = storageCell(cell);
+    if (!this.trace || !storage.traceId || !before) return;
+    const after = traceValue(storage);
+    const isByRef = cell !== storage && this.currentFrame().id !== "main";
+    const write: TraceWrite = {
+      variableId: storage.traceId,
+      name: storage.name,
+      before,
+      after,
+      sameValue: traceValuesEqual(before, after),
+      cause: isByRef ? "byref-write" : cause,
+      ...(isByRef ? { origin: { frameId: this.currentFrame().id, name: cell.name } } : {})
+    };
+    this.trace.record({ range, frameId: this.currentFrame().id, kind: "write", label, writes: [write] });
+  }
+
+  private traceCondition(range: SourceRange, structure: "IF" | "FOR" | "WHILE" | "REPEAT", result: boolean): void {
+    this.trace?.record({ range, frameId: this.currentFrame().id, kind: "condition", label: `${structure} → ${result ? "TRUE" : "FALSE"}`, writes: [], condition: { structure, result } });
+  }
+
+  private traceOutput(range: SourceRange, output: string): void {
+    this.trace?.record({ range, frameId: this.currentFrame().id, kind: "output", label: `OUTPUT ${output}`, writes: [], output });
+  }
+
+  private traceError(error: RuntimeErrorInfo): void {
+    this.trace?.record({ range: error.range, frameId: this.currentFrame()?.id ?? "main", kind: "error", label: error.code, writes: [], error });
   }
 
   private writeOutput(line: string, range: SourceRange): void {
@@ -1342,6 +1511,53 @@ function snapshotCell(cell: Cell): RuntimeVariable {
     ...(storage.initialized ? { value: snapshotValue(storage.value!) } : {}),
     displayValue: storage.initialized ? displayValue(storage.value!, cell.type) : "<未赋值>"
   };
+}
+
+function uninitializedTraceValue(): TraceValue { return { initialized: false, displayValue: "<未赋值>" }; }
+
+function traceValue(cell: Cell): TraceValue {
+  return cell.initialized
+    ? { initialized: true, displayValue: displayValue(cell.value!, cell.type), value: snapshotValue(cell.value!) }
+    : uninitializedTraceValue();
+}
+
+function traceValuesEqual(left: TraceValue, right: TraceValue): boolean {
+  return left.initialized === right.initialized && left.displayValue === right.displayValue
+    && JSON.stringify(left.value) === JSON.stringify(right.value);
+}
+
+function cloneTraceState(source: Map<string, TraceColumnState>): Map<string, TraceColumnState> {
+  return new Map([...source].map(([id, state]) => [id, { ...state }]));
+}
+
+function buildTracePlan(program: Program): TracePlan {
+  const columns = new Map<string, { variableId: string; name: string; normalizedName: string }>();
+  const add = (name: string, normalizedName: string): void => {
+    if (!columns.has(normalizedName)) columns.set(normalizedName, { variableId: `main:${normalizedName}`, name, normalizedName });
+  };
+  const addTarget = (expression: Expression): void => {
+    if (expression.kind === "NameExpression") add(expression.name, expression.normalizedName);
+  };
+  const visit = (statements: Statement[]): void => {
+    for (const statement of statements) {
+      switch (statement.kind) {
+        case "DeclareStatement":
+          if (statement.typeReference.kind === "PrimitiveTypeReference") add(statement.name, statement.normalizedName);
+          break;
+        case "ConstantStatement": add(statement.name, statement.normalizedName); break;
+        case "AssignmentStatement": addTarget(statement.target); break;
+        case "InputStatement": addTarget(statement.target); break;
+        case "ForStatement": add(statement.control.name, statement.control.normalizedName); visit(statement.body); break;
+        case "IfStatement": visit(statement.thenBranch); visit(statement.elseBranch); break;
+        case "WhileStatement": visit(statement.body); break;
+        case "RepeatStatement": visit(statement.body); break;
+        case "CaseStatement": for (const clause of statement.clauses) visit(clause.body); break;
+        default: break;
+      }
+    }
+  };
+  visit(program.body);
+  return { columns: [...columns.values()] };
 }
 
 function snapshotValue(value: InternalValue): RuntimeValue {

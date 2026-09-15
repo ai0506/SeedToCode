@@ -624,3 +624,32 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 - 第 2 题上 未交 → 未交：**0 个元素移动**
 
 缓存版本号：`grade.css` 4→5。`npm test` 43 文件 665 项全绿。
+
+[ClaudeCode][2609131737] 把 `TRACE_TABLE_PLAN.md` 的契约拿去跟 `packages/runtime` 的实际代码对了一遍，改掉对不上的地方。纯文档，没动代码。
+
+**先说对的那部分**：计划第 4 节的地基成立。核过 `interpreter.ts` 里 `condition-checked` 确实在求值前发出（409 / 470 / 479），`variable-changed` 确实只在写后带快照（1149），所以「不能复用 `ExecutionEvent`、要单开 `TraceSink`」是对的判断。运行时也是同线程（`onEvent` 直接同步回调、没有 Worker），回调式 sink 不存在跨边界问题。
+
+**契约自己对不上的三处**：
+- `TraceRow.kind` 声明了 `call` / `return`，§4.2 采集点表却没有对应规则；§4.3 要求保留错误行，`kind` 里又没有 `error`。补齐 `error` 成员和三类采集规则。
+- `TraceSink` 只有 `started / row / truncated`，**没有结束回调**，那截断脚注和错误脚注只能去等 `result` Promise——那是另一条时间线，停止和错误两条路径下先后顺序没有保证。加 `finished(TraceFinish)`，并写明前端不得用 `result` 代替。
+- `-` 实际承担了两种含义。契约说 `-` 是「已有值但本步没写」，可 §3 例子第 3 步 `Total` 显示 `-` 时它还是未赋值的。改成 `未赋值` 是**持续状态**，一直显示到首次成功写入为止，`-` 只剩一种含义；例子表同步改了。
+
+**跟解释器行为对不上的两处**：
+- FOR 的真实顺序是「先判条件、通过后才把 `candidate` 写回控制变量」（452 写 start、456 判、459 写 candidate），计划只说「每轮一次条件、一次 for-next」，没定先后。按解释器只能是**条件在前、写入在后**，写死并配单测。这跟手画 trace table 的习惯（先加再判）相反，但伪造成先写后判的话，循环最后那次失败条件前面会多出一次程序里并不存在的写入——而那正是学生最需要看清的一步。第一轮的 `for-next` 不记（此时 `candidate` 就等于 `start`，记了就是把内部实现暴露出去），用「第几轮」判断而不是值比较，免得 `FOR I ← 0 TO 0` 这类边界依赖数值巧合。
+- `TracePlan` 的列从哪来根本没写。只扫 `DECLARE` 会漏掉 FOR 隐式创建的控制变量（436–443 行，没 `DECLARE` 也会建 cell），而 `FOR I ← 1 TO 10` 不写 `DECLARE` 在 CAIE 题目里很常见；加上「运行途中不得新增列」，这类变量就永远没有列。补了五条列收集规则。
+
+**P1 的 BYREF 是会骗人的洞，不是「功能没做」。** `scope: "main-scalars"` 下过程帧内的写入一律不记，可 `CALL Swap(A, B)` 改的就是主程序变量：表里 `A`、`B` 一行不动，后面 `OUTPUT A` 却打出一个表里从没出现过的值。这正是 `CLAUDE.md` 里「凡是向用户断言状态的地方都要核实」的形状——表在宣称「什么都没发生」。所以 P1 的 `call` 行必须带 `opaqueWrites`（静态求出可能写回的主程序变量）、这些格显示独立的「可能已被修改」态、返回后立刻比较写前写后值并补一行 `cause: "call-writeback"` 的真实写入。说不清过程内部发生了什么可以，宣称什么都没发生不行。
+
+**截断改成保首 1,500 + 保尾 500**，原本是「保留前 2,000 行」。默认 `maxSteps` 是 100,000（`interpreter.ts:76`），2,000 行只是满额运行的 2%；而最需要 trace 的场景就是循环跑飞，那时有价值的恰恰是最后几十行，只保前面等于把答案裁掉。尾部用固定长度环形缓冲，不为此留整段历史。
+
+**两个覆盖面漏洞**：实验室有独立的云端运行路径（`app.js:2546`），只回填输出和最终变量，追踪表会是空的——空表看起来跟坏掉一模一样，所以规定必须显示说明文案。另外 §7.3 的命令门槛漏了缓存版本号：这个计划要改 `styles.css`（10 个页面共用）和 `runtime-engine.js`（6 个页面共用），只提 `lab.html` 一处其余页面会吃旧缓存，补进验收清单。
+
+**顺带**：`lab.html:182` 的空态文案现在写着「运行或单步执行时显示变量、数组与调用栈」，单步要到 P3 才有，这句话此刻就是不实的，记进 §5.1 让 P2 一并改掉。
+
+**没做的**：代码一行没动，P0 本身（冻结契约、写失败单测）没开始。`npm test` 没跑——这次只改 Markdown，没有测试覆盖它。
+[CodeX][2609131520] 修订 `TRACE_TABLE_PLAN.md` 的 trace 正确性契约：BYREF 写入改按主程序 storage identity 逐次记录，保留同值、多次和最终回写原值，移除仅比较调用前后值的 `call-writeback` 设计；首尾截断补齐 `tail()` 交付协议与状态正交的 `truncated` 标志，确保前 1,500 行与环形缓冲的后 500 行均能按时间显示。同步明确隐式 FOR 控制变量、trace 生命周期、无障碍来源文案、验收用例和 `rg` 缓存检查命令。仅文档变更，未改运行时或页面，未执行构建与测试。
+[CodeX][2609150835] 实现本机运行 trace table：runtime 新增独立 TraceSink、主程序标量列计划、声明/赋值/INPUT/条件/FOR/输出/调用/BYREF/错误采集与首尾有界截断，浏览器“调试”页渲染当前状态、调用栈、可访问的同值写入态和云端无追踪说明；新增 trace 契约测试并重建 runtime/exercise 浏览器 bundle。已通过 npm test（45 文件、669 项）与 git diff --check；使用 web-static 本地预览实测未赋值、-、同值写入和输出行，未做云端联测或窄屏几何快照。
+[CodeX][2609150839] 将共享缓存版本同步提升：全部页面的 styles.css v29→v30、所有 runtime-engine.js 引用 v11→v12、所有 exercise-engine.js 引用 v18→v19，避免 trace 运行时与样式在缓存下分叉；npm test（45 文件、669 项）和 git diff --check 通过。
+[CodeX][2609150840] 将 lab.html 的手写 app.js 缓存版本 v35→v36，使调试表渲染逻辑随本次 runtime 与样式 bundle 一同失效旧缓存；仅引用版本变更，待最终静态检查。
+[CodeX][2609150841] 同步 TRACE_TABLE_PLAN.md 与落地的 trace API：补列声明事件的 TraceDeclaration/TraceRow.declarations 契约，防止计划将“DECLARE 的未赋值持续态”误写成前端推断；纯文档更新，代码测试已在本轮前一次 npm test（45 文件、669 项）验证。
+[CodeX][2609150844] 更新 trace table 当前能力文档：README、PROJECT_STATE、web/README、LANGUAGE_SPEC、runtime-conventions 与 CLOUD_ARCHITECTURE 明确本机 TraceSink 的语义、范围、BYREF、截断、云端不返回 trace 和不影响判题/同步的边界；同时修正 README 的生产邮件投递状态。文档变更已通过 git diff --check，待随本次代码完整验证、提交与部署。

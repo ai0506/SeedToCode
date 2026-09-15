@@ -3594,6 +3594,66 @@ var CAIERuntime = (() => {
     yieldEverySteps: 128
   };
   var encoder = new TextEncoder();
+  var TraceCollector = class {
+    constructor(options, plan) {
+      this.options = options;
+      this.plan = plan;
+      const limit = positiveInteger(options.maxRows, 2e3);
+      this.tailCapacity = Math.min(500, Math.max(1, Math.floor(limit / 4)));
+      this.headCapacity = Math.max(0, limit - this.tailCapacity);
+    }
+    headCapacity;
+    tailCapacity;
+    tailRows = [];
+    state = /* @__PURE__ */ new Map();
+    tailState;
+    semanticSteps = 0;
+    deliveredRows = 0;
+    didTruncate = false;
+    didFinish = false;
+    start() {
+      this.options.sink.started(this.plan);
+    }
+    record(row) {
+      const complete = { ...row, step: ++this.semanticSteps };
+      if (this.semanticSteps <= this.headCapacity) {
+        this.options.sink.row(complete);
+        this.deliveredRows += 1;
+        this.applyState(this.state, complete);
+        return;
+      }
+      if (!this.didTruncate) {
+        this.didTruncate = true;
+        this.tailState = cloneTraceState(this.state);
+        this.options.sink.truncated({ head: this.headCapacity, tailCapacity: this.tailCapacity });
+      }
+      if (this.tailRows.length === this.tailCapacity) this.applyState(this.tailState, this.tailRows.shift());
+      this.tailRows.push(complete);
+      if (this.tailRows.length > this.tailCapacity) this.tailRows.shift();
+    }
+    finish(status) {
+      if (this.didFinish) return;
+      this.didFinish = true;
+      if (this.didTruncate) {
+        const skipped = Math.max(0, this.semanticSteps - this.headCapacity - this.tailRows.length);
+        this.options.sink.tail({ rows: this.tailRows, skipped, stateBefore: [...this.tailState.values()] });
+      }
+      this.options.sink.finished({
+        status,
+        rows: this.deliveredRows + this.tailRows.length,
+        semanticSteps: this.semanticSteps,
+        truncated: this.didTruncate
+      });
+    }
+    applyState(state, row) {
+      for (const declaration of row.declarations ?? []) {
+        state.set(declaration.variableId, { variableId: declaration.variableId, declared: true, initialized: declaration.value.initialized });
+      }
+      for (const write of row.writes) {
+        state.set(write.variableId, { variableId: write.variableId, declared: true, initialized: write.after.initialized });
+      }
+    }
+  };
   var RuntimeFault = class extends Error {
     constructor(info) {
       super(info.messageKey);
@@ -3627,7 +3687,8 @@ var CAIERuntime = (() => {
         yieldEverySteps: positiveInteger(options.yieldEverySteps, DEFAULTS.yieldEverySteps),
         random: options.random ?? Math.random,
         now: options.now ?? (() => performance.now()),
-        onEvent: options.onEvent
+        onEvent: options.onEvent,
+        trace: options.trace
       };
       this.initialFiles = cloneFiles(options.virtualFiles ?? []);
       this.workingFiles = cloneFiles(options.virtualFiles ?? []);
@@ -3655,6 +3716,7 @@ var CAIERuntime = (() => {
         }
       }
       this.frames.push({ id: "main", name: "<main>", cells: this.cells });
+      if (options.trace) this.trace = new TraceCollector(options.trace, buildTracePlan(program));
       this.activeStartedAt = this.options.now();
       this.result = Promise.resolve().then(() => this.run());
     }
@@ -3679,6 +3741,7 @@ var CAIERuntime = (() => {
     loopControls = /* @__PURE__ */ new Map();
     outputs = [];
     options;
+    trace;
     initialFiles;
     workingFiles;
     handles = /* @__PURE__ */ new Map();
@@ -3707,6 +3770,7 @@ var CAIERuntime = (() => {
       this.pendingInput = void 0;
       this.emit("input-accepted", pending.range, { variable: pending.cell.name, type: typeName(storage.type) });
       this.emitVariable("variable-changed", pending.range, pending.cell);
+      this.traceWrite(pending.range, pending.cell, pending.traceBefore, "input", `INPUT ${pending.cell.name}`);
       pending.resolve();
       return { accepted: true };
     }
@@ -3727,10 +3791,13 @@ var CAIERuntime = (() => {
     }
     async run() {
       this.emit("run-started", this.program.range, {});
+      this.trace?.start();
       if (this.diagnostics?.some(({ severity }) => severity === "error")) {
         const count = this.diagnostics.filter(({ severity }) => severity === "error").length;
         const error = faultInfo("RT1000", "runtime.preflightFailed", this.program.range, { count });
         this.emit("runtime-error", error.range, { error });
+        this.traceError(error);
+        this.trace?.finish("error");
         return this.finish("preflight-error", error);
       }
       const unsupported = findUnsupportedFeature(this.program, this.options.profile);
@@ -3740,6 +3807,8 @@ var CAIERuntime = (() => {
           profile: this.options.profile
         });
         this.emit("runtime-error", error.range, { error });
+        this.traceError(error);
+        this.trace?.finish("error");
         return this.finish("preflight-error", error);
       }
       try {
@@ -3749,16 +3818,20 @@ var CAIERuntime = (() => {
         this.closeAllHandles(true);
         this.pauseActiveClock();
         this.emit("run-completed", this.program.range, { steps: this.steps, activeTimeMs: this.activeTime(), virtualFiles: cloneFiles(this.workingFiles) });
+        this.trace?.finish("completed");
         return this.finish("completed");
       } catch (error) {
         this.closeAllHandles(true);
         this.pauseActiveClock();
         if (error instanceof Stopped) {
           this.emit("run-stopped", this.program.range, { steps: this.steps, activeTimeMs: this.activeTime() });
+          this.trace?.finish("stopped");
           return this.finish("stopped");
         }
         const fault = error instanceof RuntimeFault ? error.info : faultInfo("RT1999", "runtime.internalError", this.program.range);
         this.emit("runtime-error", fault.range, { error: fault });
+        this.traceError(fault);
+        this.trace?.finish("error");
         return this.finish("error", fault);
       }
     }
@@ -3779,8 +3852,10 @@ var CAIERuntime = (() => {
             initialized: composite !== void 0,
             ...composite !== void 0 ? { value: composite } : {}
           };
+          this.attachMainTraceId(cell);
           this.currentFrame().cells.set(cell.normalizedName, cell);
           this.emitVariable("variable-declared", statement.range, cell);
+          this.traceDeclaration(statement.range, cell);
           return;
         }
         case "ConstantStatement": {
@@ -3793,8 +3868,10 @@ var CAIERuntime = (() => {
             initialized: true,
             value: cloneValue(value.value)
           };
+          this.attachMainTraceId(cell);
           this.currentFrame().cells.set(cell.normalizedName, cell);
           this.emitVariable("variable-declared", statement.range, cell);
+          this.traceDeclaration(statement.range, cell);
           return;
         }
         case "DefineSetStatement": {
@@ -3814,8 +3891,10 @@ var CAIERuntime = (() => {
         case "AssignmentStatement": {
           const cell = await this.resolveLocation(statement.target, true);
           const value = await this.evaluate(statement.value);
+          const before = this.traceValueFor(cell);
           this.assign(cell, value, statement.range);
           this.emitVariable("variable-changed", statement.range, cell);
+          this.traceWrite(statement.range, cell, before, "assign", `${cell.name} \u2190`);
           return;
         }
         case "InputStatement": {
@@ -3823,7 +3902,7 @@ var CAIERuntime = (() => {
           if (cell.type.kind !== "primitive") this.fail("RT1105", "runtime.input.requiresPrimitive", statement.target.range);
           this.pauseActiveClock();
           await new Promise((resolve) => {
-            this.pendingInput = { cell, range: statement.range, resolve };
+            this.pendingInput = { cell, range: statement.range, resolve, traceBefore: this.traceValueFor(cell) };
             this.emit("input-requested", statement.range, { variable: cell.name, type: typeName(cell.type) });
           });
           this.checkStopped();
@@ -3834,6 +3913,7 @@ var CAIERuntime = (() => {
           for (const value of statement.values) parts.push(formatValue(await this.evaluate(value), value.range));
           const line = parts.join("");
           this.writeOutput(line, statement.range);
+          this.traceOutput(statement.range, line);
           return;
         }
         case "OpenFileStatement": {
@@ -3920,7 +4000,9 @@ var CAIERuntime = (() => {
         case "IfStatement": {
           await this.tick(statement.condition.range, "condition-checked", { structure: "IF" });
           const condition = await this.evaluate(statement.condition);
-          await this.executeBlock(asBoolean(condition, statement.condition.range) ? statement.thenBranch : statement.elseBranch);
+          const result = asBoolean(condition, statement.condition.range);
+          this.traceCondition(statement.condition.range, "IF", result);
+          await this.executeBlock(result ? statement.thenBranch : statement.elseBranch);
           return;
         }
         case "CaseStatement": {
@@ -3941,15 +4023,17 @@ var CAIERuntime = (() => {
           const step = statement.step ? asInteger(await this.evaluate(statement.step), statement.step.range) : 1;
           if (step === 0) this.fail("RT1501", "runtime.for.zeroStep", statement.step?.range ?? statement.range);
           let control = this.lookupCell(statement.control.normalizedName);
+          let implicitControl = false;
           if (!control) {
+            implicitControl = true;
             control = {
               name: statement.control.name,
               normalizedName: statement.control.normalizedName,
               kind: "loop-variable",
               type: primitive2("INTEGER"),
-              initialized: true,
-              value: start
+              initialized: false
             };
+            this.attachMainTraceId(control);
             this.currentFrame().cells.set(control.normalizedName, control);
             this.emitVariable("variable-declared", statement.control.range, control);
           }
@@ -3959,18 +4043,28 @@ var CAIERuntime = (() => {
           const controlStorage = storageCell(control);
           if (controlStorage.kind === "constant") this.fail("RT1005", "runtime.constant.cannotChange", statement.control.range, { name: control.name });
           let candidate = start;
+          const initialBefore = implicitControl ? uninitializedTraceValue() : this.traceValueFor(control);
           controlStorage.value = start;
           controlStorage.initialized = true;
           this.emitVariable("variable-changed", statement.range, control);
+          this.traceWrite(statement.range, control, initialBefore, "for-init", `FOR ${control.name} \u2190 ${start}`);
           this.lockLoopControl(controlStorage.normalizedName);
           try {
+            let iteration = 0;
             while (true) {
               await this.tick(statement.range, "condition-checked", { structure: "FOR", value: candidate });
-              if (step > 0 ? candidate > end : candidate < end) break;
-              controlStorage.value = candidate;
-              this.emitVariable("variable-changed", statement.range, control);
+              const passes = step > 0 ? candidate <= end : candidate >= end;
+              this.traceCondition(statement.range, "FOR", passes);
+              if (!passes) break;
+              if (iteration > 0) {
+                const before = this.traceValueFor(control);
+                controlStorage.value = candidate;
+                this.emitVariable("variable-changed", statement.range, control);
+                this.traceWrite(statement.range, control, before, "for-next", `${control.name} \u2190 ${candidate}`);
+              }
               await this.executeBlock(statement.body);
               candidate = checkedInteger(candidate + step, statement.range);
+              iteration += 1;
             }
           } finally {
             this.unlockLoopControl(controlStorage.normalizedName);
@@ -3980,7 +4074,9 @@ var CAIERuntime = (() => {
         case "WhileStatement": {
           while (true) {
             await this.tick(statement.condition.range, "condition-checked", { structure: "WHILE" });
-            if (!asBoolean(await this.evaluate(statement.condition), statement.condition.range)) break;
+            const result = asBoolean(await this.evaluate(statement.condition), statement.condition.range);
+            this.traceCondition(statement.condition.range, "WHILE", result);
+            if (!result) break;
             await this.executeBlock(statement.body);
           }
           return;
@@ -3989,7 +4085,10 @@ var CAIERuntime = (() => {
           do {
             await this.executeBlock(statement.body);
             await this.tick(statement.condition.range, "condition-checked", { structure: "REPEAT" });
-          } while (!asBoolean(await this.evaluate(statement.condition), statement.condition.range));
+            const result = asBoolean(await this.evaluate(statement.condition), statement.condition.range);
+            this.traceCondition(statement.condition.range, "REPEAT", result);
+            if (result) break;
+          } while (true);
           return;
         }
         case "RecordTypeDeclaration":
@@ -4479,6 +4578,14 @@ var CAIERuntime = (() => {
       };
       this.frames.push(frame);
       this.emit("frame-entered", declaration.range, { name: declaration.name, stack: this.stackNames(), variables: this.getVariables() });
+      this.trace?.record({
+        range: declaration.range,
+        frameId: frame.id,
+        kind: "call",
+        label: `CALL ${declaration.name}`,
+        writes: [],
+        call: { name: declaration.name, kind: declaration.kind === "ProcedureDeclaration" ? "procedure" : "function" }
+      });
       let returned;
       try {
         await this.executeBlock(declaration.body);
@@ -4488,6 +4595,7 @@ var CAIERuntime = (() => {
       } finally {
         this.frames.pop();
         this.emit("frame-exited", declaration.range, { name: declaration.name, stack: this.stackNames(), variables: this.getVariables() });
+        this.trace?.record({ range: declaration.range, frameId: frame.id, kind: "return", label: `RETURN ${declaration.name}`, writes: [] });
       }
       if (declaration.kind === "ProcedureDeclaration") {
         if (returned) this.fail("RT1909", "runtime.procedure.cannotReturnValue", declaration.range, { name: declaration.name });
@@ -4608,6 +4716,44 @@ var CAIERuntime = (() => {
         field.initialized = true;
       }
       return record;
+    }
+    attachMainTraceId(cell) {
+      if (this.currentFrame().id === "main" && cell.type.kind === "primitive") cell.traceId = `main:${cell.normalizedName}`;
+    }
+    traceValueFor(cell) {
+      const storage = storageCell(cell);
+      return storage.traceId ? traceValue(storage) : void 0;
+    }
+    traceDeclaration(range, cell) {
+      const storage = storageCell(cell);
+      if (!this.trace || !storage.traceId) return;
+      const declaration = { variableId: storage.traceId, name: cell.name, value: traceValue(storage) };
+      this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations: [declaration] });
+    }
+    traceWrite(range, cell, before, cause, label) {
+      const storage = storageCell(cell);
+      if (!this.trace || !storage.traceId || !before) return;
+      const after = traceValue(storage);
+      const isByRef = cell !== storage && this.currentFrame().id !== "main";
+      const write = {
+        variableId: storage.traceId,
+        name: storage.name,
+        before,
+        after,
+        sameValue: traceValuesEqual(before, after),
+        cause: isByRef ? "byref-write" : cause,
+        ...isByRef ? { origin: { frameId: this.currentFrame().id, name: cell.name } } : {}
+      };
+      this.trace.record({ range, frameId: this.currentFrame().id, kind: "write", label, writes: [write] });
+    }
+    traceCondition(range, structure, result) {
+      this.trace?.record({ range, frameId: this.currentFrame().id, kind: "condition", label: `${structure} \u2192 ${result ? "TRUE" : "FALSE"}`, writes: [], condition: { structure, result } });
+    }
+    traceOutput(range, output) {
+      this.trace?.record({ range, frameId: this.currentFrame().id, kind: "output", label: `OUTPUT ${output}`, writes: [], output });
+    }
+    traceError(error) {
+      this.trace?.record({ range: error.range, frameId: this.currentFrame()?.id ?? "main", kind: "error", label: error.code, writes: [], error });
     }
     writeOutput(line, range) {
       const bytes = encoder.encode(`${line}
@@ -4904,6 +5050,66 @@ var CAIERuntime = (() => {
       ...storage.initialized ? { value: snapshotValue(storage.value) } : {},
       displayValue: storage.initialized ? displayValue(storage.value, cell.type) : "<\u672A\u8D4B\u503C>"
     };
+  }
+  function uninitializedTraceValue() {
+    return { initialized: false, displayValue: "<\u672A\u8D4B\u503C>" };
+  }
+  function traceValue(cell) {
+    return cell.initialized ? { initialized: true, displayValue: displayValue(cell.value, cell.type), value: snapshotValue(cell.value) } : uninitializedTraceValue();
+  }
+  function traceValuesEqual(left, right) {
+    return left.initialized === right.initialized && left.displayValue === right.displayValue && JSON.stringify(left.value) === JSON.stringify(right.value);
+  }
+  function cloneTraceState(source) {
+    return new Map([...source].map(([id, state]) => [id, { ...state }]));
+  }
+  function buildTracePlan(program) {
+    const columns = /* @__PURE__ */ new Map();
+    const add = (name, normalizedName) => {
+      if (!columns.has(normalizedName)) columns.set(normalizedName, { variableId: `main:${normalizedName}`, name, normalizedName });
+    };
+    const addTarget = (expression) => {
+      if (expression.kind === "NameExpression") add(expression.name, expression.normalizedName);
+    };
+    const visit = (statements) => {
+      for (const statement of statements) {
+        switch (statement.kind) {
+          case "DeclareStatement":
+            if (statement.typeReference.kind === "PrimitiveTypeReference") add(statement.name, statement.normalizedName);
+            break;
+          case "ConstantStatement":
+            add(statement.name, statement.normalizedName);
+            break;
+          case "AssignmentStatement":
+            addTarget(statement.target);
+            break;
+          case "InputStatement":
+            addTarget(statement.target);
+            break;
+          case "ForStatement":
+            add(statement.control.name, statement.control.normalizedName);
+            visit(statement.body);
+            break;
+          case "IfStatement":
+            visit(statement.thenBranch);
+            visit(statement.elseBranch);
+            break;
+          case "WhileStatement":
+            visit(statement.body);
+            break;
+          case "RepeatStatement":
+            visit(statement.body);
+            break;
+          case "CaseStatement":
+            for (const clause of statement.clauses) visit(clause.body);
+            break;
+          default:
+            break;
+        }
+      }
+    };
+    visit(program.body);
+    return { columns: [...columns.values()] };
   }
   function snapshotValue(value) {
     if (!isComposite(value)) return cloneValue(value);

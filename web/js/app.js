@@ -37,6 +37,7 @@ let currentProjectId = 'project-default';
 
 let diagnostics = [];
 let run = { active: false, controller: null, pending: false, fileTouched: false };
+let traceRun = null;
 
 /* ---------------- 持久化 ---------------- */
 function clone(x) { return JSON.parse(JSON.stringify(x)); }
@@ -1117,6 +1118,7 @@ function resetRunPanel() {
    $('varTable').hidden = true;
    $('stackBox').hidden = true;
    $('varsEmpty').hidden = false;
+   resetTrace('本机运行后在这里显示逐步追踪。');
    renderLineMarks();
    renderHandles([]);
 }
@@ -1129,6 +1131,132 @@ function println(text, cls) {
    $('console').scrollTop = $('console').scrollHeight;
 }
 
+/* trace 是本次本机运行的临时视图：页面不把它写入项目或同步数据。 */
+function resetTrace(message) {
+   traceRun = null;
+   $('traceTable').querySelector('thead').innerHTML = '';
+   $('traceTable').querySelector('tbody').innerHTML = '';
+   $('traceWrap').hidden = true;
+   $('traceEmpty').textContent = message || '本机运行后在这里显示逐步追踪。';
+   $('traceEmpty').hidden = false;
+   $('traceStatus').textContent = '';
+}
+
+function startTrace(plan) {
+   traceRun = { plan: plan, rows: [], tail: [], values: {}, truncated: null, selected: null };
+   (plan.columns || []).forEach(function (column) {
+      traceRun.values[column.variableId] = { declared: false, initialized: false };
+   });
+   const columns = plan.columns || [];
+   $('traceTable').querySelector('thead').innerHTML = '<tr><th>步骤</th><th>源码</th><th>动作</th><th>输出</th>' + columns.map(function (column) {
+      return '<th>' + escapeHtml(column.name) + '</th>';
+   }).join('') + '</tr>';
+   $('traceTable').querySelector('tbody').innerHTML = '';
+   $('traceEmpty').hidden = true;
+   $('traceWrap').hidden = false;
+   $('traceStatus').textContent = '追踪中…';
+}
+
+function traceValueText(value) { return value && value.initialized ? value.displayValue : '未赋值'; }
+function traceState(trace, variableId) { return trace.values[variableId] || { declared: false, initialized: false }; }
+
+function makeTraceRow(row) {
+   const tr = document.createElement('tr');
+   tr.dataset.traceRow = String(row.step);
+   const line = row.range && row.range.start ? row.range.start.line : 1;
+   function cell(text, className, label) {
+      const td = document.createElement('td');
+      td.className = className || '';
+      td.textContent = text;
+      if (label) td.setAttribute('aria-label', label);
+      tr.appendChild(td);
+      return td;
+   }
+   cell(String(row.step), 'trace-step');
+   cell('第 ' + line + ' 行', 'trace-source');
+   cell(row.label || '', 'trace-action');
+   cell(row.output || '', 'trace-output');
+   (traceRun.plan.columns || []).forEach(function (column) {
+      const declaration = (row.declarations || []).find(function (item) { return item.variableId === column.variableId; });
+      const write = (row.writes || []).find(function (item) { return item.variableId === column.variableId; });
+      const state = traceState(traceRun, column.variableId);
+      let text = '';
+      let className = '';
+      let label = '';
+      if (declaration) {
+         state.declared = true;
+         state.initialized = declaration.value.initialized;
+         text = traceValueText(declaration.value);
+         if (!declaration.value.initialized) className = 'trace-unassigned';
+      } else if (write) {
+         state.declared = true;
+         state.initialized = write.after.initialized;
+         text = traceValueText(write.after);
+         if (write.sameValue) {
+            className = 'trace-same-write';
+            label = write.name + ' 写入 ' + text + '，值未改变';
+         }
+         if (write.origin) label = write.name + ' 由 ' + write.origin.name + ' 的 BYREF 参数写入 ' + text;
+      } else if (state.declared) {
+         text = state.initialized ? '-' : '未赋值';
+         if (!state.initialized) className = 'trace-unassigned';
+      }
+      cell(text, className, label);
+   });
+   tr.addEventListener('click', function () {
+      const previous = $('traceTable').querySelector('tr.is-selected');
+      if (previous) previous.classList.remove('is-selected');
+      tr.classList.add('is-selected');
+      traceRun.selected = row.step;
+      renderLineMarks(line);
+   });
+   return tr;
+}
+
+function appendTraceRow(row) {
+   if (!traceRun) return;
+   traceRun.rows.push(row);
+   $('traceTable').querySelector('tbody').appendChild(makeTraceRow(row));
+}
+
+function traceSink() {
+   return {
+      started: startTrace,
+      row: appendTraceRow,
+      truncated: function (info) {
+         if (!traceRun) return;
+         traceRun.truncated = info;
+         const omitted = document.createElement('tr');
+         omitted.className = 'trace-omitted';
+         omitted.dataset.traceOmitted = 'true';
+         const td = document.createElement('td');
+         td.colSpan = 4 + (traceRun.plan.columns || []).length;
+         td.textContent = '后续步骤将在运行结束后显示';
+         omitted.appendChild(td);
+         $('traceTable').querySelector('tbody').appendChild(omitted);
+         $('traceStatus').textContent = '记录超过 ' + info.head + ' 步，正在保留最后 ' + info.tailCapacity + ' 步。';
+      },
+      tail: function (info) {
+         if (!traceRun) return;
+         traceRun.tail = info.rows || [];
+         (info.stateBefore || []).forEach(function (state) {
+            traceRun.values[state.variableId] = { declared: state.declared, initialized: state.initialized };
+         });
+         const omitted = $('traceTable').querySelector('[data-trace-omitted]');
+         if (omitted) {
+            omitted.querySelector('td').textContent = '已省略 ' + info.skipped + ' 步';
+         }
+         /* 运行时一并传回尾部开始前的列状态，重放时不会猜测被省略段的写入。 */
+         (traceRun.tail || []).forEach(function (row) { appendTraceRow(row); });
+      },
+      finished: function (info) {
+         if (!traceRun) return;
+         const state = info.status === 'completed' ? '已结束' : info.status === 'stopped' ? '已停止' : '出错';
+         $('traceStatus').textContent = state + ' · 共 ' + info.semanticSteps + ' 步' + (info.truncated ? ' · 已截断显示' : '');
+      }
+   };
+}
+
 function setStatus(text, cls) {
    $('runStatus').textContent = text;
    $('runStatus').className = 'run-status' + (cls ? ' ' + cls : '');
@@ -1138,6 +1266,7 @@ function startRun() {
    if (run.active) return;
    showTab('output');
    $('console').innerHTML = '';
+   resetTrace('正在建立本机追踪…');
    run = { active: true, controller: null, pending: false, fileTouched: false };
    $('runBtn').hidden = true;
    $('stopBtn').hidden = false;
@@ -1162,6 +1291,7 @@ function startRun() {
    const controller = RUNTIME.executeSource(code.value, {
       profile: state.settings.runtimeProfile,
       onEvent: handleRuntimeEvent,
+      trace: { sink: traceSink(), scope: 'main-scalars' },
       virtualFiles: clone(state.runtimeFiles)
    });
    run.controller = controller;
@@ -2570,6 +2700,7 @@ async function startCloudRun(inputs) {
    run = { active: true, controller: null, pending: false, fileTouched: false };
    showTab('output');
    $('console').innerHTML = '';
+   resetTrace('云端运行不产生追踪记录；点「运行」在本机运行可查看逐步追踪。');
    $('runBtn').disabled = true;
    setStatus('云端运行中…', 'running');
    println('已提交到云端运行（使用编辑器中的当前内容）。', 'sys');

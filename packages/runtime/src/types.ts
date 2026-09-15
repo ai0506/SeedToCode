@@ -61,6 +61,78 @@ export type RuntimeErrorInfo = {
   range: SourceRange;
 };
 
+/** A serialisable value captured at one point in a debugging trace. */
+export type TraceValue = {
+  initialized: boolean;
+  displayValue: string;
+  value?: RuntimeValue;
+};
+
+export type TraceColumn = {
+  variableId: string;
+  name: string;
+  normalizedName: string;
+};
+
+export type TracePlan = { columns: TraceColumn[] };
+
+export type TraceWrite = {
+  variableId: string;
+  name: string;
+  before: TraceValue;
+  after: TraceValue;
+  sameValue: boolean;
+  cause: "assign" | "input" | "for-init" | "for-next" | "byref-write" | "file-read" | "record-read";
+  origin?: { frameId: string; name: string };
+};
+
+export type TraceDeclaration = {
+  variableId: string;
+  name: string;
+  value: TraceValue;
+};
+
+export type TraceRow = {
+  step: number;
+  range: SourceRange;
+  frameId: string;
+  kind: "declare" | "write" | "condition" | "output" | "call" | "return" | "error";
+  label: string;
+  writes: TraceWrite[];
+  declarations?: TraceDeclaration[];
+  condition?: { structure: "IF" | "FOR" | "WHILE" | "REPEAT"; result: boolean };
+  output?: string;
+  call?: { name: string; kind: "procedure" | "function" };
+  error?: RuntimeErrorInfo;
+};
+
+export type TraceFinish = {
+  status: "completed" | "stopped" | "error";
+  rows: number;
+  semanticSteps: number;
+  truncated: boolean;
+};
+
+export type TraceColumnState = {
+  variableId: string;
+  declared: boolean;
+  initialized: boolean;
+};
+
+export type TraceSink = {
+  started(plan: TracePlan): void;
+  row(row: TraceRow): void;
+  truncated(info: { head: number; tailCapacity: number }): void;
+  tail(info: { rows: TraceRow[]; skipped: number; stateBefore: TraceColumnState[] }): void;
+  finished(info: TraceFinish): void;
+};
+
+export type TraceOptions = {
+  sink: TraceSink;
+  maxRows?: number;
+  scope: "main-scalars";
+};
+
 export type ExecutionEventType =
   | "run-started"
   | "statement-entered"
@@ -123,6 +195,7 @@ export type ExecutionOptions = {
   random?: () => number;
   now?: () => number;
   onEvent?: (event: ExecutionEvent) => void;
+  trace?: TraceOptions;
   virtualFiles?: RuntimeVirtualFile[];
 };
 
