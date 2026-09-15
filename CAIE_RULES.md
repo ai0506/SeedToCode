@@ -116,7 +116,7 @@
 | `CASE-002` | REQUIRED | `OTHERWISE` 若存在必须是最后一个分支；第一个匹配分支执行后即离开 CASE。 | Guide 6.2，p.19 | 次序错误为 `error/CAIE` |
 | `FOR-001` | REQUIRED | `FOR variable ← start TO end [STEP increment] ... NEXT variable`；控制变量、边界和步长均为 `INTEGER`。 | Guide 7.1，p.20 | `error/CAIE` |
 | `FOR-002` | REQUIRED | 未指定 STEP 时按 1 递增，边界包含在循环范围内；初值大于终值且无负步长时循环体不执行。 | Guide 7.1，p.20 | 执行规则 |
-| `FOR-003` | RECOMMENDED | `NEXT` 后重复控制变量名，尤其在嵌套循环中。 | Guide 7.1，p.20 | `hint/CAIE` |
+| `FOR-003` | RECOMMENDED | `NEXT` 后重复控制变量名，尤其在嵌套循环中。指南的语法写作 `NEXT <identifier>`，六个 FOR 示例（`NEXT Index`×2、`Column`、`Row`、`Side`、`Position`）**全部**带名字，没有一处裸 `NEXT`；措辞仍是 good practice，所以只给建议不阻断。**注意这和 `DECL-001` 的证据方向相反**：那一条的示例是一个都没声明。 | Guide 7.1，p.20 | `hint/CAIE` |
 | `REPEAT-001` | REQUIRED | `REPEAT ... UNTIL condition` 至少执行一次，条件必须为 `BOOLEAN`，为 TRUE 时结束。 | Guide 7.2，pp.20-21 | `error/CAIE` |
 | `WHILE-001` | REQUIRED | `WHILE condition ... ENDWHILE` 在循环体前测试 BOOLEAN 条件，为 FALSE 时结束。 | Guide 7.3，p.21 | `error/CAIE` |
 

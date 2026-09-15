@@ -43,7 +43,7 @@ export const chapter05: Chapter = {
           callouts: [
             {
               source: "CAIE",
-              text: "计数控制循环写作 `FOR <identifier> ← <start> TO <end> … NEXT <identifier>`。控制变量必须是 `INTEGER`，起点与终点都包含在内；指南把「`NEXT` 后重复写变量名」列为 good practice（Pseudocode Guide §7.1）。"
+              text: "计数控制循环写作 `FOR <identifier> ← <start> TO <end> … NEXT <identifier>`——语法里 `NEXT` 后面是带变量名的，指南的六个 FOR 示例也都写了；「重复写一遍」被称为 good practice，尤其在嵌套循环里。控制变量必须是 `INTEGER`，起点与终点都包含在内（Pseudocode Guide §7.1）。"
             },
             {
               source: "CAIE",

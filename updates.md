@@ -818,3 +818,18 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 **另外按要求复查了 `NEXT` 的官方立场，结论和 `DECLARE` 相反，见下一条。**
 
 缓存版本号（现查现提）：`styles.css` 33→34（十页）、`app.js` 39→40（只有 `lab.html` 引）。`npm test` 1356 项全绿。
+
+[ClaudeCode][2609151100] 按要求复查 `NEXT` 的官方立场——**结论和 `DECLARE` 相反**，把这个差别写进规则基线。
+
+查的是同一份 `pseudocode_guide-9618.md`：
+- **语法框本身带名字**：§7.1 两处语法（带 STEP 和不带 STEP）都写作 `NEXT <identifier>`。
+- **六个示例全部带名字**，没有一处裸 `NEXT`：`NEXT Index`（两处）、`NEXT Column`、`NEXT Row`、`NEXT Side`、`NEXT Position`。
+- 措辞仍是「Content under development」
+
+**所以这两件事看着都像「good practice」，证据方向却完全相反**：`DECLARE` 那条，指南自己的 FOR 示例**一个都没声明**（4 个计数器 0 次声明）；`NEXT` 这条，指南自己的示例**一个不落全写了**（6 次 6 次）。措辞相同不代表实践相同——只读措辞会把两件事拉平，看示例才分得开。考试里该写 `NEXT I`。
+
+引擎的三档本来就对，复核过：`NEXT i` 无诊断；`NEXT` 是 `hint/CAIE FOR-003` 照常运行；`NEXT j` 写错名字是 `error/Editor Runtime FOR-001`，预检拦下。**没有改任何行为**，只改了两处说法：
+- `CAIE_RULES.md` 的 `FOR-003` 补上示例统计，并**明确点出它和 `DECL-001` 的证据方向相反**，免得以后再有人按「都是 good practice」把两条拉平；
+- 第 5 章那个 CAIE 规定框改成先说语法里带名字、示例都写了，再说「重复写」是 good practice。正文一个字没动（上一轮刚按使用者的意见清理过，不往里塞）。
+
+缓存版本号：`teaching-content.js` 27→28（五页）。`npm test` 1356 项全绿。
