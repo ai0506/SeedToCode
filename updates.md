@@ -750,3 +750,8 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 **推之前撞上一次分叉，而且这次撞的正是缓存版本号那条坑。** 我基于 `371ffc9` 开工，其间另一路把窄屏顶栏的修复（`2609150917`）合了进来**并且已经部署**，而那一条动的也是 `styles.css` 和 `lab.html` 的 `app.js`，把它们从 31→32、37→38。我这边独立地也提到了 32 / 38——rebase 之后号对上了，内容却是两套不同的改动，**而 v=32 / v=38 已经带着「只有他们那份改动」的内容躺在线上了**。照这样推上去，凡是已经取过 v=32 的浏览器都不会再取，追踪表这一版对他们就是不存在的。所以 rebase 后重新查了一遍当前值，再提一级：`styles.css` 32→33（十个页面一起）、`js/app.js` 38→39（只有 `lab.html` 引它）。这就是 `CLAUDE.md` 那条「版本号要现查现提，不能用上一轮记住的数」——它不只防「别人提过了我没跟上」，也防「我和别人同时提到了同一个数」。
 
 `npm test` 在 rebase 之后**重跑**过（1356 项全绿），没有拿 rebase 前那次的结果顶数：基底变了，之前那次测的不是现在这棵树。**尚未部署。**
+已部署。`313ab57` 推上 `main`，Worker 部署为 `459c90b6-c86f-4860-808c-f910b0524e58`，部署前 `d1 migrations list --remote` 是「No migrations to apply」（纯前端改动）。
+
+**线上复验**（在 `https://seedtocode.example.invalid` 上真点的，不是只看版本号）：打开 `/lab` → 切到自带的 `BubbleSort.pseudocode` → 运行 → 调试 → 放大，拿回 **120 行 14 列**、标题栏「已结束 · 共 120 步」、动作列 `DECLARE Numbers` 宽 143px（不是被均分的 80px）、表头 `Numbers[1]`（不是 `NUMBERS[1]`）。线上 `styles.css` 里 `dialog-xl` / `trace-dialog-wrap` / `table-layout: auto` / `text-transform: none` 都在，线上 `app.js` 里 `openTraceDialog` / `restoreTraceTable` / `setTraceStatus` / `setTraceExpandEnabled` 都在。
+
+**这次的「等到」等了两轮才算数。** 第一次 `until … grep -q 'styles.css?v=33'` 一退出就紧接着再取一次，拿回来的却是 `v=32`——**同一时刻不同边缘节点新旧并存**。所以判据从「取到一次新的」改成「**连续五次**都是新的，并且页面里同时有 `traceExpand` 和 `traceDialog`」。`CLAUDE.md` 那条坑说的是「别把传播延迟当成没部署上」，这次补上另一半：传播窗口里单次命中也不算数，要连着几次一致。
