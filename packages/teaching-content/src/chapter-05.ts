@@ -37,12 +37,17 @@ export const chapter05: Chapter = {
             "要把同一句话显示五遍，照抄五行 `OUTPUT` 也做得到。但要显示一百遍呢？要改其中一个字呢——得改一百处。**重复（iteration）**让同一段代码跑多次，代码只写一份。",
             "次数事先就知道的时候用 `FOR`。这种「数着遍数跑」的循环叫**计数控制循环（count-controlled loop）**：写成 `FOR <控制变量> ← <起点> TO <终点>`，中间是要重复做的事，最后用 `NEXT <控制变量>` 收尾。",
             "`FOR I ← 1 TO 5` 的意思是：`I` 先取 1 跑一遍循环体，回到 `NEXT` 时 `I` 加 1 变成 2，再跑一遍……直到 `I` 超过 5 就停下来。起点和终点都算在内，所以 `FOR I ← 2 TO 5` 跑的是 2、3、4、5 共四遍——**终点减起点再加一**。",
-            "那个数着遍数的变量叫**控制变量（control variable）**，也叫**循环计数器（loop counter）**。它必须是 `INTEGER`——这一条指南写得很死（§7.1）。但它**不用事先 `DECLARE`**：`FOR` 那一行本身就把这个变量建立起来了，指南 §7.1 自己的例子（`FOR Row ← 1 TO MaxRow`、`FOR Index ← 1 TO 30`）一个都没有声明。指南只把显式声明称为 good practice（§2.4），不是要求，所以你写出来也不算错——本章示例都写了，两种写法都对。`NEXT` 后面重复写一遍变量名，不写编辑器不会拦，但会提醒你补上，这同样是 §7.1 说的好习惯。"
+            "那个数着遍数的变量叫**控制变量（control variable）**，也叫**循环计数器（loop counter）**。它必须是 `INTEGER`，而且**不用事先声明**——`FOR` 那一行本身就把它建立起来了。",
+            "`NEXT` 后面要把变量名再写一遍。不写也跑得动，但嵌套循环里写上了才看得出哪个 `NEXT` 收的是哪个 `FOR`。"
           ],
           callouts: [
             {
               source: "CAIE",
-              text: "计数控制循环写作 `FOR <identifier> ← <start> TO <end> … NEXT <identifier>`。控制变量必须是 `INTEGER`，起点与终点都包含在内（Pseudocode Guide §7.1）。"
+              text: "计数控制循环写作 `FOR <identifier> ← <start> TO <end> … NEXT <identifier>`。控制变量必须是 `INTEGER`，起点与终点都包含在内；指南把「`NEXT` 后重复写变量名」列为 good practice（Pseudocode Guide §7.1）。"
+            },
+            {
+              source: "CAIE",
+              text: "指南没有要求先声明控制变量，§7.1 的示例代码也没有声明它。显式声明在指南里只是 good practice（§2.4），不是规则。"
             }
           ]
         },
@@ -51,17 +56,16 @@ export const chapter05: Chapter = {
           title: "从 1 数到 5",
           fileName: "Example_5_1_a.pseudocode",
           code: [
-            "DECLARE I : INTEGER",
             "FOR I ← 1 TO 5",
             '   OUTPUT "Line ", I',
             "NEXT I",
             'OUTPUT "Done"'
           ].join("\n"),
           annotations: [
-            { fromLine: 2, toLine: 2, text: "这一行同时做了三件事——定起点、定终点、说清楚用哪个变量计数。" },
-            { fromLine: 3, toLine: 3, text: "循环体缩进三格。每跑一遍 `I` 的值都不一样，所以五行输出互不相同。" },
-            { fromLine: 4, toLine: 4, text: "`NEXT I` 是一遍的终点，程序走到这里就回去加 1 再判断。" },
-            { fromLine: 5, toLine: 5, text: "循环结束之后才执行，只显示一次。" }
+            { fromLine: 1, toLine: 1, text: "这一行同时做了三件事——定起点、定终点、说清楚用哪个变量计数。" },
+            { fromLine: 2, toLine: 2, text: "循环体缩进三格。每跑一遍 `I` 的值都不一样，所以五行输出互不相同。" },
+            { fromLine: 3, toLine: 3, text: "`NEXT I` 是一遍的终点，程序走到这里就回去加 1 再判断。" },
+            { fromLine: 4, toLine: 4, text: "循环结束之后才执行，只显示一次。" }
           ],
           sampleRun: {
             inputs: [],
@@ -130,7 +134,6 @@ export const chapter05: Chapter = {
           examples: [{ inputs: ["4"], outputs: ["Enter a number", "Sum: 10"] }],
           referenceSolution: [
             "DECLARE Number : INTEGER",
-            "DECLARE I : INTEGER",
             "DECLARE Sum : INTEGER",
             "Sum ← 0",
             'OUTPUT "Enter a number"',
@@ -181,15 +184,14 @@ export const chapter05: Chapter = {
           title: "倒数",
           fileName: "Example_5_2_a.pseudocode",
           code: [
-            "DECLARE I : INTEGER",
             "FOR I ← 5 TO 1 STEP -1",
             "   OUTPUT I",
             "NEXT I",
             'OUTPUT "Go"'
           ].join("\n"),
           annotations: [
-            { fromLine: 2, toLine: 2, text: "起点 5 比终点 1 大，配 `STEP -1` 才走得起来。" },
-            { fromLine: 3, toLine: 3, text: "每遍显示当前的 `I`，所以是 5、4、3、2、1。" }
+            { fromLine: 1, toLine: 1, text: "起点 5 比终点 1 大，配 `STEP -1` 才走得起来。" },
+            { fromLine: 2, toLine: 2, text: "每遍显示当前的 `I`，所以是 5、4、3、2、1。" }
           ],
           sampleRun: { inputs: [], outputs: ["5", "4", "3", "2", "1", "Go"] }
         },
@@ -199,16 +201,15 @@ export const chapter05: Chapter = {
           cases: [
             {
               code: [
-                "DECLARE I : INTEGER",
                 "FOR I ← 1 TO 3",
                 "   OUTPUT I",
                 "   I ← I + 1",
                 "NEXT I"
               ].join("\n"),
-              note: "这段代码类型全对、结构完整，编辑器一条提示都没有。但它跑到第 4 行就会停：控制变量归 `FOR` 管，程序不允许在循环体里动它。**能通过检查不等于能跑完。**",
+              note: "这段代码类型全对、结构完整，编辑器一条提示都没有。但它跑到第 3 行就会停：控制变量归 `FOR` 管，程序不允许在循环体里动它。**能通过检查不等于能跑完。**",
               expectRuntimeError: {
                 code: "RT1503",
-                line: 4,
+                line: 3,
                 text: "控制变量由 `FOR` 那一行决定怎么变，循环体里不能再改它。"
               }
             }

@@ -384,7 +384,6 @@ export const chapter07: Chapter = {
           title: "在循环里接出一行星号",
           fileName: "Example_7_4_b.pseudocode",
           code: [
-            "DECLARE I : INTEGER",
             "DECLARE Bar : STRING",
             'Bar ← ""',
             "FOR I ← 1 TO 5",
@@ -393,9 +392,9 @@ export const chapter07: Chapter = {
             "OUTPUT Bar"
           ].join("\n"),
           annotations: [
-            { fromLine: 3, toLine: 3, text: "从空串开始。不先设空串，`Bar` 就没有值可以接。" },
-            { fromLine: 5, toLine: 5, text: "每一遍在原来的基础上接一个星号。" },
-            { fromLine: 7, toLine: 7, text: "显示放在循环外面，所以只显示最后接好的那一整条。" }
+            { fromLine: 2, toLine: 2, text: "从空串开始。不先设空串，`Bar` 就没有值可以接。" },
+            { fromLine: 4, toLine: 4, text: "每一遍在原来的基础上接一个星号。" },
+            { fromLine: 6, toLine: 6, text: "显示放在循环外面，所以只显示最后接好的那一整条。" }
           ],
           sampleRun: { inputs: [], outputs: ["*****"] }
         },

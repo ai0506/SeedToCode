@@ -56,7 +56,6 @@ export const chapter10: Chapter = {
           fileName: "Example_10_1_a.pseudocode",
           code: [
             "DECLARE Scores : ARRAY[1:5] OF INTEGER",
-            "DECLARE I : INTEGER",
             "DECLARE Target : INTEGER",
             "Scores[1] ← 30",
             "Scores[2] ← 80",
@@ -71,9 +70,9 @@ export const chapter10: Chapter = {
             "NEXT I"
           ].join("\n"),
           annotations: [
-            { fromLine: 9, toLine: 9, text: "要找的值。把它单独放进一个变量，换个目标只要改这一行。" },
-            { fromLine: 10, toLine: 14, text: "从第 1 格走到第 5 格，每一格都跟 `Target` 比一次。" },
-            { fromLine: 11, toLine: 13, text: "相等就报出下标。注意这里报完还接着走——`FOR` 不会因为找到了就停。" }
+            { fromLine: 8, toLine: 8, text: "要找的值。把它单独放进一个变量，换个目标只要改这一行。" },
+            { fromLine: 9, toLine: 13, text: "从第 1 格走到第 5 格，每一格都跟 `Target` 比一次。" },
+            { fromLine: 10, toLine: 12, text: "相等就报出下标。注意这里报完还接着走——`FOR` 不会因为找到了就停。" }
           ],
           sampleRun: {
             inputs: [],
@@ -257,7 +256,6 @@ export const chapter10: Chapter = {
           ],
           referenceSolution: [
             "DECLARE Values : ARRAY[1:6] OF INTEGER",
-            "DECLARE Position : INTEGER",
             "DECLARE Target : INTEGER",
             "DECLARE Found : BOOLEAN",
             "FOR Position ← 1 TO 6",
@@ -314,7 +312,6 @@ export const chapter10: Chapter = {
           fileName: "Example_10_3_a.pseudocode",
           code: [
             "DECLARE Values : ARRAY[1:5] OF INTEGER",
-            "DECLARE J : INTEGER",
             "DECLARE Temp : INTEGER",
             "Values[1] ← 3",
             "Values[2] ← 9",
@@ -333,10 +330,10 @@ export const chapter10: Chapter = {
             "NEXT J"
           ].join("\n"),
           annotations: [
-            { fromLine: 9, toLine: 9, text: "五格只比四对：第 5 格没有右邻居，所以终点是 4 而不是 5。" },
-            { fromLine: 10, toLine: 14, text: "只比相邻的两格。整个冒泡排序就只做这一件事，别的都是重复它。" },
-            { fromLine: 11, toLine: 13, text: "三步交换：先把左边的值存起来，再把右边的搬过来，最后把存着的那个放到右边。" },
-            { fromLine: 16, toLine: 18, text: "一趟之后的样子：最大的 9 已经在最后一格了，前面几个还乱着。" }
+            { fromLine: 8, toLine: 8, text: "五格只比四对：第 5 格没有右邻居，所以终点是 4 而不是 5。" },
+            { fromLine: 9, toLine: 13, text: "只比相邻的两格。整个冒泡排序就只做这一件事，别的都是重复它。" },
+            { fromLine: 10, toLine: 12, text: "三步交换：先把左边的值存起来，再把右边的搬过来，最后把存着的那个放到右边。" },
+            { fromLine: 15, toLine: 17, text: "一趟之后的样子：最大的 9 已经在最后一格了，前面几个还乱着。" }
           ],
           sampleRun: {
             inputs: [],
@@ -422,8 +419,6 @@ export const chapter10: Chapter = {
           fileName: "Example_10_4_a.pseudocode",
           code: [
             "DECLARE Values : ARRAY[1:5] OF INTEGER",
-            "DECLARE I : INTEGER",
-            "DECLARE J : INTEGER",
             "DECLARE Temp : INTEGER",
             "Values[1] ← 3",
             "Values[2] ← 9",
@@ -444,9 +439,9 @@ export const chapter10: Chapter = {
             "NEXT I"
           ].join("\n"),
           annotations: [
-            { fromLine: 10, toLine: 10, text: "外层只管数趟数：5 个数走 4 趟。`I` 在循环体里不用来取格子，它只是「第几趟」。" },
-            { fromLine: 11, toLine: 11, text: "内层的终点跟着趟数缩：第 1 趟比到第 4 对，第 4 趟只比第 1 对。" },
-            { fromLine: 12, toLine: 16, text: "和上一节那段一模一样。整个排序的力气全在这五行上。" }
+            { fromLine: 8, toLine: 8, text: "外层只管数趟数：5 个数走 4 趟。`I` 在循环体里不用来取格子，它只是「第几趟」。" },
+            { fromLine: 9, toLine: 9, text: "内层的终点跟着趟数缩：第 1 趟比到第 4 对，第 4 趟只比第 1 对。" },
+            { fromLine: 10, toLine: 14, text: "和上一节那段一模一样。整个排序的力气全在这五行上。" }
           ],
           sampleRun: {
             inputs: [],
@@ -533,8 +528,6 @@ export const chapter10: Chapter = {
           ],
           referenceSolution: [
             "DECLARE Values : ARRAY[1:5] OF INTEGER",
-            "DECLARE I : INTEGER",
-            "DECLARE J : INTEGER",
             "DECLARE Temp : INTEGER",
             "FOR I ← 1 TO 5",
             '   OUTPUT "Enter a number"',
@@ -585,8 +578,6 @@ export const chapter10: Chapter = {
           fileName: "Example_10_5_a.pseudocode",
           code: [
             "DECLARE Values : ARRAY[1:5] OF INTEGER",
-            "DECLARE I : INTEGER",
-            "DECLARE J : INTEGER",
             "DECLARE Temp : INTEGER",
             "DECLARE Swapped : BOOLEAN",
             "DECLARE Passes : INTEGER",
@@ -614,10 +605,10 @@ export const chapter10: Chapter = {
             "NEXT I"
           ].join("\n"),
           annotations: [
-            { fromLine: 14, toLine: 14, text: "清零放在每趟的开头，不能放在 `REPEAT` 之前——那样只有第一趟算数。" },
-            { fromLine: 21, toLine: 21, text: "只要换过一次就立起来。它回答的是「这一趟有没有动过」。" },
-            { fromLine: 24, toLine: 24, text: "一趟都没换，就说明已经排好，循环到此为止。" },
-            { fromLine: 25, toLine: 25, text: "这里把趟数显示出来只是为了看得见；真正在用的程序里不需要这一行。" }
+            { fromLine: 12, toLine: 12, text: "清零放在每趟的开头，不能放在 `REPEAT` 之前——那样只有第一趟算数。" },
+            { fromLine: 19, toLine: 19, text: "只要换过一次就立起来。它回答的是「这一趟有没有动过」。" },
+            { fromLine: 22, toLine: 22, text: "一趟都没换，就说明已经排好，循环到此为止。" },
+            { fromLine: 23, toLine: 23, text: "这里把趟数显示出来只是为了看得见；真正在用的程序里不需要这一行。" }
           ],
           sampleRun: {
             inputs: [],
@@ -717,8 +708,6 @@ export const chapter10: Chapter = {
       ],
       referenceSolution: [
         "DECLARE Values : ARRAY[1:6] OF INTEGER",
-        "DECLARE I : INTEGER",
-        "DECLARE J : INTEGER",
         "DECLARE Temp : INTEGER",
         "DECLARE Target : INTEGER",
         "DECLARE Position : INTEGER",

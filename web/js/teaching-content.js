@@ -2417,12 +2417,17 @@ var CAIETeaching = (() => {
               "\u8981\u628A\u540C\u4E00\u53E5\u8BDD\u663E\u793A\u4E94\u904D\uFF0C\u7167\u6284\u4E94\u884C `OUTPUT` \u4E5F\u505A\u5F97\u5230\u3002\u4F46\u8981\u663E\u793A\u4E00\u767E\u904D\u5462\uFF1F\u8981\u6539\u5176\u4E2D\u4E00\u4E2A\u5B57\u5462\u2014\u2014\u5F97\u6539\u4E00\u767E\u5904\u3002**\u91CD\u590D\uFF08iteration\uFF09**\u8BA9\u540C\u4E00\u6BB5\u4EE3\u7801\u8DD1\u591A\u6B21\uFF0C\u4EE3\u7801\u53EA\u5199\u4E00\u4EFD\u3002",
               "\u6B21\u6570\u4E8B\u5148\u5C31\u77E5\u9053\u7684\u65F6\u5019\u7528 `FOR`\u3002\u8FD9\u79CD\u300C\u6570\u7740\u904D\u6570\u8DD1\u300D\u7684\u5FAA\u73AF\u53EB**\u8BA1\u6570\u63A7\u5236\u5FAA\u73AF\uFF08count-controlled loop\uFF09**\uFF1A\u5199\u6210 `FOR <\u63A7\u5236\u53D8\u91CF> \u2190 <\u8D77\u70B9> TO <\u7EC8\u70B9>`\uFF0C\u4E2D\u95F4\u662F\u8981\u91CD\u590D\u505A\u7684\u4E8B\uFF0C\u6700\u540E\u7528 `NEXT <\u63A7\u5236\u53D8\u91CF>` \u6536\u5C3E\u3002",
               "`FOR I \u2190 1 TO 5` \u7684\u610F\u601D\u662F\uFF1A`I` \u5148\u53D6 1 \u8DD1\u4E00\u904D\u5FAA\u73AF\u4F53\uFF0C\u56DE\u5230 `NEXT` \u65F6 `I` \u52A0 1 \u53D8\u6210 2\uFF0C\u518D\u8DD1\u4E00\u904D\u2026\u2026\u76F4\u5230 `I` \u8D85\u8FC7 5 \u5C31\u505C\u4E0B\u6765\u3002\u8D77\u70B9\u548C\u7EC8\u70B9\u90FD\u7B97\u5728\u5185\uFF0C\u6240\u4EE5 `FOR I \u2190 2 TO 5` \u8DD1\u7684\u662F 2\u30013\u30014\u30015 \u5171\u56DB\u904D\u2014\u2014**\u7EC8\u70B9\u51CF\u8D77\u70B9\u518D\u52A0\u4E00**\u3002",
-              "\u90A3\u4E2A\u6570\u7740\u904D\u6570\u7684\u53D8\u91CF\u53EB**\u63A7\u5236\u53D8\u91CF\uFF08control variable\uFF09**\uFF0C\u4E5F\u53EB**\u5FAA\u73AF\u8BA1\u6570\u5668\uFF08loop counter\uFF09**\u3002\u5B83\u5FC5\u987B\u662F `INTEGER`\u2014\u2014\u8FD9\u4E00\u6761\u6307\u5357\u5199\u5F97\u5F88\u6B7B\uFF08\xA77.1\uFF09\u3002\u4F46\u5B83**\u4E0D\u7528\u4E8B\u5148 `DECLARE`**\uFF1A`FOR` \u90A3\u4E00\u884C\u672C\u8EAB\u5C31\u628A\u8FD9\u4E2A\u53D8\u91CF\u5EFA\u7ACB\u8D77\u6765\u4E86\uFF0C\u6307\u5357 \xA77.1 \u81EA\u5DF1\u7684\u4F8B\u5B50\uFF08`FOR Row \u2190 1 TO MaxRow`\u3001`FOR Index \u2190 1 TO 30`\uFF09\u4E00\u4E2A\u90FD\u6CA1\u6709\u58F0\u660E\u3002\u6307\u5357\u53EA\u628A\u663E\u5F0F\u58F0\u660E\u79F0\u4E3A good practice\uFF08\xA72.4\uFF09\uFF0C\u4E0D\u662F\u8981\u6C42\uFF0C\u6240\u4EE5\u4F60\u5199\u51FA\u6765\u4E5F\u4E0D\u7B97\u9519\u2014\u2014\u672C\u7AE0\u793A\u4F8B\u90FD\u5199\u4E86\uFF0C\u4E24\u79CD\u5199\u6CD5\u90FD\u5BF9\u3002`NEXT` \u540E\u9762\u91CD\u590D\u5199\u4E00\u904D\u53D8\u91CF\u540D\uFF0C\u4E0D\u5199\u7F16\u8F91\u5668\u4E0D\u4F1A\u62E6\uFF0C\u4F46\u4F1A\u63D0\u9192\u4F60\u8865\u4E0A\uFF0C\u8FD9\u540C\u6837\u662F \xA77.1 \u8BF4\u7684\u597D\u4E60\u60EF\u3002"
+              "\u90A3\u4E2A\u6570\u7740\u904D\u6570\u7684\u53D8\u91CF\u53EB**\u63A7\u5236\u53D8\u91CF\uFF08control variable\uFF09**\uFF0C\u4E5F\u53EB**\u5FAA\u73AF\u8BA1\u6570\u5668\uFF08loop counter\uFF09**\u3002\u5B83\u5FC5\u987B\u662F `INTEGER`\uFF0C\u800C\u4E14**\u4E0D\u7528\u4E8B\u5148\u58F0\u660E**\u2014\u2014`FOR` \u90A3\u4E00\u884C\u672C\u8EAB\u5C31\u628A\u5B83\u5EFA\u7ACB\u8D77\u6765\u4E86\u3002",
+              "`NEXT` \u540E\u9762\u8981\u628A\u53D8\u91CF\u540D\u518D\u5199\u4E00\u904D\u3002\u4E0D\u5199\u4E5F\u8DD1\u5F97\u52A8\uFF0C\u4F46\u5D4C\u5957\u5FAA\u73AF\u91CC\u5199\u4E0A\u4E86\u624D\u770B\u5F97\u51FA\u54EA\u4E2A `NEXT` \u6536\u7684\u662F\u54EA\u4E2A `FOR`\u3002"
             ],
             callouts: [
               {
                 source: "CAIE",
-                text: "\u8BA1\u6570\u63A7\u5236\u5FAA\u73AF\u5199\u4F5C `FOR <identifier> \u2190 <start> TO <end> \u2026 NEXT <identifier>`\u3002\u63A7\u5236\u53D8\u91CF\u5FC5\u987B\u662F `INTEGER`\uFF0C\u8D77\u70B9\u4E0E\u7EC8\u70B9\u90FD\u5305\u542B\u5728\u5185\uFF08Pseudocode Guide \xA77.1\uFF09\u3002"
+                text: "\u8BA1\u6570\u63A7\u5236\u5FAA\u73AF\u5199\u4F5C `FOR <identifier> \u2190 <start> TO <end> \u2026 NEXT <identifier>`\u3002\u63A7\u5236\u53D8\u91CF\u5FC5\u987B\u662F `INTEGER`\uFF0C\u8D77\u70B9\u4E0E\u7EC8\u70B9\u90FD\u5305\u542B\u5728\u5185\uFF1B\u6307\u5357\u628A\u300C`NEXT` \u540E\u91CD\u590D\u5199\u53D8\u91CF\u540D\u300D\u5217\u4E3A good practice\uFF08Pseudocode Guide \xA77.1\uFF09\u3002"
+              },
+              {
+                source: "CAIE",
+                text: "\u6307\u5357\u6CA1\u6709\u8981\u6C42\u5148\u58F0\u660E\u63A7\u5236\u53D8\u91CF\uFF0C\xA77.1 \u7684\u793A\u4F8B\u4EE3\u7801\u4E5F\u6CA1\u6709\u58F0\u660E\u5B83\u3002\u663E\u5F0F\u58F0\u660E\u5728\u6307\u5357\u91CC\u53EA\u662F good practice\uFF08\xA72.4\uFF09\uFF0C\u4E0D\u662F\u89C4\u5219\u3002"
               }
             ]
           },
@@ -2431,17 +2436,16 @@ var CAIETeaching = (() => {
             title: "\u4ECE 1 \u6570\u5230 5",
             fileName: "Example_5_1_a.pseudocode",
             code: [
-              "DECLARE I : INTEGER",
               "FOR I \u2190 1 TO 5",
               '   OUTPUT "Line ", I',
               "NEXT I",
               'OUTPUT "Done"'
             ].join("\n"),
             annotations: [
-              { fromLine: 2, toLine: 2, text: "\u8FD9\u4E00\u884C\u540C\u65F6\u505A\u4E86\u4E09\u4EF6\u4E8B\u2014\u2014\u5B9A\u8D77\u70B9\u3001\u5B9A\u7EC8\u70B9\u3001\u8BF4\u6E05\u695A\u7528\u54EA\u4E2A\u53D8\u91CF\u8BA1\u6570\u3002" },
-              { fromLine: 3, toLine: 3, text: "\u5FAA\u73AF\u4F53\u7F29\u8FDB\u4E09\u683C\u3002\u6BCF\u8DD1\u4E00\u904D `I` \u7684\u503C\u90FD\u4E0D\u4E00\u6837\uFF0C\u6240\u4EE5\u4E94\u884C\u8F93\u51FA\u4E92\u4E0D\u76F8\u540C\u3002" },
-              { fromLine: 4, toLine: 4, text: "`NEXT I` \u662F\u4E00\u904D\u7684\u7EC8\u70B9\uFF0C\u7A0B\u5E8F\u8D70\u5230\u8FD9\u91CC\u5C31\u56DE\u53BB\u52A0 1 \u518D\u5224\u65AD\u3002" },
-              { fromLine: 5, toLine: 5, text: "\u5FAA\u73AF\u7ED3\u675F\u4E4B\u540E\u624D\u6267\u884C\uFF0C\u53EA\u663E\u793A\u4E00\u6B21\u3002" }
+              { fromLine: 1, toLine: 1, text: "\u8FD9\u4E00\u884C\u540C\u65F6\u505A\u4E86\u4E09\u4EF6\u4E8B\u2014\u2014\u5B9A\u8D77\u70B9\u3001\u5B9A\u7EC8\u70B9\u3001\u8BF4\u6E05\u695A\u7528\u54EA\u4E2A\u53D8\u91CF\u8BA1\u6570\u3002" },
+              { fromLine: 2, toLine: 2, text: "\u5FAA\u73AF\u4F53\u7F29\u8FDB\u4E09\u683C\u3002\u6BCF\u8DD1\u4E00\u904D `I` \u7684\u503C\u90FD\u4E0D\u4E00\u6837\uFF0C\u6240\u4EE5\u4E94\u884C\u8F93\u51FA\u4E92\u4E0D\u76F8\u540C\u3002" },
+              { fromLine: 3, toLine: 3, text: "`NEXT I` \u662F\u4E00\u904D\u7684\u7EC8\u70B9\uFF0C\u7A0B\u5E8F\u8D70\u5230\u8FD9\u91CC\u5C31\u56DE\u53BB\u52A0 1 \u518D\u5224\u65AD\u3002" },
+              { fromLine: 4, toLine: 4, text: "\u5FAA\u73AF\u7ED3\u675F\u4E4B\u540E\u624D\u6267\u884C\uFF0C\u53EA\u663E\u793A\u4E00\u6B21\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -2510,7 +2514,6 @@ var CAIETeaching = (() => {
             examples: [{ inputs: ["4"], outputs: ["Enter a number", "Sum: 10"] }],
             referenceSolution: [
               "DECLARE Number : INTEGER",
-              "DECLARE I : INTEGER",
               "DECLARE Sum : INTEGER",
               "Sum \u2190 0",
               'OUTPUT "Enter a number"',
@@ -2561,15 +2564,14 @@ var CAIETeaching = (() => {
             title: "\u5012\u6570",
             fileName: "Example_5_2_a.pseudocode",
             code: [
-              "DECLARE I : INTEGER",
               "FOR I \u2190 5 TO 1 STEP -1",
               "   OUTPUT I",
               "NEXT I",
               'OUTPUT "Go"'
             ].join("\n"),
             annotations: [
-              { fromLine: 2, toLine: 2, text: "\u8D77\u70B9 5 \u6BD4\u7EC8\u70B9 1 \u5927\uFF0C\u914D `STEP -1` \u624D\u8D70\u5F97\u8D77\u6765\u3002" },
-              { fromLine: 3, toLine: 3, text: "\u6BCF\u904D\u663E\u793A\u5F53\u524D\u7684 `I`\uFF0C\u6240\u4EE5\u662F 5\u30014\u30013\u30012\u30011\u3002" }
+              { fromLine: 1, toLine: 1, text: "\u8D77\u70B9 5 \u6BD4\u7EC8\u70B9 1 \u5927\uFF0C\u914D `STEP -1` \u624D\u8D70\u5F97\u8D77\u6765\u3002" },
+              { fromLine: 2, toLine: 2, text: "\u6BCF\u904D\u663E\u793A\u5F53\u524D\u7684 `I`\uFF0C\u6240\u4EE5\u662F 5\u30014\u30013\u30012\u30011\u3002" }
             ],
             sampleRun: { inputs: [], outputs: ["5", "4", "3", "2", "1", "Go"] }
           },
@@ -2579,16 +2581,15 @@ var CAIETeaching = (() => {
             cases: [
               {
                 code: [
-                  "DECLARE I : INTEGER",
                   "FOR I \u2190 1 TO 3",
                   "   OUTPUT I",
                   "   I \u2190 I + 1",
                   "NEXT I"
                 ].join("\n"),
-                note: "\u8FD9\u6BB5\u4EE3\u7801\u7C7B\u578B\u5168\u5BF9\u3001\u7ED3\u6784\u5B8C\u6574\uFF0C\u7F16\u8F91\u5668\u4E00\u6761\u63D0\u793A\u90FD\u6CA1\u6709\u3002\u4F46\u5B83\u8DD1\u5230\u7B2C 4 \u884C\u5C31\u4F1A\u505C\uFF1A\u63A7\u5236\u53D8\u91CF\u5F52 `FOR` \u7BA1\uFF0C\u7A0B\u5E8F\u4E0D\u5141\u8BB8\u5728\u5FAA\u73AF\u4F53\u91CC\u52A8\u5B83\u3002**\u80FD\u901A\u8FC7\u68C0\u67E5\u4E0D\u7B49\u4E8E\u80FD\u8DD1\u5B8C\u3002**",
+                note: "\u8FD9\u6BB5\u4EE3\u7801\u7C7B\u578B\u5168\u5BF9\u3001\u7ED3\u6784\u5B8C\u6574\uFF0C\u7F16\u8F91\u5668\u4E00\u6761\u63D0\u793A\u90FD\u6CA1\u6709\u3002\u4F46\u5B83\u8DD1\u5230\u7B2C 3 \u884C\u5C31\u4F1A\u505C\uFF1A\u63A7\u5236\u53D8\u91CF\u5F52 `FOR` \u7BA1\uFF0C\u7A0B\u5E8F\u4E0D\u5141\u8BB8\u5728\u5FAA\u73AF\u4F53\u91CC\u52A8\u5B83\u3002**\u80FD\u901A\u8FC7\u68C0\u67E5\u4E0D\u7B49\u4E8E\u80FD\u8DD1\u5B8C\u3002**",
                 expectRuntimeError: {
                   code: "RT1503",
-                  line: 4,
+                  line: 3,
                   text: "\u63A7\u5236\u53D8\u91CF\u7531 `FOR` \u90A3\u4E00\u884C\u51B3\u5B9A\u600E\u4E48\u53D8\uFF0C\u5FAA\u73AF\u4F53\u91CC\u4E0D\u80FD\u518D\u6539\u5B83\u3002"
                 }
               }
@@ -3295,8 +3296,6 @@ var CAIETeaching = (() => {
             title: "\u6570\u4E00\u6570\u6700\u91CC\u9762\u8DD1\u4E86\u51E0\u6B21",
             fileName: "Example_6_3_a.pseudocode",
             code: [
-              "DECLARE I : INTEGER",
-              "DECLARE J : INTEGER",
               "DECLARE N : INTEGER",
               "N \u2190 0",
               "FOR I \u2190 1 TO 3",
@@ -3307,10 +3306,10 @@ var CAIETeaching = (() => {
               'OUTPUT "Body ran ", N, " times"'
             ].join("\n"),
             annotations: [
-              { fromLine: 5, toLine: 5, text: "\u5916\u5C42\u8DD1 3 \u904D\uFF0C`I` \u4F9D\u6B21\u662F 1\u30012\u30013\u3002" },
-              { fromLine: 6, toLine: 6, text: "\u6BCF\u6B21\u8FDB\u5230\u8FD9\u91CC\uFF0C`J` \u90FD\u91CD\u65B0\u4ECE 1 \u5F00\u59CB\u6570\u5230 4\u3002" },
-              { fromLine: 7, toLine: 7, text: "\u8FD9\u4E00\u53E5\u88AB\u6267\u884C\u7684\u6B21\u6570\u662F\u4E24\u5C42\u6B21\u6570\u7684\u4E58\u79EF\u3002" },
-              { fromLine: 8, toLine: 9, text: "\u4E24\u4E2A `NEXT`\uFF0C\u5404\u81EA\u5173\u6389\u4E00\u5C42\u3002\u5148\u5173\u5185\u5C42\uFF0C\u518D\u5173\u5916\u5C42\u2014\u2014\u987A\u5E8F\u4E0D\u80FD\u4EA4\u53C9\u3002" }
+              { fromLine: 3, toLine: 3, text: "\u5916\u5C42\u8DD1 3 \u904D\uFF0C`I` \u4F9D\u6B21\u662F 1\u30012\u30013\u3002" },
+              { fromLine: 4, toLine: 4, text: "\u6BCF\u6B21\u8FDB\u5230\u8FD9\u91CC\uFF0C`J` \u90FD\u91CD\u65B0\u4ECE 1 \u5F00\u59CB\u6570\u5230 4\u3002" },
+              { fromLine: 5, toLine: 5, text: "\u8FD9\u4E00\u53E5\u88AB\u6267\u884C\u7684\u6B21\u6570\u662F\u4E24\u5C42\u6B21\u6570\u7684\u4E58\u79EF\u3002" },
+              { fromLine: 6, toLine: 7, text: "\u4E24\u4E2A `NEXT`\uFF0C\u5404\u81EA\u5173\u6389\u4E00\u5C42\u3002\u5148\u5173\u5185\u5C42\uFF0C\u518D\u5173\u5916\u5C42\u2014\u2014\u987A\u5E8F\u4E0D\u80FD\u4EA4\u53C9\u3002" }
             ],
             sampleRun: { inputs: [], outputs: ["Body ran 12 times"] }
           },
@@ -3367,8 +3366,6 @@ var CAIETeaching = (() => {
             title: "\u4E24\u884C\u4E58\u6CD5\u8868",
             fileName: "Example_6_4_a.pseudocode",
             code: [
-              "DECLARE I : INTEGER",
-              "DECLARE J : INTEGER",
               "FOR I \u2190 1 TO 2",
               "   FOR J \u2190 1 TO 3",
               '      OUTPUT I, " x ", J, " = ", I * J',
@@ -3376,9 +3373,9 @@ var CAIETeaching = (() => {
               "NEXT I"
             ].join("\n"),
             annotations: [
-              { fromLine: 3, toLine: 3, text: "\u5916\u5C42\u7BA1\u884C\uFF0C`I` \u662F\u88AB\u4E58\u6570\u3002" },
-              { fromLine: 4, toLine: 4, text: "\u5185\u5C42\u7BA1\u5217\uFF0C`J` \u4ECE 1 \u6570\u5230 3\u3002" },
-              { fromLine: 5, toLine: 5, text: "\u8FD9\u4E00\u53E5\u5728\u6700\u91CC\u5C42\uFF0C\u6240\u4EE5\u6BCF\u4E00\u5BF9 `I`\u3001`J` \u90FD\u663E\u793A\u4E00\u884C\uFF0C\u4E00\u5171 2 \u4E58 3 \u7B49\u4E8E 6 \u884C\u3002" }
+              { fromLine: 1, toLine: 1, text: "\u5916\u5C42\u7BA1\u884C\uFF0C`I` \u662F\u88AB\u4E58\u6570\u3002" },
+              { fromLine: 2, toLine: 2, text: "\u5185\u5C42\u7BA1\u5217\uFF0C`J` \u4ECE 1 \u6570\u5230 3\u3002" },
+              { fromLine: 3, toLine: 3, text: "\u8FD9\u4E00\u53E5\u5728\u6700\u91CC\u5C42\uFF0C\u6240\u4EE5\u6BCF\u4E00\u5BF9 `I`\u3001`J` \u90FD\u663E\u793A\u4E00\u884C\uFF0C\u4E00\u5171 2 \u4E58 3 \u7B49\u4E8E 6 \u884C\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -3450,8 +3447,6 @@ var CAIETeaching = (() => {
             examples: [{ inputs: ["2"], outputs: ["Enter a number", "1", "2", "2"] }],
             referenceSolution: [
               "DECLARE Number : INTEGER",
-              "DECLARE I : INTEGER",
-              "DECLARE J : INTEGER",
               'OUTPUT "Enter a number"',
               "INPUT Number",
               "FOR I \u2190 1 TO Number",
@@ -3512,7 +3507,6 @@ var CAIETeaching = (() => {
           }
         ],
         referenceSolution: [
-          "DECLARE ClassNo : INTEGER",
           "DECLARE Score : INTEGER",
           "DECLARE Count : INTEGER",
           "DECLARE Total : INTEGER",
@@ -3950,7 +3944,6 @@ var CAIETeaching = (() => {
             title: "\u5728\u5FAA\u73AF\u91CC\u63A5\u51FA\u4E00\u884C\u661F\u53F7",
             fileName: "Example_7_4_b.pseudocode",
             code: [
-              "DECLARE I : INTEGER",
               "DECLARE Bar : STRING",
               'Bar \u2190 ""',
               "FOR I \u2190 1 TO 5",
@@ -3959,9 +3952,9 @@ var CAIETeaching = (() => {
               "OUTPUT Bar"
             ].join("\n"),
             annotations: [
-              { fromLine: 3, toLine: 3, text: "\u4ECE\u7A7A\u4E32\u5F00\u59CB\u3002\u4E0D\u5148\u8BBE\u7A7A\u4E32\uFF0C`Bar` \u5C31\u6CA1\u6709\u503C\u53EF\u4EE5\u63A5\u3002" },
-              { fromLine: 5, toLine: 5, text: "\u6BCF\u4E00\u904D\u5728\u539F\u6765\u7684\u57FA\u7840\u4E0A\u63A5\u4E00\u4E2A\u661F\u53F7\u3002" },
-              { fromLine: 7, toLine: 7, text: "\u663E\u793A\u653E\u5728\u5FAA\u73AF\u5916\u9762\uFF0C\u6240\u4EE5\u53EA\u663E\u793A\u6700\u540E\u63A5\u597D\u7684\u90A3\u4E00\u6574\u6761\u3002" }
+              { fromLine: 2, toLine: 2, text: "\u4ECE\u7A7A\u4E32\u5F00\u59CB\u3002\u4E0D\u5148\u8BBE\u7A7A\u4E32\uFF0C`Bar` \u5C31\u6CA1\u6709\u503C\u53EF\u4EE5\u63A5\u3002" },
+              { fromLine: 4, toLine: 4, text: "\u6BCF\u4E00\u904D\u5728\u539F\u6765\u7684\u57FA\u7840\u4E0A\u63A5\u4E00\u4E2A\u661F\u53F7\u3002" },
+              { fromLine: 6, toLine: 6, text: "\u663E\u793A\u653E\u5728\u5FAA\u73AF\u5916\u9762\uFF0C\u6240\u4EE5\u53EA\u663E\u793A\u6700\u540E\u63A5\u597D\u7684\u90A3\u4E00\u6574\u6761\u3002" }
             ],
             sampleRun: { inputs: [], outputs: ["*****"] }
           },
@@ -4534,7 +4527,6 @@ var CAIETeaching = (() => {
                 title: "\u4E0B\u6807\u662F\u53D8\u91CF\uFF0C\u8DD1\u5230\u90A3\u4E00\u904D\u624D\u70B8",
                 code: [
                   "DECLARE Marks : ARRAY[1:3] OF INTEGER",
-                  "DECLARE I : INTEGER",
                   "FOR I \u2190 1 TO 4",
                   "   Marks[I] \u2190 I",
                   "NEXT I"
@@ -4542,7 +4534,7 @@ var CAIETeaching = (() => {
                 note: "\u5FAA\u73AF\u591A\u8DD1\u4E86\u4E00\u904D\u3002\u524D\u4E09\u904D\u90FD\u5BF9\uFF0C\u7B2C\u56DB\u904D\u624D\u8D8A\u754C\u2014\u2014\u7F16\u8F91\u5668\u4E00\u6761\u63D0\u793A\u90FD\u6CA1\u6709\uFF0C\u56E0\u4E3A `I` \u662F\u591A\u5C11\u8981\u8DD1\u8D77\u6765\u624D\u77E5\u9053\u3002",
                 expectRuntimeError: {
                   code: "RT1603",
-                  line: 4,
+                  line: 3,
                   text: "\u5FAA\u73AF\u8DD1\u5230\u7B2C 4 \u904D\uFF0C\u53EF\u6570\u7EC4\u53EA\u5230\u7B2C 3 \u683C\u3002\u68C0\u67E5\u4E00\u4E0B\u5FAA\u73AF\u7684\u7EC8\u70B9\u3002"
                 }
               },
@@ -4612,7 +4604,6 @@ var CAIETeaching = (() => {
             fileName: "Example_8_4_a.pseudocode",
             code: [
               "DECLARE Numbers : ARRAY[1:5] OF INTEGER",
-              "DECLARE I : INTEGER",
               "FOR I \u2190 1 TO 5",
               '   OUTPUT "Enter a number"',
               "   INPUT Numbers[I]",
@@ -4622,9 +4613,9 @@ var CAIETeaching = (() => {
               "NEXT I"
             ].join("\n"),
             annotations: [
-              { fromLine: 3, toLine: 6, text: "\u7B2C\u4E00\u904D\u904D\u5386\uFF1A\u4ECE\u4E0B\u754C\u6570\u5230\u4E0A\u754C\uFF0C\u6BCF\u904D\u8BFB\u4E00\u4E2A\u6570\u653E\u8FDB\u7B2C `I` \u683C\u3002" },
-              { fromLine: 7, toLine: 7, text: "\u7B2C\u4E8C\u904D\u904D\u5386\u5012\u7740\u8D70\u2014\u2014\u8D77\u70B9\u662F\u4E0A\u754C\uFF0C\u7EC8\u70B9\u662F\u4E0B\u754C\uFF0C\u914D `STEP -1`\uFF085.2\uFF09\u3002" },
-              { fromLine: 5, toLine: 5, text: "`INPUT` \u7684\u76EE\u6807\u53EF\u4EE5\u76F4\u63A5\u662F\u6570\u7EC4\u7684\u67D0\u4E00\u683C\uFF0C\u4E0D\u7528\u5148\u8BFB\u8FDB\u4E00\u4E2A\u4E34\u65F6\u53D8\u91CF\u518D\u642C\u8FC7\u53BB\u3002" }
+              { fromLine: 2, toLine: 5, text: "\u7B2C\u4E00\u904D\u904D\u5386\uFF1A\u4ECE\u4E0B\u754C\u6570\u5230\u4E0A\u754C\uFF0C\u6BCF\u904D\u8BFB\u4E00\u4E2A\u6570\u653E\u8FDB\u7B2C `I` \u683C\u3002" },
+              { fromLine: 6, toLine: 6, text: "\u7B2C\u4E8C\u904D\u904D\u5386\u5012\u7740\u8D70\u2014\u2014\u8D77\u70B9\u662F\u4E0A\u754C\uFF0C\u7EC8\u70B9\u662F\u4E0B\u754C\uFF0C\u914D `STEP -1`\uFF085.2\uFF09\u3002" },
+              { fromLine: 4, toLine: 4, text: "`INPUT` \u7684\u76EE\u6807\u53EF\u4EE5\u76F4\u63A5\u662F\u6570\u7EC4\u7684\u67D0\u4E00\u683C\uFF0C\u4E0D\u7528\u5148\u8BFB\u8FDB\u4E00\u4E2A\u4E34\u65F6\u53D8\u91CF\u518D\u642C\u8FC7\u53BB\u3002" }
             ],
             sampleRun: {
               inputs: ["1", "2", "3", "4", "5"],
@@ -4718,7 +4709,6 @@ var CAIETeaching = (() => {
             ],
             referenceSolution: [
               "DECLARE Marks : ARRAY[1:5] OF INTEGER",
-              "DECLARE I : INTEGER",
               "DECLARE Passed : INTEGER",
               "Passed \u2190 0",
               "FOR I \u2190 1 TO 5",
@@ -4764,7 +4754,6 @@ var CAIETeaching = (() => {
             fileName: "Example_8_5_a.pseudocode",
             code: [
               "DECLARE Temps : ARRAY[1:4] OF INTEGER",
-              "DECLARE I : INTEGER",
               "DECLARE Total : INTEGER",
               "DECLARE Average : INTEGER",
               "DECLARE Above : INTEGER",
@@ -4787,9 +4776,9 @@ var CAIETeaching = (() => {
               'OUTPUT "Above: ", Above'
             ].join("\n"),
             annotations: [
-              { fromLine: 12, toLine: 14, text: "\u7B2C\u4E00\u904D\uFF1A\u53EA\u7BA1\u52A0\u603B\u3002\u5230\u8FD9\u91CC\u8FD8\u4E0D\u77E5\u9053\u5E73\u5747\u503C\u662F\u591A\u5C11\u3002" },
-              { fromLine: 15, toLine: 15, text: "\u5168\u90E8\u52A0\u5B8C\u624D\u7B97\u5F97\u51FA\u5E73\u5747\u503C\u2014\u2014\u8FD9\u5C31\u662F\u4E3A\u4EC0\u4E48\u975E\u8981\u5206\u4E24\u904D\u3002" },
-              { fromLine: 16, toLine: 20, text: "\u7B2C\u4E8C\u904D\uFF1A\u62FF\u7740\u5E73\u5747\u503C\u56DE\u5934\u518D\u770B\u6BCF\u4E00\u683C\u3002\u6570\u636E\u8FD8\u5728\u6570\u7EC4\u91CC\uFF0C\u6240\u4EE5\u56DE\u5F97\u53BB\u3002" }
+              { fromLine: 11, toLine: 13, text: "\u7B2C\u4E00\u904D\uFF1A\u53EA\u7BA1\u52A0\u603B\u3002\u5230\u8FD9\u91CC\u8FD8\u4E0D\u77E5\u9053\u5E73\u5747\u503C\u662F\u591A\u5C11\u3002" },
+              { fromLine: 14, toLine: 14, text: "\u5168\u90E8\u52A0\u5B8C\u624D\u7B97\u5F97\u51FA\u5E73\u5747\u503C\u2014\u2014\u8FD9\u5C31\u662F\u4E3A\u4EC0\u4E48\u975E\u8981\u5206\u4E24\u904D\u3002" },
+              { fromLine: 15, toLine: 19, text: "\u7B2C\u4E8C\u904D\uFF1A\u62FF\u7740\u5E73\u5747\u503C\u56DE\u5934\u518D\u770B\u6BCF\u4E00\u683C\u3002\u6570\u636E\u8FD8\u5728\u6570\u7EC4\u91CC\uFF0C\u6240\u4EE5\u56DE\u5F97\u53BB\u3002" }
             ],
             sampleRun: { inputs: [], outputs: ["Average: 21", "Above: 1"] }
           },
@@ -4880,7 +4869,6 @@ var CAIETeaching = (() => {
         ],
         referenceSolution: [
           "DECLARE Temps : ARRAY[1:7] OF INTEGER",
-          "DECLARE I : INTEGER",
           "DECLARE Total : INTEGER",
           "DECLARE Highest : INTEGER",
           "DECLARE Average : INTEGER",
@@ -5156,8 +5144,6 @@ var CAIETeaching = (() => {
             fileName: "Example_9_3_a.pseudocode",
             code: [
               "DECLARE Marks : ARRAY[1:2, 1:3] OF INTEGER",
-              "DECLARE Row : INTEGER",
-              "DECLARE Col : INTEGER",
               "DECLARE Sum : INTEGER",
               "FOR Row \u2190 1 TO 2",
               "   FOR Col \u2190 1 TO 3",
@@ -5180,9 +5166,9 @@ var CAIETeaching = (() => {
               "NEXT Col"
             ].join("\n"),
             annotations: [
-              { fromLine: 5, toLine: 9, text: "\u5148\u628A\u8868\u683C\u586B\u6EE1\uFF1A\u4E24\u5C42\u5FAA\u73AF\uFF0C\u884C\u5728\u5916\u3001\u5217\u5728\u5185\u3002" },
-              { fromLine: 10, toLine: 16, text: "\u884C\u4F18\u5148\uFF1A\u6BCF\u8D70\u5B8C\u4E00\u884C\u5C31\u62A5\u4E00\u4E2A\u7ED3\u679C\u3002`Sum \u2190 0` \u5728\u5916\u5C42\u91CC\u9762\uFF0C\u6240\u4EE5\u6BCF\u884C\u91CD\u65B0\u5F00\u59CB\u3002" },
-              { fromLine: 17, toLine: 23, text: "\u5217\u4F18\u5148\uFF1A\u53EA\u662F\u628A\u4E24\u5C42\u5BF9\u8C03\uFF0C\u540C\u4E00\u5F20\u8868\u5C31\u6309\u5217\u7B97\u4E86\u3002\u683C\u5B50\u4E00\u4E2A\u6CA1\u52A8\uFF0C\u95EE\u9898\u53D8\u4E86\u3002" }
+              { fromLine: 3, toLine: 7, text: "\u5148\u628A\u8868\u683C\u586B\u6EE1\uFF1A\u4E24\u5C42\u5FAA\u73AF\uFF0C\u884C\u5728\u5916\u3001\u5217\u5728\u5185\u3002" },
+              { fromLine: 8, toLine: 14, text: "\u884C\u4F18\u5148\uFF1A\u6BCF\u8D70\u5B8C\u4E00\u884C\u5C31\u62A5\u4E00\u4E2A\u7ED3\u679C\u3002`Sum \u2190 0` \u5728\u5916\u5C42\u91CC\u9762\uFF0C\u6240\u4EE5\u6BCF\u884C\u91CD\u65B0\u5F00\u59CB\u3002" },
+              { fromLine: 15, toLine: 21, text: "\u5217\u4F18\u5148\uFF1A\u53EA\u662F\u628A\u4E24\u5C42\u5BF9\u8C03\uFF0C\u540C\u4E00\u5F20\u8868\u5C31\u6309\u5217\u7B97\u4E86\u3002\u683C\u5B50\u4E00\u4E2A\u6CA1\u52A8\uFF0C\u95EE\u9898\u53D8\u4E86\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -5276,8 +5262,6 @@ var CAIETeaching = (() => {
             ],
             referenceSolution: [
               "DECLARE Grid : ARRAY[1:2, 1:3] OF INTEGER",
-              "DECLARE Row : INTEGER",
-              "DECLARE Col : INTEGER",
               "DECLARE Sum : INTEGER",
               "FOR Row \u2190 1 TO 2",
               "   FOR Col \u2190 1 TO 3",
@@ -5411,8 +5395,6 @@ var CAIETeaching = (() => {
         ],
         referenceSolution: [
           "DECLARE Marks : ARRAY[1:3, 1:2] OF INTEGER",
-          "DECLARE Student : INTEGER",
-          "DECLARE Subject : INTEGER",
           "DECLARE Total : INTEGER",
           "FOR Student \u2190 1 TO 3",
           "   FOR Subject \u2190 1 TO 2",
@@ -5532,7 +5514,6 @@ var CAIETeaching = (() => {
             fileName: "Example_10_1_a.pseudocode",
             code: [
               "DECLARE Scores : ARRAY[1:5] OF INTEGER",
-              "DECLARE I : INTEGER",
               "DECLARE Target : INTEGER",
               "Scores[1] \u2190 30",
               "Scores[2] \u2190 80",
@@ -5547,9 +5528,9 @@ var CAIETeaching = (() => {
               "NEXT I"
             ].join("\n"),
             annotations: [
-              { fromLine: 9, toLine: 9, text: "\u8981\u627E\u7684\u503C\u3002\u628A\u5B83\u5355\u72EC\u653E\u8FDB\u4E00\u4E2A\u53D8\u91CF\uFF0C\u6362\u4E2A\u76EE\u6807\u53EA\u8981\u6539\u8FD9\u4E00\u884C\u3002" },
-              { fromLine: 10, toLine: 14, text: "\u4ECE\u7B2C 1 \u683C\u8D70\u5230\u7B2C 5 \u683C\uFF0C\u6BCF\u4E00\u683C\u90FD\u8DDF `Target` \u6BD4\u4E00\u6B21\u3002" },
-              { fromLine: 11, toLine: 13, text: "\u76F8\u7B49\u5C31\u62A5\u51FA\u4E0B\u6807\u3002\u6CE8\u610F\u8FD9\u91CC\u62A5\u5B8C\u8FD8\u63A5\u7740\u8D70\u2014\u2014`FOR` \u4E0D\u4F1A\u56E0\u4E3A\u627E\u5230\u4E86\u5C31\u505C\u3002" }
+              { fromLine: 8, toLine: 8, text: "\u8981\u627E\u7684\u503C\u3002\u628A\u5B83\u5355\u72EC\u653E\u8FDB\u4E00\u4E2A\u53D8\u91CF\uFF0C\u6362\u4E2A\u76EE\u6807\u53EA\u8981\u6539\u8FD9\u4E00\u884C\u3002" },
+              { fromLine: 9, toLine: 13, text: "\u4ECE\u7B2C 1 \u683C\u8D70\u5230\u7B2C 5 \u683C\uFF0C\u6BCF\u4E00\u683C\u90FD\u8DDF `Target` \u6BD4\u4E00\u6B21\u3002" },
+              { fromLine: 10, toLine: 12, text: "\u76F8\u7B49\u5C31\u62A5\u51FA\u4E0B\u6807\u3002\u6CE8\u610F\u8FD9\u91CC\u62A5\u5B8C\u8FD8\u63A5\u7740\u8D70\u2014\u2014`FOR` \u4E0D\u4F1A\u56E0\u4E3A\u627E\u5230\u4E86\u5C31\u505C\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -5733,7 +5714,6 @@ var CAIETeaching = (() => {
             ],
             referenceSolution: [
               "DECLARE Values : ARRAY[1:6] OF INTEGER",
-              "DECLARE Position : INTEGER",
               "DECLARE Target : INTEGER",
               "DECLARE Found : BOOLEAN",
               "FOR Position \u2190 1 TO 6",
@@ -5790,7 +5770,6 @@ var CAIETeaching = (() => {
             fileName: "Example_10_3_a.pseudocode",
             code: [
               "DECLARE Values : ARRAY[1:5] OF INTEGER",
-              "DECLARE J : INTEGER",
               "DECLARE Temp : INTEGER",
               "Values[1] \u2190 3",
               "Values[2] \u2190 9",
@@ -5809,10 +5788,10 @@ var CAIETeaching = (() => {
               "NEXT J"
             ].join("\n"),
             annotations: [
-              { fromLine: 9, toLine: 9, text: "\u4E94\u683C\u53EA\u6BD4\u56DB\u5BF9\uFF1A\u7B2C 5 \u683C\u6CA1\u6709\u53F3\u90BB\u5C45\uFF0C\u6240\u4EE5\u7EC8\u70B9\u662F 4 \u800C\u4E0D\u662F 5\u3002" },
-              { fromLine: 10, toLine: 14, text: "\u53EA\u6BD4\u76F8\u90BB\u7684\u4E24\u683C\u3002\u6574\u4E2A\u5192\u6CE1\u6392\u5E8F\u5C31\u53EA\u505A\u8FD9\u4E00\u4EF6\u4E8B\uFF0C\u522B\u7684\u90FD\u662F\u91CD\u590D\u5B83\u3002" },
-              { fromLine: 11, toLine: 13, text: "\u4E09\u6B65\u4EA4\u6362\uFF1A\u5148\u628A\u5DE6\u8FB9\u7684\u503C\u5B58\u8D77\u6765\uFF0C\u518D\u628A\u53F3\u8FB9\u7684\u642C\u8FC7\u6765\uFF0C\u6700\u540E\u628A\u5B58\u7740\u7684\u90A3\u4E2A\u653E\u5230\u53F3\u8FB9\u3002" },
-              { fromLine: 16, toLine: 18, text: "\u4E00\u8D9F\u4E4B\u540E\u7684\u6837\u5B50\uFF1A\u6700\u5927\u7684 9 \u5DF2\u7ECF\u5728\u6700\u540E\u4E00\u683C\u4E86\uFF0C\u524D\u9762\u51E0\u4E2A\u8FD8\u4E71\u7740\u3002" }
+              { fromLine: 8, toLine: 8, text: "\u4E94\u683C\u53EA\u6BD4\u56DB\u5BF9\uFF1A\u7B2C 5 \u683C\u6CA1\u6709\u53F3\u90BB\u5C45\uFF0C\u6240\u4EE5\u7EC8\u70B9\u662F 4 \u800C\u4E0D\u662F 5\u3002" },
+              { fromLine: 9, toLine: 13, text: "\u53EA\u6BD4\u76F8\u90BB\u7684\u4E24\u683C\u3002\u6574\u4E2A\u5192\u6CE1\u6392\u5E8F\u5C31\u53EA\u505A\u8FD9\u4E00\u4EF6\u4E8B\uFF0C\u522B\u7684\u90FD\u662F\u91CD\u590D\u5B83\u3002" },
+              { fromLine: 10, toLine: 12, text: "\u4E09\u6B65\u4EA4\u6362\uFF1A\u5148\u628A\u5DE6\u8FB9\u7684\u503C\u5B58\u8D77\u6765\uFF0C\u518D\u628A\u53F3\u8FB9\u7684\u642C\u8FC7\u6765\uFF0C\u6700\u540E\u628A\u5B58\u7740\u7684\u90A3\u4E2A\u653E\u5230\u53F3\u8FB9\u3002" },
+              { fromLine: 15, toLine: 17, text: "\u4E00\u8D9F\u4E4B\u540E\u7684\u6837\u5B50\uFF1A\u6700\u5927\u7684 9 \u5DF2\u7ECF\u5728\u6700\u540E\u4E00\u683C\u4E86\uFF0C\u524D\u9762\u51E0\u4E2A\u8FD8\u4E71\u7740\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -5898,8 +5877,6 @@ var CAIETeaching = (() => {
             fileName: "Example_10_4_a.pseudocode",
             code: [
               "DECLARE Values : ARRAY[1:5] OF INTEGER",
-              "DECLARE I : INTEGER",
-              "DECLARE J : INTEGER",
               "DECLARE Temp : INTEGER",
               "Values[1] \u2190 3",
               "Values[2] \u2190 9",
@@ -5920,9 +5897,9 @@ var CAIETeaching = (() => {
               "NEXT I"
             ].join("\n"),
             annotations: [
-              { fromLine: 10, toLine: 10, text: "\u5916\u5C42\u53EA\u7BA1\u6570\u8D9F\u6570\uFF1A5 \u4E2A\u6570\u8D70 4 \u8D9F\u3002`I` \u5728\u5FAA\u73AF\u4F53\u91CC\u4E0D\u7528\u6765\u53D6\u683C\u5B50\uFF0C\u5B83\u53EA\u662F\u300C\u7B2C\u51E0\u8D9F\u300D\u3002" },
-              { fromLine: 11, toLine: 11, text: "\u5185\u5C42\u7684\u7EC8\u70B9\u8DDF\u7740\u8D9F\u6570\u7F29\uFF1A\u7B2C 1 \u8D9F\u6BD4\u5230\u7B2C 4 \u5BF9\uFF0C\u7B2C 4 \u8D9F\u53EA\u6BD4\u7B2C 1 \u5BF9\u3002" },
-              { fromLine: 12, toLine: 16, text: "\u548C\u4E0A\u4E00\u8282\u90A3\u6BB5\u4E00\u6A21\u4E00\u6837\u3002\u6574\u4E2A\u6392\u5E8F\u7684\u529B\u6C14\u5168\u5728\u8FD9\u4E94\u884C\u4E0A\u3002" }
+              { fromLine: 8, toLine: 8, text: "\u5916\u5C42\u53EA\u7BA1\u6570\u8D9F\u6570\uFF1A5 \u4E2A\u6570\u8D70 4 \u8D9F\u3002`I` \u5728\u5FAA\u73AF\u4F53\u91CC\u4E0D\u7528\u6765\u53D6\u683C\u5B50\uFF0C\u5B83\u53EA\u662F\u300C\u7B2C\u51E0\u8D9F\u300D\u3002" },
+              { fromLine: 9, toLine: 9, text: "\u5185\u5C42\u7684\u7EC8\u70B9\u8DDF\u7740\u8D9F\u6570\u7F29\uFF1A\u7B2C 1 \u8D9F\u6BD4\u5230\u7B2C 4 \u5BF9\uFF0C\u7B2C 4 \u8D9F\u53EA\u6BD4\u7B2C 1 \u5BF9\u3002" },
+              { fromLine: 10, toLine: 14, text: "\u548C\u4E0A\u4E00\u8282\u90A3\u6BB5\u4E00\u6A21\u4E00\u6837\u3002\u6574\u4E2A\u6392\u5E8F\u7684\u529B\u6C14\u5168\u5728\u8FD9\u4E94\u884C\u4E0A\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -6009,8 +5986,6 @@ var CAIETeaching = (() => {
             ],
             referenceSolution: [
               "DECLARE Values : ARRAY[1:5] OF INTEGER",
-              "DECLARE I : INTEGER",
-              "DECLARE J : INTEGER",
               "DECLARE Temp : INTEGER",
               "FOR I \u2190 1 TO 5",
               '   OUTPUT "Enter a number"',
@@ -6061,8 +6036,6 @@ var CAIETeaching = (() => {
             fileName: "Example_10_5_a.pseudocode",
             code: [
               "DECLARE Values : ARRAY[1:5] OF INTEGER",
-              "DECLARE I : INTEGER",
-              "DECLARE J : INTEGER",
               "DECLARE Temp : INTEGER",
               "DECLARE Swapped : BOOLEAN",
               "DECLARE Passes : INTEGER",
@@ -6090,10 +6063,10 @@ var CAIETeaching = (() => {
               "NEXT I"
             ].join("\n"),
             annotations: [
-              { fromLine: 14, toLine: 14, text: "\u6E05\u96F6\u653E\u5728\u6BCF\u8D9F\u7684\u5F00\u5934\uFF0C\u4E0D\u80FD\u653E\u5728 `REPEAT` \u4E4B\u524D\u2014\u2014\u90A3\u6837\u53EA\u6709\u7B2C\u4E00\u8D9F\u7B97\u6570\u3002" },
-              { fromLine: 21, toLine: 21, text: "\u53EA\u8981\u6362\u8FC7\u4E00\u6B21\u5C31\u7ACB\u8D77\u6765\u3002\u5B83\u56DE\u7B54\u7684\u662F\u300C\u8FD9\u4E00\u8D9F\u6709\u6CA1\u6709\u52A8\u8FC7\u300D\u3002" },
-              { fromLine: 24, toLine: 24, text: "\u4E00\u8D9F\u90FD\u6CA1\u6362\uFF0C\u5C31\u8BF4\u660E\u5DF2\u7ECF\u6392\u597D\uFF0C\u5FAA\u73AF\u5230\u6B64\u4E3A\u6B62\u3002" },
-              { fromLine: 25, toLine: 25, text: "\u8FD9\u91CC\u628A\u8D9F\u6570\u663E\u793A\u51FA\u6765\u53EA\u662F\u4E3A\u4E86\u770B\u5F97\u89C1\uFF1B\u771F\u6B63\u5728\u7528\u7684\u7A0B\u5E8F\u91CC\u4E0D\u9700\u8981\u8FD9\u4E00\u884C\u3002" }
+              { fromLine: 12, toLine: 12, text: "\u6E05\u96F6\u653E\u5728\u6BCF\u8D9F\u7684\u5F00\u5934\uFF0C\u4E0D\u80FD\u653E\u5728 `REPEAT` \u4E4B\u524D\u2014\u2014\u90A3\u6837\u53EA\u6709\u7B2C\u4E00\u8D9F\u7B97\u6570\u3002" },
+              { fromLine: 19, toLine: 19, text: "\u53EA\u8981\u6362\u8FC7\u4E00\u6B21\u5C31\u7ACB\u8D77\u6765\u3002\u5B83\u56DE\u7B54\u7684\u662F\u300C\u8FD9\u4E00\u8D9F\u6709\u6CA1\u6709\u52A8\u8FC7\u300D\u3002" },
+              { fromLine: 22, toLine: 22, text: "\u4E00\u8D9F\u90FD\u6CA1\u6362\uFF0C\u5C31\u8BF4\u660E\u5DF2\u7ECF\u6392\u597D\uFF0C\u5FAA\u73AF\u5230\u6B64\u4E3A\u6B62\u3002" },
+              { fromLine: 23, toLine: 23, text: "\u8FD9\u91CC\u628A\u8D9F\u6570\u663E\u793A\u51FA\u6765\u53EA\u662F\u4E3A\u4E86\u770B\u5F97\u89C1\uFF1B\u771F\u6B63\u5728\u7528\u7684\u7A0B\u5E8F\u91CC\u4E0D\u9700\u8981\u8FD9\u4E00\u884C\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -6192,8 +6165,6 @@ var CAIETeaching = (() => {
         ],
         referenceSolution: [
           "DECLARE Values : ARRAY[1:6] OF INTEGER",
-          "DECLARE I : INTEGER",
-          "DECLARE J : INTEGER",
           "DECLARE Temp : INTEGER",
           "DECLARE Target : INTEGER",
           "DECLARE Position : INTEGER",
@@ -6705,7 +6676,6 @@ var CAIETeaching = (() => {
               "   DECLARE Mark : INTEGER",
               "ENDTYPE",
               "DECLARE Form : ARRAY[1:3] OF TStudent",
-              "DECLARE I : INTEGER",
               'Form[1].Name \u2190 "Ada"',
               "Form[1].Mark \u2190 80",
               'Form[2].Name \u2190 "Bob"',
@@ -6720,8 +6690,8 @@ var CAIETeaching = (() => {
             ].join("\n"),
             annotations: [
               { fromLine: 5, toLine: 5, text: "\u4E09\u683C\uFF0C\u6BCF\u683C\u4E00\u6761 `TStudent`\u3002\u65B9\u62EC\u53F7\u91CC\u7684\u5199\u6CD5\u548C\u4E00\u7EF4\u6570\u7EC4\u5B8C\u5168\u4E00\u6837\uFF0C\u53D8\u7684\u53EA\u662F `OF` \u540E\u9762\u3002" },
-              { fromLine: 7, toLine: 12, text: "\u4E0B\u6807\u5728\u524D\u3001\u70B9\u53F7\u5728\u540E\u3002\u516D\u884C\u586B\u6EE1\u4E09\u4E2A\u4EBA\u7684\u4E24\u4E2A\u5B57\u6BB5\u3002" },
-              { fromLine: 13, toLine: 17, text: "\u904D\u5386\u548C\u5224\u65AD\u90FD\u662F\u8001\u5199\u6CD5\uFF0C\u53EA\u662F\u53D6\u503C\u7684\u65F6\u5019\u591A\u4E86\u4E00\u622A `.Mark`\u3002" }
+              { fromLine: 6, toLine: 11, text: "\u4E0B\u6807\u5728\u524D\u3001\u70B9\u53F7\u5728\u540E\u3002\u516D\u884C\u586B\u6EE1\u4E09\u4E2A\u4EBA\u7684\u4E24\u4E2A\u5B57\u6BB5\u3002" },
+              { fromLine: 12, toLine: 16, text: "\u904D\u5386\u548C\u5224\u65AD\u90FD\u662F\u8001\u5199\u6CD5\uFF0C\u53EA\u662F\u53D6\u503C\u7684\u65F6\u5019\u591A\u4E86\u4E00\u622A `.Mark`\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -6814,7 +6784,6 @@ var CAIETeaching = (() => {
               "   DECLARE Mark : INTEGER",
               "ENDTYPE",
               "DECLARE Form : ARRAY[1:4] OF TStudent",
-              "DECLARE I : INTEGER",
               "DECLARE Best : INTEGER",
               "FOR I \u2190 1 TO 4",
               '   OUTPUT "Enter a name"',
@@ -6954,8 +6923,6 @@ var CAIETeaching = (() => {
           "ENDTYPE",
           "DECLARE Form : ARRAY[1:5] OF TStudent",
           "DECLARE Temp : TStudent",
-          "DECLARE I : INTEGER",
-          "DECLARE J : INTEGER",
           "FOR I \u2190 1 TO 5",
           '   OUTPUT "Enter a name"',
           "   INPUT Form[I].Name",
@@ -7280,7 +7247,6 @@ var CAIETeaching = (() => {
             fileName: "Example_12_3_a.pseudocode",
             code: [
               "PROCEDURE ShowLine(Width : INTEGER)",
-              "   DECLARE I : INTEGER",
               "   DECLARE Bar : STRING",
               '   Bar \u2190 ""',
               "   FOR I \u2190 1 TO Width",
@@ -7297,8 +7263,8 @@ var CAIETeaching = (() => {
             ].join("\n"),
             annotations: [
               { fromLine: 1, toLine: 1, text: "`Width` \u662F\u53C2\u6570\u3002\u5B83\u5728\u8FC7\u7A0B\u4F53\u91CC\u5F53\u53D8\u91CF\u7528\uFF0C\u4F46\u4E0D\u9700\u8981 `DECLARE`\u2014\u2014\u62EC\u53F7\u91CC\u8FD9\u4E00\u53E5\u5DF2\u7ECF\u662F\u58F0\u660E\u4E86\u3002" },
-              { fromLine: 10, toLine: 10, text: "\u4E24\u4E2A\u53C2\u6570\uFF0C\u5404\u5199\u5404\u7684\u7C7B\u578B\u3002\u9017\u53F7\u9694\u5F00\u3002" },
-              { fromLine: 13, toLine: 15, text: '`6`\u3001`"Total"`\u3001`42`\u3001`3` \u90FD\u662F\u5B9E\u53C2\u3002`ShowLine` \u88AB\u8C03\u7528\u4E24\u6B21\uFF0C`Width` \u5148\u662F 6 \u518D\u662F 3\u3002' }
+              { fromLine: 9, toLine: 9, text: "\u4E24\u4E2A\u53C2\u6570\uFF0C\u5404\u5199\u5404\u7684\u7C7B\u578B\u3002\u9017\u53F7\u9694\u5F00\u3002" },
+              { fromLine: 12, toLine: 14, text: '`6`\u3001`"Total"`\u3001`42`\u3001`3` \u90FD\u662F\u5B9E\u53C2\u3002`ShowLine` \u88AB\u8C03\u7528\u4E24\u6B21\uFF0C`Width` \u5148\u662F 6 \u518D\u662F 3\u3002' }
             ],
             sampleRun: {
               inputs: [],
@@ -7419,7 +7385,6 @@ var CAIETeaching = (() => {
             ],
             referenceSolution: [
               "PROCEDURE ShowBar(Label : STRING, Count : INTEGER)",
-              "   DECLARE I : INTEGER",
               "   DECLARE Bar : STRING",
               '   Bar \u2190 ""',
               "   FOR I \u2190 1 TO Count",
@@ -7429,7 +7394,6 @@ var CAIETeaching = (() => {
               "ENDPROCEDURE",
               "DECLARE Name : STRING",
               "DECLARE Amount : INTEGER",
-              "DECLARE K : INTEGER",
               "FOR K \u2190 1 TO 3",
               '   OUTPUT "Enter a label"',
               "   INPUT Name",
@@ -8264,7 +8228,6 @@ var CAIETeaching = (() => {
               '   RETURN "F"',
               "ENDFUNCTION",
               "DECLARE Mark : INTEGER",
-              "DECLARE I : INTEGER",
               "FOR I \u2190 1 TO 3",
               '   OUTPUT "Enter a mark"',
               "   INPUT Mark",
@@ -8497,7 +8460,6 @@ var CAIETeaching = (() => {
               "ENDFUNCTION",
               "DECLARE Best : INTEGER",
               "DECLARE N : INTEGER",
-              "DECLARE I : INTEGER",
               'OUTPUT "Enter a number"',
               "INPUT Best",
               "FOR I \u2190 2 TO 4",
@@ -8637,7 +8599,6 @@ var CAIETeaching = (() => {
           "ENDPROCEDURE",
           "DECLARE Sum : INTEGER",
           "DECLARE Mark : INTEGER",
-          "DECLARE I : INTEGER",
           "DECLARE Mean : INTEGER",
           "Sum \u2190 0",
           "FOR I \u2190 1 TO 5",
@@ -9079,7 +9040,6 @@ var CAIETeaching = (() => {
             ],
             referenceSolution: [
               "DECLARE Name : STRING",
-              "DECLARE I : INTEGER",
               'OPENFILE "Names.txt" FOR WRITE',
               "FOR I \u2190 1 TO 3",
               '   OUTPUT "Enter a name"',
@@ -9373,7 +9333,6 @@ var CAIETeaching = (() => {
             ],
             referenceSolution: [
               "DECLARE Line : STRING",
-              "DECLARE I : INTEGER",
               "DECLARE Count : INTEGER",
               'OPENFILE "Notes.txt" FOR WRITE',
               "FOR I \u2190 1 TO 4",
@@ -9539,7 +9498,6 @@ var CAIETeaching = (() => {
         ],
         referenceSolution: [
           "DECLARE Name : STRING",
-          "DECLARE I : INTEGER",
           "DECLARE Count : INTEGER",
           'OPENFILE "Names.txt" FOR WRITE',
           "FOR I \u2190 1 TO 5",
@@ -10562,7 +10520,6 @@ var CAIETeaching = (() => {
             fileName: "Example_16_4_a.pseudocode",
             code: [
               "DECLARE Marks : ARRAY[1:5] OF INTEGER",
-              "DECLARE I : INTEGER",
               "DECLARE Total : INTEGER",
               "Total \u2190 0",
               "FOR I \u2190 1 TO 5",
@@ -10573,9 +10530,9 @@ var CAIETeaching = (() => {
               'OUTPUT "Average: ", Total DIV 5'
             ].join("\n"),
             annotations: [
-              { fromLine: 4, toLine: 4, text: "\u5BF9\u5E94\u7B2C\u4E8C\u5C42\u7684\u300C\u603B\u5206\u6E05\u96F6\u300D\u3002\u4F4D\u7F6E\u5728\u5FAA\u73AF\u4E4B\u524D\u2014\u2014\u7B2C 6 \u7AE0\u53CD\u590D\u8BB2\u8FC7\u8FD9\u4EF6\u4E8B\u3002" },
-              { fromLine: 5, toLine: 9, text: "\u5BF9\u5E94\u300C\u91CD\u590D 5 \u6B21\uFF1A\u2026\u2026\u300D\u3002\u6B21\u6570\u5DF2\u7ECF\u77E5\u9053\uFF0C\u6240\u4EE5\u662F `FOR`\u3002" },
-              { fromLine: 8, toLine: 8, text: "\u5BF9\u5E94\u300C\u628A\u8FD9\u4E2A\u5206\u6570\u52A0\u5230\u603B\u5206\u4E0A\u300D\u3002\u4E00\u53E5\u8BDD\u6362\u4E00\u884C\uFF0C\u8FD9\u5C31\u662F\u6C42\u7CBE\u8BE5\u505C\u4E0B\u6765\u7684\u4FE1\u53F7\u3002" }
+              { fromLine: 3, toLine: 3, text: "\u5BF9\u5E94\u7B2C\u4E8C\u5C42\u7684\u300C\u603B\u5206\u6E05\u96F6\u300D\u3002\u4F4D\u7F6E\u5728\u5FAA\u73AF\u4E4B\u524D\u2014\u2014\u7B2C 6 \u7AE0\u53CD\u590D\u8BB2\u8FC7\u8FD9\u4EF6\u4E8B\u3002" },
+              { fromLine: 4, toLine: 8, text: "\u5BF9\u5E94\u300C\u91CD\u590D 5 \u6B21\uFF1A\u2026\u2026\u300D\u3002\u6B21\u6570\u5DF2\u7ECF\u77E5\u9053\uFF0C\u6240\u4EE5\u662F `FOR`\u3002" },
+              { fromLine: 7, toLine: 7, text: "\u5BF9\u5E94\u300C\u628A\u8FD9\u4E2A\u5206\u6570\u52A0\u5230\u603B\u5206\u4E0A\u300D\u3002\u4E00\u53E5\u8BDD\u6362\u4E00\u884C\uFF0C\u8FD9\u5C31\u662F\u6C42\u7CBE\u8BE5\u505C\u4E0B\u6765\u7684\u4FE1\u53F7\u3002" }
             ],
             sampleRun: {
               inputs: ["80", "70", "90", "60", "100"],
@@ -10700,7 +10657,6 @@ var CAIETeaching = (() => {
                 code: [
                   "DECLARE Count : INTEGER",
                   "DECLARE Temperature : INTEGER",
-                  "DECLARE I : INTEGER",
                   "Count \u2190 0",
                   "FOR I \u2190 1 TO 3",
                   '   OUTPUT "Enter a temperature"',
@@ -10810,7 +10766,6 @@ var CAIETeaching = (() => {
             referenceSolution: [
               "DECLARE Count : INTEGER",
               "DECLARE Temperature : INTEGER",
-              "DECLARE I : INTEGER",
               "Count \u2190 0",
               "FOR I \u2190 1 TO 5",
               '   OUTPUT "Enter a temperature"',
@@ -10863,7 +10818,6 @@ var CAIETeaching = (() => {
               "   DECLARE Mark : INTEGER",
               "ENDTYPE",
               "DECLARE Form : ARRAY[1:5] OF TStudent",
-              "DECLARE I : INTEGER",
               "DECLARE Total : INTEGER",
               "Total \u2190 0",
               "FOR I \u2190 1 TO 5",
@@ -10877,8 +10831,8 @@ var CAIETeaching = (() => {
             ].join("\n"),
             annotations: [
               { fromLine: 1, toLine: 5, text: "\u6570\u636E\u7ED3\u6784\u7684\u51B3\u5B9A\u843D\u5728\u8FD9\u4E94\u884C\u4E0A\uFF1A\u4E00\u4EFD\u662F\u4E00\u6761\u8BB0\u5F55\uFF0C\u4E94\u4EFD\u662F\u4E00\u4E2A\u8BB0\u5F55\u6570\u7EC4\u3002" },
-              { fromLine: 9, toLine: 15, text: "\u63A7\u5236\u7ED3\u6784\u7684\u51B3\u5B9A\u843D\u5728\u8FD9\u4E00\u884C\u4E0A\uFF1A\u4EBA\u6570\u56FA\u5B9A\uFF0C\u6240\u4EE5\u662F `FOR`\u3002" },
-              { fromLine: 14, toLine: 14, text: "\u603B\u5206\u8FB9\u8BFB\u8FB9\u52A0\u3002\u5B83\u4E0D\u8FDD\u53CD\u300C\u975E\u5B58\u4E0B\u6765\u4E0D\u53EF\u300D\u2014\u2014\u5B58\u7684\u662F\u6BCF\u4E2A\u4EBA\u7684\u5206\u6570\uFF0C\u603B\u5206\u53EA\u662F\u987A\u624B\u6512\u7684\u3002" }
+              { fromLine: 8, toLine: 14, text: "\u63A7\u5236\u7ED3\u6784\u7684\u51B3\u5B9A\u843D\u5728\u8FD9\u4E00\u884C\u4E0A\uFF1A\u4EBA\u6570\u56FA\u5B9A\uFF0C\u6240\u4EE5\u662F `FOR`\u3002" },
+              { fromLine: 13, toLine: 13, text: "\u603B\u5206\u8FB9\u8BFB\u8FB9\u52A0\u3002\u5B83\u4E0D\u8FDD\u53CD\u300C\u975E\u5B58\u4E0B\u6765\u4E0D\u53EF\u300D\u2014\u2014\u5B58\u7684\u662F\u6BCF\u4E2A\u4EBA\u7684\u5206\u6570\uFF0C\u603B\u5206\u53EA\u662F\u987A\u624B\u6512\u7684\u3002" }
             ],
             sampleRun: {
               inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
@@ -10962,7 +10916,6 @@ var CAIETeaching = (() => {
               "   DECLARE Mark : INTEGER",
               "ENDTYPE",
               "PROCEDURE ReadClass(BYREF Form : ARRAY[1:5] OF TStudent, BYREF Total : INTEGER)",
-              "   DECLARE I : INTEGER",
               "   Total \u2190 0",
               "   FOR I \u2190 1 TO 5",
               '      OUTPUT "Enter a name"',
@@ -10976,7 +10929,6 @@ var CAIETeaching = (() => {
               "   RETURN Total DIV Count",
               "ENDFUNCTION",
               "PROCEDURE ShowAbove(Form : ARRAY[1:5] OF TStudent, Mean : INTEGER)",
-              "   DECLARE I : INTEGER",
               "   FOR I \u2190 1 TO 5",
               "      IF Form[I].Mark > Mean THEN",
               "         OUTPUT Form[I].Name",
@@ -10993,8 +10945,8 @@ var CAIETeaching = (() => {
             ].join("\n"),
             annotations: [
               { fromLine: 5, toLine: 5, text: "\u4E24\u6837\u90FD\u8981\u4EA4\u56DE\u4E3B\u7A0B\u5E8F\uFF0C\u6240\u4EE5\u662F\u8FC7\u7A0B\u52A0\u4E24\u4E2A `BYREF`\u2014\u2014\u7ED3\u6784\u56FE\u4E0A\u90A3\u4E24\u4E2A\u671D\u4E0A\u7684\u7BAD\u5934\u3002" },
-              { fromLine: 19, toLine: 19, text: "\u53EA\u5F80\u4E0B\u4F20\uFF0C\u4EC0\u4E48\u90FD\u4E0D\u4EA4\u56DE\uFF0C\u800C\u4E14\u6570\u7EC4\u662F\u62FF\u6765\u770B\u7684\uFF0C\u6240\u4EE5\u7528\u9ED8\u8BA4\u7684\u4F20\u503C\u3002" },
-              { fromLine: 27, toLine: 33, text: "\u4E3B\u7A0B\u5E8F\u53EA\u5269\u4E03\u884C\uFF1A\u4E09\u884C\u58F0\u660E\u3001\u4E09\u6B21\u8C03\u7528\u3001\u4E00\u53E5\u663E\u793A\u3002\u62C6\u5F97\u5BF9\u7684\u65F6\u5019\u5B83\u5C31\u8BE5\u8FD9\u4E48\u77ED\u3002" }
+              { fromLine: 18, toLine: 18, text: "\u53EA\u5F80\u4E0B\u4F20\uFF0C\u4EC0\u4E48\u90FD\u4E0D\u4EA4\u56DE\uFF0C\u800C\u4E14\u6570\u7EC4\u662F\u62FF\u6765\u770B\u7684\uFF0C\u6240\u4EE5\u7528\u9ED8\u8BA4\u7684\u4F20\u503C\u3002" },
+              { fromLine: 25, toLine: 31, text: "\u4E3B\u7A0B\u5E8F\u53EA\u5269\u4E03\u884C\uFF1A\u4E09\u884C\u58F0\u660E\u3001\u4E09\u6B21\u8C03\u7528\u3001\u4E00\u53E5\u663E\u793A\u3002\u62C6\u5F97\u5BF9\u7684\u65F6\u5019\u5B83\u5C31\u8BE5\u8FD9\u4E48\u77ED\u3002" }
             ],
             sampleRun: {
               inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
@@ -11098,7 +11050,6 @@ var CAIETeaching = (() => {
             ],
             referenceSolution: [
               "DECLARE Mark : INTEGER",
-              "DECLARE I : INTEGER",
               "DECLARE Line : STRING",
               "DECLARE Passes : INTEGER",
               'OPENFILE "Marks.txt" FOR WRITE',
@@ -11201,7 +11152,6 @@ var CAIETeaching = (() => {
           "   DECLARE Loans : INTEGER",
           "ENDTYPE",
           "PROCEDURE ReadBooks(BYREF Shelf : ARRAY[1:5] OF TBook, BYREF Total : INTEGER)",
-          "   DECLARE I : INTEGER",
           "   Total \u2190 0",
           "   FOR I \u2190 1 TO 5",
           '      OUTPUT "Enter a title"',
@@ -11212,7 +11162,6 @@ var CAIETeaching = (() => {
           "   NEXT I",
           "ENDPROCEDURE",
           "FUNCTION BestOf(Shelf : ARRAY[1:5] OF TBook) RETURNS INTEGER",
-          "   DECLARE I : INTEGER",
           "   DECLARE Best : INTEGER",
           "   Best \u2190 1",
           "   FOR I \u2190 2 TO 5",

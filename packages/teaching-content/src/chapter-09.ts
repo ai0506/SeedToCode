@@ -204,8 +204,6 @@ export const chapter09: Chapter = {
           fileName: "Example_9_3_a.pseudocode",
           code: [
             "DECLARE Marks : ARRAY[1:2, 1:3] OF INTEGER",
-            "DECLARE Row : INTEGER",
-            "DECLARE Col : INTEGER",
             "DECLARE Sum : INTEGER",
             "FOR Row ← 1 TO 2",
             "   FOR Col ← 1 TO 3",
@@ -228,9 +226,9 @@ export const chapter09: Chapter = {
             "NEXT Col"
           ].join("\n"),
           annotations: [
-            { fromLine: 5, toLine: 9, text: "先把表格填满：两层循环，行在外、列在内。" },
-            { fromLine: 10, toLine: 16, text: "行优先：每走完一行就报一个结果。`Sum ← 0` 在外层里面，所以每行重新开始。" },
-            { fromLine: 17, toLine: 23, text: "列优先：只是把两层对调，同一张表就按列算了。格子一个没动，问题变了。" }
+            { fromLine: 3, toLine: 7, text: "先把表格填满：两层循环，行在外、列在内。" },
+            { fromLine: 8, toLine: 14, text: "行优先：每走完一行就报一个结果。`Sum ← 0` 在外层里面，所以每行重新开始。" },
+            { fromLine: 15, toLine: 21, text: "列优先：只是把两层对调，同一张表就按列算了。格子一个没动，问题变了。" }
           ],
           sampleRun: {
             inputs: [],
@@ -324,8 +322,6 @@ export const chapter09: Chapter = {
           ],
           referenceSolution: [
             "DECLARE Grid : ARRAY[1:2, 1:3] OF INTEGER",
-            "DECLARE Row : INTEGER",
-            "DECLARE Col : INTEGER",
             "DECLARE Sum : INTEGER",
             "FOR Row ← 1 TO 2",
             "   FOR Col ← 1 TO 3",
@@ -459,8 +455,6 @@ export const chapter09: Chapter = {
       ],
       referenceSolution: [
         "DECLARE Marks : ARRAY[1:3, 1:2] OF INTEGER",
-        "DECLARE Student : INTEGER",
-        "DECLARE Subject : INTEGER",
         "DECLARE Total : INTEGER",
         "FOR Student ← 1 TO 3",
         "   FOR Subject ← 1 TO 2",

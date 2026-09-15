@@ -236,8 +236,6 @@ export const chapter06: Chapter = {
           title: "数一数最里面跑了几次",
           fileName: "Example_6_3_a.pseudocode",
           code: [
-            "DECLARE I : INTEGER",
-            "DECLARE J : INTEGER",
             "DECLARE N : INTEGER",
             "N ← 0",
             "FOR I ← 1 TO 3",
@@ -248,10 +246,10 @@ export const chapter06: Chapter = {
             'OUTPUT "Body ran ", N, " times"'
           ].join("\n"),
           annotations: [
-            { fromLine: 5, toLine: 5, text: "外层跑 3 遍，`I` 依次是 1、2、3。" },
-            { fromLine: 6, toLine: 6, text: "每次进到这里，`J` 都重新从 1 开始数到 4。" },
-            { fromLine: 7, toLine: 7, text: "这一句被执行的次数是两层次数的乘积。" },
-            { fromLine: 8, toLine: 9, text: "两个 `NEXT`，各自关掉一层。先关内层，再关外层——顺序不能交叉。" }
+            { fromLine: 3, toLine: 3, text: "外层跑 3 遍，`I` 依次是 1、2、3。" },
+            { fromLine: 4, toLine: 4, text: "每次进到这里，`J` 都重新从 1 开始数到 4。" },
+            { fromLine: 5, toLine: 5, text: "这一句被执行的次数是两层次数的乘积。" },
+            { fromLine: 6, toLine: 7, text: "两个 `NEXT`，各自关掉一层。先关内层，再关外层——顺序不能交叉。" }
           ],
           sampleRun: { inputs: [], outputs: ["Body ran 12 times"] }
         },
@@ -308,8 +306,6 @@ export const chapter06: Chapter = {
           title: "两行乘法表",
           fileName: "Example_6_4_a.pseudocode",
           code: [
-            "DECLARE I : INTEGER",
-            "DECLARE J : INTEGER",
             "FOR I ← 1 TO 2",
             "   FOR J ← 1 TO 3",
             '      OUTPUT I, " x ", J, " = ", I * J',
@@ -317,9 +313,9 @@ export const chapter06: Chapter = {
             "NEXT I"
           ].join("\n"),
           annotations: [
-            { fromLine: 3, toLine: 3, text: "外层管行，`I` 是被乘数。" },
-            { fromLine: 4, toLine: 4, text: "内层管列，`J` 从 1 数到 3。" },
-            { fromLine: 5, toLine: 5, text: "这一句在最里层，所以每一对 `I`、`J` 都显示一行，一共 2 乘 3 等于 6 行。" }
+            { fromLine: 1, toLine: 1, text: "外层管行，`I` 是被乘数。" },
+            { fromLine: 2, toLine: 2, text: "内层管列，`J` 从 1 数到 3。" },
+            { fromLine: 3, toLine: 3, text: "这一句在最里层，所以每一对 `I`、`J` 都显示一行，一共 2 乘 3 等于 6 行。" }
           ],
           sampleRun: {
             inputs: [],
@@ -391,8 +387,6 @@ export const chapter06: Chapter = {
           examples: [{ inputs: ["2"], outputs: ["Enter a number", "1", "2", "2"] }],
           referenceSolution: [
             "DECLARE Number : INTEGER",
-            "DECLARE I : INTEGER",
-            "DECLARE J : INTEGER",
             'OUTPUT "Enter a number"',
             "INPUT Number",
             "FOR I ← 1 TO Number",
@@ -453,7 +447,6 @@ export const chapter06: Chapter = {
         }
       ],
       referenceSolution: [
-        "DECLARE ClassNo : INTEGER",
         "DECLARE Score : INTEGER",
         "DECLARE Count : INTEGER",
         "DECLARE Total : INTEGER",

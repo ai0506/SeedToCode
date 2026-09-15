@@ -429,7 +429,6 @@ export const chapter11: Chapter = {
             "   DECLARE Mark : INTEGER",
             "ENDTYPE",
             "DECLARE Form : ARRAY[1:3] OF TStudent",
-            "DECLARE I : INTEGER",
             'Form[1].Name ← "Ada"',
             "Form[1].Mark ← 80",
             'Form[2].Name ← "Bob"',
@@ -444,8 +443,8 @@ export const chapter11: Chapter = {
           ].join("\n"),
           annotations: [
             { fromLine: 5, toLine: 5, text: "三格，每格一条 `TStudent`。方括号里的写法和一维数组完全一样，变的只是 `OF` 后面。" },
-            { fromLine: 7, toLine: 12, text: "下标在前、点号在后。六行填满三个人的两个字段。" },
-            { fromLine: 13, toLine: 17, text: "遍历和判断都是老写法，只是取值的时候多了一截 `.Mark`。" }
+            { fromLine: 6, toLine: 11, text: "下标在前、点号在后。六行填满三个人的两个字段。" },
+            { fromLine: 12, toLine: 16, text: "遍历和判断都是老写法，只是取值的时候多了一截 `.Mark`。" }
           ],
           sampleRun: {
             inputs: [],
@@ -538,7 +537,6 @@ export const chapter11: Chapter = {
             "   DECLARE Mark : INTEGER",
             "ENDTYPE",
             "DECLARE Form : ARRAY[1:4] OF TStudent",
-            "DECLARE I : INTEGER",
             "DECLARE Best : INTEGER",
             "FOR I ← 1 TO 4",
             '   OUTPUT "Enter a name"',
@@ -678,8 +676,6 @@ export const chapter11: Chapter = {
         "ENDTYPE",
         "DECLARE Form : ARRAY[1:5] OF TStudent",
         "DECLARE Temp : TStudent",
-        "DECLARE I : INTEGER",
-        "DECLARE J : INTEGER",
         "FOR I ← 1 TO 5",
         '   OUTPUT "Enter a name"',
         "   INPUT Form[I].Name",

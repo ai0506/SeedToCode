@@ -281,7 +281,6 @@ export const chapter08: Chapter = {
               title: "下标是变量，跑到那一遍才炸",
               code: [
                 "DECLARE Marks : ARRAY[1:3] OF INTEGER",
-                "DECLARE I : INTEGER",
                 "FOR I ← 1 TO 4",
                 "   Marks[I] ← I",
                 "NEXT I"
@@ -289,7 +288,7 @@ export const chapter08: Chapter = {
               note: "循环多跑了一遍。前三遍都对，第四遍才越界——编辑器一条提示都没有，因为 `I` 是多少要跑起来才知道。",
               expectRuntimeError: {
                 code: "RT1603",
-                line: 4,
+                line: 3,
                 text: "循环跑到第 4 遍，可数组只到第 3 格。检查一下循环的终点。"
               }
             },
@@ -359,7 +358,6 @@ export const chapter08: Chapter = {
           fileName: "Example_8_4_a.pseudocode",
           code: [
             "DECLARE Numbers : ARRAY[1:5] OF INTEGER",
-            "DECLARE I : INTEGER",
             "FOR I ← 1 TO 5",
             '   OUTPUT "Enter a number"',
             "   INPUT Numbers[I]",
@@ -369,9 +367,9 @@ export const chapter08: Chapter = {
             "NEXT I"
           ].join("\n"),
           annotations: [
-            { fromLine: 3, toLine: 6, text: "第一遍遍历：从下界数到上界，每遍读一个数放进第 `I` 格。" },
-            { fromLine: 7, toLine: 7, text: "第二遍遍历倒着走——起点是上界，终点是下界，配 `STEP -1`（5.2）。" },
-            { fromLine: 5, toLine: 5, text: "`INPUT` 的目标可以直接是数组的某一格，不用先读进一个临时变量再搬过去。" }
+            { fromLine: 2, toLine: 5, text: "第一遍遍历：从下界数到上界，每遍读一个数放进第 `I` 格。" },
+            { fromLine: 6, toLine: 6, text: "第二遍遍历倒着走——起点是上界，终点是下界，配 `STEP -1`（5.2）。" },
+            { fromLine: 4, toLine: 4, text: "`INPUT` 的目标可以直接是数组的某一格，不用先读进一个临时变量再搬过去。" }
           ],
           sampleRun: {
             inputs: ["1", "2", "3", "4", "5"],
@@ -465,7 +463,6 @@ export const chapter08: Chapter = {
           ],
           referenceSolution: [
             "DECLARE Marks : ARRAY[1:5] OF INTEGER",
-            "DECLARE I : INTEGER",
             "DECLARE Passed : INTEGER",
             "Passed ← 0",
             "FOR I ← 1 TO 5",
@@ -511,7 +508,6 @@ export const chapter08: Chapter = {
           fileName: "Example_8_5_a.pseudocode",
           code: [
             "DECLARE Temps : ARRAY[1:4] OF INTEGER",
-            "DECLARE I : INTEGER",
             "DECLARE Total : INTEGER",
             "DECLARE Average : INTEGER",
             "DECLARE Above : INTEGER",
@@ -534,9 +530,9 @@ export const chapter08: Chapter = {
             'OUTPUT "Above: ", Above'
           ].join("\n"),
           annotations: [
-            { fromLine: 12, toLine: 14, text: "第一遍：只管加总。到这里还不知道平均值是多少。" },
-            { fromLine: 15, toLine: 15, text: "全部加完才算得出平均值——这就是为什么非要分两遍。" },
-            { fromLine: 16, toLine: 20, text: "第二遍：拿着平均值回头再看每一格。数据还在数组里，所以回得去。" }
+            { fromLine: 11, toLine: 13, text: "第一遍：只管加总。到这里还不知道平均值是多少。" },
+            { fromLine: 14, toLine: 14, text: "全部加完才算得出平均值——这就是为什么非要分两遍。" },
+            { fromLine: 15, toLine: 19, text: "第二遍：拿着平均值回头再看每一格。数据还在数组里，所以回得去。" }
           ],
           sampleRun: { inputs: [], outputs: ["Average: 21", "Above: 1"] }
         },
@@ -627,7 +623,6 @@ export const chapter08: Chapter = {
       ],
       referenceSolution: [
         "DECLARE Temps : ARRAY[1:7] OF INTEGER",
-        "DECLARE I : INTEGER",
         "DECLARE Total : INTEGER",
         "DECLARE Highest : INTEGER",
         "DECLARE Average : INTEGER",

@@ -262,7 +262,6 @@ export const chapter12: Chapter = {
           fileName: "Example_12_3_a.pseudocode",
           code: [
             "PROCEDURE ShowLine(Width : INTEGER)",
-            "   DECLARE I : INTEGER",
             "   DECLARE Bar : STRING",
             '   Bar ← ""',
             "   FOR I ← 1 TO Width",
@@ -279,8 +278,8 @@ export const chapter12: Chapter = {
           ].join("\n"),
           annotations: [
             { fromLine: 1, toLine: 1, text: "`Width` 是参数。它在过程体里当变量用，但不需要 `DECLARE`——括号里这一句已经是声明了。" },
-            { fromLine: 10, toLine: 10, text: "两个参数，各写各的类型。逗号隔开。" },
-            { fromLine: 13, toLine: 15, text: "`6`、`\"Total\"`、`42`、`3` 都是实参。`ShowLine` 被调用两次，`Width` 先是 6 再是 3。" }
+            { fromLine: 9, toLine: 9, text: "两个参数，各写各的类型。逗号隔开。" },
+            { fromLine: 12, toLine: 14, text: "`6`、`\"Total\"`、`42`、`3` 都是实参。`ShowLine` 被调用两次，`Width` 先是 6 再是 3。" }
           ],
           sampleRun: {
             inputs: [],
@@ -401,7 +400,6 @@ export const chapter12: Chapter = {
           ],
           referenceSolution: [
             "PROCEDURE ShowBar(Label : STRING, Count : INTEGER)",
-            "   DECLARE I : INTEGER",
             "   DECLARE Bar : STRING",
             '   Bar ← ""',
             "   FOR I ← 1 TO Count",
@@ -411,7 +409,6 @@ export const chapter12: Chapter = {
             "ENDPROCEDURE",
             "DECLARE Name : STRING",
             "DECLARE Amount : INTEGER",
-            "DECLARE K : INTEGER",
             "FOR K ← 1 TO 3",
             '   OUTPUT "Enter a label"',
             "   INPUT Name",

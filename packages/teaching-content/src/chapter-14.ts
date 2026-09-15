@@ -384,7 +384,6 @@ export const chapter14: Chapter = {
           ],
           referenceSolution: [
             "DECLARE Name : STRING",
-            "DECLARE I : INTEGER",
             'OPENFILE "Names.txt" FOR WRITE',
             "FOR I ← 1 TO 3",
             '   OUTPUT "Enter a name"',
@@ -678,7 +677,6 @@ export const chapter14: Chapter = {
           ],
           referenceSolution: [
             "DECLARE Line : STRING",
-            "DECLARE I : INTEGER",
             "DECLARE Count : INTEGER",
             'OPENFILE "Notes.txt" FOR WRITE',
             "FOR I ← 1 TO 4",
@@ -844,7 +842,6 @@ export const chapter14: Chapter = {
       ],
       referenceSolution: [
         "DECLARE Name : STRING",
-        "DECLARE I : INTEGER",
         "DECLARE Count : INTEGER",
         'OPENFILE "Names.txt" FOR WRITE',
         "FOR I ← 1 TO 5",

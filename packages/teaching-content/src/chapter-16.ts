@@ -408,7 +408,6 @@ export const chapter16: Chapter = {
           fileName: "Example_16_4_a.pseudocode",
           code: [
             "DECLARE Marks : ARRAY[1:5] OF INTEGER",
-            "DECLARE I : INTEGER",
             "DECLARE Total : INTEGER",
             "Total ← 0",
             "FOR I ← 1 TO 5",
@@ -419,9 +418,9 @@ export const chapter16: Chapter = {
             'OUTPUT "Average: ", Total DIV 5'
           ].join("\n"),
           annotations: [
-            { fromLine: 4, toLine: 4, text: "对应第二层的「总分清零」。位置在循环之前——第 6 章反复讲过这件事。" },
-            { fromLine: 5, toLine: 9, text: "对应「重复 5 次：……」。次数已经知道，所以是 `FOR`。" },
-            { fromLine: 8, toLine: 8, text: "对应「把这个分数加到总分上」。一句话换一行，这就是求精该停下来的信号。" }
+            { fromLine: 3, toLine: 3, text: "对应第二层的「总分清零」。位置在循环之前——第 6 章反复讲过这件事。" },
+            { fromLine: 4, toLine: 8, text: "对应「重复 5 次：……」。次数已经知道，所以是 `FOR`。" },
+            { fromLine: 7, toLine: 7, text: "对应「把这个分数加到总分上」。一句话换一行，这就是求精该停下来的信号。" }
           ],
           sampleRun: {
             inputs: ["80", "70", "90", "60", "100"],
@@ -546,7 +545,6 @@ export const chapter16: Chapter = {
               code: [
                 "DECLARE Count : INTEGER",
                 "DECLARE Temperature : INTEGER",
-                "DECLARE I : INTEGER",
                 "Count ← 0",
                 "FOR I ← 1 TO 3",
                 '   OUTPUT "Enter a temperature"',
@@ -656,7 +654,6 @@ export const chapter16: Chapter = {
           referenceSolution: [
             "DECLARE Count : INTEGER",
             "DECLARE Temperature : INTEGER",
-            "DECLARE I : INTEGER",
             "Count ← 0",
             "FOR I ← 1 TO 5",
             '   OUTPUT "Enter a temperature"',
@@ -709,7 +706,6 @@ export const chapter16: Chapter = {
             "   DECLARE Mark : INTEGER",
             "ENDTYPE",
             "DECLARE Form : ARRAY[1:5] OF TStudent",
-            "DECLARE I : INTEGER",
             "DECLARE Total : INTEGER",
             "Total ← 0",
             "FOR I ← 1 TO 5",
@@ -723,8 +719,8 @@ export const chapter16: Chapter = {
           ].join("\n"),
           annotations: [
             { fromLine: 1, toLine: 5, text: "数据结构的决定落在这五行上：一份是一条记录，五份是一个记录数组。" },
-            { fromLine: 9, toLine: 15, text: "控制结构的决定落在这一行上：人数固定，所以是 `FOR`。" },
-            { fromLine: 14, toLine: 14, text: "总分边读边加。它不违反「非存下来不可」——存的是每个人的分数，总分只是顺手攒的。" }
+            { fromLine: 8, toLine: 14, text: "控制结构的决定落在这一行上：人数固定，所以是 `FOR`。" },
+            { fromLine: 13, toLine: 13, text: "总分边读边加。它不违反「非存下来不可」——存的是每个人的分数，总分只是顺手攒的。" }
           ],
           sampleRun: {
             inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
@@ -808,7 +804,6 @@ export const chapter16: Chapter = {
             "   DECLARE Mark : INTEGER",
             "ENDTYPE",
             "PROCEDURE ReadClass(BYREF Form : ARRAY[1:5] OF TStudent, BYREF Total : INTEGER)",
-            "   DECLARE I : INTEGER",
             "   Total ← 0",
             "   FOR I ← 1 TO 5",
             '      OUTPUT "Enter a name"',
@@ -822,7 +817,6 @@ export const chapter16: Chapter = {
             "   RETURN Total DIV Count",
             "ENDFUNCTION",
             "PROCEDURE ShowAbove(Form : ARRAY[1:5] OF TStudent, Mean : INTEGER)",
-            "   DECLARE I : INTEGER",
             "   FOR I ← 1 TO 5",
             "      IF Form[I].Mark > Mean THEN",
             "         OUTPUT Form[I].Name",
@@ -839,8 +833,8 @@ export const chapter16: Chapter = {
           ].join("\n"),
           annotations: [
             { fromLine: 5, toLine: 5, text: "两样都要交回主程序，所以是过程加两个 `BYREF`——结构图上那两个朝上的箭头。" },
-            { fromLine: 19, toLine: 19, text: "只往下传，什么都不交回，而且数组是拿来看的，所以用默认的传值。" },
-            { fromLine: 27, toLine: 33, text: "主程序只剩七行：三行声明、三次调用、一句显示。拆得对的时候它就该这么短。" }
+            { fromLine: 18, toLine: 18, text: "只往下传，什么都不交回，而且数组是拿来看的，所以用默认的传值。" },
+            { fromLine: 25, toLine: 31, text: "主程序只剩七行：三行声明、三次调用、一句显示。拆得对的时候它就该这么短。" }
           ],
           sampleRun: {
             inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
@@ -944,7 +938,6 @@ export const chapter16: Chapter = {
           ],
           referenceSolution: [
             "DECLARE Mark : INTEGER",
-            "DECLARE I : INTEGER",
             "DECLARE Line : STRING",
             "DECLARE Passes : INTEGER",
             'OPENFILE "Marks.txt" FOR WRITE',
@@ -1047,7 +1040,6 @@ export const chapter16: Chapter = {
         "   DECLARE Loans : INTEGER",
         "ENDTYPE",
         "PROCEDURE ReadBooks(BYREF Shelf : ARRAY[1:5] OF TBook, BYREF Total : INTEGER)",
-        "   DECLARE I : INTEGER",
         "   Total ← 0",
         "   FOR I ← 1 TO 5",
         '      OUTPUT "Enter a title"',
@@ -1058,7 +1050,6 @@ export const chapter16: Chapter = {
         "   NEXT I",
         "ENDPROCEDURE",
         "FUNCTION BestOf(Shelf : ARRAY[1:5] OF TBook) RETURNS INTEGER",
-        "   DECLARE I : INTEGER",
         "   DECLARE Best : INTEGER",
         "   Best ← 1",
         "   FOR I ← 2 TO 5",
