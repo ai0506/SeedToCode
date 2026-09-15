@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="SeedToCode_favicon.png">
 <title>实验室 · SeedToCode</title>
-<link rel="stylesheet" href="css/styles.css?v=32">
+<link rel="stylesheet" href="css/styles.css?v=33">
 <link rel="stylesheet" href="css/account.css?v=4">
 </head>
 <body>
@@ -191,7 +191,19 @@
             <div class="sub-head">调用栈</div>
             <ol id="stackList"></ol>
          </div>
-         <div class="trace-head sub-head">追踪表</div>
+         <!--
+            「放大」把这张表**移进**二级界面（不是复制一份）：结果面板只有两三百像素高，
+            列一多就得两个方向滚，看一行要来回找。移动而不是复制，是因为运行途中还在
+            往这张表里追加行——复制一份出来，那一份就从此不再更新，而且两份渲染逻辑
+            迟早分叉。关掉时再移回来。
+         -->
+         <div class="trace-head sub-head">追踪表
+            <span class="spacer"></span>
+            <!-- 初始文案要和初始状态一致：页面刚打开时还没运行过，这时按钮就是不可用的。
+                 写成「在大窗口里看这张表」的话，在 JS 把它改过来之前，悬浮提示说的是另一回事。 -->
+            <button class="btn btn-ghost small fixed-btn" id="traceExpand" aria-disabled="true"
+                    data-tip="运行一次之后才有追踪表可看">放大</button>
+         </div>
          <div class="trace-empty muted small pad" id="traceEmpty">本机运行后在这里显示逐步追踪。</div>
          <div class="trace-wrap" id="traceWrap" hidden>
             <table class="data-table trace-table" id="traceTable">
@@ -344,6 +356,22 @@
    </div>
 </div>
 
+<!--
+   追踪表的二级界面。表格本体是从调试面板里**移进来**的同一个 <table> 节点，
+   这里只提供一个更大的框：结果面板里它只有两三百像素高，列一多就得两个方向滚。
+-->
+<div class="dialog dialog-xl" id="traceDialog" hidden role="dialog" aria-label="追踪表">
+   <div class="dialog-head">
+      <span>追踪表</span>
+      <span class="spacer"></span>
+      <span class="muted small trace-dialog-status" id="traceDialogStatus"></span>
+      <button class="icon-btn small" data-close aria-label="关闭">✕</button>
+   </div>
+   <div class="dialog-body trace-dialog-body">
+      <div class="trace-wrap trace-dialog-wrap" id="traceDialogWrap"></div>
+   </div>
+</div>
+
 <div class="dialog dialog-sm" id="promptDialog" hidden role="dialog" aria-label="输入">
    <div class="dialog-head"><span id="promptTitle">输入</span><button class="icon-btn small" data-close aria-label="关闭">✕</button></div>
    <div class="dialog-body">
@@ -417,7 +445,7 @@
 <script src="js/cloud-client.js?v=5"></script>
 <script src="js/sync-queue.js?v=3"></script>
 <script src="js/sync-engine.js?v=7"></script>
-<script src="js/app.js?v=38"></script>
+<script src="js/app.js?v=39"></script>
 <script src="js/account-ui.js?v=11"></script>
 </body>
 </html>

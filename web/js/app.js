@@ -1134,12 +1134,58 @@ function println(text, cls) {
 /* trace 是本次本机运行的临时视图：页面不把它写入项目或同步数据。 */
 function resetTrace(message) {
    traceRun = null;
+   /* 表可能正被移在二级界面里。二级界面**开着**的时候不要把它抽走——新的一次运行
+      就在那个大窗口里接着画，这正是使用者打开它的理由；关掉时自然会移回去。
+      只有在二级界面已经关了的情况下才需要归位（那说明是别的路径把表留在了那边）。
+      目前从界面上启动不了「弹窗开着的同时开始运行」（运行快捷键绑在编辑器上，
+      而遮罩挡住了运行按钮），但这一段不依赖那个巧合成立。 */
+   if ($('traceDialog').hidden) restoreTraceTable();
    $('traceTable').querySelector('thead').innerHTML = '';
    $('traceTable').querySelector('tbody').innerHTML = '';
    $('traceWrap').hidden = true;
    $('traceEmpty').textContent = message || '本机运行后在这里显示逐步追踪。';
    $('traceEmpty').hidden = false;
-   $('traceStatus').textContent = '';
+   setTraceStatus('');
+   setTraceExpandEnabled(false);
+}
+
+/* 追踪表的状态只有一句话，但它要出现在两个地方（调试面板底部、二级界面标题栏）。
+   写入点只留这一个——两处各写各的，迟早说出两句不一样的话。 */
+function setTraceStatus(text) {
+   $('traceStatus').textContent = text;
+   $('traceDialogStatus').textContent = text;
+}
+
+/* 追踪表的二级界面。
+ *
+ * 表格本体是**移动**进去的同一个 <table> 节点，不是复制一份：
+ *   - 运行途中还在往这张表里追加行（appendTraceRow 按 id 找表），复制出来的那一份
+ *     从此不再更新；
+ *   - 两份渲染逻辑迟早分叉，这个仓库已经吃过这个亏；
+ *   - makeTraceRow 在构建每一行时会把 traceRun.values 往前推一格（这是它记住「上一次
+ *     的值」的方式），所以整表重画一遍并不等价——得先把状态倒回去，那正是最容易错的
+ *     一类代码。移动节点完全绕开这件事。
+ * 关掉时移回调试面板，两边看到的永远是同一张表。
+ */
+function traceTableInDialog() {
+   return $('traceTable').parentElement === $('traceDialogWrap');
+}
+
+function restoreTraceTable() {
+   if (traceTableInDialog()) $('traceWrap').appendChild($('traceTable'));
+}
+
+function openTraceDialog() {
+   // 按钮在没有内容时是 aria-disabled 的；这里把原因说出来，而不是按下去没反应
+   if (!traceRun) { toast('还没有可以看的追踪表，先运行一次。'); return; }
+   $('traceDialogWrap').appendChild($('traceTable'));
+   showDialog('traceDialog');
+}
+
+/* 有没有可看的内容，决定「放大」能不能点。 */
+function setTraceExpandEnabled(on) {
+   $('traceExpand').setAttribute('aria-disabled', String(!on));
+   $('traceExpand').dataset.tip = on ? '在大窗口里看这张表' : '运行一次之后才有追踪表可看';
 }
 
 function traceHeadCell(column) {
@@ -1192,7 +1238,8 @@ function startTrace(plan) {
    $('traceTable').querySelector('tbody').innerHTML = '';
    $('traceEmpty').hidden = true;
    $('traceWrap').hidden = false;
-   $('traceStatus').textContent = '追踪中…';
+   setTraceStatus('追踪中…');
+   setTraceExpandEnabled(true);
 }
 
 function traceValueText(value) { return value && value.initialized ? value.displayValue : '未赋值'; }
@@ -1280,7 +1327,7 @@ function traceSink() {
          td.textContent = '后续步骤将在运行结束后显示';
          omitted.appendChild(td);
          $('traceTable').querySelector('tbody').appendChild(omitted);
-         $('traceStatus').textContent = '记录超过 ' + info.head + ' 步，正在保留最后 ' + info.tailCapacity + ' 步。';
+         setTraceStatus('记录超过 ' + info.head + ' 步，正在保留最后 ' + info.tailCapacity + ' 步。');
       },
       tail: function (info) {
          if (!traceRun) return;
@@ -1298,9 +1345,9 @@ function traceSink() {
       finished: function (info) {
          if (!traceRun) return;
          const state = info.status === 'completed' ? '已结束' : info.status === 'stopped' ? '已停止' : '出错';
-         $('traceStatus').textContent = state + ' · 共 ' + info.semanticSteps + ' 步'
+         setTraceStatus(state + ' · 共 ' + info.semanticSteps + ' 步'
             + (info.truncated ? ' · 已截断显示' : '')
-            + (info.columnsOmitted ? ' · ' + info.columnsOmitted + ' 个变量超出列上限未显示' : '');
+            + (info.columnsOmitted ? ' · ' + info.columnsOmitted + ' 个变量超出列上限未显示' : ''));
       }
    };
 }
@@ -2249,6 +2296,8 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
 /* ---------------- 对话框与提示 ---------------- */
 function showDialog(id) { $('overlay').hidden = false; $(id).hidden = false; }
 function closeDialogs() {
+   // Esc、点遮罩、点 ✕ 三条路都汇到这里，所以移回表格只需要写在这一个地方
+   restoreTraceTable();
    $('overlay').hidden = true;
    document.querySelectorAll('.dialog').forEach(function (d) { d.hidden = true; });
    dialogValidate = null;
@@ -2258,6 +2307,7 @@ function closeDialogs() {
       done(null);
    }
 }
+$('traceExpand').addEventListener('click', openTraceDialog);
 $('overlay').addEventListener('click', closeDialogs);
 document.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeDialogs); });
 document.addEventListener('keydown', function (ev) {

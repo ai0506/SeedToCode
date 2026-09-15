@@ -650,6 +650,9 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
 .trace-empty { flex: 1; }
 .trace-wrap { flex: 1 1 140px; min-height: 140px; overflow: auto; scrollbar-gutter: stable; border-top: 1px solid var(--border); }
 .trace-table { min-width: max-content; font-family: var(--font-mono); }
+/* 表头写的是使用者自己的变量名。`.data-table th` 的 uppercase 会把 `Numbers` 显示成
+   `NUMBERS`——那不是他写的那个名字，追踪表尤其不能在这件事上含糊。 */
+.trace-table th { text-transform: none; }
 .trace-table th { position: sticky; top: 0; z-index: 1; background: var(--bg-panel); white-space: nowrap; }
 .trace-table td { height: 29px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
 .trace-table .trace-step { color: var(--text-faint); font-variant-numeric: tabular-nums; text-align: right; }
@@ -668,6 +671,29 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
 .trace-table .trace-scope { color: var(--text-faint); }
 .trace-table .trace-omitted td { color: var(--text-faint); font-family: var(--font-ui); text-align: center; cursor: default; }
 .trace-status { height: 26px; flex: 0 0 26px; padding: 5px 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+/* 「放大」按钮：追踪表还没有内容时是不可用的。用 aria-disabled 而不是原生 disabled——
+   原生那个不派发鼠标事件，「为什么不能点」那句 data-tip 就永远弹不出来。 */
+.trace-head .spacer { flex: 1; }
+#traceExpand[aria-disabled="true"] { opacity: .45; cursor: default; }
+#traceExpand[aria-disabled="true"]:hover { background: transparent; color: var(--text-dim); border-color: var(--border); }
+
+/* 二级界面：表格是从调试面板移进来的同一个节点，这里只负责给它一个大框。
+   body 不留内边距，让表格自己吃满；状态行挪到标题栏右边。 */
+.trace-dialog-body { padding: 0; display: flex; min-height: 0; flex: 1; }
+.trace-dialog-wrap { flex: 1; min-height: 0; border-top: 0; }
+/*
+ * 列宽按内容排，不再均分。
+ *
+ * `.data-table` 是 `table-layout: fixed` + `width: 100%`，于是十四列被均分成每列 80px——
+ * 「动作」那一列只剩 `DECLARE…`，把窗口放大也只是多看几行，列还是窄的，一半的好处没拿到。
+ * （`.trace-table` 上那句 `min-width: max-content` 本来就是想按内容排，只是被 fixed 布局
+ * 架空了。）这里只在二级界面里改成 auto：调试面板那边保持均分，宽度不随流进来的行变动。
+ */
+.trace-dialog-wrap .trace-table { table-layout: auto; width: max-content; min-width: 100%; }
+/* 大窗口里不必再把长值截成 150px——省地方的理由在这儿不成立了 */
+.trace-dialog-wrap .trace-table td { max-width: 360px; }
+.trace-dialog-wrap .trace-table .trace-action { max-width: 420px; }
+.trace-dialog-status { font-variant-numeric: tabular-nums; margin-right: 10px; }
 /* handle 表格与空状态共用固定高度区域，切换时面板不跳动 */
 .handle-region { min-height: 78px; }
 
@@ -697,6 +723,10 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
    border-radius: 8px; box-shadow: 0 18px 50px rgba(0, 0, 0, .22);
 }
 .dialog-sm { width: min(400px, calc(100vw - 32px)); }
+/* 追踪表那种「越宽越有用」的内容：吃满可用空间，不用 max-height: 80vh 那一档。 */
+.dialog-xl {
+   width: calc(100vw - 40px); height: calc(100vh - 48px); max-height: none;
+}
 .dialog-head {
    display: flex; align-items: center; justify-content: space-between;
    height: 40px; flex: 0 0 40px; padding: 0 12px; border-bottom: 1px solid var(--border); font-weight: 600;
