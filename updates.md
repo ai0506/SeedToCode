@@ -717,3 +717,11 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 **顺带量出两处既有溢出，这一轮没改，记进 `FRONTEND_RULES` 的未达标项**：`learn.html` 的 `.nav-slot` / `#navNext`（375 与 400 都溢出）、`classes.html` 的 `.teacher-refresh-slot`（375 溢出）。两处都在页面内容里，和顶栏无关；拿改前的 `styles.css` 对照量过，确认是既有的，而且这次的改动还把它们各自的 `scrollWidth` 压小了一点（453→450、400→376）。
 
 缓存版本号：`styles.css` 31→32（10 个页面一起提，`grep -rho 'styles\.css?v=[0-9]*' web/*.html | sort | uniq -c` 只剩一个版本号）、`lab.html` 的 `app.js` 37→38。
+
+[ClaudeCode][2609150925] 部署上一条的窄屏顶栏修复。Version ID `fdfb91b9-4a4d-41c8-ac83-f3faf69a9c46`，部署前 `d1 migrations list --remote` 是「No migrations to apply」。
+
+**推之前先撞上一次分叉，记一笔**：我基于 `2ac4ca7` 开的分支，其间 main 已经走到 `371ffc9`（上一条部署 + 文档），`git push HEAD:main` 被拒。rebase 后只有 `updates.md` 冲突（两条都往末尾追加），`web/` 一处没冲突——`371ffc9` 只动文档，没碰页面和缓存版本号。rebase 完重新核了一遍版本号唯一（`styles.css?v=32` 10 页、`lab.html` 的 `app.js?v=38`）并重跑 `npm test`（45 文件 678 项），**没有拿 rebase 前那次的结果顶数**：基底变了，之前那次测的不是现在这棵树。顺带把自己那条的时间戳改成真实时间，并把「上一条」改写成明确的 `2609150911`——插进来一条之后，「上一条」指的已经不是原来那条了。
+
+**线上验证**（不是只看版本号）：`styles.css?v=32` 里有 600px / 680px 两个新断点和 `.status-aux`，`app.js?v=38` 里有 `setLintEnabled`，`/lab` 里有 `doc-slot` 和 `setLint`。用同源 iframe 在 `https://seedtocode.example.invalid` 上按真实视口逐档量 `scrollWidth === clientWidth`：320 / 375 / 400 / 430 / 600 / 900 全部相等。375 下真的点了一遍：顶栏的语法检测开关 `display: none`，「更多 → 设置」里那个 `#setLint` 打开、切一次再切回来，两个开关的 `aria-checked` 始终一致——**出口是通的，不是只把控件藏了**。`/health` 200。
+
+资源传播这次 2 秒就生效，仍用的是「等到」而不是「看一眼」（`until curl … grep -q 'styles.css?v=32'`）。
