@@ -695,3 +695,25 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 **同步的事实**：`PROJECT_STATE.md` 的 Version ID 和能力行；`web/README.md` 第 79 行补上新的列构成（数组元素、局部变量、动态建列、摘要列、上限），第 121 行那句「过程局部变量、数组/记录列与完整递归帧追踪仍未实现」已过期，改成实际剩下的三项：记录/对象字段列、文件读取的写入目标、调用栈分段表头。
 
 `npm test` 这次报 743 项而不是 678：另一个会话的 worktree 建在仓库目录内（`.claude/worktrees/…`），vitest 把它那一份测试也扫进来了，两份相加。加 `--exclude '**/.claude/**'` 重跑确认本仓库自身仍是 45 文件 678 项全绿。那个 worktree 存在期间 `npm test` 的数字都会偏高，别当成自己加的。
+
+[ClaudeCode][2609150917] 修 `2609150911` 那条末尾记下的那个「既有问题」：实验室页在窄视口（400 / 375）把 body 顶出横向滚动，违反 `FRONTEND_RULES` 1.4。
+
+**先纠正一件事：元凶不止顶栏。** 报告里列的是顶栏那三块（`topbar-right` 伸到 573），因为那次只扫了 `.topbar *`。全文档扫一遍，状态栏同样在溢出——`#engineNote` 右边界 627，跟 `scrollWidth` 的 627 正好是同一个数。**顶栏修完 `scrollWidth` 仍然是 627**，如果只按报告改，改完一量还是 627，会以为没修上。
+
+**量法本身有个坑，值得记下来。** 浏览器面板的视口模拟只改 `documentElement.clientWidth`，`window.innerWidth` 仍是面板真实宽度（这台机器上是 627）。而 `.results` 在 ≤900 那一档是 `position: fixed; right: 0`——固定定位按 `innerWidth` 算，于是它被摆到 627 那儿，量出来永远有一个 300px 宽的「溢出元素」，而真机上它是贴着右边的。**顶栏和状态栏的溢出是真的，`.results` 那一条是测量工具造出来的。** 改用同源 `<iframe>` 撑到 375 宽再量：iframe 内 `innerWidth` 就是 375，固定定位和媒体查询都对，这才是可信的第三方参照。
+
+**改动**（`web/css/styles.css`，两个新断点）：
+- `@media (max-width: 600px)`：`--run-slot-w` 84→64、`--more-btn-w` 72→52；顶栏 padding/gap 12→8；藏掉品牌图标；`.topnav-item` padding 10→6；账户按钮解掉 `min-width: 60`、只留状态点；藏掉文档名那一块和语法检测开关。
+- `@media (max-width: 680px)`：状态栏里标了 `.status-aux` 的静态说明（「CAIE 9618」「三空格缩进」「按 9618 规则检查…」）让位。**状态栏单独一个断点**，因为它要 627px 才排得下，比顶栏那一档还宽；合进 600 那一档的话 601–626 之间状态栏还在溢出（实测 601 时 `scrollWidth` 仍是 627），合进 680 那一档又会为了状态栏把文档名和开关提前藏掉。
+
+**几个刻意的选择**：
+- **账户按钮的文字用视觉隐藏，不用 `display: none`。** 按钮里就这一个文本节点，藏掉它按钮就没有可读的名字了。
+- **语法检测开关让位之前先给它修了出口。** 它不是纯展示，藏掉＝功能没了。`app.js` 把开关逻辑收进 `setLintEnabled()`，「更多 → 设置」里新增一个同源的 `#setLint`，两处共用 `state.settings.lint`，谁被点都刷新另一个的 `aria-checked`。
+- **再窄（320px）连导航都排不下时，给 `.topnav` 自己一个 `overflow-x: auto`**，而不是把导航也藏掉——1.4 条允许的正是「宽内容自己在容器里滚」，导航是要点的东西。滚动条藏掉（24px 高的条上画滚动条比溢出还难看）。为此把 900 那一档设死的 `.topbar-left { flex: 0 0 auto }` 在这一档放开成可收缩，否则子元素滚不起来。
+- **文档名那一块只对标了 `.doc-slot` 的实验室生效**，不是对所有 `.topbar-center`：`classes.html` 的中间放着一个可点的锁按钮，一起藏会把控件藏没。
+
+**验证**。iframe 真实视口逐档量 `documentElement.scrollWidth === clientWidth`：280 / 320 / 360 / 375 / 400 / 430 / 500 / 600 / 601 / 640 / 680 / 681 / 720 / 900 / 901 全部相等（改前 375 与 400 都是 627）。9 个共用 `styles.css` 的页面在 375 / 400 / 900 三档逐一回归。几何快照（`getBoundingClientRect` 全量对比）：375 下开「更多」菜单、开设置、切 `#setLint` 各一次，被操作对象以外 0 个元素移动；`#runBtn` 与 `#stopBtn` 在 64px 槽位里矩形完全相同；运行 / 更多 / 账户三个按钮 `scrollWidth === clientWidth`，收窄后没有文字被裁。`npm test` 45 文件 678 项全绿。
+
+**顺带量出两处既有溢出，这一轮没改，记进 `FRONTEND_RULES` 的未达标项**：`learn.html` 的 `.nav-slot` / `#navNext`（375 与 400 都溢出）、`classes.html` 的 `.teacher-refresh-slot`（375 溢出）。两处都在页面内容里，和顶栏无关；拿改前的 `styles.css` 对照量过，确认是既有的，而且这次的改动还把它们各自的 `scrollWidth` 压小了一点（453→450、400→376）。
+
+缓存版本号：`styles.css` 31→32（10 个页面一起提，`grep -rho 'styles\.css?v=[0-9]*' web/*.html | sort | uniq -c` 只剩一个版本号）、`lab.html` 的 `app.js` 37→38。

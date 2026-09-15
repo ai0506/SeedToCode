@@ -1591,14 +1591,23 @@ $('toggleResults').addEventListener('click', function () { $('results').classLis
 function toggleSidebar() { $('sidebar').classList.toggle('collapsed'); }
 $('toggleFiles').addEventListener('click', toggleSidebar);
 
-/* ---------------- 语法检测开关 ---------------- */
-$('lintToggle').addEventListener('click', function () {
-   const on = this.getAttribute('aria-checked') !== 'true';
-   this.setAttribute('aria-checked', String(on));
+/* ---------------- 语法检测开关 ----------------
+ * 两个入口：顶栏那一个，和「更多 → 设置」里那一个。窄屏（≤600px）顶栏那一个
+ * 会让位给运行 / 更多 / 账户，设置里那一个是它唯一的出口，所以两处必须同源——
+ * 谁被点都走这里，改完把两个开关的 aria-checked 一起刷新。
+ */
+function setLintEnabled(on) {
    state.settings.lint = on;
+   $('lintToggle').setAttribute('aria-checked', String(on));
+   $('setLint').setAttribute('aria-checked', String(on));
    savePrefs();
    runLint();
    if (on) showTab('problems');
+}
+['lintToggle', 'setLint'].forEach(function (id) {
+   $(id).addEventListener('click', function () {
+      setLintEnabled(this.getAttribute('aria-checked') !== 'true');
+   });
 });
 
 /* ---------------- 查找替换 ---------------- */
@@ -2166,6 +2175,7 @@ function syncSettingsUI() {
       $(sw.id).setAttribute('aria-checked', String(!!state.settings[sw.key]));
    });
    $('lintToggle').setAttribute('aria-checked', String(!!state.settings.lint));
+   $('setLint').setAttribute('aria-checked', String(!!state.settings.lint));
    Array.prototype.forEach.call($('setRuntimeProfile').children, function (b) {
       b.setAttribute('aria-checked', String(b.dataset.value === state.settings.runtimeProfile));
    });

@@ -831,6 +831,56 @@ code { font-family: var(--font-mono); font-size: .92em; }
    .results.collapsed { width: 34px; flex-basis: 34px; }
 }
 
+/*
+ * 手机竖屏（400 / 375）这一档。900px 那一档只让掉了品牌文字和开关标签，离排得下
+ * 还差得远：顶栏右侧「语法检测 + 运行 + 更多 + 账户」四块加起来 308px，整条顶栏
+ * 要 587px 才排得下，于是 body 被顶出横向滚动（实测 documentElement.scrollWidth
+ * 627 / clientWidth 400），违反 FRONTEND_RULES 1.4「body 永远不横向滚动」。
+ *
+ * 取舍标准是「要点的留下，只看的让位」：导航、运行、更多、账户留下；品牌图标、
+ * 文档名、状态栏里的静态说明让位。语法检测开关不是纯展示，所以让位之前先在
+ * 「更多 → 设置」里放了一个同源的开关（app.js 的 setLint），不是把功能删掉。
+ */
+@media (max-width: 600px) {
+   /* 两个固定槽位一起收：运行 / 停止仍然共用同一宽度，切换时不推动相邻控件 */
+   :root { --run-slot-w: 64px; --more-btn-w: 52px; }
+
+   .topbar { padding: 0 8px; gap: 8px; }
+   .topbar-left .brand-lockup { display: none; }
+   .topnav-item { padding: 0 6px; }
+
+   /* 再窄（320px 那一档）连导航都排不下。导航是要点的，不能让位，所以给它
+      自己一个横向滚动容器——第 1.4 条允许的正是这个：宽内容自己滚，不许顶到
+      body 上去。滚动条藏掉，24px 高的一条上画一根滚动条比溢出还难看。
+      左块必须能收缩（900 那一档把它设成了 flex: 0 0 auto），否则子元素滚不起来。 */
+   .topbar-left { flex: 0 1 auto; min-width: 0; }
+   .topnav { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+   .topnav::-webkit-scrollbar { display: none; }
+
+   /* 账户按钮只留状态点。文字用视觉隐藏而不是 display: none——
+      按钮里就这一个文本节点，display: none 会让它连可读的名字都没有。 */
+   .topbar .btn.fixed-btn { min-width: 0; }
+   .account-btn .account-btn-text {
+      position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+   }
+   .account-dot { margin-right: 0; }
+
+   /* 实验室顶栏中间是文档名 + 保存状态：文件名在左侧文件列表里一直看得到，
+      这一档让位。其它页面中间放的是标题（classes 那儿还有一个可点的锁），
+      所以只对标了 .doc-slot 的这一处生效。 */
+   .topbar-center.doc-slot { display: none; }
+   .topbar-right .switch-field { display: none; }
+}
+
+/* 状态栏同样是 nowrap 的一行，实测要 627px 才排得下——比顶栏那一档还宽，
+   所以单独一个断点，别为了状态栏把文档名和语法检测开关提前藏掉。
+   标了 .status-aux 的静态说明让位；overflow 是兜底：别的页面的状态栏没逐条标，
+   也不能让它把整页顶出横向滚动。 */
+@media (max-width: 680px) {
+   .statusbar { overflow: hidden; }
+   .statusbar .status-aux { display: none; }
+}
+
 
 /* ---------- 拖拽导入 ---------- */
 .drop-overlay {

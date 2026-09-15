@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="SeedToCode_favicon.png">
 <title>实验室 · SeedToCode</title>
-<link rel="stylesheet" href="css/styles.css?v=31">
+<link rel="stylesheet" href="css/styles.css?v=32">
 <link rel="stylesheet" href="css/account.css?v=4">
 </head>
 <body>
@@ -28,7 +28,9 @@
       <nav class="topnav" id="topNav" aria-label="主导航"></nav>
    </div>
 
-   <div class="topbar-center">
+   <!-- .doc-slot：窄屏那一档要整块让位（见 styles.css 的 600px 媒体查询），
+        其它页面中间放的是标题，不能一起藏，所以单独标一个类。 -->
+   <div class="topbar-center doc-slot">
       <input id="docName" class="doc-name" value="Main.pseudocode" spellcheck="false" aria-label="文档名">
       <span id="saveState" class="save-state">已保存</span>
    </div>
@@ -229,14 +231,14 @@
 
 <footer class="statusbar">
    <span id="cursorPos" class="status-slot">行 1，列 1</span>
-   <span class="dot">·</span>
-   <span>CAIE 9618 (2027–2029)</span>
-   <span class="dot">·</span>
-   <span>三空格缩进</span>
+   <span class="dot status-aux">·</span>
+   <span class="status-aux">CAIE 9618 (2027–2029)</span>
+   <span class="dot status-aux">·</span>
+   <span class="status-aux">三空格缩进</span>
    <span class="dot">·</span>
    <span id="autosaveState">本地自动保存</span>
    <span class="spacer"></span>
-   <span class="muted" id="engineNote">按 9618 规则检查 · 运行代码查看结果</span>
+   <span class="muted status-aux" id="engineNote">按 9618 规则检查 · 运行代码查看结果</span>
 </footer>
 
 <!-- 遮罩与对话框 -->
@@ -282,6 +284,14 @@
       <div class="setting">
          <span class="setting-label">自动配对括号与引号</span>
          <button class="switch-ctl" id="setAutoPair" role="switch" aria-checked="true" aria-label="自动配对">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+         </button>
+      </div>
+      <!-- 顶栏那个「语法检测」开关在窄屏会让位，这里是它的出口：两处同一个
+           state.settings.lint，谁改都会同步另一处。 -->
+      <div class="setting">
+         <span class="setting-label">语法检测</span>
+         <button class="switch-ctl" id="setLint" role="switch" aria-checked="true" aria-label="语法检测">
             <span class="switch-track"><span class="switch-thumb"></span></span>
          </button>
       </div>
@@ -407,7 +417,7 @@
 <script src="js/cloud-client.js?v=5"></script>
 <script src="js/sync-queue.js?v=3"></script>
 <script src="js/sync-engine.js?v=7"></script>
-<script src="js/app.js?v=37"></script>
+<script src="js/app.js?v=38"></script>
 <script src="js/account-ui.js?v=11"></script>
 </body>
 </html>

@@ -175,3 +175,4 @@ window.__snap.size;
 | `web/lab.html` `#importInput` | `<input type="file" hidden>` | 符合 2.2 例外，不修 |
 | `css/styles.css` `#projectPickerList` / `.file-list` / `.editor-scroll` / `.snippet-pop ul` / `.tab-panel` / `.console` / `.dialog-body`，`css/teaching.css` `.mini-code textarea` | 滚动容器缺 `scrollbar-gutter: stable`（第 1.4 条） | 待修，已冻进基线 |
 | `css/styles.css` `.file-list li.active` / `.tab.active` | 用 `font-weight` 表示选中（第 1.2 条点名禁止） | 待修，已冻进基线 |
+| `web/learn.html` `.nav-slot` / `#navNext`，`web/classes.html` `.teacher-refresh-slot` | 窄屏（≤400px）顶出 body 横向滚动（第 1.4 条）。修实验室顶栏时量出来的，不是这一次引入的；两处都在页面内容里，和顶栏无关 | 待修 |
