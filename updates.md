@@ -833,3 +833,4 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 - 第 5 章那个 CAIE 规定框改成先说语法里带名字、示例都写了，再说「重复写」是 good practice。正文一个字没动（上一轮刚按使用者的意见清理过，不往里塞）。
 
 缓存版本号：`teaching-content.js` 27→28（五页）。`npm test` 1356 项全绿。
+两条都已部署。表格列宽那版 Worker `6fc0f3bd`，`NEXT` 文档那版 Worker `0895da08`；远端 D1 两次都是「No migrations to apply」。线上均按「连续五次一致」判生效（`styles.css?v=34` + `app.js?v=40`；`teaching-content.js?v=28`）。在生产 `/lab` 上真跑了一遍 BubbleSort 并放大：前四列 40 / 65 / 104 / 35，表宽 1025，和本地量到的一致。
