@@ -801,3 +801,4 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 浏览器实测第 5 章：两段新正文 + 两个 CAIE 规定框渲染正常，示例代码第 1 行就是 `FOR I ← 1 TO 5`，四条标注依次指向 FOR / OUTPUT / NEXT / `OUTPUT "Done"`，和它们各自的说明文字对得上。
 
 缓存版本号：`teaching-content.js` 26→27（五个页面一起）。`npm test` 90 文件 1356 项全绿。
+已部署。`eb704ca` 推上 `main`，Worker 部署为 `06eab9ef-ddf6-478a-97c4-b8af84ca91a7`，远端 D1 无待应用迁移。线上 `teaching-content.js?v=27` 连续五次一致后才判生效；在生产页面上核了第 5 章：讲解 5 段（回到限额内）、两个 CAIE 规定框、示例首行就是 `FOR I ← 1 TO 5`（`DECLARE I` 已去掉），全站 **182 条行号标注 0 条越界**。
