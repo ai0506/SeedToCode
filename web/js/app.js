@@ -1142,15 +1142,53 @@ function resetTrace(message) {
    $('traceStatus').textContent = '';
 }
 
+function traceHeadCell(column) {
+   const th = document.createElement('th');
+   // 过程/函数里的局部变量要标出是谁的，否则主程序的 I 和过程里的 I 在表头上分不开。
+   // 递归时 scopeLabel 自带 `#2` 这样的层次后缀。
+   if (column.scopeLabel) {
+      const scope = document.createElement('span');
+      scope.className = 'trace-scope';
+      scope.textContent = column.scopeLabel + '.';
+      th.appendChild(scope);
+   }
+   th.appendChild(document.createTextNode(column.name));
+   return th;
+}
+
+/* 运行途中长出来的列：表头就地追加，已经画出的行补空白格。
+   空白按契约本来就是「尚未声明或不在作用域」——对那些行来说这是实话，不是占位。 */
+function addTraceColumns(added) {
+   if (!traceRun || !added || added.length === 0) return;
+   const head = $('traceTable').querySelector('thead tr');
+   added.forEach(function (column) {
+      traceRun.plan.columns.push(column);
+      traceRun.values[column.variableId] = { declared: false, initialized: false };
+      if (head) head.appendChild(traceHeadCell(column));
+   });
+   const body = $('traceTable').querySelector('tbody');
+   Array.prototype.forEach.call(body.querySelectorAll('tr[data-trace-row]'), function (tr) {
+      added.forEach(function () { tr.appendChild(document.createElement('td')); });
+   });
+   const omitted = body.querySelector('[data-trace-omitted] td');
+   if (omitted) omitted.colSpan = 4 + traceRun.plan.columns.length;
+}
+
 function startTrace(plan) {
-   traceRun = { plan: plan, rows: [], tail: [], values: {}, truncated: null, selected: null };
+   traceRun = { plan: { columns: (plan.columns || []).slice() }, rows: [], tail: [], values: {}, truncated: null, selected: null };
    (plan.columns || []).forEach(function (column) {
       traceRun.values[column.variableId] = { declared: false, initialized: false };
    });
    const columns = plan.columns || [];
-   $('traceTable').querySelector('thead').innerHTML = '<tr><th>步骤</th><th>源码</th><th>动作</th><th>输出</th>' + columns.map(function (column) {
-      return '<th>' + escapeHtml(column.name) + '</th>';
-   }).join('') + '</tr>';
+   const head = document.createElement('tr');
+   ['步骤', '源码', '动作', '输出'].forEach(function (text) {
+      const th = document.createElement('th');
+      th.textContent = text;
+      head.appendChild(th);
+   });
+   columns.forEach(function (column) { head.appendChild(traceHeadCell(column)); });
+   $('traceTable').querySelector('thead').innerHTML = '';
+   $('traceTable').querySelector('thead').appendChild(head);
    $('traceTable').querySelector('tbody').innerHTML = '';
    $('traceEmpty').hidden = true;
    $('traceWrap').hidden = false;
@@ -1196,7 +1234,14 @@ function makeTraceRow(row) {
             className = 'trace-same-write';
             label = write.name + ' 写入 ' + text + '，值未改变';
          }
-         if (write.origin) label = write.name + ' 由 ' + write.origin.name + ' 的 BYREF 参数写入 ' + text;
+         if (write.origin) {
+            className = className ? className + ' trace-byref' : 'trace-byref';
+            // 数组元素格是主程序建的，形参侧拿不到自己的名字（`origin.name` 会等于列名），
+            // 这时就别再念一遍「参数 Numbers[1]」——那是句废话。
+            const via = write.origin.name === write.name ? '' : ' 参数 ' + write.origin.name;
+            label = write.name + ' 在 ' + write.origin.routine + ' 里经 BYREF' + via + ' 写入 ' + text
+               + (write.sameValue ? '，值未改变' : '');
+         }
       } else if (state.declared) {
          text = state.initialized ? '-' : '未赋值';
          if (!state.initialized) className = 'trace-unassigned';
@@ -1222,6 +1267,7 @@ function appendTraceRow(row) {
 function traceSink() {
    return {
       started: startTrace,
+      columns: addTraceColumns,
       row: appendTraceRow,
       truncated: function (info) {
          if (!traceRun) return;
@@ -1252,7 +1298,9 @@ function traceSink() {
       finished: function (info) {
          if (!traceRun) return;
          const state = info.status === 'completed' ? '已结束' : info.status === 'stopped' ? '已停止' : '出错';
-         $('traceStatus').textContent = state + ' · 共 ' + info.semanticSteps + ' 步' + (info.truncated ? ' · 已截断显示' : '');
+         $('traceStatus').textContent = state + ' · 共 ' + info.semanticSteps + ' 步'
+            + (info.truncated ? ' · 已截断显示' : '')
+            + (info.columnsOmitted ? ' · ' + info.columnsOmitted + ' 个变量超出列上限未显示' : '');
       }
    };
 }
@@ -1291,7 +1339,7 @@ function startRun() {
    const controller = RUNTIME.executeSource(code.value, {
       profile: state.settings.runtimeProfile,
       onEvent: handleRuntimeEvent,
-      trace: { sink: traceSink(), scope: 'main-scalars' },
+      trace: { sink: traceSink(), scope: 'full' },
       virtualFiles: clone(state.runtimeFiles)
    });
    run.controller = controller;

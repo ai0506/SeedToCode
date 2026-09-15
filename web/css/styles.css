@@ -660,6 +660,12 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
 .trace-table tr.is-selected { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
 .trace-table td.trace-unassigned { color: var(--text-faint); }
 .trace-table td.trace-same-write { background: var(--warn-soft); color: var(--warn); }
+/* BYREF 写入：底色区分即可。不用加粗、不用边框——那些会改变格子的几何尺寸，
+   整列会跟着抖，违反 FRONTEND_RULES 第 1 条。 */
+.trace-table td.trace-byref { background: var(--accent-soft); }
+.trace-table td.trace-same-write.trace-byref { background: var(--warn-soft); }
+/* 局部变量列的归属前缀，压暗但不缩小字号：缩字号会让表头行高变，sticky 表头跟着跳。 */
+.trace-table .trace-scope { color: var(--text-faint); }
 .trace-table .trace-omitted td { color: var(--text-faint); font-family: var(--font-ui); text-align: center; cursor: default; }
 .trace-status { height: 26px; flex: 0 0 26px; padding: 5px 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 /* handle 表格与空状态共用固定高度区域，切换时面板不跳动 */

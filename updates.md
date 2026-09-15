@@ -654,3 +654,29 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 [CodeX][2609150841] 同步 TRACE_TABLE_PLAN.md 与落地的 trace API：补列声明事件的 TraceDeclaration/TraceRow.declarations 契约，防止计划将“DECLARE 的未赋值持续态”误写成前端推断；纯文档更新，代码测试已在本轮前一次 npm test（45 文件、669 项）验证。
 [CodeX][2609150844] 更新 trace table 当前能力文档：README、PROJECT_STATE、web/README、LANGUAGE_SPEC、runtime-conventions 与 CLOUD_ARCHITECTURE 明确本机 TraceSink 的语义、范围、BYREF、截断、云端不返回 trace 和不影响判题/同步的边界；同时修正 README 的生产邮件投递状态。文档变更已通过 git diff --check，待随本次代码完整验证、提交与部署。
 [CodeX][2609150847] 发布 trace table 到 Cloudflare Worker `seedtocode-api` Version `3befbff4-3d54-4f84-9930-a5802d868b3a`；远端 D1 无待应用 migration，部署前 dry-run、npm test（45 文件、669 项）和 git diff --check 均通过。部署后 `seedtocode-api.example.invalid` 与 `seedtocode.example.invalid` 的 `/health` 均正常，`/lab` 已返回 styles v30、runtime v12 与 app v36。
+
+[ClaudeCode][2609150911] trace table 在实验室自带的 BubbleSort 上等于没有信息：整张表只有 `Index` 一列，数组和过程里的东西一个都看不见。加 `full` 追踪档，把数组元素和过程/函数局部变量放进表。使用者报的。
+
+**先把现象量清楚再动手。** 直接把 `web/js/samples.js` 里那份 BubbleSort 抠出来跑，拿到的数字比描述还难看：120 步、**只有 1 列**，其中 48 行是光秃秃的 `FOR → TRUE` / `IF → TRUE`，`Index` 那一列在排序全过程的 41 行里全是空的。更糟的是源码第 23–28 行那六句 `Numbers[1] ← 42` … **一行都没记**，表从 `DECLARE Index` 直接跳到 `CALL BubbleSort`；最后 `OUTPUT` 打出排好序的 `3 7 11 19 25 42`，而表里从头到尾没有任何一个值变过。这正是计划 §4.2 特意防的「表在说谎」，当时只堵了 BYREF 标量那一路，数组从同一个洞漏了过去。
+
+**三处根因**：`attachMainTraceId` 只给 `type.kind === "primitive"` 挂 traceId，数组 cell 永远没有 id，而 `traceWrite` 没有 id 就直接 return，于是数组写入静默丢弃；`buildTracePlan` 的 `addTarget` 只认 `NameExpression`，`Numbers[1] ← 42` 的目标是 `IndexExpression`，连列都不会建；`scope: "main-scalars"` 把过程帧整个排除，而 BubbleSort 的逻辑全在过程里。这个样例把 P1 的三条边界一次踩全，是能挑出的最差演示。
+
+**改动**（`main-scalars` 行为一字未动，实验室改用新的 `full`）：
+- **列改成可以运行途中新增**。原契约写的是「列固定，运行途中不得新增列」——那是只追踪主程序标量时才成立的假设：数组边界要到 `DECLARE` 执行时才知道，局部变量要到调用发生时才存在。`TraceSink` 加 `columns(added)`，表头就地追加、已画出的行补空白格。补空白不是占位：空白按 §3 本来就是「尚未声明或不在作用域」，对那些行来说是实话。
+- **`full` 档干脆不用静态列计划**。未声明就赋值在预检就被 `RT1000` 拒了（实测确认），所以每个会进表的变量必然走 `DECLARE` / `CONSTANT` / FOR 控制变量三条路之一，按执行顺序建列既不会漏，列序还正好是源码顺序（之前静态计划会让 `Index` 排到 `Numbers` 前面，跟源码相反）。
+- **数组按元素展开，全有或全无**。剩余列预算装不下整个数组就整体退成一列摘要，格子里写「哪个下标被写成了什么」（`B[3] = 7`），不把整个数组复制进每一行——后者在 2000 行上是实打实的内存问题。半个数组（有 `C[1]`、`C[2]` 没有 `C[3]`）比不展开更难读，所以不允许；第一版就是能建几列建几列，被测试抓出来才改成原子的。
+- **`DECLARE Numbers : ARRAY[1:6]` 替六个格子各记一条「未赋值」**。否则首次写入前那几行是空白，而空白按契约是「尚未声明」——那是假话。
+- **局部变量的列按「过程名 + 栈上同名帧层数」算，不按帧 id 算**。同一个过程顺序调用五次要复用同一组列（值一行行覆盖下去，这正是 trace table 的读法），只有递归才分列（`F.N` / `F#2.N` / `F#3.N`）。按帧 id 建列的话调用五次就是五组列，表会宽得没法看。
+- **BYREF 判定改了依据**：原来按「cell 有没有 alias」判，而 `List[j] ← ...` 拿到的是主程序数组自己的元素格（元素格没有 alias），最典型的 BYREF 数组写入反而判不出来。改成按「被写的格子属于谁」判（`storage.traceId` 以 `main:` 开头且当前不在主帧）。
+- 列总数上限 64、单数组展开上限 32。超出的变量**不挂 traceId**——挂了 id 而没有列，写入会记到一个表里不存在的列上，等于悄悄丢掉。省掉的个数进 `TraceFinish.columnsOmitted`，状态栏说出来。
+- 顺带：「当前状态」里一维小数组直接列出值（`[3, 7, 11, 19, 25, 42]`），原本只说「ARRAY[1:6] OF INTEGER · 6 项已赋值」，对着看排序过程时等于什么都没说。没赋值的格子写 `?` 而不是跳过，否则 `[1,3]` 看起来像个两元素数组。
+
+**一个自己造出来又自己踩中的 bug，记下来。** 我加了条守卫「建不成列就不挂 traceId」，判据用的是 `addColumns` 的返回值（这次新建了几列）。同一个过程第二次被调用时列早就有了，返回空，于是第二次调用的写入被整个丢掉。判据应当是**这一列现在在不在**（`hasColumn`），不是**这次有没有新建**。是「顺序调用三次」那条测试抓出来的，手点一次根本看不出来——第一次调用的值在表里，看着就是对的。
+
+**验证**。新增 13 条 trace 测试，其中一条**直接读 `web/js/samples.js` 里那份真实的 BubbleSort**，而不是手写等价的小例子——上线那一版在所有手写最小用例上都是过的，真实样例和手写样例的差别就是这次的全部教训。那条测试的最后一步是拿表里每一格的最后一次写入拼起来，断言它等于 `OUTPUT` 的结果，也就是**表和输出必须说同一件事**。`npm test` 45 文件 678 项全绿（原 665 项）。
+
+浏览器实测（BubbleSort，真的点）：14 列 120 行，每行都是 14 格（补空格没漏行）；交换过程可读（`Temp ← 42` → `Numbers[1] ← 7` → `Numbers[2] ← 42`）；18 个 BYREF 格有底色和无障碍文案。几何快照：点一行 trace **0 个元素移动**；整轮运行建列过程中，追踪表容器以外 **0 个元素移动**；1440px 下表在自己容器里滚动、`docOverflowX` 为 false。
+
+**发现一个既有问题，没在这一轮改**：窄到 400px 时页面横向溢出（`scrollWidth` 627），但元凶是顶栏（`topbar-right` / `run-btn` / `more-btn` 伸到 573px），输出标签页同样溢出——跟追踪表无关，追踪表那时是正常在自己容器里滚的。
+
+**缓存版本号差点漏掉，记一笔**：我按两天前那一轮读到的 29 / 11 / 35 去提号，而 trace 上线的提交已经把它们提到 30 / 12 / 36，于是三条 `sed` 有两条一个都没匹配上——`styles.css` 和 `runtime-engine.js` 改了却没提号，`git status` 里只有 `lab.html` 变了才露出马脚。**版本号要现查现提，不能用上一轮记住的数。** 最终：`styles.css` 30→31（10 页）、`runtime-engine.js` 12→13（6 页）、`exercise-engine.js` 19→20（3 页，它打包了 runtime 所以也重打了）、`lab.html` 的 `app.js` 36→37。

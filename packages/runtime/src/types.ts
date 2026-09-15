@@ -72,6 +72,17 @@ export type TraceColumn = {
   variableId: string;
   name: string;
   normalizedName: string;
+  /**
+   * `scalar` 是一个变量一列；`element` 是数组展开后的一个格子（`Numbers[3]`）；
+   * `digest` 是元素太多、放弃展开时该数组共用的那一列，格子里只写本次写入的下标和值。
+   */
+  kind: "scalar" | "element" | "digest";
+  /** 数组名或过程名，供表头分组显示；主程序标量没有。 */
+  group?: string;
+  /** 局部变量所属的追踪作用域，例如 `bubblesort#1`。主程序是 `main`。 */
+  scope?: string;
+  /** 过程/函数名，递归时带 `#2` 这样的层次后缀。 */
+  scopeLabel?: string;
 };
 
 export type TracePlan = { columns: TraceColumn[] };
@@ -83,7 +94,8 @@ export type TraceWrite = {
   after: TraceValue;
   sameValue: boolean;
   cause: "assign" | "input" | "for-init" | "for-next" | "byref-write" | "file-read" | "record-read";
-  origin?: { frameId: string; name: string };
+  /** BYREF 写入的来源：哪个过程、用的哪个形参名。 */
+  origin?: { frameId: string; name: string; routine: string };
 };
 
 export type TraceDeclaration = {
@@ -111,6 +123,8 @@ export type TraceFinish = {
   rows: number;
   semanticSteps: number;
   truncated: boolean;
+  /** 因为超过列上限而没有建列的变量个数；大于 0 时前端必须说出来。 */
+  columnsOmitted: number;
 };
 
 export type TraceColumnState = {
@@ -121,6 +135,12 @@ export type TraceColumnState = {
 
 export type TraceSink = {
   started(plan: TracePlan): void;
+  /**
+   * 运行途中新出现的列：数组在 `DECLARE` 时展开、局部变量在帧里声明时出现。
+   * 表头要就地追加，已经画出的行补空白格——空白按 §3 的契约本来就是
+   * 「尚未声明或不在作用域」，对那些行来说这是实话。
+   */
+  columns(added: TraceColumn[]): void;
   row(row: TraceRow): void;
   truncated(info: { head: number; tailCapacity: number }): void;
   tail(info: { rows: TraceRow[]; skipped: number; stateBefore: TraceColumnState[] }): void;
@@ -130,7 +150,16 @@ export type TraceSink = {
 export type TraceOptions = {
   sink: TraceSink;
   maxRows?: number;
-  scope: "main-scalars";
+  /**
+   * `main-scalars` 只追踪主程序的标量，是最早上线的那一档，保留它是为了不动既有调用方。
+   * `full` 追加数组元素与过程/函数局部变量——没有这一档，像 BubbleSort 这种
+   * 「值全在数组里、逻辑全在过程里」的程序会得到一张什么都没发生的表。
+   */
+  scope: "main-scalars" | "full";
+  /** 列的总上限，默认 64。超过之后不再建列，并在 `TraceFinish.columnsOmitted` 里报数。 */
+  maxColumns?: number;
+  /** 单个数组展开成列的元素数上限，默认 32。超过就退成 `digest` 单列。 */
+  maxArrayElements?: number;
 };
 
 export type ExecutionEventType =

@@ -4150,15 +4150,48 @@ var CAIEExercise = (() => {
     deliveredRows = 0;
     didTruncate = false;
     didFinish = false;
+    knownColumns = /* @__PURE__ */ new Set();
+    maxColumns;
+    columnsOmitted = 0;
     constructor(options, plan) {
       this.options = options;
       this.plan = plan;
       const limit = positiveInteger(options.maxRows, 2e3);
       this.tailCapacity = Math.min(500, Math.max(1, Math.floor(limit / 4)));
       this.headCapacity = Math.max(0, limit - this.tailCapacity);
+      this.maxColumns = positiveInteger(options.maxColumns, 64);
+      for (const column of this.plan.columns)
+        this.knownColumns.add(column.variableId);
     }
     start() {
       this.options.sink.started(this.plan);
+    }
+    /**
+     * 运行途中新增列。返回真正建成的那些——调用方要据此决定给不给 cell 挂 traceId：
+     * 没建成列的变量如果还记写入，那些写入会落到一个表里不存在的列上，等于丢掉。
+     */
+    /** 还能再建几列。数组要用它先问一声，避免被上限砍成半个数组。 */
+    remainingColumns() {
+      return Math.max(0, this.maxColumns - this.knownColumns.size);
+    }
+    addColumns(candidates) {
+      const added = [];
+      for (const column of candidates) {
+        if (this.knownColumns.has(column.variableId))
+          continue;
+        if (this.knownColumns.size >= this.maxColumns) {
+          this.columnsOmitted += 1;
+          continue;
+        }
+        this.knownColumns.add(column.variableId);
+        added.push(column);
+      }
+      if (added.length > 0)
+        this.options.sink.columns(added);
+      return added;
+    }
+    hasColumn(variableId) {
+      return this.knownColumns.has(variableId);
     }
     record(row) {
       const complete = { ...row, step: ++this.semanticSteps };
@@ -4191,7 +4224,8 @@ var CAIEExercise = (() => {
         status,
         rows: this.deliveredRows + this.tailRows.length,
         semanticSteps: this.semanticSteps,
-        truncated: this.didTruncate
+        truncated: this.didTruncate,
+        columnsOmitted: this.columnsOmitted
       });
     }
     applyState(state, row) {
@@ -4309,8 +4343,10 @@ var CAIEExercise = (() => {
         }
       }
       this.frames.push({ id: "main", name: "<main>", cells: this.cells });
-      if (options.trace)
-        this.trace = new TraceCollector(options.trace, buildTracePlan(program));
+      if (options.trace) {
+        const plan = options.trace.scope === "full" ? { columns: [] } : buildTracePlan(program);
+        this.trace = new TraceCollector(options.trace, plan);
+      }
       this.activeStartedAt = this.options.now();
       this.result = Promise.resolve().then(() => this.run());
     }
@@ -4417,7 +4453,7 @@ var CAIEExercise = (() => {
             initialized: composite !== void 0,
             ...composite !== void 0 ? { value: composite } : {}
           };
-          this.attachMainTraceId(cell);
+          this.attachTraceId(cell);
           this.currentFrame().cells.set(cell.normalizedName, cell);
           this.emitVariable("variable-declared", statement.range, cell);
           this.traceDeclaration(statement.range, cell);
@@ -4433,7 +4469,7 @@ var CAIEExercise = (() => {
             initialized: true,
             value: cloneValue(value.value)
           };
-          this.attachMainTraceId(cell);
+          this.attachTraceId(cell);
           this.currentFrame().cells.set(cell.normalizedName, cell);
           this.emitVariable("variable-declared", statement.range, cell);
           this.traceDeclaration(statement.range, cell);
@@ -4615,7 +4651,7 @@ var CAIEExercise = (() => {
               type: primitive2("INTEGER"),
               initialized: false
             };
-            this.attachMainTraceId(control);
+            this.attachTraceId(control);
             this.currentFrame().cells.set(control.normalizedName, control);
             this.emitVariable("variable-declared", statement.control.range, control);
           }
@@ -4934,6 +4970,7 @@ var CAIEExercise = (() => {
             initialized: composite !== void 0,
             ...composite !== void 0 ? { value: composite } : {}
           };
+          this.attachElementTraceId(arrayValue, cell, key);
           arrayValue.elements.set(key, cell);
         }
         return cell;
@@ -5207,14 +5244,20 @@ var CAIEExercise = (() => {
         }
       }
       const returnType = declaration.kind === "FunctionDeclaration" ? await this.resolveType(declaration.returnType) : void 0;
+      const depth = this.frames.filter((existing) => existing.name === declaration.name).length + 1;
+      const scope = `${declaration.normalizedName ?? declaration.name.toLowerCase()}#${depth}`;
       const frame = {
         id: `frame-${this.sequence + 1}`,
         name: declaration.name,
+        traceScope: scope,
+        traceScopeLabel: depth > 1 ? `${declaration.name}#${depth}` : declaration.name,
         cells: parameterCells,
         ...returnType ? { returnType } : {},
         ...receiver ? { receiver, classType: className ? this.resolvedClasses.get(className) ?? receiver.type : receiver.type } : {}
       };
       this.frames.push(frame);
+      for (const cell of parameterCells.values())
+        this.attachTraceId(cell);
       this.emit("frame-entered", declaration.range, { name: declaration.name, stack: this.stackNames(), variables: this.getVariables() });
       this.trace?.record({
         range: declaration.range,
@@ -5374,27 +5417,123 @@ var CAIEExercise = (() => {
       }
       return record;
     }
-    attachMainTraceId(cell) {
-      if (this.currentFrame().id === "main" && cell.type.kind === "primitive")
-        cell.traceId = `main:${cell.normalizedName}`;
+    /** 当前帧的追踪作用域前缀；主程序恒为 `main`。 */
+    traceScopeOf(frame) {
+      return frame.id === "main" ? "main" : frame.traceScope ?? "";
+    }
+    /**
+     * 给刚建好的 cell 挂上追踪 id，并在需要时就地建列。
+     * 主程序标量沿用静态列计划里已有的 id（不重复建列）；数组和局部变量是运行途中才知道的，
+     * 建不成列就不挂 id——挂了而没有列，写入会记到一个表里不存在的列上，等于悄悄丢掉。
+     */
+    attachTraceId(cell) {
+      if (!this.trace)
+        return;
+      const frame = this.currentFrame();
+      const scope = this.traceScopeOf(frame);
+      if (!scope)
+        return;
+      const isMain = frame.id === "main";
+      const full = this.options.trace?.scope === "full";
+      if (cell.type.kind === "primitive") {
+        if (!isMain && !full)
+          return;
+        const id = `${scope}:${cell.normalizedName}`;
+        this.trace.addColumns([isMain ? { variableId: id, name: cell.name, normalizedName: cell.normalizedName, kind: "scalar" } : { variableId: id, name: cell.name, normalizedName: cell.normalizedName, kind: "scalar", group: frame.name, scope, scopeLabel: frame.traceScopeLabel ?? frame.name }]);
+        if (this.trace.hasColumn(id))
+          cell.traceId = id;
+        return;
+      }
+      if (full && cell.type.kind === "array" && cell.value !== void 0 && isComposite(cell.value) && cell.value.kind === "array") {
+        this.attachArrayTrace(cell, cell.value, scope, isMain ? void 0 : frame);
+      }
+    }
+    /**
+     * 数组展开成列。元素是懒建的，但边界在 `DECLARE` 时就已知，所以整排列在这里一次建完——
+     * 否则表头会随着程序第一次碰到某个下标才长出一列，读表的人无法预先看到数组有多大。
+     */
+    attachArrayTrace(cell, array, scope, frame) {
+      if (!this.trace || array.traceBase || array.traceDigestId)
+        return;
+      const base = `${scope}:${cell.normalizedName}`;
+      const limit = positiveInteger(this.options.trace?.maxArrayElements, 32);
+      const keys = enumerateArrayKeys(array.type.dimensions, Math.min(limit, this.trace.remainingColumns()));
+      const group = cell.name;
+      const shared = frame ? { group: `${frame.name}.${cell.name}`, scope, scopeLabel: frame.traceScopeLabel ?? frame.name } : { group };
+      if (!keys) {
+        const id = `${base}[\u2026]`;
+        this.trace.addColumns([{ variableId: id, name: `${cell.name}[\u2026]`, normalizedName: cell.normalizedName, kind: "digest", ...shared }]);
+        if (this.trace.hasColumn(id))
+          array.traceDigestId = id;
+        return;
+      }
+      const columns = keys.map((indices) => ({
+        variableId: `${base}[${indices.join(",")}]`,
+        name: `${cell.name}[${indices.join(", ")}]`,
+        normalizedName: indices.join(","),
+        kind: "element",
+        ...shared
+      }));
+      this.trace.addColumns(columns);
+      if (columns.every(({ variableId }) => this.trace.hasColumn(variableId)))
+        array.traceBase = base;
+    }
+    /** 元素 cell 是懒建的，建出来时才能挂 id。 */
+    attachElementTraceId(array, cell, key) {
+      if (!this.trace)
+        return;
+      if (array.traceDigestId) {
+        cell.traceId = array.traceDigestId;
+        cell.traceDigest = true;
+        return;
+      }
+      if (!array.traceBase)
+        return;
+      const id = `${array.traceBase}[${key}]`;
+      if (this.trace.hasColumn(id))
+        cell.traceId = id;
     }
     traceValueFor(cell) {
       const storage = storageCell(cell);
-      return storage.traceId ? traceValue(storage) : void 0;
+      return storage.traceId ? traceValueOf(storage) : void 0;
     }
     traceDeclaration(range, cell) {
       const storage = storageCell(cell);
-      if (!this.trace || !storage.traceId)
+      if (!this.trace)
         return;
-      const declaration = { variableId: storage.traceId, name: cell.name, value: traceValue(storage) };
+      if (!storage.traceId && storage.value !== void 0 && isComposite(storage.value) && storage.value.kind === "array") {
+        const declarations = this.arrayElementDeclarations(cell, storage.value);
+        if (declarations.length === 0)
+          return;
+        this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations });
+        return;
+      }
+      if (!storage.traceId)
+        return;
+      const declaration = { variableId: storage.traceId, name: cell.name, value: traceValueOf(storage) };
       this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations: [declaration] });
+    }
+    arrayElementDeclarations(cell, array) {
+      if (array.traceDigestId) {
+        return [{ variableId: array.traceDigestId, name: `${cell.name}[\u2026]`, value: uninitializedTraceValue() }];
+      }
+      if (!array.traceBase)
+        return [];
+      const keys = enumerateArrayKeys(array.type.dimensions, positiveInteger(this.options.trace?.maxArrayElements, 32));
+      if (!keys)
+        return [];
+      return keys.map((indices) => ({
+        variableId: `${array.traceBase}[${indices.join(",")}]`,
+        name: `${cell.name}[${indices.join(", ")}]`,
+        value: uninitializedTraceValue()
+      }));
     }
     traceWrite(range, cell, before, cause, label) {
       const storage = storageCell(cell);
       if (!this.trace || !storage.traceId || !before)
         return;
-      const after = traceValue(storage);
-      const isByRef = cell !== storage && this.currentFrame().id !== "main";
+      const after = traceValueOf(storage);
+      const isByRef = this.currentFrame().id !== "main" && storage.traceId.startsWith("main:");
       const write = {
         variableId: storage.traceId,
         name: storage.name,
@@ -5402,7 +5541,7 @@ var CAIEExercise = (() => {
         after,
         sameValue: traceValuesEqual(before, after),
         cause: isByRef ? "byref-write" : cause,
-        ...isByRef ? { origin: { frameId: this.currentFrame().id, name: cell.name } } : {}
+        ...isByRef ? { origin: { frameId: this.currentFrame().id, name: cell.name, routine: this.currentFrame().name } } : {}
       };
       this.trace.record({ range, frameId: this.currentFrame().id, kind: "write", label, writes: [write] });
     }
@@ -5735,11 +5874,37 @@ var CAIEExercise = (() => {
   function uninitializedTraceValue() {
     return { initialized: false, displayValue: "<\u672A\u8D4B\u503C>" };
   }
+  function traceValueOf(cell) {
+    if (!cell.traceDigest)
+      return traceValue(cell);
+    const inner = traceValue(cell);
+    return inner.initialized ? { ...inner, displayValue: `${cell.name} = ${inner.displayValue}` } : inner;
+  }
   function traceValue(cell) {
     return cell.initialized ? { initialized: true, displayValue: displayValue(cell.value, cell.type), value: snapshotValue(cell.value) } : uninitializedTraceValue();
   }
   function traceValuesEqual(left, right) {
     return left.initialized === right.initialized && left.displayValue === right.displayValue && JSON.stringify(left.value) === JSON.stringify(right.value);
+  }
+  function enumerateArrayKeys(dimensions, limit) {
+    let total = 1;
+    for (const { lower, upper } of dimensions) {
+      const span = upper - lower + 1;
+      if (span <= 0)
+        return void 0;
+      total *= span;
+      if (total > limit)
+        return void 0;
+    }
+    let keys = [[]];
+    for (const { lower, upper } of dimensions) {
+      const next = [];
+      for (const prefix of keys)
+        for (let i = lower; i <= upper; i += 1)
+          next.push([...prefix, i]);
+      keys = next;
+    }
+    return keys;
   }
   function cloneTraceState(source) {
     return new Map([...source].map(([id, state]) => [id, { ...state }]));
@@ -5748,7 +5913,7 @@ var CAIEExercise = (() => {
     const columns = /* @__PURE__ */ new Map();
     const add = (name, normalizedName) => {
       if (!columns.has(normalizedName))
-        columns.set(normalizedName, { variableId: `main:${normalizedName}`, name, normalizedName });
+        columns.set(normalizedName, { variableId: `main:${normalizedName}`, name, normalizedName, kind: "scalar" });
     };
     const addTarget = (expression) => {
       if (expression.kind === "NameExpression")
@@ -5976,10 +6141,23 @@ var CAIEExercise = (() => {
     }
     return String(value.value);
   }
+  function displayArray(value) {
+    const [bounds] = value.type.dimensions;
+    const span = bounds ? bounds.upper - bounds.lower + 1 : 0;
+    if (value.type.dimensions.length !== 1 || span <= 0 || span > 12) {
+      return `${typeName(value.type)} \xB7 ${[...value.elements.values()].filter(({ initialized }) => initialized).length} \u9879\u5DF2\u8D4B\u503C`;
+    }
+    const parts = [];
+    for (let index = bounds.lower; index <= bounds.upper; index += 1) {
+      const cell = value.elements.get(String(index));
+      parts.push(cell && cell.initialized ? displayValue(cell.value, cell.type) : "?");
+    }
+    return `[${parts.join(", ")}]`;
+  }
   function displayValue(value, type) {
     if (isComposite(value)) {
       if (value.kind === "array")
-        return `${typeName(value.type)} \xB7 ${[...value.elements.values()].filter(({ initialized }) => initialized).length} \u9879\u5DF2\u8D4B\u503C`;
+        return displayArray(value);
       if (value.kind === "pointer")
         return `^${value.target.name}`;
       if (value.kind === "set")

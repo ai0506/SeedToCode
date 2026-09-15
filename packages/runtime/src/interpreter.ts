@@ -47,6 +47,7 @@ import type {
   RuntimeVariable,
   RuntimeSetSnapshot,
   RuntimeVirtualFile,
+  TraceColumn,
   TraceDeclaration,
   TraceColumnState,
   TraceFinish,
@@ -66,9 +67,19 @@ type Cell = {
   value?: InternalValue;
   alias?: Cell;
   traceId?: string;
+  /** 该格属于「元素太多没展开」的数组摘要列，值要连下标一起写出来。 */
+  traceDigest?: boolean;
 };
 
-type RuntimeArray = { kind: "array"; type: ArrayRuntimeType; elements: Map<string, Cell> };
+type RuntimeArray = {
+  kind: "array";
+  type: ArrayRuntimeType;
+  elements: Map<string, Cell>;
+  /** 元素列 id 的前缀，例如 `main:numbers`。没有就表示这个数组不追踪。 */
+  traceBase?: string;
+  /** 元素太多没展开时，所有元素共用的那一列的 id。 */
+  traceDigestId?: string;
+};
 type RuntimeRecord = { kind: "record"; type: RecordRuntimeType; fields: Map<string, Cell> };
 type RuntimeObject = { kind: "object"; type: ClassRuntimeType; fields: Map<string, Cell> };
 type RuntimePointer = { kind: "pointer"; type: PointerRuntimeType; target: Cell };
@@ -77,7 +88,22 @@ type RuntimeEnum = { kind: "enum"; type: EnumRuntimeType; member: string };
 type InternalValue = number | string | boolean | RuntimeDate | RuntimeArray | RuntimeRecord | RuntimeObject | RuntimePointer | RuntimeSet | RuntimeEnum;
 type TypedValue = { type: RuntimeType; value: InternalValue };
 type PendingInput = { cell: Cell; range: SourceRange; resolve: () => void; traceBefore?: TraceValue };
-type Frame = { id: string; name: string; cells: Map<string, Cell>; returnType?: RuntimeType; receiver?: RuntimeObject; classType?: ClassRuntimeType };
+type Frame = {
+  id: string;
+  name: string;
+  cells: Map<string, Cell>;
+  returnType?: RuntimeType;
+  receiver?: RuntimeObject;
+  classType?: ClassRuntimeType;
+  /**
+   * 追踪作用域。**按「过程名 + 当前栈上同名帧的层数」算，不按帧 id 算**：
+   * 同一个过程被顺序调用五次应当复用同一组列（值一行行覆盖下去，这正是
+   * trace table 的读法），只有递归——同名过程还在栈上时又进一层——才该分出新列。
+   * 按帧 id 建列的话，调用五次就是五组列，表会宽得没法看。
+   */
+  traceScope?: string;
+  traceScopeLabel?: string;
+};
 type OpenHandle = { file: RuntimeVirtualFile; mode: TextFileMode; position: number };
 
 const DEFAULTS = {
@@ -110,14 +136,40 @@ class TraceCollector {
   private deliveredRows = 0;
   private didTruncate = false;
   private didFinish = false;
+  private readonly knownColumns = new Set<string>();
+  private readonly maxColumns: number;
+  private columnsOmitted = 0;
 
   constructor(private readonly options: TraceOptions, private readonly plan: TracePlan) {
     const limit = positiveInteger(options.maxRows, 2_000);
     this.tailCapacity = Math.min(500, Math.max(1, Math.floor(limit / 4)));
     this.headCapacity = Math.max(0, limit - this.tailCapacity);
+    this.maxColumns = positiveInteger(options.maxColumns, 64);
+    for (const column of this.plan.columns) this.knownColumns.add(column.variableId);
   }
 
   start(): void { this.options.sink.started(this.plan); }
+
+  /**
+   * 运行途中新增列。返回真正建成的那些——调用方要据此决定给不给 cell 挂 traceId：
+   * 没建成列的变量如果还记写入，那些写入会落到一个表里不存在的列上，等于丢掉。
+   */
+  /** 还能再建几列。数组要用它先问一声，避免被上限砍成半个数组。 */
+  remainingColumns(): number { return Math.max(0, this.maxColumns - this.knownColumns.size); }
+
+  addColumns(candidates: TraceColumn[]): TraceColumn[] {
+    const added: TraceColumn[] = [];
+    for (const column of candidates) {
+      if (this.knownColumns.has(column.variableId)) continue;
+      if (this.knownColumns.size >= this.maxColumns) { this.columnsOmitted += 1; continue; }
+      this.knownColumns.add(column.variableId);
+      added.push(column);
+    }
+    if (added.length > 0) this.options.sink.columns(added);
+    return added;
+  }
+
+  hasColumn(variableId: string): boolean { return this.knownColumns.has(variableId); }
 
   record(row: Omit<TraceRow, "step">): void {
     const complete = { ...row, step: ++this.semanticSteps };
@@ -148,7 +200,8 @@ class TraceCollector {
       status,
       rows: this.deliveredRows + this.tailRows.length,
       semanticSteps: this.semanticSteps,
-      truncated: this.didTruncate
+      truncated: this.didTruncate,
+      columnsOmitted: this.columnsOmitted
     });
   }
 
@@ -247,7 +300,13 @@ export class Interpreter {
       }
     }
     this.frames.push({ id: "main", name: "<main>", cells: this.cells });
-    if (options.trace) this.trace = new TraceCollector(options.trace, buildTracePlan(program));
+    // `full` 档不预建列：每个会进表的变量都必然走 DECLARE / CONSTANT / FOR 控制变量
+    // 三条路之一（未声明就赋值在预检就被 RT1000 拒了），所以按执行顺序建列既不会漏，
+    // 列序还正好是源码顺序。`main-scalars` 保持原样，静态表头从第一行起就稳定。
+    if (options.trace) {
+      const plan = options.trace.scope === "full" ? { columns: [] } : buildTracePlan(program);
+      this.trace = new TraceCollector(options.trace, plan);
+    }
     this.activeStartedAt = this.options.now();
     this.result = Promise.resolve().then(() => this.run());
   }
@@ -356,7 +415,7 @@ export class Interpreter {
           initialized: composite !== undefined,
           ...(composite !== undefined ? { value: composite } : {})
         };
-        this.attachMainTraceId(cell);
+        this.attachTraceId(cell);
         this.currentFrame().cells.set(cell.normalizedName, cell);
         this.emitVariable("variable-declared", statement.range, cell);
         this.traceDeclaration(statement.range, cell);
@@ -372,7 +431,7 @@ export class Interpreter {
           initialized: true,
           value: cloneValue(value.value)
         };
-        this.attachMainTraceId(cell);
+        this.attachTraceId(cell);
         this.currentFrame().cells.set(cell.normalizedName, cell);
         this.emitVariable("variable-declared", statement.range, cell);
         this.traceDeclaration(statement.range, cell);
@@ -537,7 +596,7 @@ export class Interpreter {
             type: primitive("INTEGER"),
             initialized: false
           };
-          this.attachMainTraceId(control);
+          this.attachTraceId(control);
           this.currentFrame().cells.set(control.normalizedName, control);
           this.emitVariable("variable-declared", statement.control.range, control);
         }
@@ -813,6 +872,7 @@ export class Interpreter {
           initialized: composite !== undefined,
           ...(composite !== undefined ? { value: composite } : {})
         };
+        this.attachElementTraceId(arrayValue, cell, key);
         arrayValue.elements.set(key, cell);
       }
       return cell;
@@ -1069,14 +1129,20 @@ export class Interpreter {
       }
     }
     const returnType = declaration.kind === "FunctionDeclaration" ? await this.resolveType(declaration.returnType) : undefined;
+    const depth = this.frames.filter((existing) => existing.name === declaration.name).length + 1;
+    const scope = `${declaration.normalizedName ?? declaration.name.toLowerCase()}#${depth}`;
     const frame: Frame = {
       id: `frame-${this.sequence + 1}`,
       name: declaration.name,
+      traceScope: scope,
+      traceScopeLabel: depth > 1 ? `${declaration.name}#${depth}` : declaration.name,
       cells: parameterCells,
       ...(returnType ? { returnType } : {})
       ,...(receiver ? { receiver, classType: className ? this.resolvedClasses.get(className) ?? receiver.type : receiver.type } : {})
     };
     this.frames.push(frame);
+    // 形参的列要在帧压栈之后建，`attachTraceId` 读的是当前帧。
+    for (const cell of parameterCells.values()) this.attachTraceId(cell);
     this.emit("frame-entered", declaration.range, { name: declaration.name, stack: this.stackNames(), variables: this.getVariables() });
     this.trace?.record({
       range: declaration.range,
@@ -1227,27 +1293,122 @@ export class Interpreter {
     return record;
   }
 
-  private attachMainTraceId(cell: Cell): void {
-    if (this.currentFrame().id === "main" && cell.type.kind === "primitive") cell.traceId = `main:${cell.normalizedName}`;
+  /** 当前帧的追踪作用域前缀；主程序恒为 `main`。 */
+  private traceScopeOf(frame: Frame): string { return frame.id === "main" ? "main" : frame.traceScope ?? ""; }
+
+  /**
+   * 给刚建好的 cell 挂上追踪 id，并在需要时就地建列。
+   * 主程序标量沿用静态列计划里已有的 id（不重复建列）；数组和局部变量是运行途中才知道的，
+   * 建不成列就不挂 id——挂了而没有列，写入会记到一个表里不存在的列上，等于悄悄丢掉。
+   */
+  private attachTraceId(cell: Cell): void {
+    if (!this.trace) return;
+    const frame = this.currentFrame();
+    const scope = this.traceScopeOf(frame);
+    if (!scope) return;
+    const isMain = frame.id === "main";
+    const full = this.options.trace?.scope === "full";
+    if (cell.type.kind === "primitive") {
+      if (!isMain && !full) return;
+      const id = `${scope}:${cell.normalizedName}`;
+      this.trace.addColumns([isMain
+        ? { variableId: id, name: cell.name, normalizedName: cell.normalizedName, kind: "scalar" }
+        : { variableId: id, name: cell.name, normalizedName: cell.normalizedName, kind: "scalar", group: frame.name, scope, scopeLabel: frame.traceScopeLabel ?? frame.name }]);
+      // 判据是「这一列现在在不在」，不是「这次有没有新建」——同一个过程被顺序调用
+      // 第二次时列早就有了，`addColumns` 返回空，按新建判会把第二次调用的写入整个丢掉。
+      if (this.trace.hasColumn(id)) cell.traceId = id;
+      return;
+    }
+    if (full && cell.type.kind === "array" && cell.value !== undefined && isComposite(cell.value) && cell.value.kind === "array") {
+      this.attachArrayTrace(cell, cell.value, scope, isMain ? undefined : frame);
+    }
+  }
+
+  /**
+   * 数组展开成列。元素是懒建的，但边界在 `DECLARE` 时就已知，所以整排列在这里一次建完——
+   * 否则表头会随着程序第一次碰到某个下标才长出一列，读表的人无法预先看到数组有多大。
+   */
+  private attachArrayTrace(cell: Cell, array: RuntimeArray, scope: string, frame?: Frame): void {
+    if (!this.trace || array.traceBase || array.traceDigestId) return;
+    const base = `${scope}:${cell.normalizedName}`;
+    const limit = positiveInteger(this.options.trace?.maxArrayElements, 32);
+    // 先问还剩几列：半个数组（有 C[1]、C[2] 没有 C[3]）比不展开更难读，
+    // 所以装不下就整体退成摘要列，而不是能建几列建几列。
+    const keys = enumerateArrayKeys(array.type.dimensions, Math.min(limit, this.trace.remainingColumns()));
+    const group = cell.name;
+    const shared = frame ? { group: `${frame.name}.${cell.name}`, scope, scopeLabel: frame.traceScopeLabel ?? frame.name } : { group };
+    if (!keys) {
+      // 元素太多，展开会把表撑爆。退成一列，格子里写「哪个下标被写成了什么」，
+      // 而不是把整个数组复制进每一行——后者在 2000 行上是实打实的内存问题。
+      const id = `${base}[…]`;
+      this.trace.addColumns([{ variableId: id, name: `${cell.name}[…]`, normalizedName: cell.normalizedName, kind: "digest", ...shared }]);
+      if (this.trace.hasColumn(id)) array.traceDigestId = id;
+      return;
+    }
+    const columns: TraceColumn[] = keys.map((indices) => ({
+      variableId: `${base}[${indices.join(",")}]`,
+      name: `${cell.name}[${indices.join(", ")}]`,
+      normalizedName: indices.join(","),
+      kind: "element" as const,
+      ...shared
+    }));
+    this.trace.addColumns(columns);
+    if (columns.every(({ variableId }) => this.trace!.hasColumn(variableId))) array.traceBase = base;
+  }
+
+  /** 元素 cell 是懒建的，建出来时才能挂 id。 */
+  private attachElementTraceId(array: RuntimeArray, cell: Cell, key: string): void {
+    if (!this.trace) return;
+    if (array.traceDigestId) { cell.traceId = array.traceDigestId; cell.traceDigest = true; return; }
+    if (!array.traceBase) return;
+    const id = `${array.traceBase}[${key}]`;
+    if (this.trace.hasColumn(id)) cell.traceId = id;
   }
 
   private traceValueFor(cell: Cell): TraceValue | undefined {
     const storage = storageCell(cell);
-    return storage.traceId ? traceValue(storage) : undefined;
+    return storage.traceId ? traceValueOf(storage) : undefined;
   }
 
   private traceDeclaration(range: SourceRange, cell: Cell): void {
     const storage = storageCell(cell);
-    if (!this.trace || !storage.traceId) return;
-    const declaration: TraceDeclaration = { variableId: storage.traceId, name: cell.name, value: traceValue(storage) };
+    if (!this.trace) return;
+    // 数组自己没有列，列在元素上。但 `DECLARE Numbers : ARRAY[1:6]` 确实把六个格子都声明了，
+    // 所以要替它们各记一条「未赋值」——否则首次写入之前那几行是空白，
+    // 而空白按 §3 的契约是「尚未声明」，那是假话。
+    if (!storage.traceId && storage.value !== undefined && isComposite(storage.value) && storage.value.kind === "array") {
+      const declarations = this.arrayElementDeclarations(cell, storage.value);
+      if (declarations.length === 0) return;
+      this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations });
+      return;
+    }
+    if (!storage.traceId) return;
+    const declaration: TraceDeclaration = { variableId: storage.traceId, name: cell.name, value: traceValueOf(storage) };
     this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations: [declaration] });
+  }
+
+  private arrayElementDeclarations(cell: Cell, array: RuntimeArray): TraceDeclaration[] {
+    if (array.traceDigestId) {
+      return [{ variableId: array.traceDigestId, name: `${cell.name}[…]`, value: uninitializedTraceValue() }];
+    }
+    if (!array.traceBase) return [];
+    const keys = enumerateArrayKeys(array.type.dimensions, positiveInteger(this.options.trace?.maxArrayElements, 32));
+    if (!keys) return [];
+    return keys.map((indices) => ({
+      variableId: `${array.traceBase}[${indices.join(",")}]`,
+      name: `${cell.name}[${indices.join(", ")}]`,
+      value: uninitializedTraceValue()
+    }));
   }
 
   private traceWrite(range: SourceRange, cell: Cell, before: TraceValue | undefined, cause: TraceWrite["cause"], label: string): void {
     const storage = storageCell(cell);
     if (!this.trace || !storage.traceId || !before) return;
-    const after = traceValue(storage);
-    const isByRef = cell !== storage && this.currentFrame().id !== "main";
+    const after = traceValueOf(storage);
+    // 「是不是 BYREF 写入」按**被写的格子属于谁**判，不按 cell 有没有 alias 判：
+    // `List[j] ← ...` 拿到的是主程序数组自己的元素格（元素格没有 alias），
+    // 按 alias 判的话这种最典型的 BYREF 数组写入反而判不出来。
+    const isByRef = this.currentFrame().id !== "main" && storage.traceId.startsWith("main:");
     const write: TraceWrite = {
       variableId: storage.traceId,
       name: storage.name,
@@ -1255,7 +1416,7 @@ export class Interpreter {
       after,
       sameValue: traceValuesEqual(before, after),
       cause: isByRef ? "byref-write" : cause,
-      ...(isByRef ? { origin: { frameId: this.currentFrame().id, name: cell.name } } : {})
+      ...(isByRef ? { origin: { frameId: this.currentFrame().id, name: cell.name, routine: this.currentFrame().name } } : {})
     };
     this.trace.record({ range, frameId: this.currentFrame().id, kind: "write", label, writes: [write] });
   }
@@ -1515,6 +1676,15 @@ function snapshotCell(cell: Cell): RuntimeVariable {
 
 function uninitializedTraceValue(): TraceValue { return { initialized: false, displayValue: "<未赋值>" }; }
 
+/**
+ * 摘要列的格子要连下标一起写，否则一列里混着六个下标的值，读表的人无从分辨是谁变了。
+ */
+function traceValueOf(cell: Cell): TraceValue {
+  if (!cell.traceDigest) return traceValue(cell);
+  const inner = traceValue(cell);
+  return inner.initialized ? { ...inner, displayValue: `${cell.name} = ${inner.displayValue}` } : inner;
+}
+
 function traceValue(cell: Cell): TraceValue {
   return cell.initialized
     ? { initialized: true, displayValue: displayValue(cell.value!, cell.type), value: snapshotValue(cell.value!) }
@@ -1526,14 +1696,35 @@ function traceValuesEqual(left: TraceValue, right: TraceValue): boolean {
     && JSON.stringify(left.value) === JSON.stringify(right.value);
 }
 
+/**
+ * 把数组边界铺成下标组合。超过 limit 就返回 undefined，让调用方退成摘要列。
+ * 先算总数再铺，避免 ARRAY[1:100000] 在这里先把内存吃掉再判超限。
+ */
+function enumerateArrayKeys(dimensions: Array<{ lower: number; upper: number }>, limit: number): number[][] | undefined {
+  let total = 1;
+  for (const { lower, upper } of dimensions) {
+    const span = upper - lower + 1;
+    if (span <= 0) return undefined;
+    total *= span;
+    if (total > limit) return undefined;
+  }
+  let keys: number[][] = [[]];
+  for (const { lower, upper } of dimensions) {
+    const next: number[][] = [];
+    for (const prefix of keys) for (let i = lower; i <= upper; i += 1) next.push([...prefix, i]);
+    keys = next;
+  }
+  return keys;
+}
+
 function cloneTraceState(source: Map<string, TraceColumnState>): Map<string, TraceColumnState> {
   return new Map([...source].map(([id, state]) => [id, { ...state }]));
 }
 
 function buildTracePlan(program: Program): TracePlan {
-  const columns = new Map<string, { variableId: string; name: string; normalizedName: string }>();
+  const columns = new Map<string, TraceColumn>();
   const add = (name: string, normalizedName: string): void => {
-    if (!columns.has(normalizedName)) columns.set(normalizedName, { variableId: `main:${normalizedName}`, name, normalizedName });
+    if (!columns.has(normalizedName)) columns.set(normalizedName, { variableId: `main:${normalizedName}`, name, normalizedName, kind: "scalar" });
   };
   const addTarget = (expression: Expression): void => {
     if (expression.kind === "NameExpression") add(expression.name, expression.normalizedName);
@@ -1724,9 +1915,29 @@ function formatValue(value: TypedValue, range: SourceRange): string {
   return String(value.value);
 }
 
+/**
+ * 一维小数组直接把值列出来。原本只说「ARRAY[1:6] OF INTEGER · 6 项已赋值」——
+ * 对着 BubbleSort 看排序过程时，那句话等于什么都没说。
+ * 多维或者太长的仍然退回计数：一行塞不下，塞了也读不了。
+ */
+function displayArray(value: RuntimeArray): string {
+  const [bounds] = value.type.dimensions;
+  const span = bounds ? bounds.upper - bounds.lower + 1 : 0;
+  if (value.type.dimensions.length !== 1 || span <= 0 || span > 12) {
+    return `${typeName(value.type)} · ${[...value.elements.values()].filter(({ initialized }) => initialized).length} 项已赋值`;
+  }
+  const parts: string[] = [];
+  for (let index = bounds.lower; index <= bounds.upper; index += 1) {
+    const cell = value.elements.get(String(index));
+    // 没赋值的格子写「?」而不是跳过：跳过会让 [1,3] 看起来像个两元素数组。
+    parts.push(cell && cell.initialized ? displayValue(cell.value!, cell.type) : "?");
+  }
+  return `[${parts.join(", ")}]`;
+}
+
 function displayValue(value: InternalValue, type?: RuntimeType): string {
   if (isComposite(value)) {
-    if (value.kind === "array") return `${typeName(value.type)} · ${[...value.elements.values()].filter(({ initialized }) => initialized).length} 项已赋值`;
+    if (value.kind === "array") return displayArray(value);
     if (value.kind === "pointer") return `^${value.target.name}`;
     if (value.kind === "set") return `${value.type.name} { ${[...value.values.values()].map((item) => displayValue(item)).join(", ")} }`;
     if (value.kind === "enum") return value.member;

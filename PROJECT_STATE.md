@@ -35,7 +35,7 @@
 | Pointers | Complete | `advanced-2027` |
 | Sets | Complete | `advanced-2027` |
 | OOP（构造器、继承、`SUPER`、多态、聚合） | Complete | `advanced-2027` |
-| 本机 trace table（主程序标量、控制流、BYREF 写入） | Complete | `core-2027` |
+| 本机 trace table（标量、数组元素、过程/函数局部变量、控制流、BYREF 写入） | Complete | `core-2027` |
 
 ## Teaching
 
