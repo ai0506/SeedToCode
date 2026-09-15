@@ -653,3 +653,4 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 [CodeX][2609150840] 将 lab.html 的手写 app.js 缓存版本 v35→v36，使调试表渲染逻辑随本次 runtime 与样式 bundle 一同失效旧缓存；仅引用版本变更，待最终静态检查。
 [CodeX][2609150841] 同步 TRACE_TABLE_PLAN.md 与落地的 trace API：补列声明事件的 TraceDeclaration/TraceRow.declarations 契约，防止计划将“DECLARE 的未赋值持续态”误写成前端推断；纯文档更新，代码测试已在本轮前一次 npm test（45 文件、669 项）验证。
 [CodeX][2609150844] 更新 trace table 当前能力文档：README、PROJECT_STATE、web/README、LANGUAGE_SPEC、runtime-conventions 与 CLOUD_ARCHITECTURE 明确本机 TraceSink 的语义、范围、BYREF、截断、云端不返回 trace 和不影响判题/同步的边界；同时修正 README 的生产邮件投递状态。文档变更已通过 git diff --check，待随本次代码完整验证、提交与部署。
+[CodeX][2609150847] 发布 trace table 到 Cloudflare Worker `seedtocode-api` Version `3befbff4-3d54-4f84-9930-a5802d868b3a`；远端 D1 无待应用 migration，部署前 dry-run、npm test（45 文件、669 项）和 git diff --check 均通过。部署后 `seedtocode-api.example.invalid` 与 `seedtocode.example.invalid` 的 `/health` 均正常，`/lab` 已返回 styles v30、runtime v12 与 app v36。
