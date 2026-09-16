@@ -275,74 +275,64 @@ export const chapter09: Chapter = {
         {
           kind: "task",
           id: "9.3.1",
-          title: "每行的和",
-          statement: "写一段伪代码：读入一张 2 行 3 列的整数表格（按行读，先读满第一行再读第二行），然后显示每一行的和。",
+          title: "每一列的最大值",
+          statement: "写一段伪代码：读入一张 3 行 2 列的整数表格（按行读，先读满第一行，再读第二行，再读第三行），然后显示**每一列**里最大的那个数。",
           ioSpec: {
-            input: [
-              "六行，各一个 `INTEGER`，按先行后列的顺序读入。每次读取之前都要显示提示语，一字不差：",
-              "`Enter a number`"
-            ].join("\n"),
-            output: ["两行，写成：", "`Row <行号>: <这一行的和>`", "冒号后面是一个空格。"].join("\n")
+            input: ["六行，各一个 `INTEGER`，按行的顺序给出。每次读取之前都要显示提示语，一字不差：", "`Enter a number`"].join("\n"),
+            output: [
+              "两行，一列一行，按列号从小到大：",
+              "`Col <列号>: <这一列里最大的数>`",
+              "冒号后面是一个空格。"
+            ].join("\n")
           },
           constraints: {
             require: [
               {
                 feature: "decl.array-2d",
-                reason: "数据本来就是一张表，用二维数组存下来最直接。"
+                reason: "一张表要两个编号才指得准一个格子。"
               },
               {
                 feature: "array.index-2d",
-                reason: "指一个格子要同时给出行和列。"
-              },
-              {
-                feature: "loop.nested",
-                reason: "一张表要两层循环才走得完：外层管行，内层管列。"
+                reason: "读进来和取出来都要同时给出行号和列号。"
               }
             ]
           },
           hints: [
-            "读入和求和可以分成两段，也可以在读的同时就把这一行加起来。",
-            "每一行都要重新从 0 开始加——清零那一句放在外层循环里面、内层循环外面。",
-            "显示那一行放在内层循环的后面、外层循环的里面，才能做到每行一条。"
+            "读的时候按行走，算的时候按列走——两段循环的里外正好相反。",
+            "求最大值不要拿 0 当起点，先把这一列的第一个数取来当起点，再从第二行开始比。",
+            "起点要在换到下一列的时候重新取一次。"
           ],
           examples: [
             {
-              inputs: ["1", "2", "3", "10", "20", "30"],
-              outputs: [
-                "Enter a number",
-                "Enter a number",
-                "Enter a number",
-                "Enter a number",
-                "Enter a number",
-                "Enter a number",
-                "Row 1: 6",
-                "Row 2: 60"
-              ]
+              inputs: ["4", "9", "7", "2", "1", "8"],
+              outputs: ["Enter a number", "Enter a number", "Enter a number", "Enter a number", "Enter a number", "Enter a number", "Col 1: 7", "Col 2: 9"]
             }
           ],
           referenceSolution: [
-            "DECLARE Grid : ARRAY[1:2, 1:3] OF INTEGER",
-            "DECLARE Sum : INTEGER",
-            "FOR Row ← 1 TO 2",
-            "   FOR Col ← 1 TO 3",
+            "DECLARE Grid : ARRAY[1:3, 1:2] OF INTEGER",
+            "DECLARE Biggest : INTEGER",
+            "FOR Row ← 1 TO 3",
+            "   FOR Col ← 1 TO 2",
             '      OUTPUT "Enter a number"',
             "      INPUT Grid[Row, Col]",
             "   NEXT Col",
             "NEXT Row",
-            "FOR Row ← 1 TO 2",
-            "   Sum ← 0",
-            "   FOR Col ← 1 TO 3",
-            "      Sum ← Sum + Grid[Row, Col]",
-            "   NEXT Col",
-            '   OUTPUT "Row ", Row, ": ", Sum',
-            "NEXT Row"
+            "FOR Col ← 1 TO 2",
+            "   Biggest ← Grid[1, Col]",
+            "   FOR Row ← 2 TO 3",
+            "      IF Grid[Row, Col] > Biggest THEN",
+            "         Biggest ← Grid[Row, Col]",
+            "      ENDIF",
+            "   NEXT Row",
+            '   OUTPUT "Col ", Col, ": ", Biggest',
+            "NEXT Col"
           ].join("\n"),
           tests: [
-            { id: "t1", kind: "normal", inputs: ["4", "5", "6", "7", "8", "9"], caseHint: "两行的和不一样。" },
-            { id: "t2", kind: "normal", inputs: ["1", "1", "1", "2", "2", "2"], caseHint: "每一行里的数都相同。" },
-            { id: "t3", kind: "boundary", inputs: ["0", "0", "0", "0", "0", "0"], caseHint: "整张表都是零。" },
-            { id: "t4", kind: "boundary", inputs: ["-1", "-2", "-3", "1", "2", "3"], caseHint: "一行全是负数，另一行全是正数，两行的和正好相反。" },
-            { id: "t5", kind: "extreme", inputs: ["99999", "1", "1", "1", "1", "99999"], caseHint: "两个很大的数分别落在两行。" }
+            { id: "t1", kind: "normal", inputs: ["3", "8", "5", "2", "1", "9"], caseHint: "两列的最大值落在不同的行上。" },
+            { id: "t2", kind: "boundary", inputs: ["6", "6", "6", "6", "6", "6"], caseHint: "六个数全都一样大。" },
+            { id: "t3", kind: "boundary", inputs: ["9", "4", "1", "2", "0", "1"], caseHint: "最大值都在第一行，起点就是答案。" },
+            { id: "t4", kind: "normal", inputs: ["-5", "-9", "-3", "-7", "-8", "-2"], caseHint: "全是负数，拿零当起点就会出错。" },
+            { id: "t5", kind: "extreme", inputs: ["1", "999999", "888888", "2", "3", "4"], caseHint: "掺着很大和很小的数。" }
           ]
         }
       ]
@@ -406,83 +396,64 @@ export const chapter09: Chapter = {
     {
       kind: "chapterTask",
       id: "9.T1",
-      title: "成绩表",
-      statement: "写一段伪代码：读入 3 个学生各 2 科的成绩（按学生逐个读，每个学生先读第 1 科再读第 2 科），然后显示每个学生的总分和每一科的平均分。",
+      title: "及格次数",
+      statement: "写一段伪代码：读入 3 个学生各 4 次测验的成绩（按学生逐个读，每个学生按第 1 次到第 4 次的顺序读），然后显示每个学生有几次及格（60 分及以上），最后显示全班一共有几次及格。",
       ioSpec: {
-        input: [
-          "六行，各一个 `INTEGER`，按先学生后科目的顺序读入。每次读取之前都要显示提示语，一字不差：",
-          "`Enter a mark`"
-        ].join("\n"),
+        input: ["十二行，各一个 `INTEGER`，按学生逐个给出。每次读取之前都要显示提示语，一字不差：", "`Enter a mark`"].join("\n"),
         output: [
-          "读完之后显示五行——先三行学生总分，再两行科目平均：",
-          "`Student <编号> total: <总分>`",
-          "`Subject <编号> average: <平均分>`　（取整数商）",
-          "每个冒号后面都是一个空格。"
+          "先是每个学生一行，按学号从小到大：",
+          "`Student <学号>: <这个学生及格几次>`",
+          "最后一行：",
+          "`Class total: <全班及格总次数>`",
+          "冒号后面都是一个空格。"
         ].join("\n")
       },
-      suggestedFeatures: [
-        "decl.array-2d",
-        "array.index-2d",
-        "loop.for",
-        "loop.nested",
-        "op.arithmetic",
-        "op.div",
-        "io.input",
-        "io.output"
-      ],
+      suggestedFeatures: ["decl.array-2d", "array.index-2d", "loop.nested", "select.if"],
       hints: [
-        "「每个学生的总分」和「每一科的平均分」走的是同一张表，但两层循环的里外正好相反。",
-        "累加变量要在外层循环里面清零——不然上一轮的结果会被带到下一轮。",
-        "读入的顺序和后面怎么算无关：存进去的时候行是学生、列是科目，取的时候按需要挑先走哪一层。"
+        "两个计数器管的范围不一样：一个只管当前这个学生，一个管全班。",
+        "只管一个学生的那个，要在换到下一个学生的时候重新清零；管全班的那个，整段程序只清零一次。",
+        "想清楚这两次清零各该写在哪一层循环的里面还是外面。"
       ],
       examples: [
         {
-          inputs: ["80", "70", "55", "90", "100", "40"],
+          inputs: ["70", "50", "80", "90", "40", "30", "20", "10", "60", "60", "59", "61"],
           outputs: [
-            "Enter a mark",
-            "Enter a mark",
-            "Enter a mark",
-            "Enter a mark",
-            "Enter a mark",
-            "Enter a mark",
-            "Student 1 total: 150",
-            "Student 2 total: 145",
-            "Student 3 total: 140",
-            "Subject 1 average: 78",
-            "Subject 2 average: 66"
+            "Enter a mark", "Enter a mark", "Enter a mark", "Enter a mark",
+            "Enter a mark", "Enter a mark", "Enter a mark", "Enter a mark",
+            "Enter a mark", "Enter a mark", "Enter a mark", "Enter a mark",
+            "Student 1: 3", "Student 2: 0", "Student 3: 3", "Class total: 6"
           ]
         }
       ],
       referenceSolution: [
-        "DECLARE Marks : ARRAY[1:3, 1:2] OF INTEGER",
-        "DECLARE Total : INTEGER",
+        "DECLARE Marks : ARRAY[1:3, 1:4] OF INTEGER",
+        "DECLARE Passes : INTEGER",
+        "DECLARE ClassTotal : INTEGER",
         "FOR Student ← 1 TO 3",
-        "   FOR Subject ← 1 TO 2",
+        "   FOR Test ← 1 TO 4",
         '      OUTPUT "Enter a mark"',
-        "      INPUT Marks[Student, Subject]",
-        "   NEXT Subject",
+        "      INPUT Marks[Student, Test]",
+        "   NEXT Test",
         "NEXT Student",
+        "ClassTotal ← 0",
         "FOR Student ← 1 TO 3",
-        "   Total ← 0",
-        "   FOR Subject ← 1 TO 2",
-        "      Total ← Total + Marks[Student, Subject]",
-        "   NEXT Subject",
-        '   OUTPUT "Student ", Student, " total: ", Total',
+        "   Passes ← 0",
+        "   FOR Test ← 1 TO 4",
+        "      IF Marks[Student, Test] >= 60 THEN",
+        "         Passes ← Passes + 1",
+        "         ClassTotal ← ClassTotal + 1",
+        "      ENDIF",
+        "   NEXT Test",
+        '   OUTPUT "Student ", Student, ": ", Passes',
         "NEXT Student",
-        "FOR Subject ← 1 TO 2",
-        "   Total ← 0",
-        "   FOR Student ← 1 TO 3",
-        "      Total ← Total + Marks[Student, Subject]",
-        "   NEXT Student",
-        '   OUTPUT "Subject ", Subject, " average: ", Total DIV 3',
-        "NEXT Subject"
+        'OUTPUT "Class total: ", ClassTotal'
       ].join("\n"),
       tests: [
-        { id: "t1", kind: "normal", inputs: ["90", "60", "70", "80", "50", "100"], caseHint: "三个学生两科成绩各不相同。" },
-        { id: "t2", kind: "boundary", inputs: ["50", "50", "50", "50", "50", "50"], caseHint: "所有成绩一模一样。" },
-        { id: "t3", kind: "boundary", inputs: ["0", "0", "0", "0", "0", "1"], caseHint: "几乎全是零，只有最后一格不是——平均分会被整除截掉。" },
-        { id: "t4", kind: "normal", inputs: ["100", "0", "0", "100", "100", "0"], caseHint: "每个学生都是一科满分一科零分。" },
-        { id: "t5", kind: "extreme", inputs: ["99999", "1", "1", "1", "1", "99999"], caseHint: "两个很大的分数落在不同的学生和科目上。" }
+        { id: "t1", kind: "normal", inputs: ["61", "62", "10", "20", "70", "10", "70", "10", "99", "99", "99", "99"], caseHint: "三个学生及格次数各不相同。" },
+        { id: "t2", kind: "boundary", inputs: ["10", "20", "30", "40", "11", "21", "31", "41", "12", "22", "32", "42"], caseHint: "谁都没有及格过。" },
+        { id: "t3", kind: "boundary", inputs: ["60", "60", "60", "60", "60", "60", "60", "60", "60", "60", "60", "60"], caseHint: "全部正好踩在及格线上。" },
+        { id: "t4", kind: "normal", inputs: ["59", "59", "59", "59", "60", "60", "60", "60", "59", "60", "59", "60"], caseHint: "差一分和正好及格挨在一起。" },
+        { id: "t5", kind: "extreme", inputs: ["0", "100", "0", "100", "100", "0", "100", "0", "0", "0", "100", "100"], caseHint: "只有零分和满分。" }
       ]
     }
   ]

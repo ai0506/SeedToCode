@@ -22,8 +22,8 @@
 **示例：走遍每一格，比中就报**　`Example_10_1_a.pseudocode`
 
 ```
-DECLARE Scores : ARRAY[1:5] OF INTEGER
-DECLARE I : INTEGER
+CONSTANT Size = 5
+DECLARE Scores : ARRAY[1:Size] OF INTEGER
 DECLARE Target : INTEGER
 Scores[1] ← 30
 Scores[2] ← 80
@@ -31,7 +31,7 @@ Scores[3] ← 45
 Scores[4] ← 80
 Scores[5] ← 12
 Target ← 80
-FOR I ← 1 TO 5
+FOR I ← 1 TO Size
    IF Scores[I] = Target THEN
       OUTPUT "Found at ", I
    ENDIF
@@ -70,14 +70,15 @@ Found at 4
 
 这种「记录某件事有没有发生过」的变量叫**标志（flag）**。开始时设成 `FALSE`，一旦比中就改成 `TRUE`。循环结束之后看它一眼，就知道到底找没找到——这句话，屏幕上必须有。
 
-有了标志，循环的条件就写得出来了：`WHILE Found = FALSE AND Position <= 5`——**还没找到、而且还没走完**，才继续走。两个条件里任何一个不成立，循环立刻停。这正是第 5 章说的「次数事先不知道」：走几格取决于数据。
+有了标志，循环的条件就写得出来了：`WHILE Found = FALSE AND Position <= Size`——**还没找到、而且还没走完**，才继续走。两个条件里任何一个不成立，循环立刻停。这正是第 5 章说的「次数事先不知道」：走几格取决于数据。标志本身就是一个布尔值，所以这个条件有两种写法：`Found = FALSE` 是拿它和 `FALSE` 比一次，`NOT Found` 是直接把它反过来，**两种意思完全一样，考试都接受**；这里写成 `Found = FALSE` 是因为它把「在比什么」摆在明面上，而别人的代码里 `NOT Found` 更常见，要认得出来。
 
 `Position` 停在哪里也是结果的一部分：找到时它停在那一格上，没找到时它已经越过上界。所以**先看标志，再决定 `Position` 能不能拿来用**——顺序反了就会报出一个根本不存在的位置。
 
 **示例：带标志的线性查找**　`Example_10_2_a.pseudocode`
 
 ```
-DECLARE Scores : ARRAY[1:5] OF INTEGER
+CONSTANT Size = 5
+DECLARE Scores : ARRAY[1:Size] OF INTEGER
 DECLARE Position : INTEGER
 DECLARE Target : INTEGER
 DECLARE Found : BOOLEAN
@@ -89,7 +90,7 @@ Scores[5] ← 12
 Target ← 99
 Found ← FALSE
 Position ← 1
-WHILE Found = FALSE AND Position <= 5
+WHILE Found = FALSE AND Position <= Size
    IF Scores[Position] = Target THEN
       Found ← TRUE
    ELSE
@@ -102,10 +103,10 @@ ELSE
    OUTPUT "Not in the list"
 ENDIF
 ```
-- 11–12 行：两个起点：还没找到，从第 1 格开始。这两行少一行，循环第一次就判断不了。
-- 第 13 行：两个继续条件。找到了，或者走过头了，都停。
-- 14–18 行：比中就把标志立起来——注意这时**不再加 1**，`Position` 要停在命中的那一格上。没比中才往前走。
-- 20–24 行：循环之后先看标志。这段 `ELSE` 就是上一节缺的那句话。
+- 12–13 行：两个起点：还没找到，从第 1 格开始。这两行少一行，循环第一次就判断不了。
+- 第 14 行：两个继续条件。找到了，或者走过头了，都停。
+- 15–19 行：比中就把标志立起来——注意这时**不再加 1**，`Position` 要停在命中的那一格上。没比中才往前走。
+- 21–25 行：循环之后先看标志。这段 `ELSE` 就是上一节缺的那句话。
 
 示例运行：
 
@@ -163,7 +164,6 @@ Found at 3
 
 ```
 DECLARE Values : ARRAY[1:6] OF INTEGER
-DECLARE Position : INTEGER
 DECLARE Target : INTEGER
 DECLARE Found : BOOLEAN
 FOR Position ← 1 TO 6
@@ -216,22 +216,22 @@ ENDIF
 **示例：只走一趟**　`Example_10_3_a.pseudocode`
 
 ```
-DECLARE Values : ARRAY[1:5] OF INTEGER
-DECLARE J : INTEGER
+CONSTANT Size = 5
+DECLARE Values : ARRAY[1:Size] OF INTEGER
 DECLARE Temp : INTEGER
 Values[1] ← 3
 Values[2] ← 9
 Values[3] ← 1
 Values[4] ← 7
 Values[5] ← 5
-FOR J ← 1 TO 4
+FOR J ← 1 TO Size - 1
    IF Values[J] > Values[J + 1] THEN
       Temp ← Values[J]
       Values[J] ← Values[J + 1]
       Values[J + 1] ← Temp
    ENDIF
 NEXT J
-FOR J ← 1 TO 5
+FOR J ← 1 TO Size
    OUTPUT Values[J]
 NEXT J
 ```
@@ -286,26 +286,25 @@ OUTPUT Values[2]
 
 5 个数要走几趟？4 趟。前四趟把最大的四个依次安顿好，剩下的那一个自然就在第一格了——**n 个数最多走 n-1 趟**。
 
-内层的终点每趟都往回缩一格：第 `I` 趟开始时，末尾已经有 `I - 1` 个到位了，不必再碰。写成 `FOR J ← 1 TO 5 - I`，随着趟数递增自动缩短。
+内层的终点每趟都往回缩一格：第 `I` 趟开始时，末尾已经有 `I - 1` 个到位了，不必再碰。写成 `FOR J ← 1 TO Size - I`，随着趟数递增自动缩短。
 
-为什么是 `5 - I` 而不是 `5`？因为内层比的是 `Values[J]` 和 `Values[J + 1]`：J 走到哪儿，右边那一格就得还在数组里。终点写成 5，第一趟 J 就会走到 5，而 `Values[6]` 根本不存在——程序会在那一行停下来。
+为什么内层的终点要减 `I`，而不是每趟都走到底？因为内层比的是 `Values[J]` 和 `Values[J + 1]`：J 走到哪儿，右边那一格就得还在数组里。终点写成 `Size`，第一趟 J 就会走到最后一格，而它右边那一格根本不存在——程序会在那一行停下来。顺便看一眼示例的第一行：格子数写成了常量 `Size`，于是数组的上界、外层的趟数、内层的终点、最后显示那一圈全都跟着它走——要改成 10 个数，只动第一行。
 
 > **规则**（CAIE 规定）　冒泡排序是考纲点名的另一个标准算法：反复比较相邻两项并交换，每一趟把剩下的最大值送到末尾（§10.2）。
 
 **示例：完整的冒泡排序**　`Example_10_4_a.pseudocode`
 
 ```
-DECLARE Values : ARRAY[1:5] OF INTEGER
-DECLARE I : INTEGER
-DECLARE J : INTEGER
+CONSTANT Size = 5
+DECLARE Values : ARRAY[1:Size] OF INTEGER
 DECLARE Temp : INTEGER
 Values[1] ← 3
 Values[2] ← 9
 Values[3] ← 1
 Values[4] ← 7
 Values[5] ← 5
-FOR I ← 1 TO 4
-   FOR J ← 1 TO 5 - I
+FOR I ← 1 TO Size - 1
+   FOR J ← 1 TO Size - I
       IF Values[J] > Values[J + 1] THEN
          Temp ← Values[J]
          Values[J] ← Values[J + 1]
@@ -313,13 +312,13 @@ FOR I ← 1 TO 4
       ENDIF
    NEXT J
 NEXT I
-FOR I ← 1 TO 5
+FOR I ← 1 TO Size
    OUTPUT Values[I]
 NEXT I
 ```
-- 第 10 行：外层只管数趟数：5 个数走 4 趟。`I` 在循环体里不用来取格子，它只是「第几趟」。
-- 第 11 行：内层的终点跟着趟数缩：第 1 趟比到第 4 对，第 4 趟只比第 1 对。
-- 12–16 行：和上一节那段一模一样。整个排序的力气全在这五行上。
+- 第 9 行：外层只管数趟数：5 个数走 4 趟。`I` 在循环体里不用来取格子，它只是「第几趟」。
+- 第 10 行：内层的终点跟着趟数缩：第 1 趟比到第 4 对，第 4 趟只比第 1 对。
+- 11–15 行：和上一节那段一模一样。整个排序的力气全在这五行上。
 
 示例运行：
 
@@ -379,8 +378,6 @@ Enter a number
 
 ```
 DECLARE Values : ARRAY[1:5] OF INTEGER
-DECLARE I : INTEGER
-DECLARE J : INTEGER
 DECLARE Temp : INTEGER
 FOR I ← 1 TO 5
    OUTPUT "Enter a number"
@@ -427,9 +424,8 @@ NEXT I
 **示例：带标志的冒泡排序**　`Example_10_5_a.pseudocode`
 
 ```
-DECLARE Values : ARRAY[1:5] OF INTEGER
-DECLARE I : INTEGER
-DECLARE J : INTEGER
+CONSTANT Size = 5
+DECLARE Values : ARRAY[1:Size] OF INTEGER
 DECLARE Temp : INTEGER
 DECLARE Swapped : BOOLEAN
 DECLARE Passes : INTEGER
@@ -452,14 +448,14 @@ REPEAT
    NEXT J
 UNTIL Swapped = FALSE
 OUTPUT "Passes: ", Passes
-FOR I ← 1 TO 5
+FOR I ← 1 TO Size
    OUTPUT Values[I]
 NEXT I
 ```
-- 第 14 行：清零放在每趟的开头，不能放在 `REPEAT` 之前——那样只有第一趟算数。
-- 第 21 行：只要换过一次就立起来。它回答的是「这一趟有没有动过」。
-- 第 24 行：一趟都没换，就说明已经排好，循环到此为止。
-- 第 25 行：这里把趟数显示出来只是为了看得见；真正在用的程序里不需要这一行。
+- 第 13 行：清零放在每趟的开头，不能放在 `REPEAT` 之前——那样只有第一趟算数。
+- 第 20 行：只要换过一次就立起来。它回答的是「这一趟有没有动过」。
+- 第 23 行：一趟都没换，就说明已经排好，循环到此为止。
+- 第 24 行：这里把趟数显示出来只是为了看得见；真正在用的程序里不需要这一行。
 
 示例运行：
 
@@ -529,8 +525,6 @@ Found at 5
 
 ```
 DECLARE Values : ARRAY[1:6] OF INTEGER
-DECLARE I : INTEGER
-DECLARE J : INTEGER
 DECLARE Temp : INTEGER
 DECLARE Target : INTEGER
 DECLARE Position : INTEGER

@@ -29,7 +29,17 @@ function capture(): { trace: CapturedTrace; sink: TraceSink } {
 }
 
 describe("execution trace", () => {
-  it("keeps declarations, writes and a same-value assignment distinct", async () => {
+  it("keeps a constant's sole value but omits DECLARE rows", async () => {
+    const { trace, sink } = capture();
+    const result = await executeSource(`CONSTANT Scale = 2
+DECLARE Total : INTEGER
+Total ← Scale`, { trace: { sink, scope: "main-scalars" } }).result;
+
+    expect(result.status).toBe("completed");
+    expect(trace.rows.map(({ kind, label }) => `${kind}:${label}`)).toEqual(["declare:CONSTANT Scale", "write:Total ←"]);
+  });
+
+  it("records writes and a same-value assignment without declaration rows", async () => {
     const { trace, sink } = capture();
     const result = await executeSource(`DECLARE I : INTEGER
 DECLARE Total : INTEGER
@@ -40,24 +50,24 @@ OUTPUT Total`, { trace: { sink, scope: "main-scalars" } }).result;
 
     expect(result.status).toBe("completed");
     expect(trace.plan?.columns.map(({ name }) => name)).toEqual(["I", "Total"]);
-    expect(trace.rows.filter(({ kind }) => kind === "declare").map((row) => row.declarations?.[0]?.value.initialized)).toEqual([false, false]);
+    expect(trace.rows.some(({ kind }) => kind === "declare")).toBe(false);
     const writes = trace.rows.filter(({ kind }) => kind === "write");
     expect(writes.map((row) => row.writes[0]?.after.displayValue)).toEqual(["0", "5", "0"]);
     expect(writes[2]?.writes[0]).toMatchObject({ cause: "assign", sameValue: true });
     expect(trace.rows.at(-1)).toMatchObject({ kind: "output", output: "5" });
   });
 
-  it("records FOR initialisation, every real condition, and later control writes", async () => {
+  it("records FOR initialisation and later control writes without non-CAIE condition rows", async () => {
     const { trace, sink } = capture();
     const result = await executeSource(`FOR I ← 0 TO 1
 OUTPUT I
 NEXT I`, { trace: { sink, scope: "main-scalars" } }).result;
 
     expect(result.status).toBe("completed");
-    expect(trace.rows.map(({ kind }) => kind)).toEqual(["write", "condition", "output", "condition", "write", "output", "condition"]);
+    expect(trace.rows.map(({ kind }) => kind)).toEqual(["write", "output", "write", "output"]);
     expect(trace.rows[0]?.writes[0]).toMatchObject({ cause: "for-init", after: { displayValue: "0" } });
-    expect(trace.rows[4]?.writes[0]).toMatchObject({ cause: "for-next", after: { displayValue: "1" } });
-    expect(trace.rows.filter(({ kind }) => kind === "condition").map((row) => row.condition?.result)).toEqual([true, true, false]);
+    expect(trace.rows[2]?.writes[0]).toMatchObject({ cause: "for-next", after: { displayValue: "1" } });
+    expect(trace.rows.some(({ kind }) => kind === "condition")).toBe(false);
   });
 
   it("keeps every BYREF write, including a write of the existing value", async () => {
@@ -97,7 +107,7 @@ I ← 5`, { trace: { sink, maxRows: 4, scope: "main-scalars" } }).result;
     expect(trace.tail).toHaveLength(1);
     expect(trace.tail[0]?.writes[0]?.after.displayValue).toBe("5");
     expect(trace.tailStateBefore).toEqual([{ variableId: "main:I", declared: true, initialized: true }]);
-    expect(trace.finished).toMatchObject({ status: "completed", rows: 4, semanticSteps: 7, truncated: true });
+    expect(trace.finished).toMatchObject({ status: "completed", rows: 4, semanticSteps: 6, truncated: true });
   });
 });
 
@@ -112,10 +122,7 @@ A[1] ← 7`, { trace: { sink, scope: "full" } }).result;
     expect(result.status).toBe("completed");
     expect(trace.columns.map(({ name }) => name)).toEqual(["A[1]", "A[2]", "A[3]"]);
     expect(trace.columns.every(({ kind }) => kind === "element")).toBe(true);
-    // DECLARE 要替每个格子记一条「未赋值」：否则首次写入前那几行是空白，
-    // 而空白按契约是「尚未声明」，那是假话。
-    const declare = trace.rows.find(({ kind }) => kind === "declare");
-    expect(declare?.declarations?.map(({ value }) => value.initialized)).toEqual([false, false, false]);
+    expect(trace.rows.some(({ kind }) => kind === "declare")).toBe(false);
     const writes = trace.rows.filter(({ kind }) => kind === "write");
     expect(writes.map((row) => `${row.writes[0]?.name}=${row.writes[0]?.after.displayValue}`)).toEqual(["A[1]=7", "A[3]=9", "A[1]=7"]);
     expect(writes[2]?.writes[0]?.sameValue).toBe(true);

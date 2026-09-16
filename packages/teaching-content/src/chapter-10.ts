@@ -55,7 +55,8 @@ export const chapter10: Chapter = {
           title: "走遍每一格，比中就报",
           fileName: "Example_10_1_a.pseudocode",
           code: [
-            "DECLARE Scores : ARRAY[1:5] OF INTEGER",
+            "CONSTANT Size = 5",
+            "DECLARE Scores : ARRAY[1:Size] OF INTEGER",
             "DECLARE Target : INTEGER",
             "Scores[1] ← 30",
             "Scores[2] ← 80",
@@ -63,16 +64,16 @@ export const chapter10: Chapter = {
             "Scores[4] ← 80",
             "Scores[5] ← 12",
             "Target ← 80",
-            "FOR I ← 1 TO 5",
+            "FOR I ← 1 TO Size",
             "   IF Scores[I] = Target THEN",
             '      OUTPUT "Found at ", I',
             "   ENDIF",
             "NEXT I"
           ].join("\n"),
           annotations: [
-            { fromLine: 8, toLine: 8, text: "要找的值。把它单独放进一个变量，换个目标只要改这一行。" },
-            { fromLine: 9, toLine: 13, text: "从第 1 格走到第 5 格，每一格都跟 `Target` 比一次。" },
-            { fromLine: 10, toLine: 12, text: "相等就报出下标。注意这里报完还接着走——`FOR` 不会因为找到了就停。" }
+            { fromLine: 9, toLine: 9, text: "要找的值。把它单独放进一个变量，换个目标只要改这一行。" },
+            { fromLine: 10, toLine: 14, text: "从第 1 格走到第 5 格，每一格都跟 `Target` 比一次。" },
+            { fromLine: 11, toLine: 13, text: "相等就报出下标。注意这里报完还接着走——`FOR` 不会因为找到了就停。" }
           ],
           sampleRun: {
             inputs: [],
@@ -124,7 +125,7 @@ export const chapter10: Chapter = {
           paragraphs: [
             "上一节那段有两处要补：找到了还接着把剩下的格子走完，而找不到的时候屏幕上一个字都没有。要补这两处，只需要一个 `BOOLEAN` 变量。",
             "这种「记录某件事有没有发生过」的变量叫**标志（flag）**。开始时设成 `FALSE`，一旦比中就改成 `TRUE`。循环结束之后看它一眼，就知道到底找没找到——这句话，屏幕上必须有。",
-            "有了标志，循环的条件就写得出来了：`WHILE Found = FALSE AND Position <= 5`——**还没找到、而且还没走完**，才继续走。两个条件里任何一个不成立，循环立刻停。这正是第 5 章说的「次数事先不知道」：走几格取决于数据。",
+            "有了标志，循环的条件就写得出来了：`WHILE Found = FALSE AND Position <= Size`——**还没找到、而且还没走完**，才继续走。两个条件里任何一个不成立，循环立刻停。这正是第 5 章说的「次数事先不知道」：走几格取决于数据。标志本身就是一个布尔值，所以这个条件有两种写法：`Found = FALSE` 是拿它和 `FALSE` 比一次，`NOT Found` 是直接把它反过来，**两种意思完全一样，考试都接受**；这里写成 `Found = FALSE` 是因为它把「在比什么」摆在明面上，而别人的代码里 `NOT Found` 更常见，要认得出来。",
             "`Position` 停在哪里也是结果的一部分：找到时它停在那一格上，没找到时它已经越过上界。所以**先看标志，再决定 `Position` 能不能拿来用**——顺序反了就会报出一个根本不存在的位置。"
           ]
         },
@@ -133,7 +134,8 @@ export const chapter10: Chapter = {
           title: "带标志的线性查找",
           fileName: "Example_10_2_a.pseudocode",
           code: [
-            "DECLARE Scores : ARRAY[1:5] OF INTEGER",
+            "CONSTANT Size = 5",
+            "DECLARE Scores : ARRAY[1:Size] OF INTEGER",
             "DECLARE Position : INTEGER",
             "DECLARE Target : INTEGER",
             "DECLARE Found : BOOLEAN",
@@ -145,7 +147,7 @@ export const chapter10: Chapter = {
             "Target ← 99",
             "Found ← FALSE",
             "Position ← 1",
-            "WHILE Found = FALSE AND Position <= 5",
+            "WHILE Found = FALSE AND Position <= Size",
             "   IF Scores[Position] = Target THEN",
             "      Found ← TRUE",
             "   ELSE",
@@ -159,10 +161,10 @@ export const chapter10: Chapter = {
             "ENDIF"
           ].join("\n"),
           annotations: [
-            { fromLine: 11, toLine: 12, text: "两个起点：还没找到，从第 1 格开始。这两行少一行，循环第一次就判断不了。" },
-            { fromLine: 13, toLine: 13, text: "两个继续条件。找到了，或者走过头了，都停。" },
-            { fromLine: 14, toLine: 18, text: "比中就把标志立起来——注意这时**不再加 1**，`Position` 要停在命中的那一格上。没比中才往前走。" },
-            { fromLine: 20, toLine: 24, text: "循环之后先看标志。这段 `ELSE` 就是上一节缺的那句话。" }
+            { fromLine: 12, toLine: 13, text: "两个起点：还没找到，从第 1 格开始。这两行少一行，循环第一次就判断不了。" },
+            { fromLine: 14, toLine: 14, text: "两个继续条件。找到了，或者走过头了，都停。" },
+            { fromLine: 15, toLine: 19, text: "比中就把标志立起来——注意这时**不再加 1**，`Position` 要停在命中的那一格上。没比中才往前走。" },
+            { fromLine: 21, toLine: 25, text: "循环之后先看标志。这段 `ELSE` 就是上一节缺的那句话。" }
           ],
           sampleRun: {
             inputs: [],
@@ -311,29 +313,30 @@ export const chapter10: Chapter = {
           title: "只走一趟",
           fileName: "Example_10_3_a.pseudocode",
           code: [
-            "DECLARE Values : ARRAY[1:5] OF INTEGER",
+            "CONSTANT Size = 5",
+            "DECLARE Values : ARRAY[1:Size] OF INTEGER",
             "DECLARE Temp : INTEGER",
             "Values[1] ← 3",
             "Values[2] ← 9",
             "Values[3] ← 1",
             "Values[4] ← 7",
             "Values[5] ← 5",
-            "FOR J ← 1 TO 4",
+            "FOR J ← 1 TO Size - 1",
             "   IF Values[J] > Values[J + 1] THEN",
             "      Temp ← Values[J]",
             "      Values[J] ← Values[J + 1]",
             "      Values[J + 1] ← Temp",
             "   ENDIF",
             "NEXT J",
-            "FOR J ← 1 TO 5",
+            "FOR J ← 1 TO Size",
             "   OUTPUT Values[J]",
             "NEXT J"
           ].join("\n"),
           annotations: [
-            { fromLine: 8, toLine: 8, text: "五格只比四对：第 5 格没有右邻居，所以终点是 4 而不是 5。" },
-            { fromLine: 9, toLine: 13, text: "只比相邻的两格。整个冒泡排序就只做这一件事，别的都是重复它。" },
-            { fromLine: 10, toLine: 12, text: "三步交换：先把左边的值存起来，再把右边的搬过来，最后把存着的那个放到右边。" },
-            { fromLine: 15, toLine: 17, text: "一趟之后的样子：最大的 9 已经在最后一格了，前面几个还乱着。" }
+            { fromLine: 9, toLine: 9, text: "五格只比四对：第 5 格没有右邻居，所以终点是 4 而不是 5。" },
+            { fromLine: 10, toLine: 14, text: "只比相邻的两格。整个冒泡排序就只做这一件事，别的都是重复它。" },
+            { fromLine: 11, toLine: 13, text: "三步交换：先把左边的值存起来，再把右边的搬过来，最后把存着的那个放到右边。" },
+            { fromLine: 16, toLine: 18, text: "一趟之后的样子：最大的 9 已经在最后一格了，前面几个还乱着。" }
           ],
           sampleRun: {
             inputs: [],
@@ -403,8 +406,8 @@ export const chapter10: Chapter = {
           paragraphs: [
             "一趟送一个数到位，那就多走几趟：**外层数趟数，内层走一趟**——又是一对嵌套循环，只不过这回内层做的事是比较和交换。",
             "5 个数要走几趟？4 趟。前四趟把最大的四个依次安顿好，剩下的那一个自然就在第一格了——**n 个数最多走 n-1 趟**。",
-            "内层的终点每趟都往回缩一格：第 `I` 趟开始时，末尾已经有 `I - 1` 个到位了，不必再碰。写成 `FOR J ← 1 TO 5 - I`，随着趟数递增自动缩短。",
-            "为什么是 `5 - I` 而不是 `5`？因为内层比的是 `Values[J]` 和 `Values[J + 1]`：J 走到哪儿，右边那一格就得还在数组里。终点写成 5，第一趟 J 就会走到 5，而 `Values[6]` 根本不存在——程序会在那一行停下来。"
+            "内层的终点每趟都往回缩一格：第 `I` 趟开始时，末尾已经有 `I - 1` 个到位了，不必再碰。写成 `FOR J ← 1 TO Size - I`，随着趟数递增自动缩短。",
+            "为什么内层的终点要减 `I`，而不是每趟都走到底？因为内层比的是 `Values[J]` 和 `Values[J + 1]`：J 走到哪儿，右边那一格就得还在数组里。终点写成 `Size`，第一趟 J 就会走到最后一格，而它右边那一格根本不存在——程序会在那一行停下来。顺便看一眼示例的第一行：格子数写成了常量 `Size`，于是数组的上界、外层的趟数、内层的终点、最后显示那一圈全都跟着它走——要改成 10 个数，只动第一行。"
           ],
           callouts: [
             {
@@ -418,15 +421,16 @@ export const chapter10: Chapter = {
           title: "完整的冒泡排序",
           fileName: "Example_10_4_a.pseudocode",
           code: [
-            "DECLARE Values : ARRAY[1:5] OF INTEGER",
+            "CONSTANT Size = 5",
+            "DECLARE Values : ARRAY[1:Size] OF INTEGER",
             "DECLARE Temp : INTEGER",
             "Values[1] ← 3",
             "Values[2] ← 9",
             "Values[3] ← 1",
             "Values[4] ← 7",
             "Values[5] ← 5",
-            "FOR I ← 1 TO 4",
-            "   FOR J ← 1 TO 5 - I",
+            "FOR I ← 1 TO Size - 1",
+            "   FOR J ← 1 TO Size - I",
             "      IF Values[J] > Values[J + 1] THEN",
             "         Temp ← Values[J]",
             "         Values[J] ← Values[J + 1]",
@@ -434,14 +438,14 @@ export const chapter10: Chapter = {
             "      ENDIF",
             "   NEXT J",
             "NEXT I",
-            "FOR I ← 1 TO 5",
+            "FOR I ← 1 TO Size",
             "   OUTPUT Values[I]",
             "NEXT I"
           ].join("\n"),
           annotations: [
-            { fromLine: 8, toLine: 8, text: "外层只管数趟数：5 个数走 4 趟。`I` 在循环体里不用来取格子，它只是「第几趟」。" },
-            { fromLine: 9, toLine: 9, text: "内层的终点跟着趟数缩：第 1 趟比到第 4 对，第 4 趟只比第 1 对。" },
-            { fromLine: 10, toLine: 14, text: "和上一节那段一模一样。整个排序的力气全在这五行上。" }
+            { fromLine: 9, toLine: 9, text: "外层只管数趟数：5 个数走 4 趟。`I` 在循环体里不用来取格子，它只是「第几趟」。" },
+            { fromLine: 10, toLine: 10, text: "内层的终点跟着趟数缩：第 1 趟比到第 4 对，第 4 趟只比第 1 对。" },
+            { fromLine: 11, toLine: 15, text: "和上一节那段一模一样。整个排序的力气全在这五行上。" }
           ],
           sampleRun: {
             inputs: [],
@@ -577,7 +581,8 @@ export const chapter10: Chapter = {
           title: "带标志的冒泡排序",
           fileName: "Example_10_5_a.pseudocode",
           code: [
-            "DECLARE Values : ARRAY[1:5] OF INTEGER",
+            "CONSTANT Size = 5",
+            "DECLARE Values : ARRAY[1:Size] OF INTEGER",
             "DECLARE Temp : INTEGER",
             "DECLARE Swapped : BOOLEAN",
             "DECLARE Passes : INTEGER",
@@ -600,15 +605,15 @@ export const chapter10: Chapter = {
             "   NEXT J",
             "UNTIL Swapped = FALSE",
             'OUTPUT "Passes: ", Passes',
-            "FOR I ← 1 TO 5",
+            "FOR I ← 1 TO Size",
             "   OUTPUT Values[I]",
             "NEXT I"
           ].join("\n"),
           annotations: [
-            { fromLine: 12, toLine: 12, text: "清零放在每趟的开头，不能放在 `REPEAT` 之前——那样只有第一趟算数。" },
-            { fromLine: 19, toLine: 19, text: "只要换过一次就立起来。它回答的是「这一趟有没有动过」。" },
-            { fromLine: 22, toLine: 22, text: "一趟都没换，就说明已经排好，循环到此为止。" },
-            { fromLine: 23, toLine: 23, text: "这里把趟数显示出来只是为了看得见；真正在用的程序里不需要这一行。" }
+            { fromLine: 13, toLine: 13, text: "清零放在每趟的开头，不能放在 `REPEAT` 之前——那样只有第一趟算数。" },
+            { fromLine: 20, toLine: 20, text: "只要换过一次就立起来。它回答的是「这一趟有没有动过」。" },
+            { fromLine: 23, toLine: 23, text: "一趟都没换，就说明已经排好，循环到此为止。" },
+            { fromLine: 24, toLine: 24, text: "这里把趟数显示出来只是为了看得见；真正在用的程序里不需要这一行。" }
           ],
           sampleRun: {
             inputs: [],

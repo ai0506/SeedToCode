@@ -123,54 +123,64 @@ Total: 210
   - ✓ 对。上下界两端都算数：2029 减 2020 等于 9，再加一就是 10 个格子，编号从 2020 一直到 2029。
 
 
-### 小节题： 倒着念回去｜`8.2.1`
+### 小节题： 按年份取｜`8.2.1`
 
-写一段伪代码：提示并读入三个整数，把它们存进一个数组，然后倒着显示出来——最后读到的先显示。
+一家店记录 2020、2021、2022 三年的销量。写一段伪代码：提示并读入这三年的销量，存进一个**下界就是 2020 的数组**；然后提示读入一个年份，显示那一年的销量，最后显示三年的总和。
 
-- **输入**：三行，各一个 `INTEGER`。每次读取之前都要显示提示语，一字不差：
-`Enter a number`
-- **输出**：三行，每行一个数，顺序和读进来的相反。
-- **必须用** `decl.array-1d` — 三个数要一起存着待会儿再用，这正是一排格子该干的事。
-- **必须用** `array.index` — 存进去和取出来都要指明是第几个格子。
+- **输入**：四行 `INTEGER`。每次读取之前都要显示提示语，一字不差，依次是：
+`Enter sales for 2020`
+`Enter sales for 2021`
+`Enter sales for 2022`
+`Enter a year`
+最后读入的年份保证是 2020、2021、2022 之一。
+- **输出**：两行：
+`Sales in <年份>: <那一年的销量>`
+`Total: <三年总和>`
+冒号后面都是一个空格。
+- **必须用** `decl.array-1d` — 三年的销量是一排同类型的数据，共用一个名字、靠编号区分。
+- **必须用** `array.index` — 这道题的关键就在下标上：年份本身就是编号，存和取都直接用它。
 
 提示：
-1. 先声明一个装得下三个整数的数组，下界写 1。
-2. 读的时候按 1、2、3 存进去，显示的时候按 3、2、1 取出来。
+1. 声明时把上下界写成真实的年份，不要从 1 开始——`ARRAY[2020:2022]` 是合法的。
+2. 下界写对了，读进来的年份就能直接当下标用，不需要把它换算成「第几个」。
+3. 总和那一行三个格子都要用到，下标直接写年份就行。
 
 题面示例：
 ```
-输入：7 / 8 / 9
+输入：120 / 150 / 90 / 2021
 输出：
-Enter a number
-Enter a number
-Enter a number
-9
-8
-7
+Enter sales for 2020
+Enter sales for 2021
+Enter sales for 2022
+Enter a year
+Sales in 2021: 150
+Total: 360
 ```
 
 <details><summary>参考解（学生看不到）</summary>
 
 ```
-DECLARE Numbers : ARRAY[1:3] OF INTEGER
-OUTPUT "Enter a number"
-INPUT Numbers[1]
-OUTPUT "Enter a number"
-INPUT Numbers[2]
-OUTPUT "Enter a number"
-INPUT Numbers[3]
-OUTPUT Numbers[3]
-OUTPUT Numbers[2]
-OUTPUT Numbers[1]
+DECLARE Sales : ARRAY[2020:2022] OF INTEGER
+DECLARE Year : INTEGER
+OUTPUT "Enter sales for 2020"
+INPUT Sales[2020]
+OUTPUT "Enter sales for 2021"
+INPUT Sales[2021]
+OUTPUT "Enter sales for 2022"
+INPUT Sales[2022]
+OUTPUT "Enter a year"
+INPUT Year
+OUTPUT "Sales in ", Year, ": ", Sales[Year]
+OUTPUT "Total: ", Sales[2020] + Sales[2021] + Sales[2022]
 ```
 
 判题用例（对学生隐藏，失败时只显示 caseHint）：
 
-- `normal` 输入 10 / 20 / 30 — 三个各不相同的数。
-- `normal` 输入 5 / 5 / 9 — 前两个一样大。
-- `boundary` 输入 0 / 0 / 0 — 全是零。
-- `boundary` 输入 -1 / -2 / -3 — 全是负数。
-- `extreme` 输入 999999 / 1 / 888888 — 掺着很大和很小的数。
+- `normal` 输入 10 / 20 / 30 / 2021 — 查询中间那一年。
+- `boundary` 输入 7 / 8 / 9 / 2020 — 查询的正是下界那一年。
+- `boundary` 输入 4 / 5 / 6 / 2022 — 查询的正是上界那一年。
+- `normal` 输入 0 / 0 / 0 / 2020 — 三年都没有卖出东西。
+- `extreme` 输入 999999 / 1 / 888888 / 2022 — 掺着很大和很小的销量。
 
 </details>
 
@@ -202,14 +212,13 @@ Marks[4] ← 90
 *下标是变量，跑到那一遍才炸*
 ```
 DECLARE Marks : ARRAY[1:3] OF INTEGER
-DECLARE I : INTEGER
 FOR I ← 1 TO 4
    Marks[I] ← I
 NEXT I
 ```
 循环多跑了一遍。前三遍都对，第四遍才越界——编辑器一条提示都没有，因为 `I` 是多少要跑起来才知道。
 
-- 运行时（第 4 行，RT1603）：循环跑到第 4 遍，可数组只到第 3 格。检查一下循环的终点。
+- 运行时（第 3 行，RT1603）：循环跑到第 4 遍，可数组只到第 3 格。检查一下循环的终点。
 
 *格子在，但还是空的*
 ```
@@ -248,7 +257,6 @@ OUTPUT Marks[2]
 
 ```
 DECLARE Numbers : ARRAY[1:5] OF INTEGER
-DECLARE I : INTEGER
 FOR I ← 1 TO 5
    OUTPUT "Enter a number"
    INPUT Numbers[I]
@@ -257,9 +265,9 @@ FOR I ← 5 TO 1 STEP -1
    OUTPUT Numbers[I]
 NEXT I
 ```
-- 3–6 行：第一遍遍历：从下界数到上界，每遍读一个数放进第 `I` 格。
-- 第 7 行：第二遍遍历倒着走——起点是上界，终点是下界，配 `STEP -1`（5.2）。
-- 第 5 行：`INPUT` 的目标可以直接是数组的某一格，不用先读进一个临时变量再搬过去。
+- 2–5 行：第一遍遍历：从下界数到上界，每遍读一个数放进第 `I` 格。
+- 第 6 行：第二遍遍历倒着走——起点是上界，终点是下界，配 `STEP -1`（5.2）。
+- 第 4 行：`INPUT` 的目标可以直接是数组的某一格，不用先读进一个临时变量再搬过去。
 
 示例运行（`>` 开头的那行是输入）：
 
@@ -325,7 +333,6 @@ Passed: 3
 
 ```
 DECLARE Marks : ARRAY[1:5] OF INTEGER
-DECLARE I : INTEGER
 DECLARE Passed : INTEGER
 Passed ← 0
 FOR I ← 1 TO 5
@@ -368,7 +375,6 @@ OUTPUT "Passed: ", Passed
 
 ```
 DECLARE Temps : ARRAY[1:4] OF INTEGER
-DECLARE I : INTEGER
 DECLARE Total : INTEGER
 DECLARE Average : INTEGER
 DECLARE Above : INTEGER
@@ -390,9 +396,9 @@ NEXT I
 OUTPUT "Average: ", Average
 OUTPUT "Above: ", Above
 ```
-- 12–14 行：第一遍：只管加总。到这里还不知道平均值是多少。
-- 第 15 行：全部加完才算得出平均值——这就是为什么非要分两遍。
-- 16–20 行：第二遍：拿着平均值回头再看每一格。数据还在数组里，所以回得去。
+- 11–13 行：第一遍：只管加总。到这里还不知道平均值是多少。
+- 第 14 行：全部加完才算得出平均值——这就是为什么非要分两遍。
+- 15–19 行：第二遍：拿着平均值回头再看每一格。数据还在数组里，所以回得去。
 
 示例运行：
 
@@ -456,7 +462,6 @@ Above average: 3
 
 ```
 DECLARE Temps : ARRAY[1:7] OF INTEGER
-DECLARE I : INTEGER
 DECLARE Total : INTEGER
 DECLARE Highest : INTEGER
 DECLARE Average : INTEGER

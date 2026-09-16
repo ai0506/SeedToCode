@@ -509,57 +509,51 @@ export const chapter04: Chapter = {
         {
           kind: "task",
           id: "4.5.1",
-          title: "星期几",
-          statement: "写一段伪代码：提示并读入一个整数，1 到 7 分别显示 `Monday` 到 `Sunday`，其它任何值显示 `Unknown`。",
+          title: "温度分档",
+          statement: "写一段伪代码：提示并读入一个整数温度，按下面的规则显示一个词——`-999` 显示 `Sensor error`；`-50` 到 `0` 显示 `Freezing`；`1` 到 `25` 显示 `Mild`；`26` 到 `50` 显示 `Hot`；其它任何值显示 `Out of range`。",
           ioSpec: {
-            input: ["一行，一个 `INTEGER`。提示语排在读取之前，一字不差：", "`Enter the day number`"].join("\n"),
-            output: "一行，星期名或者 `Unknown`。"
+            input: ["一行，一个 `INTEGER`。读取之前要显示提示语，一字不差：", "`Enter the temperature`"].join("\n"),
+            output: "一行，就是那个词本身。"
           },
           constraints: {
             require: [
               {
-                feature: "select.case",
-                reason: "七种可能都是拿同一个变量比不同的值，这正是 `CASE` 摆一张表的场合。"
+                feature: "select.case-range",
+                reason: "三档温度各是一整段区间，用区间标签写出来比一个值一个值列短得多。"
               },
               {
                 feature: "select.case-otherwise",
-                reason: "「其它任何值」不可能一个个列出来，要交给兜底的那一条。"
-              }
-            ],
-            forbid: [
-              {
-                feature: "select.if",
-                reason: "用串接 `IF` 也能做对，但这一题就是要练 `CASE`——七种可能用 `IF` 会写成七层。"
+                reason: "列出来的区间没盖住全部整数，兜不住的那些要有个去处。"
               }
             ]
           },
           hints: [
-            "七个分支加一条兜底，一共八行。",
-            "「其它任何值」包括 0、8、-3 这些，不用一个个列。"
+            "`-999` 是一个单独的值，不是区间，它自己写一条标签就行。",
+            "区间标签写成 `<下限> TO <上限>`，下限可以是负数。",
+            "兜底那一条只能放在最后。"
           ],
-          examples: [{ inputs: ["5"], outputs: ["Enter the day number", "Friday"] }],
+          examples: [
+            { inputs: ["18"], outputs: ["Enter the temperature", "Mild"] }
+          ],
           referenceSolution: [
-            "DECLARE Day : INTEGER",
-            'OUTPUT "Enter the day number"',
-            "INPUT Day",
-            "CASE OF Day",
-            '   1 : OUTPUT "Monday"',
-            '   2 : OUTPUT "Tuesday"',
-            '   3 : OUTPUT "Wednesday"',
-            '   4 : OUTPUT "Thursday"',
-            '   5 : OUTPUT "Friday"',
-            '   6 : OUTPUT "Saturday"',
-            '   7 : OUTPUT "Sunday"',
-            '   OTHERWISE : OUTPUT "Unknown"',
+            "DECLARE Temperature : INTEGER",
+            'OUTPUT "Enter the temperature"',
+            "INPUT Temperature",
+            "CASE OF Temperature",
+            '   -999 : OUTPUT "Sensor error"',
+            '   -50 TO 0 : OUTPUT "Freezing"',
+            '   1 TO 25 : OUTPUT "Mild"',
+            '   26 TO 50 : OUTPUT "Hot"',
+            '   OTHERWISE : OUTPUT "Out of range"',
             "ENDCASE"
           ].join("\n"),
           tests: [
-            { id: "t1", kind: "normal", inputs: ["3"], caseHint: "一个落在周中的日子。" },
-            { id: "t2", kind: "normal", inputs: ["6"], caseHint: "一个落在周末的日子。" },
-            { id: "t3", kind: "boundary", inputs: ["1"], caseHint: "编号里最小的那一个。" },
-            { id: "t4", kind: "boundary", inputs: ["7"], caseHint: "编号里最大的那一个。" },
-            { id: "t5", kind: "abnormal", inputs: ["0"], caseHint: "刚好比最小的还小一点，属于没有定义的编号。" },
-            { id: "t6", kind: "extreme", inputs: ["999"], caseHint: "一个远远超出范围的编号。" }
+            { id: "t1", kind: "normal", inputs: ["30"], caseHint: "落在最高那一档里。" },
+            { id: "t2", kind: "boundary", inputs: ["0"], caseHint: "正好踩在两档的交界上。" },
+            { id: "t3", kind: "boundary", inputs: ["-50"], caseHint: "正好踩在最低一档的下限。" },
+            { id: "t4", kind: "normal", inputs: ["-999"], caseHint: "那个表示故障的特殊值。" },
+            { id: "t5", kind: "abnormal", inputs: ["80"], caseHint: "超出所有区间，只能兜底。" },
+            { id: "t6", kind: "extreme", inputs: ["-100000"], caseHint: "远远低于任何一档。" }
           ]
         }
       ]

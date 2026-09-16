@@ -130,11 +130,6 @@ export const chapter03: Chapter = {
             {
               source: "CAIE",
               text: "`DIV` 取整数商，`MOD` 取余数（Pseudocode Guide §5.2）。"
-            },
-            {
-              source: "editor",
-              text:
-                "负数怎么算，Pseudocode Guide 没有规定。本编辑器的做法是：`DIV` 的商向 0 截断，`MOD` 的符号跟被除数一致——`-7 DIV 2` 得到 -3，`-7 MOD 2` 得到 -1。"
             }
           ]
         },

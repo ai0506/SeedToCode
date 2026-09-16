@@ -65,14 +65,18 @@ describe("Chapter 9 — 讲的规则和引擎的行为一致", () => {
     expect((await runWithInputs(build(false), [])).outputs).toEqual(["3", "10"]);
   });
 
-  it("9.T1 的参考解按行算总分、按列算平均", async () => {
-    const result = await runWithInputs(chapter09.chapterTasks[0].referenceSolution, ["10", "20", "30", "40", "50", "60"]);
-    expect(result.outputs.slice(-5)).toEqual([
-      "Student 1 total: 30",
-      "Student 2 total: 70",
-      "Student 3 total: 110",
-      "Subject 1 average: 30",
-      "Subject 2 average: 40"
+  it("9.T1 的参考解把两个计数器各自清在正确的一层", async () => {
+    // 这道题真正要考的是「两个计数器清零位置不同」：
+    // 学生计数器每换一个学生要归零，全班计数器整段只归零一次。
+    // 这组输入专门挑成「第一个学生全及格、第二个学生全不及格」——
+    // 学生计数器要是没归零，Student 2 会把前一个学生的 4 继承下来。
+    const inputs = ["60", "60", "60", "60", "10", "10", "10", "10", "60", "10", "60", "10"];
+    const result = await runWithInputs(chapter09.chapterTasks[0].referenceSolution, inputs);
+    expect(result.outputs.slice(-4)).toEqual([
+      "Student 1: 4",
+      "Student 2: 0",
+      "Student 3: 2",
+      "Class total: 6"
     ]);
   });
 });

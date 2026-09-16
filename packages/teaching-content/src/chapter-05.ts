@@ -165,7 +165,7 @@ export const chapter05: Chapter = {
           paragraphs: [
             "`FOR` 默认每跑完一遍把控制变量加 1。想换个增量，在后面加 `STEP`：`FOR I ← 0 TO 100 STEP 10` 让 `I` 取 0、10、20……100，一共十一遍。",
             "`STEP` 也可以是负数，这时就是倒着数：`FOR I ← 5 TO 1 STEP -1` 取 5、4、3、2、1。倒着数时起点必须比终点大，而且 `STEP` 必须是负的，两者要配套。",
-            "如果写成 `FOR I ← 10 TO 1` 而忘了 `STEP -1`，程序不会报错，但循环体**一遍都不会执行**——`I` 一开始就是 10，已经超过终点 1 了。这种循环的特点是安静地什么都没做。`STEP 0` 则会被编辑器直接拦下来：增量是 0 意味着控制变量永远不变。",
+            "如果写成 `FOR I ← 10 TO 1` 而忘了 `STEP -1`，程序不会报错，但循环体**一遍都不会执行**——`I` 一开始就是 10，已经超过终点 1 了。这种循环的特点是安静地什么都没做。",
             "还有一条：**循环体里不要去改控制变量**。`I` 归 `FOR` 管，它每一遍加多少、什么时候停，都由第一行那三个数决定。想跳着走就用 `STEP`，别自己加。"
           ],
           callouts: [
@@ -175,7 +175,7 @@ export const chapter05: Chapter = {
             },
             {
               source: "editor",
-              text: "`STEP 0` 在运行前就会被拦下；在循环体内修改控制变量的程序能通过检查，但会在那一行停止。"
+              text: "在循环体内修改控制变量的程序能通过检查，但会在那一行停止。"
             }
           ]
         },
@@ -236,7 +236,7 @@ export const chapter05: Chapter = {
               key: "C",
               label: "编辑器会拦下来",
               correct: false,
-              explanation: "这段代码合法，只是什么也没做。被拦的是 `STEP 0`，不是方向写反。"
+              explanation: "这段代码完全合法，编辑器没有任何理由拦它——它只是什么也没做。"
             },
             {
               key: "D",
@@ -413,55 +413,66 @@ export const chapter05: Chapter = {
         {
           kind: "task",
           id: "5.4.1",
-          title: "合法才收",
-          statement: "写一段伪代码：反复提示并读入一个整数，直到读到的数落在 0 到 100 之间为止，然后显示它。",
+          title: "攒够为止",
+          statement: "写一段伪代码：反复提示并读入一个正整数，把它加到总额上，直到总额达到或超过 100 为止；然后显示最后的总额，以及一共读了几个数。",
           ioSpec: {
             input: [
               "若干行，每行一个 `INTEGER`。每读一次之前都要显示一遍提示语，一字不差：",
-              "`Enter a mark`"
+              "`Enter an amount`"
             ].join("\n"),
-            output: "最后一行写成 `Accepted: <值>`。冒号后面是一个空格。"
+            output: [
+              "读完之后显示两行：",
+              "`Total: <最后的总额>`",
+              "`Count: <一共读了几个数>`",
+              "冒号后面都是一个空格。"
+            ].join("\n")
           },
           constraints: {
             require: [
               {
                 feature: "loop.repeat",
-                reason: "不问一次就没有值可以判断，这正是「至少做一次」的场合。"
+                reason: "总额一开始是 0，不先读一个数进来就无从判断够没够。"
               }
             ],
             forbid: [
               {
                 feature: "loop.while",
-                reason: "用它得在循环前先问一次，提示和读取那两行就要写两遍。"
+                reason: "用它得在循环前先读一次，提示和读取那两行就要写两遍。"
               }
             ]
           },
           hints: [
-            "提示语和读取都在循环体里，所以不合格时会自然地再问一遍。",
-            "「落在 0 到 100 之间」是两个条件，用 `AND` 拼起来。",
+            "总额和个数都要在循环开始之前清零。",
+            "循环体里做三件事：提示、读一个数、把它加上去——个数也在这里加一。",
             "结束条件写的是什么时候停，不是什么时候继续。"
           ],
           examples: [
             {
-              inputs: ["42"],
-              outputs: ["Enter a mark", "Accepted: 42"]
+              inputs: ["60", "70"],
+              outputs: ["Enter an amount", "Enter an amount", "Total: 130", "Count: 2"]
             }
           ],
           referenceSolution: [
-            "DECLARE Mark : INTEGER",
+            "DECLARE Amount : INTEGER",
+            "DECLARE Total : INTEGER",
+            "DECLARE Count : INTEGER",
+            "Total ← 0",
+            "Count ← 0",
             "REPEAT",
-            '   OUTPUT "Enter a mark"',
-            "   INPUT Mark",
-            "UNTIL Mark >= 0 AND Mark <= 100",
-            'OUTPUT "Accepted: ", Mark'
+            '   OUTPUT "Enter an amount"',
+            "   INPUT Amount",
+            "   Total ← Total + Amount",
+            "   Count ← Count + 1",
+            "UNTIL Total >= 100",
+            'OUTPUT "Total: ", Total',
+            'OUTPUT "Count: ", Count'
           ].join("\n"),
           tests: [
-            { id: "t1", kind: "normal", inputs: ["58"], caseHint: "第一次就输入了一个合格的数。" },
-            { id: "t2", kind: "normal", inputs: ["120", "-4", "58"], caseHint: "连着输错两次之后才对。" },
-            { id: "t3", kind: "boundary", inputs: ["0"], caseHint: "正好踩在下界上。" },
-            { id: "t4", kind: "boundary", inputs: ["100"], caseHint: "正好踩在上界上。" },
-            { id: "t5", kind: "abnormal", inputs: ["101", "50"], caseHint: "刚好超出上界一点点，然后才给一个合格的。" },
-            { id: "t6", kind: "extreme", inputs: ["999999", "7"], caseHint: "先来一个远远超出范围的数。" }
+            { id: "t1", kind: "normal", inputs: ["30", "40", "50"], caseHint: "读了几个之后才攒够。" },
+            { id: "t2", kind: "boundary", inputs: ["100"], caseHint: "第一个数就正好攒够。" },
+            { id: "t3", kind: "boundary", inputs: ["99", "1"], caseHint: "差一点，再来一个正好到。" },
+            { id: "t4", kind: "normal", inputs: ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "90"], caseHint: "一路都是很小的数，最后一个才拉满。" },
+            { id: "t5", kind: "extreme", inputs: ["999999"], caseHint: "第一个数就远远超过要求。" }
           ]
         }
       ]

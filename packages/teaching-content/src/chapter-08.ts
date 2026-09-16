@@ -202,49 +202,74 @@ export const chapter08: Chapter = {
         {
           kind: "task",
           id: "8.2.1",
-          title: "倒着念回去",
-          statement: "写一段伪代码：提示并读入三个整数，把它们存进一个数组，然后倒着显示出来——最后读到的先显示。",
+          title: "按年份取",
+          statement: "一家店记录 2020、2021、2022 三年的销量。写一段伪代码：提示并读入这三年的销量，存进一个**下界就是 2020 的数组**；然后提示读入一个年份，显示那一年的销量，最后显示三年的总和。",
           ioSpec: {
-            input: ["三行，各一个 `INTEGER`。每次读取之前都要显示提示语，一字不差：", "`Enter a number`"].join("\n"),
-            output: "三行，每行一个数，顺序和读进来的相反。"
+            input: [
+              "四行 `INTEGER`。每次读取之前都要显示提示语，一字不差，依次是：",
+              "`Enter sales for 2020`",
+              "`Enter sales for 2021`",
+              "`Enter sales for 2022`",
+              "`Enter a year`",
+              "最后读入的年份保证是 2020、2021、2022 之一。"
+            ].join("\n"),
+            output: [
+              "两行：",
+              "`Sales in <年份>: <那一年的销量>`",
+              "`Total: <三年总和>`",
+              "冒号后面都是一个空格。"
+            ].join("\n")
           },
           constraints: {
             require: [
               {
                 feature: "decl.array-1d",
-                reason: "三个数要一起存着待会儿再用，这正是一排格子该干的事。"
+                reason: "三年的销量是一排同类型的数据，共用一个名字、靠编号区分。"
               },
               {
                 feature: "array.index",
-                reason: "存进去和取出来都要指明是第几个格子。"
+                reason: "这道题的关键就在下标上：年份本身就是编号，存和取都直接用它。"
               }
             ]
           },
           hints: [
-            "先声明一个装得下三个整数的数组，下界写 1。",
-            "读的时候按 1、2、3 存进去，显示的时候按 3、2、1 取出来。"
+            "声明时把上下界写成真实的年份，不要从 1 开始——`ARRAY[2020:2022]` 是合法的。",
+            "下界写对了，读进来的年份就能直接当下标用，不需要把它换算成「第几个」。",
+            "总和那一行三个格子都要用到，下标直接写年份就行。"
           ],
           examples: [
-            { inputs: ["7", "8", "9"], outputs: ["Enter a number", "Enter a number", "Enter a number", "9", "8", "7"] }
+            {
+              inputs: ["120", "150", "90", "2021"],
+              outputs: [
+                "Enter sales for 2020",
+                "Enter sales for 2021",
+                "Enter sales for 2022",
+                "Enter a year",
+                "Sales in 2021: 150",
+                "Total: 360"
+              ]
+            }
           ],
           referenceSolution: [
-            "DECLARE Numbers : ARRAY[1:3] OF INTEGER",
-            'OUTPUT "Enter a number"',
-            "INPUT Numbers[1]",
-            'OUTPUT "Enter a number"',
-            "INPUT Numbers[2]",
-            'OUTPUT "Enter a number"',
-            "INPUT Numbers[3]",
-            "OUTPUT Numbers[3]",
-            "OUTPUT Numbers[2]",
-            "OUTPUT Numbers[1]"
+            "DECLARE Sales : ARRAY[2020:2022] OF INTEGER",
+            "DECLARE Year : INTEGER",
+            'OUTPUT "Enter sales for 2020"',
+            "INPUT Sales[2020]",
+            'OUTPUT "Enter sales for 2021"',
+            "INPUT Sales[2021]",
+            'OUTPUT "Enter sales for 2022"',
+            "INPUT Sales[2022]",
+            'OUTPUT "Enter a year"',
+            "INPUT Year",
+            'OUTPUT "Sales in ", Year, ": ", Sales[Year]',
+            'OUTPUT "Total: ", Sales[2020] + Sales[2021] + Sales[2022]'
           ].join("\n"),
           tests: [
-            { id: "t1", kind: "normal", inputs: ["10", "20", "30"], caseHint: "三个各不相同的数。" },
-            { id: "t2", kind: "normal", inputs: ["5", "5", "9"], caseHint: "前两个一样大。" },
-            { id: "t3", kind: "boundary", inputs: ["0", "0", "0"], caseHint: "全是零。" },
-            { id: "t4", kind: "boundary", inputs: ["-1", "-2", "-3"], caseHint: "全是负数。" },
-            { id: "t5", kind: "extreme", inputs: ["999999", "1", "888888"], caseHint: "掺着很大和很小的数。" }
+            { id: "t1", kind: "normal", inputs: ["10", "20", "30", "2021"], caseHint: "查询中间那一年。" },
+            { id: "t2", kind: "boundary", inputs: ["7", "8", "9", "2020"], caseHint: "查询的正是下界那一年。" },
+            { id: "t3", kind: "boundary", inputs: ["4", "5", "6", "2022"], caseHint: "查询的正是上界那一年。" },
+            { id: "t4", kind: "normal", inputs: ["0", "0", "0", "2020"], caseHint: "三年都没有卖出东西。" },
+            { id: "t5", kind: "extreme", inputs: ["999999", "1", "888888", "2022"], caseHint: "掺着很大和很小的销量。" }
           ]
         }
       ]

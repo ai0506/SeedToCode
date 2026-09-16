@@ -138,28 +138,28 @@ export const expectedOutputs: ExpectedOutputs = {
     "Odd"
   ],
   "4.5.1/t1": [
-    "Enter the day number",
-    "Wednesday"
+    "Enter the temperature",
+    "Hot"
   ],
   "4.5.1/t2": [
-    "Enter the day number",
-    "Saturday"
+    "Enter the temperature",
+    "Freezing"
   ],
   "4.5.1/t3": [
-    "Enter the day number",
-    "Monday"
+    "Enter the temperature",
+    "Freezing"
   ],
   "4.5.1/t4": [
-    "Enter the day number",
-    "Sunday"
+    "Enter the temperature",
+    "Sensor error"
   ],
   "4.5.1/t5": [
-    "Enter the day number",
-    "Unknown"
+    "Enter the temperature",
+    "Out of range"
   ],
   "4.5.1/t6": [
-    "Enter the day number",
-    "Unknown"
+    "Enter the temperature",
+    "Out of range"
   ],
   "4.T1/t1": [
     "Enter the age",
@@ -231,32 +231,42 @@ export const expectedOutputs: ExpectedOutputs = {
     "Sum: 500500"
   ],
   "5.4.1/t1": [
-    "Enter a mark",
-    "Accepted: 58"
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Total: 120",
+    "Count: 3"
   ],
   "5.4.1/t2": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Accepted: 58"
+    "Enter an amount",
+    "Total: 100",
+    "Count: 1"
   ],
   "5.4.1/t3": [
-    "Enter a mark",
-    "Accepted: 0"
+    "Enter an amount",
+    "Enter an amount",
+    "Total: 100",
+    "Count: 2"
   ],
   "5.4.1/t4": [
-    "Enter a mark",
-    "Accepted: 100"
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Enter an amount",
+    "Total: 100",
+    "Count: 11"
   ],
   "5.4.1/t5": [
-    "Enter a mark",
-    "Enter a mark",
-    "Accepted: 50"
-  ],
-  "5.4.1/t6": [
-    "Enter a mark",
-    "Enter a mark",
-    "Accepted: 7"
+    "Enter an amount",
+    "Total: 999999",
+    "Count: 1"
   ],
   "5.T1/t1": [
     "Enter a score",
@@ -511,44 +521,44 @@ export const expectedOutputs: ExpectedOutputs = {
     "Grade: Q"
   ],
   "8.2.1/t1": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "30",
-    "20",
-    "10"
+    "Enter sales for 2020",
+    "Enter sales for 2021",
+    "Enter sales for 2022",
+    "Enter a year",
+    "Sales in 2021: 20",
+    "Total: 60"
   ],
   "8.2.1/t2": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "9",
-    "5",
-    "5"
+    "Enter sales for 2020",
+    "Enter sales for 2021",
+    "Enter sales for 2022",
+    "Enter a year",
+    "Sales in 2020: 7",
+    "Total: 24"
   ],
   "8.2.1/t3": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "0",
-    "0",
-    "0"
+    "Enter sales for 2020",
+    "Enter sales for 2021",
+    "Enter sales for 2022",
+    "Enter a year",
+    "Sales in 2022: 6",
+    "Total: 15"
   ],
   "8.2.1/t4": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "-3",
-    "-2",
-    "-1"
+    "Enter sales for 2020",
+    "Enter sales for 2021",
+    "Enter sales for 2022",
+    "Enter a year",
+    "Sales in 2020: 0",
+    "Total: 0"
   ],
   "8.2.1/t5": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "888888",
-    "1",
-    "999999"
+    "Enter sales for 2020",
+    "Enter sales for 2021",
+    "Enter sales for 2022",
+    "Enter a year",
+    "Sales in 2022: 888888",
+    "Total: 1888888"
   ],
   "8.4.1/t1": [
     "Enter a mark",
@@ -662,8 +672,8 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a number",
     "Enter a number",
     "Enter a number",
-    "Row 1: 15",
-    "Row 2: 24"
+    "Col 1: 5",
+    "Col 2: 9"
   ],
   "9.3.1/t2": [
     "Enter a number",
@@ -672,8 +682,8 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a number",
     "Enter a number",
     "Enter a number",
-    "Row 1: 3",
-    "Row 2: 6"
+    "Col 1: 6",
+    "Col 2: 6"
   ],
   "9.3.1/t3": [
     "Enter a number",
@@ -682,8 +692,8 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a number",
     "Enter a number",
     "Enter a number",
-    "Row 1: 0",
-    "Row 2: 0"
+    "Col 1: 9",
+    "Col 2: 4"
   ],
   "9.3.1/t4": [
     "Enter a number",
@@ -692,8 +702,8 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a number",
     "Enter a number",
     "Enter a number",
-    "Row 1: -6",
-    "Row 2: 6"
+    "Col 1: -3",
+    "Col 2: -2"
   ],
   "9.3.1/t5": [
     "Enter a number",
@@ -702,8 +712,8 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a number",
     "Enter a number",
     "Enter a number",
-    "Row 1: 100001",
-    "Row 2: 100001"
+    "Col 1: 888888",
+    "Col 2: 999999"
   ],
   "9.T1/t1": [
     "Enter a mark",
@@ -712,11 +722,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a mark",
     "Enter a mark",
     "Enter a mark",
-    "Student 1 total: 150",
-    "Student 2 total: 150",
-    "Student 3 total: 150",
-    "Subject 1 average: 70",
-    "Subject 2 average: 80"
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1: 2",
+    "Student 2: 2",
+    "Student 3: 4",
+    "Class total: 8"
   ],
   "9.T1/t2": [
     "Enter a mark",
@@ -725,11 +740,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a mark",
     "Enter a mark",
     "Enter a mark",
-    "Student 1 total: 100",
-    "Student 2 total: 100",
-    "Student 3 total: 100",
-    "Subject 1 average: 50",
-    "Subject 2 average: 50"
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1: 0",
+    "Student 2: 0",
+    "Student 3: 0",
+    "Class total: 0"
   ],
   "9.T1/t3": [
     "Enter a mark",
@@ -738,11 +758,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a mark",
     "Enter a mark",
     "Enter a mark",
-    "Student 1 total: 0",
-    "Student 2 total: 0",
-    "Student 3 total: 1",
-    "Subject 1 average: 0",
-    "Subject 2 average: 0"
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1: 4",
+    "Student 2: 4",
+    "Student 3: 4",
+    "Class total: 12"
   ],
   "9.T1/t4": [
     "Enter a mark",
@@ -751,11 +776,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a mark",
     "Enter a mark",
     "Enter a mark",
-    "Student 1 total: 100",
-    "Student 2 total: 100",
-    "Student 3 total: 100",
-    "Subject 1 average: 66",
-    "Subject 2 average: 33"
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1: 0",
+    "Student 2: 4",
+    "Student 3: 2",
+    "Class total: 6"
   ],
   "9.T1/t5": [
     "Enter a mark",
@@ -764,11 +794,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Enter a mark",
     "Enter a mark",
     "Enter a mark",
-    "Student 1 total: 100000",
-    "Student 2 total: 2",
-    "Student 3 total: 100000",
-    "Subject 1 average: 33333",
-    "Subject 2 average: 33333"
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Enter a mark",
+    "Student 1: 2",
+    "Student 2: 2",
+    "Student 3: 2",
+    "Class total: 6"
   ],
   "10.2.1/t1": [
     "Enter a number",
@@ -1537,34 +1572,39 @@ export const expectedOutputs: ExpectedOutputs = {
     "Count: 1"
   ],
   "16.2.1/t1": [
-    "Enter the length",
-    "Enter the width",
-    "Area: 15",
-    "Perimeter: 16"
+    "Enter the price",
+    "Enter the quantity",
+    "Enter the payment",
+    "Total: 32",
+    "Change: 8"
   ],
   "16.2.1/t2": [
-    "Enter the length",
-    "Enter the width",
-    "Area: 36",
-    "Perimeter: 24"
+    "Enter the price",
+    "Enter the quantity",
+    "Enter the payment",
+    "Total: 21",
+    "Change: 0"
   ],
   "16.2.1/t3": [
-    "Enter the length",
-    "Enter the width",
-    "Area: 1",
-    "Perimeter: 4"
+    "Enter the price",
+    "Enter the quantity",
+    "Enter the payment",
+    "Total: 5",
+    "Change: 0"
   ],
   "16.2.1/t4": [
-    "Enter the length",
-    "Enter the width",
-    "Area: 0",
-    "Perimeter: 18"
+    "Enter the price",
+    "Enter the quantity",
+    "Enter the payment",
+    "Total: 0",
+    "Change: 10"
   ],
   "16.2.1/t5": [
-    "Enter the length",
-    "Enter the width",
-    "Area: 99980001",
-    "Perimeter: 39996"
+    "Enter the price",
+    "Enter the quantity",
+    "Enter the payment",
+    "Total: 998001",
+    "Change: 1998"
   ],
   "16.5.1/t1": [
     "Enter a temperature",

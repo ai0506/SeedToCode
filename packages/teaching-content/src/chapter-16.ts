@@ -210,54 +210,54 @@ export const chapter16: Chapter = {
         {
           kind: "task",
           id: "16.2.1",
-          title: "房间的面积和周长",
-          statement: "按 IPO 三段写一段伪代码：读入一个房间的长和宽（都是整数），显示它的面积和周长。先想清楚要几个变量、各叫什么，再动手。",
+          title: "买票找零",
+          statement: "按 IPO 三段写一段伪代码：读入一张票的价格、买了几张、以及付了多少钱（都是整数），显示这次一共多少钱，以及应该找回多少。先想清楚要几个变量、各叫什么——**中间算出来的那个量也要有名字**。",
           ioSpec: {
             input: [
-              "两行，各一个 `INTEGER`：先长后宽。每次读取之前都要显示提示语，一字不差：",
-              "长之前是 `Enter the length`，宽之前是 `Enter the width`"
+              "三行，各一个 `INTEGER`。每次读取之前都要显示提示语，一字不差，依次是：",
+              "`Enter the price`",
+              "`Enter the quantity`",
+              "`Enter the payment`",
+              "保证付的钱不少于总价。"
             ].join("\n"),
-            output: ["两行，写成：", "`Area: <面积>`", "`Perimeter: <周长>`", "周长是「长加宽再乘二」。每个冒号后面一个空格。"].join("\n")
-          },
-          constraints: {
-            require: [
-              {
-                feature: "io.input",
-                reason: "长和宽都要从键盘读进来，不能写死在代码里。"
-              },
-              {
-                feature: "op.arithmetic",
-                reason: "面积和周长都得算出来。"
-              }
-            ]
+            output: [
+              "两行：",
+              "`Total: <总价>`",
+              "`Change: <找零>`",
+              "冒号后面都是一个空格。"
+            ].join("\n")
           },
           hints: [
-            "两样输入就是两个变量。名字别用 `Length`——那是内置函数的名字，占了。",
-            "周长是「(长 + 宽) × 2」，括号别漏，乘法比加法先算。",
-            "两句 `OUTPUT` 的次序照题目写的来：先面积后周长。"
+            "三样输入各要一个名字，总价也要一个——它是算出来的，但后面两行都用得上。",
+            "找零是付的钱减去总价，所以总价要先算出来。"
           ],
           examples: [
             {
-              inputs: ["7", "4"],
-              outputs: ["Enter the length", "Enter the width", "Area: 28", "Perimeter: 22"]
+              inputs: ["12", "3", "50"],
+              outputs: ["Enter the price", "Enter the quantity", "Enter the payment", "Total: 36", "Change: 14"]
             }
           ],
           referenceSolution: [
-            "DECLARE RoomLength : INTEGER",
-            "DECLARE RoomWidth : INTEGER",
-            'OUTPUT "Enter the length"',
-            "INPUT RoomLength",
-            'OUTPUT "Enter the width"',
-            "INPUT RoomWidth",
-            'OUTPUT "Area: ", RoomLength * RoomWidth',
-            'OUTPUT "Perimeter: ", 2 * (RoomLength + RoomWidth)'
+            "DECLARE Price : INTEGER",
+            "DECLARE Quantity : INTEGER",
+            "DECLARE Payment : INTEGER",
+            "DECLARE Total : INTEGER",
+            'OUTPUT "Enter the price"',
+            "INPUT Price",
+            'OUTPUT "Enter the quantity"',
+            "INPUT Quantity",
+            'OUTPUT "Enter the payment"',
+            "INPUT Payment",
+            "Total ← Price * Quantity",
+            'OUTPUT "Total: ", Total',
+            'OUTPUT "Change: ", Payment - Total'
           ].join("\n"),
           tests: [
-            { id: "t1", kind: "normal", inputs: ["5", "3"], caseHint: "一个普通的长方形。" },
-            { id: "t2", kind: "boundary", inputs: ["6", "6"], caseHint: "长和宽一样大。" },
-            { id: "t3", kind: "boundary", inputs: ["1", "1"], caseHint: "最小的那种，面积和周长差得很远。" },
-            { id: "t4", kind: "boundary", inputs: ["9", "0"], caseHint: "有一边是零，面积也就没了，周长还在。" },
-            { id: "t5", kind: "extreme", inputs: ["9999", "9999"], caseHint: "两边都很大。" }
+            { id: "t1", kind: "normal", inputs: ["8", "4", "40"], caseHint: "买几张，还有找零。" },
+            { id: "t2", kind: "boundary", inputs: ["7", "3", "21"], caseHint: "付的钱和总价正好相等。" },
+            { id: "t3", kind: "boundary", inputs: ["5", "1", "5"], caseHint: "只买一张，而且不用找零。" },
+            { id: "t4", kind: "normal", inputs: ["0", "6", "10"], caseHint: "票价是零。" },
+            { id: "t5", kind: "extreme", inputs: ["999", "999", "999999"], caseHint: "价格和数量都很大。" }
           ]
         }
       ]

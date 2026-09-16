@@ -418,7 +418,6 @@ export class Interpreter {
         this.attachTraceId(cell);
         this.currentFrame().cells.set(cell.normalizedName, cell);
         this.emitVariable("variable-declared", statement.range, cell);
-        this.traceDeclaration(statement.range, cell);
         return;
       }
       case "ConstantStatement": {
@@ -434,7 +433,7 @@ export class Interpreter {
         this.attachTraceId(cell);
         this.currentFrame().cells.set(cell.normalizedName, cell);
         this.emitVariable("variable-declared", statement.range, cell);
-        this.traceDeclaration(statement.range, cell);
+        this.traceConstant(statement.range, cell);
         return;
       }
       case "DefineSetStatement": {
@@ -1370,35 +1369,12 @@ export class Interpreter {
     return storage.traceId ? traceValueOf(storage) : undefined;
   }
 
-  private traceDeclaration(range: SourceRange, cell: Cell): void {
+  /** 常量没有后续写入，其声明是唯一值得在表中呈现的值。 */
+  private traceConstant(range: SourceRange, cell: Cell): void {
     const storage = storageCell(cell);
-    if (!this.trace) return;
-    // 数组自己没有列，列在元素上。但 `DECLARE Numbers : ARRAY[1:6]` 确实把六个格子都声明了，
-    // 所以要替它们各记一条「未赋值」——否则首次写入之前那几行是空白，
-    // 而空白按 §3 的契约是「尚未声明」，那是假话。
-    if (!storage.traceId && storage.value !== undefined && isComposite(storage.value) && storage.value.kind === "array") {
-      const declarations = this.arrayElementDeclarations(cell, storage.value);
-      if (declarations.length === 0) return;
-      this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations });
-      return;
-    }
-    if (!storage.traceId) return;
+    if (!this.trace || !storage.traceId) return;
     const declaration: TraceDeclaration = { variableId: storage.traceId, name: cell.name, value: traceValueOf(storage) };
-    this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations: [declaration] });
-  }
-
-  private arrayElementDeclarations(cell: Cell, array: RuntimeArray): TraceDeclaration[] {
-    if (array.traceDigestId) {
-      return [{ variableId: array.traceDigestId, name: `${cell.name}[…]`, value: uninitializedTraceValue() }];
-    }
-    if (!array.traceBase) return [];
-    const keys = enumerateArrayKeys(array.type.dimensions, positiveInteger(this.options.trace?.maxArrayElements, 32));
-    if (!keys) return [];
-    return keys.map((indices) => ({
-      variableId: `${array.traceBase}[${indices.join(",")}]`,
-      name: `${cell.name}[${indices.join(", ")}]`,
-      value: uninitializedTraceValue()
-    }));
+    this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `CONSTANT ${cell.name}`, writes: [], declarations: [declaration] });
   }
 
   private traceWrite(range: SourceRange, cell: Cell, before: TraceValue | undefined, cause: TraceWrite["cause"], label: string): void {
@@ -1422,6 +1398,11 @@ export class Interpreter {
   }
 
   private traceCondition(range: SourceRange, structure: "IF" | "FOR" | "WHILE" | "REPEAT", result: boolean): void {
+    // FOR 的每次边界判断只说明控制流，既不对应 CAIE 源码中的独立语句，也不会写入追踪列。
+    // 初始化和下一轮控制变量写入已有自己的行；把 `FOR → TRUE/FALSE` 塞进表会挤占
+    // 本来就有限的可读空间，还容易让学生误把它当作伪代码语法。运行事件仍会照常发出，
+    // 所以单步高亮和解释器行为不受影响。
+    if (structure === "FOR") return;
     this.trace?.record({ range, frameId: this.currentFrame().id, kind: "condition", label: `${structure} → ${result ? "TRUE" : "FALSE"}`, writes: [], condition: { structure, result } });
   }
 

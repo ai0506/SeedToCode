@@ -22,20 +22,23 @@ OUTPUT "Tag: ", Prefix & "-" & Digits
 OUTPUT "Grade: ", UCASE(Grade)
 ~~~
 
-## 8.2.1 倒着念回去
+## 8.2.1 按年份取
 
 ~~~text
-DECLARE Numbers : ARRAY[1:3] OF INTEGER
-OUTPUT "Enter a number"
-INPUT Numbers[1]
-OUTPUT "Enter a number"
-INPUT Numbers[2]
-OUTPUT "Enter a number"
-INPUT Numbers[3]
-OUTPUT Numbers[3]
-OUTPUT Numbers[2]
-OUTPUT Numbers[1]
+DECLARE Sales : ARRAY[2020:2022] OF INTEGER
+DECLARE Year : INTEGER
+OUTPUT "Enter sales for 2020"
+INPUT Sales[2020]
+OUTPUT "Enter sales for 2021"
+INPUT Sales[2021]
+OUTPUT "Enter sales for 2022"
+INPUT Sales[2022]
+OUTPUT "Enter a year"
+INPUT Year
+OUTPUT "Sales in ", Year, ": ", Sales[Year]
+OUTPUT "Total: ", Sales[2020] + Sales[2021] + Sales[2022]
 ~~~
+
 
 ## 8.4.1 数一数有几个及格
 
@@ -90,55 +93,52 @@ OUTPUT "Average: ", Average
 OUTPUT "Above average: ", Above
 ~~~
 
-## 9.3.1 每行的和
+## 9.3.1 每一列的最大值
 
 ~~~text
-DECLARE Grid : ARRAY[1:2, 1:3] OF INTEGER
-DECLARE Row : INTEGER
-DECLARE Col : INTEGER
-DECLARE Sum : INTEGER
-FOR Row ← 1 TO 2
-   FOR Col ← 1 TO 3
+DECLARE Grid : ARRAY[1:3, 1:2] OF INTEGER
+DECLARE Biggest : INTEGER
+FOR Row ← 1 TO 3
+   FOR Col ← 1 TO 2
       OUTPUT "Enter a number"
       INPUT Grid[Row, Col]
    NEXT Col
 NEXT Row
-FOR Row ← 1 TO 2
-   Sum ← 0
-   FOR Col ← 1 TO 3
-      Sum ← Sum + Grid[Row, Col]
-   NEXT Col
-   OUTPUT "Row ", Row, ": ", Sum
-NEXT Row
+FOR Col ← 1 TO 2
+   Biggest ← Grid[1, Col]
+   FOR Row ← 2 TO 3
+      IF Grid[Row, Col] > Biggest THEN
+         Biggest ← Grid[Row, Col]
+      ENDIF
+   NEXT Row
+   OUTPUT "Col ", Col, ": ", Biggest
+NEXT Col
 ~~~
 
-## 9.T1 成绩表
+## 9.T1 及格次数
 
 ~~~text
-DECLARE Marks : ARRAY[1:3, 1:2] OF INTEGER
-DECLARE Student : INTEGER
-DECLARE Subject : INTEGER
-DECLARE Total : INTEGER
+DECLARE Marks : ARRAY[1:3, 1:4] OF INTEGER
+DECLARE Passes : INTEGER
+DECLARE ClassTotal : INTEGER
 FOR Student ← 1 TO 3
-   FOR Subject ← 1 TO 2
+   FOR Test ← 1 TO 4
       OUTPUT "Enter a mark"
-      INPUT Marks[Student, Subject]
-   NEXT Subject
+      INPUT Marks[Student, Test]
+   NEXT Test
 NEXT Student
+ClassTotal ← 0
 FOR Student ← 1 TO 3
-   Total ← 0
-   FOR Subject ← 1 TO 2
-      Total ← Total + Marks[Student, Subject]
-   NEXT Subject
-   OUTPUT "Student ", Student, " total: ", Total
+   Passes ← 0
+   FOR Test ← 1 TO 4
+      IF Marks[Student, Test] >= 60 THEN
+         Passes ← Passes + 1
+         ClassTotal ← ClassTotal + 1
+      ENDIF
+   NEXT Test
+   OUTPUT "Student ", Student, ": ", Passes
 NEXT Student
-FOR Subject ← 1 TO 2
-   Total ← 0
-   FOR Student ← 1 TO 3
-      Total ← Total + Marks[Student, Subject]
-   NEXT Student
-   OUTPUT "Subject ", Subject, " average: ", Total DIV 3
-NEXT Subject
+OUTPUT "Class total: ", ClassTotal
 ~~~
 
 ## 10.2.1 在名单里找一个数
@@ -549,17 +549,22 @@ CLOSEFILE "Long.txt"
 OUTPUT "Count: ", Count
 ~~~
 
-## 16.2.1 房间的面积和周长
+## 16.2.1 买票找零
 
 ~~~text
-DECLARE RoomLength : INTEGER
-DECLARE RoomWidth : INTEGER
-OUTPUT "Enter the length"
-INPUT RoomLength
-OUTPUT "Enter the width"
-INPUT RoomWidth
-OUTPUT "Area: ", RoomLength * RoomWidth
-OUTPUT "Perimeter: ", 2 * (RoomLength + RoomWidth)
+DECLARE Price : INTEGER
+DECLARE Quantity : INTEGER
+DECLARE Payment : INTEGER
+DECLARE Total : INTEGER
+OUTPUT "Enter the price"
+INPUT Price
+OUTPUT "Enter the quantity"
+INPUT Quantity
+OUTPUT "Enter the payment"
+INPUT Payment
+Total ← Price * Quantity
+OUTPUT "Total: ", Total
+OUTPUT "Change: ", Payment - Total
 ~~~
 
 ## 16.5.1 照着描述写出来

@@ -17,7 +17,7 @@
 
 **约束最容易漏，而它常常决定整个做法。**「高于平均分」这一条就是：平均分要全部读完才算得出来，而判断又要回头看每一个人——所以数据非存下来不可（第 8 章讲过这件事）。这一句要是没读出来，写到一半才发现得推倒重来。
 
-> **规则**（CAIE 规定）　考纲要求把算法理解为「一个问题的解，写成一串确定的步骤」，并能为问题里的数据起合适的标识符名（§9.2）。
+> **规则**（CAIE 规定）　算法是一个问题的解，写成一串确定的步骤；问题里用到的每一样数据都要有一个说得清的标识符名（§9.2）。
 
 **对照：同一道题，读到什么程度才算读明白**
 
@@ -81,11 +81,11 @@ print("Area:", width * height)
 
 本章那道题的三段是：输入 5 组姓名和分数；中间算出总分、再算平均分、再挑出高于平均的人；输出平均分一行、姓名若干行。
 
-接下来给每一样数据起名字，列成一张**标识符表（identifier table）**：名字、类型、它代表什么。考纲明确要求会列这张表。它不是格式功课——**名字起不出来，多半是那样东西你还没想清楚**。
+接下来给每一样数据起名字，列成一张**标识符表（identifier table）**：名字、类型、它代表什么。这张表是正式的设计产物，不是草稿；它不是格式功课——**名字起不出来，多半是那样东西你还没想清楚**。
 
 起名的老规矩还在（第 2 章）：字母开头、见名知意、别和关键字或内置函数撞（`Length` 这种就不能用，它是内置函数名）。表里一行一样东西，临时的循环变量也算。
 
-> **规则**（CAIE 规定）　考纲要求写出包含 input、process、output 的伪代码，并用标识符表表示问题里用到的数据（§9.2）。
+> **规则**（CAIE 规定）　一段伪代码要包含 input、process、output 三段；问题里用到的数据用标识符表列出来（§9.2）。
 
 **示例：最小的一份 IPO**　`Example_16_2_a.pseudocode`
 
@@ -126,54 +126,60 @@ Perimeter: 14
   - ✓ 对。它也是一份要占地方的数据，也要 `DECLARE`，也要起个说得清的名字。表里一行一样东西，不分重要不重要。
 
 
-### 小节题： 房间的面积和周长｜`16.2.1`
+### 小节题： 买票找零｜`16.2.1`
 
-按 IPO 三段写一段伪代码：读入一个房间的长和宽（都是整数），显示它的面积和周长。先想清楚要几个变量、各叫什么，再动手。
+按 IPO 三段写一段伪代码：读入一张票的价格、买了几张、以及付了多少钱（都是整数），显示这次一共多少钱，以及应该找回多少。先想清楚要几个变量、各叫什么——**中间算出来的那个量也要有名字**。
 
-- **输入**：两行，各一个 `INTEGER`：先长后宽。每次读取之前都要显示提示语，一字不差：
-长之前是 `Enter the length`，宽之前是 `Enter the width`
-- **输出**：两行，写成：
-`Area: <面积>`
-`Perimeter: <周长>`
-周长是「长加宽再乘二」。每个冒号后面一个空格。
-- **必须用** `io.input` — 长和宽都要从键盘读进来，不能写死在代码里。
-- **必须用** `op.arithmetic` — 面积和周长都得算出来。
+- **输入**：三行，各一个 `INTEGER`。每次读取之前都要显示提示语，一字不差，依次是：
+`Enter the price`
+`Enter the quantity`
+`Enter the payment`
+保证付的钱不少于总价。
+- **输出**：两行：
+`Total: <总价>`
+`Change: <找零>`
+冒号后面都是一个空格。
 
 提示：
-1. 两样输入就是两个变量。名字别用 `Length`——那是内置函数的名字，占了。
-2. 周长是「(长 + 宽) × 2」，括号别漏，乘法比加法先算。
-3. 两句 `OUTPUT` 的次序照题目写的来：先面积后周长。
+1. 三样输入各要一个名字，总价也要一个——它是算出来的，但后面两行都用得上。
+2. 找零是付的钱减去总价，所以总价要先算出来。
 
 题面示例：
 ```
-输入：7 / 4
+输入：12 / 3 / 50
 输出：
-Enter the length
-Enter the width
-Area: 28
-Perimeter: 22
+Enter the price
+Enter the quantity
+Enter the payment
+Total: 36
+Change: 14
 ```
 
 <details><summary>参考解（学生看不到）</summary>
 
 ```
-DECLARE RoomLength : INTEGER
-DECLARE RoomWidth : INTEGER
-OUTPUT "Enter the length"
-INPUT RoomLength
-OUTPUT "Enter the width"
-INPUT RoomWidth
-OUTPUT "Area: ", RoomLength * RoomWidth
-OUTPUT "Perimeter: ", 2 * (RoomLength + RoomWidth)
+DECLARE Price : INTEGER
+DECLARE Quantity : INTEGER
+DECLARE Payment : INTEGER
+DECLARE Total : INTEGER
+OUTPUT "Enter the price"
+INPUT Price
+OUTPUT "Enter the quantity"
+INPUT Quantity
+OUTPUT "Enter the payment"
+INPUT Payment
+Total ← Price * Quantity
+OUTPUT "Total: ", Total
+OUTPUT "Change: ", Payment - Total
 ```
 
 判题用例（对学生隐藏，失败时只显示 caseHint）：
 
-- `normal` 输入 5 / 3 — 一个普通的长方形。
-- `boundary` 输入 6 / 6 — 长和宽一样大。
-- `boundary` 输入 1 / 1 — 最小的那种，面积和周长差得很远。
-- `boundary` 输入 9 / 0 — 有一边是零，面积也就没了，周长还在。
-- `extreme` 输入 9999 / 9999 — 两边都很大。
+- `normal` 输入 8 / 4 / 40 — 买几张，还有找零。
+- `boundary` 输入 7 / 3 / 21 — 付的钱和总价正好相等。
+- `boundary` 输入 5 / 1 / 5 — 只买一张，而且不用找零。
+- `normal` 输入 0 / 6 / 10 — 票价是零。
+- `extreme` 输入 999 / 999 / 999999 — 价格和数量都很大。
 
 </details>
 
@@ -187,11 +193,11 @@ OUTPUT "Perimeter: ", 2 * (RoomLength + RoomWidth)
 
 本章那道题拆成三件：**读入一个班**、**算平均分**、**列出高于平均的人**。三件事各自都能用一句话说清楚，而且各自都能单独检查对不对——这是拆得好不好的判据。
 
-拆完之后画一张**结构图（structure chart）**：上面一个方框是主程序，下面一排方框是拆出来的几件事，箭头上标着它们之间**传的是什么**。考纲要求会看、会画，还要求能从结构图倒推出伪代码。
+拆完之后画一张**结构图（structure chart）**：上面一个方框是主程序，下面一排方框是拆出来的几件事，箭头上标着它们之间**传的是什么**。这张图既要读得懂，也要画得出，还要能照着它把伪代码的头部倒推出来。
 
 结构图上最值钱的是箭头上那几个名字。它们直接对应参数表：往下传的是实参，往上传的是返回值或者 `BYREF` 参数改回来的东西。**图画对了，过程的头部就已经写好了。**
 
-> **规则**（CAIE 规定）　考纲要求用结构图把问题分解成子任务，说明各模块之间传递的参数，并能由结构图推出等价的伪代码（§12.2）。
+> **规则**（CAIE 规定）　结构图把问题分解成子任务，并标明各模块之间传递的参数；由它可以推出等价的伪代码（§12.2）。
 
 **对照：一张结构图和它对应的头部**
 
@@ -267,7 +273,7 @@ def show_above(marks, mean): ...
 
 <sub>§9.2｜约 10 分钟｜可用写法：`io.output`、`io.input`、`decl.variable`、`misc.comment`、`type.string`、`literal.string`、`type.integer`、`type.real`、`type.char`、`type.boolean`、`type.date`、`literal.integer`、`literal.real`、`literal.char`、`literal.boolean`、`literal.date`、`assign.simple`、`decl.constant`、`op.arithmetic`、`op.div`、`op.mod`、`op.relational`、`op.and`、`op.or`、`op.not`、`select.if`、`select.if-else`、`select.nested-if`、`select.case`、`select.case-range`、`select.case-otherwise`、`loop.for`、`loop.for-step`、`loop.while`、`loop.repeat`、`loop.nested`、`builtin.length`、`builtin.mid`、`builtin.right`、`builtin.ucase`、`builtin.lcase`、`op.concat`、`builtin.int`、`builtin.rand`、`decl.array-1d`、`array.index`、`decl.array-2d`、`array.index-2d`、`decl.record-type`、`record.field-access`、`routine.procedure`、`routine.call`、`param.byval`、`param.byref`、`routine.function`、`routine.return`、`expr.function-call`、`file.open-read`、`file.open-write`、`file.open-append`、`file.read`、`file.write`、`file.close`、`builtin.eof`</sub>
 
-拆出来的每一件事还是一句中文。**逐步求精（stepwise refinement）**就是把这一句话一层一层写细，**细到每一行都能直接换成伪代码为止**。考纲点名要求这个过程。
+拆出来的每一件事还是一句中文。**逐步求精（stepwise refinement）**就是把这一句话一层一层写细，**细到每一行都能直接换成伪代码为止**。
 
 拿「读入一个班并算出总分」为例。第一层：*读入 5 个学生的姓名和分数，同时把分数加起来。* 第二层：*总分清零；重复 5 次：提示并读姓名、提示并读分数、把这个分数加到总分上。* 到这一层，每一句都对得上一个写法了。
 
@@ -275,13 +281,12 @@ def show_above(marks, mean): ...
 
 什么时候停？**当每一句都能一对一地换成一行伪代码的时候。**再细就是在写代码了，再粗就还有想不清楚的地方。
 
-> **规则**（CAIE 规定）　考纲要求描述并使用逐步求精，把算法细化到可以直接编程的程度（§9.2）。
+> **规则**（CAIE 规定）　逐步求精是把算法一层层细化，直到细到可以直接编程的程度（§9.2）。
 
 **示例：第二层写完之后直接换成伪代码**　`Example_16_4_a.pseudocode`
 
 ```
 DECLARE Marks : ARRAY[1:5] OF INTEGER
-DECLARE I : INTEGER
 DECLARE Total : INTEGER
 Total ← 0
 FOR I ← 1 TO 5
@@ -291,9 +296,9 @@ FOR I ← 1 TO 5
 NEXT I
 OUTPUT "Average: ", Total DIV 5
 ```
-- 第 4 行：对应第二层的「总分清零」。位置在循环之前——第 6 章反复讲过这件事。
-- 5–9 行：对应「重复 5 次：……」。次数已经知道，所以是 `FOR`。
-- 第 8 行：对应「把这个分数加到总分上」。一句话换一行，这就是求精该停下来的信号。
+- 第 3 行：对应第二层的「总分清零」。位置在循环之前——第 6 章反复讲过这件事。
+- 4–8 行：对应「重复 5 次：……」。次数已经知道，所以是 `FOR`。
+- 第 7 行：对应「把这个分数加到总分上」。一句话换一行，这就是求精该停下来的信号。
 
 示例运行（`>` 开头的那行是输入）：
 
@@ -331,13 +336,13 @@ Average: 80
 
 求精写出来的那几层，写规整一点就是**结构化英语（structured English）**：用日常的词描述步骤，但缩进和「重复」「如果」这些结构词和伪代码对得上。它比伪代码松，比大白话严。
 
-同样的东西还可以画成**流程图（flowchart）**：一个个方框按执行顺序连起来，判断画成一个有两条出口的菱形，循环就是一条绕回去的线。考纲要求能从这两种描述**写出伪代码**。
+同样的东西还可以画成**流程图（flowchart）**：一个个方框按执行顺序连起来，判断画成一个有两条出口的菱形，循环就是一条绕回去的线。这两种描述都要能**写成伪代码**。
 
 转写的时候只做一件事：**把结构词换成关键字**。「重复 5 次」换成 `FOR ... TO ... NEXT`，「如果……那么」换成 `IF ... THEN ... ENDIF`，「显示」换成 `OUTPUT`。缩进照抄——它本来就标着谁包着谁。
 
 有一处要留神：**这两种描述里都不写变量声明**。转成伪代码时要自己把 `DECLARE` 补齐——照着标识符表补，一个都不会漏。
 
-> **规则**（CAIE 规定）　考纲要求能从结构化英语描述或流程图写出伪代码，并能反过来由伪代码画出流程图（§9.2）。本模块只做「读懂并转成伪代码」这个方向。
+> **规则**（CAIE 规定）　结构化英语描述和流程图都可以转写成伪代码，伪代码也可以反过来画成流程图（§9.2）。本模块只做「读懂并转成伪代码」这个方向。
 
 **对照：同一个算法的三种写法**
 
@@ -388,7 +393,6 @@ output the count
 ```
 DECLARE Count : INTEGER
 DECLARE Temperature : INTEGER
-DECLARE I : INTEGER
 Count ← 0
 FOR I ← 1 TO 3
    OUTPUT "Enter a temperature"
@@ -465,7 +469,6 @@ Frost days: 2
 ```
 DECLARE Count : INTEGER
 DECLARE Temperature : INTEGER
-DECLARE I : INTEGER
 Count ← 0
 FOR I ← 1 TO 5
    OUTPUT "Enter a temperature"
@@ -501,7 +504,7 @@ OUTPUT "Frost days: ", Count
 
 两个判据都有同一句话垫底：**选对了，代码就不用做多余的事。**选错不会立刻报错——用平行数组也能存这个班，只是排序时要记得两个数组一起换（第 11 章）；用 `REPEAT` 读一个可能一行都没有的文件也能写，只是空文件会被多读一次（第 14 章）。
 
-> **规则**（CAIE 规定）　考纲要求为问题解法选择并使用合适的数据类型与数据结构（§10.1、§10.2）。
+> **规则**（CAIE 规定）　为一个解法选择并使用合适的数据类型与数据结构，是设计阶段的一部分（§10.1、§10.2）。
 
 **示例：选定之后，读入那一段的样子**　`Example_16_6_a.pseudocode`
 
@@ -511,7 +514,6 @@ TYPE TStudent
    DECLARE Mark : INTEGER
 ENDTYPE
 DECLARE Form : ARRAY[1:5] OF TStudent
-DECLARE I : INTEGER
 DECLARE Total : INTEGER
 Total ← 0
 FOR I ← 1 TO 5
@@ -524,8 +526,8 @@ NEXT I
 OUTPUT "Average: ", Total DIV 5
 ```
 - 1–5 行：数据结构的决定落在这五行上：一份是一条记录，五份是一个记录数组。
-- 9–15 行：控制结构的决定落在这一行上：人数固定，所以是 `FOR`。
-- 第 14 行：总分边读边加。它不违反「非存下来不可」——存的是每个人的分数，总分只是顺手攒的。
+- 8–14 行：控制结构的决定落在这一行上：人数固定，所以是 `FOR`。
+- 第 13 行：总分边读边加。它不违反「非存下来不可」——存的是每个人的分数，总分只是顺手攒的。
 
 示例运行（`>` 开头的那行是输入）：
 
@@ -579,7 +581,7 @@ Average: 80
 
 写完别忘了自己跑一遍，而且要专门试**边界**：全班同分时谁都不高于平均，零分和满分混在一起时数字对不对。**这一步谁都替不了你**——前面六步保证的是「想清楚了」，跑一遍才知道「写对了」。
 
-> **规则**（CAIE 规定）　考纲要求把问题分解为子问题，进而形成程序模块（过程 / 函数），并写出完整的解（§9.2、§12.2）。
+> **规则**（CAIE 规定）　把问题分解为子问题、做成程序模块（过程 / 函数），再合起来成为一个完整的解（§9.2、§12.2）。
 
 **示例：本章那道题的完整解**　`Example_16_7_a.pseudocode`
 
@@ -589,7 +591,6 @@ TYPE TStudent
    DECLARE Mark : INTEGER
 ENDTYPE
 PROCEDURE ReadClass(BYREF Form : ARRAY[1:5] OF TStudent, BYREF Total : INTEGER)
-   DECLARE I : INTEGER
    Total ← 0
    FOR I ← 1 TO 5
       OUTPUT "Enter a name"
@@ -603,7 +604,6 @@ FUNCTION AverageOf(Total : INTEGER, Count : INTEGER) RETURNS INTEGER
    RETURN Total DIV Count
 ENDFUNCTION
 PROCEDURE ShowAbove(Form : ARRAY[1:5] OF TStudent, Mean : INTEGER)
-   DECLARE I : INTEGER
    FOR I ← 1 TO 5
       IF Form[I].Mark > Mean THEN
          OUTPUT Form[I].Name
@@ -619,8 +619,8 @@ OUTPUT "Average: ", Mean
 CALL ShowAbove(Group, Mean)
 ```
 - 第 5 行：两样都要交回主程序，所以是过程加两个 `BYREF`——结构图上那两个朝上的箭头。
-- 第 19 行：只往下传，什么都不交回，而且数组是拿来看的，所以用默认的传值。
-- 27–33 行：主程序只剩七行：三行声明、三次调用、一句显示。拆得对的时候它就该这么短。
+- 第 18 行：只往下传，什么都不交回，而且数组是拿来看的，所以用默认的传值。
+- 25–31 行：主程序只剩七行：三行声明、三次调用、一句显示。拆得对的时候它就该这么短。
 
 示例运行（`>` 开头的那行是输入）：
 
@@ -699,7 +699,6 @@ Fails: 2
 
 ```
 DECLARE Mark : INTEGER
-DECLARE I : INTEGER
 DECLARE Line : STRING
 DECLARE Passes : INTEGER
 OPENFILE "Marks.txt" FOR WRITE
@@ -784,7 +783,6 @@ TYPE TBook
    DECLARE Loans : INTEGER
 ENDTYPE
 PROCEDURE ReadBooks(BYREF Shelf : ARRAY[1:5] OF TBook, BYREF Total : INTEGER)
-   DECLARE I : INTEGER
    Total ← 0
    FOR I ← 1 TO 5
       OUTPUT "Enter a title"
@@ -795,7 +793,6 @@ PROCEDURE ReadBooks(BYREF Shelf : ARRAY[1:5] OF TBook, BYREF Total : INTEGER)
    NEXT I
 ENDPROCEDURE
 FUNCTION BestOf(Shelf : ARRAY[1:5] OF TBook) RETURNS INTEGER
-   DECLARE I : INTEGER
    DECLARE Best : INTEGER
    Best ← 1
    FOR I ← 2 TO 5

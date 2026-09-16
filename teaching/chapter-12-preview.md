@@ -17,7 +17,7 @@
 
 拆完之后主程序变成一张目录：先干这个、再干那个，细节各自收在自己的名字底下。这种写法叫**模块化（modularity）**，好处不是程序变短，而是**每次只需要看一小块**。
 
-> **规则**（CAIE 规定）　考纲要求理解分解与模块化的意义，并能写出和使用过程（§11.3）。
+> **规则**（CAIE 规定）　把问题分解成子问题、每个子问题做成一个程序模块（过程 / 函数），是写长程序的标准做法（§11.3）。
 
 **对照：同一份输出，抄三遍还是起个名字**
 
@@ -171,13 +171,12 @@ Greet()
 
 多个参数用逗号隔开，每个都要写类型。实参的**个数、顺序、类型**三样都要对得上——对不上，编辑器在运行前就拦下来。
 
-> **规则**（CAIE 规定）　实参的数量、顺序和类型必须与形参一致（G§8.1）。考纲明确要求区分 parameter 与 argument（§11.3）。
+> **规则**（CAIE 规定）　实参的数量、顺序和类型必须与参数一致（G§8.1）。parameter 与 argument 在 CAIE 的术语里是两个词，各指一侧，不能混用（§11.3）。
 
 **示例：把值递进过程里**　`Example_12_3_a.pseudocode`
 
 ```
 PROCEDURE ShowLine(Width : INTEGER)
-   DECLARE I : INTEGER
    DECLARE Bar : STRING
    Bar ← ""
    FOR I ← 1 TO Width
@@ -193,8 +192,8 @@ CALL ShowRow("Total", 42)
 CALL ShowLine(3)
 ```
 - 第 1 行：`Width` 是参数。它在过程体里当变量用，但不需要 `DECLARE`——括号里这一句已经是声明了。
-- 第 10 行：两个参数，各写各的类型。逗号隔开。
-- 13–15 行：`6`、`"Total"`、`42`、`3` 都是实参。`ShowLine` 被调用两次，`Width` 先是 6 再是 3。
+- 第 9 行：两个参数，各写各的类型。逗号隔开。
+- 12–14 行：`6`、`"Total"`、`42`、`3` 都是实参。`ShowLine` 被调用两次，`Width` 先是 6 再是 3。
 
 示例运行：
 
@@ -277,7 +276,6 @@ Wed *
 
 ```
 PROCEDURE ShowBar(Label : STRING, Count : INTEGER)
-   DECLARE I : INTEGER
    DECLARE Bar : STRING
    Bar ← ""
    FOR I ← 1 TO Count
@@ -287,7 +285,6 @@ PROCEDURE ShowBar(Label : STRING, Count : INTEGER)
 ENDPROCEDURE
 DECLARE Name : STRING
 DECLARE Amount : INTEGER
-DECLARE K : INTEGER
 FOR K ← 1 TO 3
    OUTPUT "Enter a label"
    INPUT Name
@@ -319,9 +316,11 @@ NEXT K
 
 默认是传值有它的道理：过程只是拿这个值来算点什么，不该顺手把调用者的变量改掉。**调用一个过程之后，自己的变量还是原样**——这件事能靠得住，程序才好读。
 
-数组和记录也一样：整个数组当实参传进去是一份深拷贝，过程里改哪一格都影响不到外面。
+数组和记录也一样：整个数组当实参传进去，过程里改哪一格都影响不到外面。
 
 > **规则**（CAIE 规定）　`BYVAL` / `BYREF` 写在形参前；未写时默认按值传递（G§8.3）。
+
+> **规则**（编辑器约定）　数组和记录这种「一份里装了好几样」的值按传值递进去会复制成什么样，Pseudocode Guide 没有规定。本编辑器的做法是整份复制，所以过程里改哪一格，外面的原件都不受影响。
 
 **示例：里面变了，外面没变**　`Example_12_4_a.pseudocode`
 
@@ -497,7 +496,7 @@ OUTPUT X, " ", Y
 
 如果过程里 `DECLARE` 了一个和全局变量同名的变量，那过程里用的就是自己那个，外面那个不受影响——名字一样，是两个不同的位置。
 
-> **规则**（CAIE 规定）　考纲要求理解局部变量与全局变量的区别，以及作用域的含义（§11.3）。
+> **规则**（CAIE 规定）　局部变量只在它所属的过程或函数里有效，全局变量在整段程序里都有效；一个名字在哪一段代码里算数，就是它的作用域（§11.3）。
 
 **示例：同名，但是两个不同的位置**　`Example_12_6_a.pseudocode`
 

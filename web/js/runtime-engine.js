@@ -3889,7 +3889,6 @@ var CAIERuntime = (() => {
           this.attachTraceId(cell);
           this.currentFrame().cells.set(cell.normalizedName, cell);
           this.emitVariable("variable-declared", statement.range, cell);
-          this.traceDeclaration(statement.range, cell);
           return;
         }
         case "ConstantStatement": {
@@ -3905,7 +3904,7 @@ var CAIERuntime = (() => {
           this.attachTraceId(cell);
           this.currentFrame().cells.set(cell.normalizedName, cell);
           this.emitVariable("variable-declared", statement.range, cell);
-          this.traceDeclaration(statement.range, cell);
+          this.traceConstant(statement.range, cell);
           return;
         }
         case "DefineSetStatement": {
@@ -4827,31 +4826,12 @@ var CAIERuntime = (() => {
       const storage = storageCell(cell);
       return storage.traceId ? traceValueOf(storage) : void 0;
     }
-    traceDeclaration(range, cell) {
+    /** 常量没有后续写入，其声明是唯一值得在表中呈现的值。 */
+    traceConstant(range, cell) {
       const storage = storageCell(cell);
-      if (!this.trace) return;
-      if (!storage.traceId && storage.value !== void 0 && isComposite(storage.value) && storage.value.kind === "array") {
-        const declarations = this.arrayElementDeclarations(cell, storage.value);
-        if (declarations.length === 0) return;
-        this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations });
-        return;
-      }
-      if (!storage.traceId) return;
+      if (!this.trace || !storage.traceId) return;
       const declaration = { variableId: storage.traceId, name: cell.name, value: traceValueOf(storage) };
-      this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `DECLARE ${cell.name}`, writes: [], declarations: [declaration] });
-    }
-    arrayElementDeclarations(cell, array) {
-      if (array.traceDigestId) {
-        return [{ variableId: array.traceDigestId, name: `${cell.name}[\u2026]`, value: uninitializedTraceValue() }];
-      }
-      if (!array.traceBase) return [];
-      const keys = enumerateArrayKeys(array.type.dimensions, positiveInteger(this.options.trace?.maxArrayElements, 32));
-      if (!keys) return [];
-      return keys.map((indices) => ({
-        variableId: `${array.traceBase}[${indices.join(",")}]`,
-        name: `${cell.name}[${indices.join(", ")}]`,
-        value: uninitializedTraceValue()
-      }));
+      this.trace.record({ range, frameId: this.currentFrame().id, kind: "declare", label: `CONSTANT ${cell.name}`, writes: [], declarations: [declaration] });
     }
     traceWrite(range, cell, before, cause, label) {
       const storage = storageCell(cell);
@@ -4870,6 +4850,7 @@ var CAIERuntime = (() => {
       this.trace.record({ range, frameId: this.currentFrame().id, kind: "write", label, writes: [write] });
     }
     traceCondition(range, structure, result) {
+      if (structure === "FOR") return;
       this.trace?.record({ range, frameId: this.currentFrame().id, kind: "condition", label: `${structure} \u2192 ${result ? "TRUE" : "FALSE"}`, writes: [], condition: { structure, result } });
     }
     traceOutput(range, output) {

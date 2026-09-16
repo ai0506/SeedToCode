@@ -1085,10 +1085,6 @@ var CAIETeaching = (() => {
               {
                 source: "CAIE",
                 text: "`DIV` \u53D6\u6574\u6570\u5546\uFF0C`MOD` \u53D6\u4F59\u6570\uFF08Pseudocode Guide \xA75.2\uFF09\u3002"
-              },
-              {
-                source: "editor",
-                text: "\u8D1F\u6570\u600E\u4E48\u7B97\uFF0CPseudocode Guide \u6CA1\u6709\u89C4\u5B9A\u3002\u672C\u7F16\u8F91\u5668\u7684\u505A\u6CD5\u662F\uFF1A`DIV` \u7684\u5546\u5411 0 \u622A\u65AD\uFF0C`MOD` \u7684\u7B26\u53F7\u8DDF\u88AB\u9664\u6570\u4E00\u81F4\u2014\u2014`-7 DIV 2` \u5F97\u5230 -3\uFF0C`-7 MOD 2` \u5F97\u5230 -1\u3002"
               }
             ]
           },
@@ -2164,57 +2160,51 @@ var CAIETeaching = (() => {
           {
             kind: "task",
             id: "4.5.1",
-            title: "\u661F\u671F\u51E0",
-            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u63D0\u793A\u5E76\u8BFB\u5165\u4E00\u4E2A\u6574\u6570\uFF0C1 \u5230 7 \u5206\u522B\u663E\u793A `Monday` \u5230 `Sunday`\uFF0C\u5176\u5B83\u4EFB\u4F55\u503C\u663E\u793A `Unknown`\u3002",
+            title: "\u6E29\u5EA6\u5206\u6863",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u63D0\u793A\u5E76\u8BFB\u5165\u4E00\u4E2A\u6574\u6570\u6E29\u5EA6\uFF0C\u6309\u4E0B\u9762\u7684\u89C4\u5219\u663E\u793A\u4E00\u4E2A\u8BCD\u2014\u2014`-999` \u663E\u793A `Sensor error`\uFF1B`-50` \u5230 `0` \u663E\u793A `Freezing`\uFF1B`1` \u5230 `25` \u663E\u793A `Mild`\uFF1B`26` \u5230 `50` \u663E\u793A `Hot`\uFF1B\u5176\u5B83\u4EFB\u4F55\u503C\u663E\u793A `Out of range`\u3002",
             ioSpec: {
-              input: ["\u4E00\u884C\uFF0C\u4E00\u4E2A `INTEGER`\u3002\u63D0\u793A\u8BED\u6392\u5728\u8BFB\u53D6\u4E4B\u524D\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter the day number`"].join("\n"),
-              output: "\u4E00\u884C\uFF0C\u661F\u671F\u540D\u6216\u8005 `Unknown`\u3002"
+              input: ["\u4E00\u884C\uFF0C\u4E00\u4E2A `INTEGER`\u3002\u8BFB\u53D6\u4E4B\u524D\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter the temperature`"].join("\n"),
+              output: "\u4E00\u884C\uFF0C\u5C31\u662F\u90A3\u4E2A\u8BCD\u672C\u8EAB\u3002"
             },
             constraints: {
               require: [
                 {
-                  feature: "select.case",
-                  reason: "\u4E03\u79CD\u53EF\u80FD\u90FD\u662F\u62FF\u540C\u4E00\u4E2A\u53D8\u91CF\u6BD4\u4E0D\u540C\u7684\u503C\uFF0C\u8FD9\u6B63\u662F `CASE` \u6446\u4E00\u5F20\u8868\u7684\u573A\u5408\u3002"
+                  feature: "select.case-range",
+                  reason: "\u4E09\u6863\u6E29\u5EA6\u5404\u662F\u4E00\u6574\u6BB5\u533A\u95F4\uFF0C\u7528\u533A\u95F4\u6807\u7B7E\u5199\u51FA\u6765\u6BD4\u4E00\u4E2A\u503C\u4E00\u4E2A\u503C\u5217\u77ED\u5F97\u591A\u3002"
                 },
                 {
                   feature: "select.case-otherwise",
-                  reason: "\u300C\u5176\u5B83\u4EFB\u4F55\u503C\u300D\u4E0D\u53EF\u80FD\u4E00\u4E2A\u4E2A\u5217\u51FA\u6765\uFF0C\u8981\u4EA4\u7ED9\u515C\u5E95\u7684\u90A3\u4E00\u6761\u3002"
-                }
-              ],
-              forbid: [
-                {
-                  feature: "select.if",
-                  reason: "\u7528\u4E32\u63A5 `IF` \u4E5F\u80FD\u505A\u5BF9\uFF0C\u4F46\u8FD9\u4E00\u9898\u5C31\u662F\u8981\u7EC3 `CASE`\u2014\u2014\u4E03\u79CD\u53EF\u80FD\u7528 `IF` \u4F1A\u5199\u6210\u4E03\u5C42\u3002"
+                  reason: "\u5217\u51FA\u6765\u7684\u533A\u95F4\u6CA1\u76D6\u4F4F\u5168\u90E8\u6574\u6570\uFF0C\u515C\u4E0D\u4F4F\u7684\u90A3\u4E9B\u8981\u6709\u4E2A\u53BB\u5904\u3002"
                 }
               ]
             },
             hints: [
-              "\u4E03\u4E2A\u5206\u652F\u52A0\u4E00\u6761\u515C\u5E95\uFF0C\u4E00\u5171\u516B\u884C\u3002",
-              "\u300C\u5176\u5B83\u4EFB\u4F55\u503C\u300D\u5305\u62EC 0\u30018\u3001-3 \u8FD9\u4E9B\uFF0C\u4E0D\u7528\u4E00\u4E2A\u4E2A\u5217\u3002"
+              "`-999` \u662F\u4E00\u4E2A\u5355\u72EC\u7684\u503C\uFF0C\u4E0D\u662F\u533A\u95F4\uFF0C\u5B83\u81EA\u5DF1\u5199\u4E00\u6761\u6807\u7B7E\u5C31\u884C\u3002",
+              "\u533A\u95F4\u6807\u7B7E\u5199\u6210 `<\u4E0B\u9650> TO <\u4E0A\u9650>`\uFF0C\u4E0B\u9650\u53EF\u4EE5\u662F\u8D1F\u6570\u3002",
+              "\u515C\u5E95\u90A3\u4E00\u6761\u53EA\u80FD\u653E\u5728\u6700\u540E\u3002"
             ],
-            examples: [{ inputs: ["5"], outputs: ["Enter the day number", "Friday"] }],
+            examples: [
+              { inputs: ["18"], outputs: ["Enter the temperature", "Mild"] }
+            ],
             referenceSolution: [
-              "DECLARE Day : INTEGER",
-              'OUTPUT "Enter the day number"',
-              "INPUT Day",
-              "CASE OF Day",
-              '   1 : OUTPUT "Monday"',
-              '   2 : OUTPUT "Tuesday"',
-              '   3 : OUTPUT "Wednesday"',
-              '   4 : OUTPUT "Thursday"',
-              '   5 : OUTPUT "Friday"',
-              '   6 : OUTPUT "Saturday"',
-              '   7 : OUTPUT "Sunday"',
-              '   OTHERWISE : OUTPUT "Unknown"',
+              "DECLARE Temperature : INTEGER",
+              'OUTPUT "Enter the temperature"',
+              "INPUT Temperature",
+              "CASE OF Temperature",
+              '   -999 : OUTPUT "Sensor error"',
+              '   -50 TO 0 : OUTPUT "Freezing"',
+              '   1 TO 25 : OUTPUT "Mild"',
+              '   26 TO 50 : OUTPUT "Hot"',
+              '   OTHERWISE : OUTPUT "Out of range"',
               "ENDCASE"
             ].join("\n"),
             tests: [
-              { id: "t1", kind: "normal", inputs: ["3"], caseHint: "\u4E00\u4E2A\u843D\u5728\u5468\u4E2D\u7684\u65E5\u5B50\u3002" },
-              { id: "t2", kind: "normal", inputs: ["6"], caseHint: "\u4E00\u4E2A\u843D\u5728\u5468\u672B\u7684\u65E5\u5B50\u3002" },
-              { id: "t3", kind: "boundary", inputs: ["1"], caseHint: "\u7F16\u53F7\u91CC\u6700\u5C0F\u7684\u90A3\u4E00\u4E2A\u3002" },
-              { id: "t4", kind: "boundary", inputs: ["7"], caseHint: "\u7F16\u53F7\u91CC\u6700\u5927\u7684\u90A3\u4E00\u4E2A\u3002" },
-              { id: "t5", kind: "abnormal", inputs: ["0"], caseHint: "\u521A\u597D\u6BD4\u6700\u5C0F\u7684\u8FD8\u5C0F\u4E00\u70B9\uFF0C\u5C5E\u4E8E\u6CA1\u6709\u5B9A\u4E49\u7684\u7F16\u53F7\u3002" },
-              { id: "t6", kind: "extreme", inputs: ["999"], caseHint: "\u4E00\u4E2A\u8FDC\u8FDC\u8D85\u51FA\u8303\u56F4\u7684\u7F16\u53F7\u3002" }
+              { id: "t1", kind: "normal", inputs: ["30"], caseHint: "\u843D\u5728\u6700\u9AD8\u90A3\u4E00\u6863\u91CC\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["0"], caseHint: "\u6B63\u597D\u8E29\u5728\u4E24\u6863\u7684\u4EA4\u754C\u4E0A\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["-50"], caseHint: "\u6B63\u597D\u8E29\u5728\u6700\u4F4E\u4E00\u6863\u7684\u4E0B\u9650\u3002" },
+              { id: "t4", kind: "normal", inputs: ["-999"], caseHint: "\u90A3\u4E2A\u8868\u793A\u6545\u969C\u7684\u7279\u6B8A\u503C\u3002" },
+              { id: "t5", kind: "abnormal", inputs: ["80"], caseHint: "\u8D85\u51FA\u6240\u6709\u533A\u95F4\uFF0C\u53EA\u80FD\u515C\u5E95\u3002" },
+              { id: "t6", kind: "extreme", inputs: ["-100000"], caseHint: "\u8FDC\u8FDC\u4F4E\u4E8E\u4EFB\u4F55\u4E00\u6863\u3002" }
             ]
           }
         ]
@@ -2545,7 +2535,7 @@ var CAIETeaching = (() => {
             paragraphs: [
               "`FOR` \u9ED8\u8BA4\u6BCF\u8DD1\u5B8C\u4E00\u904D\u628A\u63A7\u5236\u53D8\u91CF\u52A0 1\u3002\u60F3\u6362\u4E2A\u589E\u91CF\uFF0C\u5728\u540E\u9762\u52A0 `STEP`\uFF1A`FOR I \u2190 0 TO 100 STEP 10` \u8BA9 `I` \u53D6 0\u300110\u300120\u2026\u2026100\uFF0C\u4E00\u5171\u5341\u4E00\u904D\u3002",
               "`STEP` \u4E5F\u53EF\u4EE5\u662F\u8D1F\u6570\uFF0C\u8FD9\u65F6\u5C31\u662F\u5012\u7740\u6570\uFF1A`FOR I \u2190 5 TO 1 STEP -1` \u53D6 5\u30014\u30013\u30012\u30011\u3002\u5012\u7740\u6570\u65F6\u8D77\u70B9\u5FC5\u987B\u6BD4\u7EC8\u70B9\u5927\uFF0C\u800C\u4E14 `STEP` \u5FC5\u987B\u662F\u8D1F\u7684\uFF0C\u4E24\u8005\u8981\u914D\u5957\u3002",
-              "\u5982\u679C\u5199\u6210 `FOR I \u2190 10 TO 1` \u800C\u5FD8\u4E86 `STEP -1`\uFF0C\u7A0B\u5E8F\u4E0D\u4F1A\u62A5\u9519\uFF0C\u4F46\u5FAA\u73AF\u4F53**\u4E00\u904D\u90FD\u4E0D\u4F1A\u6267\u884C**\u2014\u2014`I` \u4E00\u5F00\u59CB\u5C31\u662F 10\uFF0C\u5DF2\u7ECF\u8D85\u8FC7\u7EC8\u70B9 1 \u4E86\u3002\u8FD9\u79CD\u5FAA\u73AF\u7684\u7279\u70B9\u662F\u5B89\u9759\u5730\u4EC0\u4E48\u90FD\u6CA1\u505A\u3002`STEP 0` \u5219\u4F1A\u88AB\u7F16\u8F91\u5668\u76F4\u63A5\u62E6\u4E0B\u6765\uFF1A\u589E\u91CF\u662F 0 \u610F\u5473\u7740\u63A7\u5236\u53D8\u91CF\u6C38\u8FDC\u4E0D\u53D8\u3002",
+              "\u5982\u679C\u5199\u6210 `FOR I \u2190 10 TO 1` \u800C\u5FD8\u4E86 `STEP -1`\uFF0C\u7A0B\u5E8F\u4E0D\u4F1A\u62A5\u9519\uFF0C\u4F46\u5FAA\u73AF\u4F53**\u4E00\u904D\u90FD\u4E0D\u4F1A\u6267\u884C**\u2014\u2014`I` \u4E00\u5F00\u59CB\u5C31\u662F 10\uFF0C\u5DF2\u7ECF\u8D85\u8FC7\u7EC8\u70B9 1 \u4E86\u3002\u8FD9\u79CD\u5FAA\u73AF\u7684\u7279\u70B9\u662F\u5B89\u9759\u5730\u4EC0\u4E48\u90FD\u6CA1\u505A\u3002",
               "\u8FD8\u6709\u4E00\u6761\uFF1A**\u5FAA\u73AF\u4F53\u91CC\u4E0D\u8981\u53BB\u6539\u63A7\u5236\u53D8\u91CF**\u3002`I` \u5F52 `FOR` \u7BA1\uFF0C\u5B83\u6BCF\u4E00\u904D\u52A0\u591A\u5C11\u3001\u4EC0\u4E48\u65F6\u5019\u505C\uFF0C\u90FD\u7531\u7B2C\u4E00\u884C\u90A3\u4E09\u4E2A\u6570\u51B3\u5B9A\u3002\u60F3\u8DF3\u7740\u8D70\u5C31\u7528 `STEP`\uFF0C\u522B\u81EA\u5DF1\u52A0\u3002"
             ],
             callouts: [
@@ -2555,7 +2545,7 @@ var CAIETeaching = (() => {
               },
               {
                 source: "editor",
-                text: "`STEP 0` \u5728\u8FD0\u884C\u524D\u5C31\u4F1A\u88AB\u62E6\u4E0B\uFF1B\u5728\u5FAA\u73AF\u4F53\u5185\u4FEE\u6539\u63A7\u5236\u53D8\u91CF\u7684\u7A0B\u5E8F\u80FD\u901A\u8FC7\u68C0\u67E5\uFF0C\u4F46\u4F1A\u5728\u90A3\u4E00\u884C\u505C\u6B62\u3002"
+                text: "\u5728\u5FAA\u73AF\u4F53\u5185\u4FEE\u6539\u63A7\u5236\u53D8\u91CF\u7684\u7A0B\u5E8F\u80FD\u901A\u8FC7\u68C0\u67E5\uFF0C\u4F46\u4F1A\u5728\u90A3\u4E00\u884C\u505C\u6B62\u3002"
               }
             ]
           },
@@ -2616,7 +2606,7 @@ var CAIETeaching = (() => {
                 key: "C",
                 label: "\u7F16\u8F91\u5668\u4F1A\u62E6\u4E0B\u6765",
                 correct: false,
-                explanation: "\u8FD9\u6BB5\u4EE3\u7801\u5408\u6CD5\uFF0C\u53EA\u662F\u4EC0\u4E48\u4E5F\u6CA1\u505A\u3002\u88AB\u62E6\u7684\u662F `STEP 0`\uFF0C\u4E0D\u662F\u65B9\u5411\u5199\u53CD\u3002"
+                explanation: "\u8FD9\u6BB5\u4EE3\u7801\u5B8C\u5168\u5408\u6CD5\uFF0C\u7F16\u8F91\u5668\u6CA1\u6709\u4EFB\u4F55\u7406\u7531\u62E6\u5B83\u2014\u2014\u5B83\u53EA\u662F\u4EC0\u4E48\u4E5F\u6CA1\u505A\u3002"
               },
               {
                 key: "D",
@@ -2793,55 +2783,66 @@ var CAIETeaching = (() => {
           {
             kind: "task",
             id: "5.4.1",
-            title: "\u5408\u6CD5\u624D\u6536",
-            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u53CD\u590D\u63D0\u793A\u5E76\u8BFB\u5165\u4E00\u4E2A\u6574\u6570\uFF0C\u76F4\u5230\u8BFB\u5230\u7684\u6570\u843D\u5728 0 \u5230 100 \u4E4B\u95F4\u4E3A\u6B62\uFF0C\u7136\u540E\u663E\u793A\u5B83\u3002",
+            title: "\u6512\u591F\u4E3A\u6B62",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u53CD\u590D\u63D0\u793A\u5E76\u8BFB\u5165\u4E00\u4E2A\u6B63\u6574\u6570\uFF0C\u628A\u5B83\u52A0\u5230\u603B\u989D\u4E0A\uFF0C\u76F4\u5230\u603B\u989D\u8FBE\u5230\u6216\u8D85\u8FC7 100 \u4E3A\u6B62\uFF1B\u7136\u540E\u663E\u793A\u6700\u540E\u7684\u603B\u989D\uFF0C\u4EE5\u53CA\u4E00\u5171\u8BFB\u4E86\u51E0\u4E2A\u6570\u3002",
             ioSpec: {
               input: [
                 "\u82E5\u5E72\u884C\uFF0C\u6BCF\u884C\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u8BFB\u4E00\u6B21\u4E4B\u524D\u90FD\u8981\u663E\u793A\u4E00\u904D\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
-                "`Enter a mark`"
+                "`Enter an amount`"
               ].join("\n"),
-              output: "\u6700\u540E\u4E00\u884C\u5199\u6210 `Accepted: <\u503C>`\u3002\u5192\u53F7\u540E\u9762\u662F\u4E00\u4E2A\u7A7A\u683C\u3002"
+              output: [
+                "\u8BFB\u5B8C\u4E4B\u540E\u663E\u793A\u4E24\u884C\uFF1A",
+                "`Total: <\u6700\u540E\u7684\u603B\u989D>`",
+                "`Count: <\u4E00\u5171\u8BFB\u4E86\u51E0\u4E2A\u6570>`",
+                "\u5192\u53F7\u540E\u9762\u90FD\u662F\u4E00\u4E2A\u7A7A\u683C\u3002"
+              ].join("\n")
             },
             constraints: {
               require: [
                 {
                   feature: "loop.repeat",
-                  reason: "\u4E0D\u95EE\u4E00\u6B21\u5C31\u6CA1\u6709\u503C\u53EF\u4EE5\u5224\u65AD\uFF0C\u8FD9\u6B63\u662F\u300C\u81F3\u5C11\u505A\u4E00\u6B21\u300D\u7684\u573A\u5408\u3002"
+                  reason: "\u603B\u989D\u4E00\u5F00\u59CB\u662F 0\uFF0C\u4E0D\u5148\u8BFB\u4E00\u4E2A\u6570\u8FDB\u6765\u5C31\u65E0\u4ECE\u5224\u65AD\u591F\u6CA1\u591F\u3002"
                 }
               ],
               forbid: [
                 {
                   feature: "loop.while",
-                  reason: "\u7528\u5B83\u5F97\u5728\u5FAA\u73AF\u524D\u5148\u95EE\u4E00\u6B21\uFF0C\u63D0\u793A\u548C\u8BFB\u53D6\u90A3\u4E24\u884C\u5C31\u8981\u5199\u4E24\u904D\u3002"
+                  reason: "\u7528\u5B83\u5F97\u5728\u5FAA\u73AF\u524D\u5148\u8BFB\u4E00\u6B21\uFF0C\u63D0\u793A\u548C\u8BFB\u53D6\u90A3\u4E24\u884C\u5C31\u8981\u5199\u4E24\u904D\u3002"
                 }
               ]
             },
             hints: [
-              "\u63D0\u793A\u8BED\u548C\u8BFB\u53D6\u90FD\u5728\u5FAA\u73AF\u4F53\u91CC\uFF0C\u6240\u4EE5\u4E0D\u5408\u683C\u65F6\u4F1A\u81EA\u7136\u5730\u518D\u95EE\u4E00\u904D\u3002",
-              "\u300C\u843D\u5728 0 \u5230 100 \u4E4B\u95F4\u300D\u662F\u4E24\u4E2A\u6761\u4EF6\uFF0C\u7528 `AND` \u62FC\u8D77\u6765\u3002",
+              "\u603B\u989D\u548C\u4E2A\u6570\u90FD\u8981\u5728\u5FAA\u73AF\u5F00\u59CB\u4E4B\u524D\u6E05\u96F6\u3002",
+              "\u5FAA\u73AF\u4F53\u91CC\u505A\u4E09\u4EF6\u4E8B\uFF1A\u63D0\u793A\u3001\u8BFB\u4E00\u4E2A\u6570\u3001\u628A\u5B83\u52A0\u4E0A\u53BB\u2014\u2014\u4E2A\u6570\u4E5F\u5728\u8FD9\u91CC\u52A0\u4E00\u3002",
               "\u7ED3\u675F\u6761\u4EF6\u5199\u7684\u662F\u4EC0\u4E48\u65F6\u5019\u505C\uFF0C\u4E0D\u662F\u4EC0\u4E48\u65F6\u5019\u7EE7\u7EED\u3002"
             ],
             examples: [
               {
-                inputs: ["42"],
-                outputs: ["Enter a mark", "Accepted: 42"]
+                inputs: ["60", "70"],
+                outputs: ["Enter an amount", "Enter an amount", "Total: 130", "Count: 2"]
               }
             ],
             referenceSolution: [
-              "DECLARE Mark : INTEGER",
+              "DECLARE Amount : INTEGER",
+              "DECLARE Total : INTEGER",
+              "DECLARE Count : INTEGER",
+              "Total \u2190 0",
+              "Count \u2190 0",
               "REPEAT",
-              '   OUTPUT "Enter a mark"',
-              "   INPUT Mark",
-              "UNTIL Mark >= 0 AND Mark <= 100",
-              'OUTPUT "Accepted: ", Mark'
+              '   OUTPUT "Enter an amount"',
+              "   INPUT Amount",
+              "   Total \u2190 Total + Amount",
+              "   Count \u2190 Count + 1",
+              "UNTIL Total >= 100",
+              'OUTPUT "Total: ", Total',
+              'OUTPUT "Count: ", Count'
             ].join("\n"),
             tests: [
-              { id: "t1", kind: "normal", inputs: ["58"], caseHint: "\u7B2C\u4E00\u6B21\u5C31\u8F93\u5165\u4E86\u4E00\u4E2A\u5408\u683C\u7684\u6570\u3002" },
-              { id: "t2", kind: "normal", inputs: ["120", "-4", "58"], caseHint: "\u8FDE\u7740\u8F93\u9519\u4E24\u6B21\u4E4B\u540E\u624D\u5BF9\u3002" },
-              { id: "t3", kind: "boundary", inputs: ["0"], caseHint: "\u6B63\u597D\u8E29\u5728\u4E0B\u754C\u4E0A\u3002" },
-              { id: "t4", kind: "boundary", inputs: ["100"], caseHint: "\u6B63\u597D\u8E29\u5728\u4E0A\u754C\u4E0A\u3002" },
-              { id: "t5", kind: "abnormal", inputs: ["101", "50"], caseHint: "\u521A\u597D\u8D85\u51FA\u4E0A\u754C\u4E00\u70B9\u70B9\uFF0C\u7136\u540E\u624D\u7ED9\u4E00\u4E2A\u5408\u683C\u7684\u3002" },
-              { id: "t6", kind: "extreme", inputs: ["999999", "7"], caseHint: "\u5148\u6765\u4E00\u4E2A\u8FDC\u8FDC\u8D85\u51FA\u8303\u56F4\u7684\u6570\u3002" }
+              { id: "t1", kind: "normal", inputs: ["30", "40", "50"], caseHint: "\u8BFB\u4E86\u51E0\u4E2A\u4E4B\u540E\u624D\u6512\u591F\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["100"], caseHint: "\u7B2C\u4E00\u4E2A\u6570\u5C31\u6B63\u597D\u6512\u591F\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["99", "1"], caseHint: "\u5DEE\u4E00\u70B9\uFF0C\u518D\u6765\u4E00\u4E2A\u6B63\u597D\u5230\u3002" },
+              { id: "t4", kind: "normal", inputs: ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "90"], caseHint: "\u4E00\u8DEF\u90FD\u662F\u5F88\u5C0F\u7684\u6570\uFF0C\u6700\u540E\u4E00\u4E2A\u624D\u62C9\u6EE1\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["999999"], caseHint: "\u7B2C\u4E00\u4E2A\u6570\u5C31\u8FDC\u8FDC\u8D85\u8FC7\u8981\u6C42\u3002" }
             ]
           }
         ]
@@ -4448,49 +4449,74 @@ var CAIETeaching = (() => {
           {
             kind: "task",
             id: "8.2.1",
-            title: "\u5012\u7740\u5FF5\u56DE\u53BB",
-            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u63D0\u793A\u5E76\u8BFB\u5165\u4E09\u4E2A\u6574\u6570\uFF0C\u628A\u5B83\u4EEC\u5B58\u8FDB\u4E00\u4E2A\u6570\u7EC4\uFF0C\u7136\u540E\u5012\u7740\u663E\u793A\u51FA\u6765\u2014\u2014\u6700\u540E\u8BFB\u5230\u7684\u5148\u663E\u793A\u3002",
+            title: "\u6309\u5E74\u4EFD\u53D6",
+            statement: "\u4E00\u5BB6\u5E97\u8BB0\u5F55 2020\u30012021\u30012022 \u4E09\u5E74\u7684\u9500\u91CF\u3002\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u63D0\u793A\u5E76\u8BFB\u5165\u8FD9\u4E09\u5E74\u7684\u9500\u91CF\uFF0C\u5B58\u8FDB\u4E00\u4E2A**\u4E0B\u754C\u5C31\u662F 2020 \u7684\u6570\u7EC4**\uFF1B\u7136\u540E\u63D0\u793A\u8BFB\u5165\u4E00\u4E2A\u5E74\u4EFD\uFF0C\u663E\u793A\u90A3\u4E00\u5E74\u7684\u9500\u91CF\uFF0C\u6700\u540E\u663E\u793A\u4E09\u5E74\u7684\u603B\u548C\u3002",
             ioSpec: {
-              input: ["\u4E09\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a number`"].join("\n"),
-              output: "\u4E09\u884C\uFF0C\u6BCF\u884C\u4E00\u4E2A\u6570\uFF0C\u987A\u5E8F\u548C\u8BFB\u8FDB\u6765\u7684\u76F8\u53CD\u3002"
+              input: [
+                "\u56DB\u884C `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF0C\u4F9D\u6B21\u662F\uFF1A",
+                "`Enter sales for 2020`",
+                "`Enter sales for 2021`",
+                "`Enter sales for 2022`",
+                "`Enter a year`",
+                "\u6700\u540E\u8BFB\u5165\u7684\u5E74\u4EFD\u4FDD\u8BC1\u662F 2020\u30012021\u30012022 \u4E4B\u4E00\u3002"
+              ].join("\n"),
+              output: [
+                "\u4E24\u884C\uFF1A",
+                "`Sales in <\u5E74\u4EFD>: <\u90A3\u4E00\u5E74\u7684\u9500\u91CF>`",
+                "`Total: <\u4E09\u5E74\u603B\u548C>`",
+                "\u5192\u53F7\u540E\u9762\u90FD\u662F\u4E00\u4E2A\u7A7A\u683C\u3002"
+              ].join("\n")
             },
             constraints: {
               require: [
                 {
                   feature: "decl.array-1d",
-                  reason: "\u4E09\u4E2A\u6570\u8981\u4E00\u8D77\u5B58\u7740\u5F85\u4F1A\u513F\u518D\u7528\uFF0C\u8FD9\u6B63\u662F\u4E00\u6392\u683C\u5B50\u8BE5\u5E72\u7684\u4E8B\u3002"
+                  reason: "\u4E09\u5E74\u7684\u9500\u91CF\u662F\u4E00\u6392\u540C\u7C7B\u578B\u7684\u6570\u636E\uFF0C\u5171\u7528\u4E00\u4E2A\u540D\u5B57\u3001\u9760\u7F16\u53F7\u533A\u5206\u3002"
                 },
                 {
                   feature: "array.index",
-                  reason: "\u5B58\u8FDB\u53BB\u548C\u53D6\u51FA\u6765\u90FD\u8981\u6307\u660E\u662F\u7B2C\u51E0\u4E2A\u683C\u5B50\u3002"
+                  reason: "\u8FD9\u9053\u9898\u7684\u5173\u952E\u5C31\u5728\u4E0B\u6807\u4E0A\uFF1A\u5E74\u4EFD\u672C\u8EAB\u5C31\u662F\u7F16\u53F7\uFF0C\u5B58\u548C\u53D6\u90FD\u76F4\u63A5\u7528\u5B83\u3002"
                 }
               ]
             },
             hints: [
-              "\u5148\u58F0\u660E\u4E00\u4E2A\u88C5\u5F97\u4E0B\u4E09\u4E2A\u6574\u6570\u7684\u6570\u7EC4\uFF0C\u4E0B\u754C\u5199 1\u3002",
-              "\u8BFB\u7684\u65F6\u5019\u6309 1\u30012\u30013 \u5B58\u8FDB\u53BB\uFF0C\u663E\u793A\u7684\u65F6\u5019\u6309 3\u30012\u30011 \u53D6\u51FA\u6765\u3002"
+              "\u58F0\u660E\u65F6\u628A\u4E0A\u4E0B\u754C\u5199\u6210\u771F\u5B9E\u7684\u5E74\u4EFD\uFF0C\u4E0D\u8981\u4ECE 1 \u5F00\u59CB\u2014\u2014`ARRAY[2020:2022]` \u662F\u5408\u6CD5\u7684\u3002",
+              "\u4E0B\u754C\u5199\u5BF9\u4E86\uFF0C\u8BFB\u8FDB\u6765\u7684\u5E74\u4EFD\u5C31\u80FD\u76F4\u63A5\u5F53\u4E0B\u6807\u7528\uFF0C\u4E0D\u9700\u8981\u628A\u5B83\u6362\u7B97\u6210\u300C\u7B2C\u51E0\u4E2A\u300D\u3002",
+              "\u603B\u548C\u90A3\u4E00\u884C\u4E09\u4E2A\u683C\u5B50\u90FD\u8981\u7528\u5230\uFF0C\u4E0B\u6807\u76F4\u63A5\u5199\u5E74\u4EFD\u5C31\u884C\u3002"
             ],
             examples: [
-              { inputs: ["7", "8", "9"], outputs: ["Enter a number", "Enter a number", "Enter a number", "9", "8", "7"] }
+              {
+                inputs: ["120", "150", "90", "2021"],
+                outputs: [
+                  "Enter sales for 2020",
+                  "Enter sales for 2021",
+                  "Enter sales for 2022",
+                  "Enter a year",
+                  "Sales in 2021: 150",
+                  "Total: 360"
+                ]
+              }
             ],
             referenceSolution: [
-              "DECLARE Numbers : ARRAY[1:3] OF INTEGER",
-              'OUTPUT "Enter a number"',
-              "INPUT Numbers[1]",
-              'OUTPUT "Enter a number"',
-              "INPUT Numbers[2]",
-              'OUTPUT "Enter a number"',
-              "INPUT Numbers[3]",
-              "OUTPUT Numbers[3]",
-              "OUTPUT Numbers[2]",
-              "OUTPUT Numbers[1]"
+              "DECLARE Sales : ARRAY[2020:2022] OF INTEGER",
+              "DECLARE Year : INTEGER",
+              'OUTPUT "Enter sales for 2020"',
+              "INPUT Sales[2020]",
+              'OUTPUT "Enter sales for 2021"',
+              "INPUT Sales[2021]",
+              'OUTPUT "Enter sales for 2022"',
+              "INPUT Sales[2022]",
+              'OUTPUT "Enter a year"',
+              "INPUT Year",
+              'OUTPUT "Sales in ", Year, ": ", Sales[Year]',
+              'OUTPUT "Total: ", Sales[2020] + Sales[2021] + Sales[2022]'
             ].join("\n"),
             tests: [
-              { id: "t1", kind: "normal", inputs: ["10", "20", "30"], caseHint: "\u4E09\u4E2A\u5404\u4E0D\u76F8\u540C\u7684\u6570\u3002" },
-              { id: "t2", kind: "normal", inputs: ["5", "5", "9"], caseHint: "\u524D\u4E24\u4E2A\u4E00\u6837\u5927\u3002" },
-              { id: "t3", kind: "boundary", inputs: ["0", "0", "0"], caseHint: "\u5168\u662F\u96F6\u3002" },
-              { id: "t4", kind: "boundary", inputs: ["-1", "-2", "-3"], caseHint: "\u5168\u662F\u8D1F\u6570\u3002" },
-              { id: "t5", kind: "extreme", inputs: ["999999", "1", "888888"], caseHint: "\u63BA\u7740\u5F88\u5927\u548C\u5F88\u5C0F\u7684\u6570\u3002" }
+              { id: "t1", kind: "normal", inputs: ["10", "20", "30", "2021"], caseHint: "\u67E5\u8BE2\u4E2D\u95F4\u90A3\u4E00\u5E74\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["7", "8", "9", "2020"], caseHint: "\u67E5\u8BE2\u7684\u6B63\u662F\u4E0B\u754C\u90A3\u4E00\u5E74\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["4", "5", "6", "2022"], caseHint: "\u67E5\u8BE2\u7684\u6B63\u662F\u4E0A\u754C\u90A3\u4E00\u5E74\u3002" },
+              { id: "t4", kind: "normal", inputs: ["0", "0", "0", "2020"], caseHint: "\u4E09\u5E74\u90FD\u6CA1\u6709\u5356\u51FA\u4E1C\u897F\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["999999", "1", "888888", "2022"], caseHint: "\u63BA\u7740\u5F88\u5927\u548C\u5F88\u5C0F\u7684\u9500\u91CF\u3002" }
             ]
           }
         ]
@@ -5215,74 +5241,64 @@ var CAIETeaching = (() => {
           {
             kind: "task",
             id: "9.3.1",
-            title: "\u6BCF\u884C\u7684\u548C",
-            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165\u4E00\u5F20 2 \u884C 3 \u5217\u7684\u6574\u6570\u8868\u683C\uFF08\u6309\u884C\u8BFB\uFF0C\u5148\u8BFB\u6EE1\u7B2C\u4E00\u884C\u518D\u8BFB\u7B2C\u4E8C\u884C\uFF09\uFF0C\u7136\u540E\u663E\u793A\u6BCF\u4E00\u884C\u7684\u548C\u3002",
+            title: "\u6BCF\u4E00\u5217\u7684\u6700\u5927\u503C",
+            statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165\u4E00\u5F20 3 \u884C 2 \u5217\u7684\u6574\u6570\u8868\u683C\uFF08\u6309\u884C\u8BFB\uFF0C\u5148\u8BFB\u6EE1\u7B2C\u4E00\u884C\uFF0C\u518D\u8BFB\u7B2C\u4E8C\u884C\uFF0C\u518D\u8BFB\u7B2C\u4E09\u884C\uFF09\uFF0C\u7136\u540E\u663E\u793A**\u6BCF\u4E00\u5217**\u91CC\u6700\u5927\u7684\u90A3\u4E2A\u6570\u3002",
             ioSpec: {
-              input: [
-                "\u516D\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF0C\u6309\u5148\u884C\u540E\u5217\u7684\u987A\u5E8F\u8BFB\u5165\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
-                "`Enter a number`"
-              ].join("\n"),
-              output: ["\u4E24\u884C\uFF0C\u5199\u6210\uFF1A", "`Row <\u884C\u53F7>: <\u8FD9\u4E00\u884C\u7684\u548C>`", "\u5192\u53F7\u540E\u9762\u662F\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
+              input: ["\u516D\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF0C\u6309\u884C\u7684\u987A\u5E8F\u7ED9\u51FA\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a number`"].join("\n"),
+              output: [
+                "\u4E24\u884C\uFF0C\u4E00\u5217\u4E00\u884C\uFF0C\u6309\u5217\u53F7\u4ECE\u5C0F\u5230\u5927\uFF1A",
+                "`Col <\u5217\u53F7>: <\u8FD9\u4E00\u5217\u91CC\u6700\u5927\u7684\u6570>`",
+                "\u5192\u53F7\u540E\u9762\u662F\u4E00\u4E2A\u7A7A\u683C\u3002"
+              ].join("\n")
             },
             constraints: {
               require: [
                 {
                   feature: "decl.array-2d",
-                  reason: "\u6570\u636E\u672C\u6765\u5C31\u662F\u4E00\u5F20\u8868\uFF0C\u7528\u4E8C\u7EF4\u6570\u7EC4\u5B58\u4E0B\u6765\u6700\u76F4\u63A5\u3002"
+                  reason: "\u4E00\u5F20\u8868\u8981\u4E24\u4E2A\u7F16\u53F7\u624D\u6307\u5F97\u51C6\u4E00\u4E2A\u683C\u5B50\u3002"
                 },
                 {
                   feature: "array.index-2d",
-                  reason: "\u6307\u4E00\u4E2A\u683C\u5B50\u8981\u540C\u65F6\u7ED9\u51FA\u884C\u548C\u5217\u3002"
-                },
-                {
-                  feature: "loop.nested",
-                  reason: "\u4E00\u5F20\u8868\u8981\u4E24\u5C42\u5FAA\u73AF\u624D\u8D70\u5F97\u5B8C\uFF1A\u5916\u5C42\u7BA1\u884C\uFF0C\u5185\u5C42\u7BA1\u5217\u3002"
+                  reason: "\u8BFB\u8FDB\u6765\u548C\u53D6\u51FA\u6765\u90FD\u8981\u540C\u65F6\u7ED9\u51FA\u884C\u53F7\u548C\u5217\u53F7\u3002"
                 }
               ]
             },
             hints: [
-              "\u8BFB\u5165\u548C\u6C42\u548C\u53EF\u4EE5\u5206\u6210\u4E24\u6BB5\uFF0C\u4E5F\u53EF\u4EE5\u5728\u8BFB\u7684\u540C\u65F6\u5C31\u628A\u8FD9\u4E00\u884C\u52A0\u8D77\u6765\u3002",
-              "\u6BCF\u4E00\u884C\u90FD\u8981\u91CD\u65B0\u4ECE 0 \u5F00\u59CB\u52A0\u2014\u2014\u6E05\u96F6\u90A3\u4E00\u53E5\u653E\u5728\u5916\u5C42\u5FAA\u73AF\u91CC\u9762\u3001\u5185\u5C42\u5FAA\u73AF\u5916\u9762\u3002",
-              "\u663E\u793A\u90A3\u4E00\u884C\u653E\u5728\u5185\u5C42\u5FAA\u73AF\u7684\u540E\u9762\u3001\u5916\u5C42\u5FAA\u73AF\u7684\u91CC\u9762\uFF0C\u624D\u80FD\u505A\u5230\u6BCF\u884C\u4E00\u6761\u3002"
+              "\u8BFB\u7684\u65F6\u5019\u6309\u884C\u8D70\uFF0C\u7B97\u7684\u65F6\u5019\u6309\u5217\u8D70\u2014\u2014\u4E24\u6BB5\u5FAA\u73AF\u7684\u91CC\u5916\u6B63\u597D\u76F8\u53CD\u3002",
+              "\u6C42\u6700\u5927\u503C\u4E0D\u8981\u62FF 0 \u5F53\u8D77\u70B9\uFF0C\u5148\u628A\u8FD9\u4E00\u5217\u7684\u7B2C\u4E00\u4E2A\u6570\u53D6\u6765\u5F53\u8D77\u70B9\uFF0C\u518D\u4ECE\u7B2C\u4E8C\u884C\u5F00\u59CB\u6BD4\u3002",
+              "\u8D77\u70B9\u8981\u5728\u6362\u5230\u4E0B\u4E00\u5217\u7684\u65F6\u5019\u91CD\u65B0\u53D6\u4E00\u6B21\u3002"
             ],
             examples: [
               {
-                inputs: ["1", "2", "3", "10", "20", "30"],
-                outputs: [
-                  "Enter a number",
-                  "Enter a number",
-                  "Enter a number",
-                  "Enter a number",
-                  "Enter a number",
-                  "Enter a number",
-                  "Row 1: 6",
-                  "Row 2: 60"
-                ]
+                inputs: ["4", "9", "7", "2", "1", "8"],
+                outputs: ["Enter a number", "Enter a number", "Enter a number", "Enter a number", "Enter a number", "Enter a number", "Col 1: 7", "Col 2: 9"]
               }
             ],
             referenceSolution: [
-              "DECLARE Grid : ARRAY[1:2, 1:3] OF INTEGER",
-              "DECLARE Sum : INTEGER",
-              "FOR Row \u2190 1 TO 2",
-              "   FOR Col \u2190 1 TO 3",
+              "DECLARE Grid : ARRAY[1:3, 1:2] OF INTEGER",
+              "DECLARE Biggest : INTEGER",
+              "FOR Row \u2190 1 TO 3",
+              "   FOR Col \u2190 1 TO 2",
               '      OUTPUT "Enter a number"',
               "      INPUT Grid[Row, Col]",
               "   NEXT Col",
               "NEXT Row",
-              "FOR Row \u2190 1 TO 2",
-              "   Sum \u2190 0",
-              "   FOR Col \u2190 1 TO 3",
-              "      Sum \u2190 Sum + Grid[Row, Col]",
-              "   NEXT Col",
-              '   OUTPUT "Row ", Row, ": ", Sum',
-              "NEXT Row"
+              "FOR Col \u2190 1 TO 2",
+              "   Biggest \u2190 Grid[1, Col]",
+              "   FOR Row \u2190 2 TO 3",
+              "      IF Grid[Row, Col] > Biggest THEN",
+              "         Biggest \u2190 Grid[Row, Col]",
+              "      ENDIF",
+              "   NEXT Row",
+              '   OUTPUT "Col ", Col, ": ", Biggest',
+              "NEXT Col"
             ].join("\n"),
             tests: [
-              { id: "t1", kind: "normal", inputs: ["4", "5", "6", "7", "8", "9"], caseHint: "\u4E24\u884C\u7684\u548C\u4E0D\u4E00\u6837\u3002" },
-              { id: "t2", kind: "normal", inputs: ["1", "1", "1", "2", "2", "2"], caseHint: "\u6BCF\u4E00\u884C\u91CC\u7684\u6570\u90FD\u76F8\u540C\u3002" },
-              { id: "t3", kind: "boundary", inputs: ["0", "0", "0", "0", "0", "0"], caseHint: "\u6574\u5F20\u8868\u90FD\u662F\u96F6\u3002" },
-              { id: "t4", kind: "boundary", inputs: ["-1", "-2", "-3", "1", "2", "3"], caseHint: "\u4E00\u884C\u5168\u662F\u8D1F\u6570\uFF0C\u53E6\u4E00\u884C\u5168\u662F\u6B63\u6570\uFF0C\u4E24\u884C\u7684\u548C\u6B63\u597D\u76F8\u53CD\u3002" },
-              { id: "t5", kind: "extreme", inputs: ["99999", "1", "1", "1", "1", "99999"], caseHint: "\u4E24\u4E2A\u5F88\u5927\u7684\u6570\u5206\u522B\u843D\u5728\u4E24\u884C\u3002" }
+              { id: "t1", kind: "normal", inputs: ["3", "8", "5", "2", "1", "9"], caseHint: "\u4E24\u5217\u7684\u6700\u5927\u503C\u843D\u5728\u4E0D\u540C\u7684\u884C\u4E0A\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["6", "6", "6", "6", "6", "6"], caseHint: "\u516D\u4E2A\u6570\u5168\u90FD\u4E00\u6837\u5927\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["9", "4", "1", "2", "0", "1"], caseHint: "\u6700\u5927\u503C\u90FD\u5728\u7B2C\u4E00\u884C\uFF0C\u8D77\u70B9\u5C31\u662F\u7B54\u6848\u3002" },
+              { id: "t4", kind: "normal", inputs: ["-5", "-9", "-3", "-7", "-8", "-2"], caseHint: "\u5168\u662F\u8D1F\u6570\uFF0C\u62FF\u96F6\u5F53\u8D77\u70B9\u5C31\u4F1A\u51FA\u9519\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["1", "999999", "888888", "2", "3", "4"], caseHint: "\u63BA\u7740\u5F88\u5927\u548C\u5F88\u5C0F\u7684\u6570\u3002" }
             ]
           }
         ]
@@ -5346,38 +5362,27 @@ var CAIETeaching = (() => {
       {
         kind: "chapterTask",
         id: "9.T1",
-        title: "\u6210\u7EE9\u8868",
-        statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 3 \u4E2A\u5B66\u751F\u5404 2 \u79D1\u7684\u6210\u7EE9\uFF08\u6309\u5B66\u751F\u9010\u4E2A\u8BFB\uFF0C\u6BCF\u4E2A\u5B66\u751F\u5148\u8BFB\u7B2C 1 \u79D1\u518D\u8BFB\u7B2C 2 \u79D1\uFF09\uFF0C\u7136\u540E\u663E\u793A\u6BCF\u4E2A\u5B66\u751F\u7684\u603B\u5206\u548C\u6BCF\u4E00\u79D1\u7684\u5E73\u5747\u5206\u3002",
+        title: "\u53CA\u683C\u6B21\u6570",
+        statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 3 \u4E2A\u5B66\u751F\u5404 4 \u6B21\u6D4B\u9A8C\u7684\u6210\u7EE9\uFF08\u6309\u5B66\u751F\u9010\u4E2A\u8BFB\uFF0C\u6BCF\u4E2A\u5B66\u751F\u6309\u7B2C 1 \u6B21\u5230\u7B2C 4 \u6B21\u7684\u987A\u5E8F\u8BFB\uFF09\uFF0C\u7136\u540E\u663E\u793A\u6BCF\u4E2A\u5B66\u751F\u6709\u51E0\u6B21\u53CA\u683C\uFF0860 \u5206\u53CA\u4EE5\u4E0A\uFF09\uFF0C\u6700\u540E\u663E\u793A\u5168\u73ED\u4E00\u5171\u6709\u51E0\u6B21\u53CA\u683C\u3002",
         ioSpec: {
-          input: [
-            "\u516D\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF0C\u6309\u5148\u5B66\u751F\u540E\u79D1\u76EE\u7684\u987A\u5E8F\u8BFB\u5165\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
-            "`Enter a mark`"
-          ].join("\n"),
+          input: ["\u5341\u4E8C\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF0C\u6309\u5B66\u751F\u9010\u4E2A\u7ED9\u51FA\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a mark`"].join("\n"),
           output: [
-            "\u8BFB\u5B8C\u4E4B\u540E\u663E\u793A\u4E94\u884C\u2014\u2014\u5148\u4E09\u884C\u5B66\u751F\u603B\u5206\uFF0C\u518D\u4E24\u884C\u79D1\u76EE\u5E73\u5747\uFF1A",
-            "`Student <\u7F16\u53F7> total: <\u603B\u5206>`",
-            "`Subject <\u7F16\u53F7> average: <\u5E73\u5747\u5206>`\u3000\uFF08\u53D6\u6574\u6570\u5546\uFF09",
-            "\u6BCF\u4E2A\u5192\u53F7\u540E\u9762\u90FD\u662F\u4E00\u4E2A\u7A7A\u683C\u3002"
+            "\u5148\u662F\u6BCF\u4E2A\u5B66\u751F\u4E00\u884C\uFF0C\u6309\u5B66\u53F7\u4ECE\u5C0F\u5230\u5927\uFF1A",
+            "`Student <\u5B66\u53F7>: <\u8FD9\u4E2A\u5B66\u751F\u53CA\u683C\u51E0\u6B21>`",
+            "\u6700\u540E\u4E00\u884C\uFF1A",
+            "`Class total: <\u5168\u73ED\u53CA\u683C\u603B\u6B21\u6570>`",
+            "\u5192\u53F7\u540E\u9762\u90FD\u662F\u4E00\u4E2A\u7A7A\u683C\u3002"
           ].join("\n")
         },
-        suggestedFeatures: [
-          "decl.array-2d",
-          "array.index-2d",
-          "loop.for",
-          "loop.nested",
-          "op.arithmetic",
-          "op.div",
-          "io.input",
-          "io.output"
-        ],
+        suggestedFeatures: ["decl.array-2d", "array.index-2d", "loop.nested", "select.if"],
         hints: [
-          "\u300C\u6BCF\u4E2A\u5B66\u751F\u7684\u603B\u5206\u300D\u548C\u300C\u6BCF\u4E00\u79D1\u7684\u5E73\u5747\u5206\u300D\u8D70\u7684\u662F\u540C\u4E00\u5F20\u8868\uFF0C\u4F46\u4E24\u5C42\u5FAA\u73AF\u7684\u91CC\u5916\u6B63\u597D\u76F8\u53CD\u3002",
-          "\u7D2F\u52A0\u53D8\u91CF\u8981\u5728\u5916\u5C42\u5FAA\u73AF\u91CC\u9762\u6E05\u96F6\u2014\u2014\u4E0D\u7136\u4E0A\u4E00\u8F6E\u7684\u7ED3\u679C\u4F1A\u88AB\u5E26\u5230\u4E0B\u4E00\u8F6E\u3002",
-          "\u8BFB\u5165\u7684\u987A\u5E8F\u548C\u540E\u9762\u600E\u4E48\u7B97\u65E0\u5173\uFF1A\u5B58\u8FDB\u53BB\u7684\u65F6\u5019\u884C\u662F\u5B66\u751F\u3001\u5217\u662F\u79D1\u76EE\uFF0C\u53D6\u7684\u65F6\u5019\u6309\u9700\u8981\u6311\u5148\u8D70\u54EA\u4E00\u5C42\u3002"
+          "\u4E24\u4E2A\u8BA1\u6570\u5668\u7BA1\u7684\u8303\u56F4\u4E0D\u4E00\u6837\uFF1A\u4E00\u4E2A\u53EA\u7BA1\u5F53\u524D\u8FD9\u4E2A\u5B66\u751F\uFF0C\u4E00\u4E2A\u7BA1\u5168\u73ED\u3002",
+          "\u53EA\u7BA1\u4E00\u4E2A\u5B66\u751F\u7684\u90A3\u4E2A\uFF0C\u8981\u5728\u6362\u5230\u4E0B\u4E00\u4E2A\u5B66\u751F\u7684\u65F6\u5019\u91CD\u65B0\u6E05\u96F6\uFF1B\u7BA1\u5168\u73ED\u7684\u90A3\u4E2A\uFF0C\u6574\u6BB5\u7A0B\u5E8F\u53EA\u6E05\u96F6\u4E00\u6B21\u3002",
+          "\u60F3\u6E05\u695A\u8FD9\u4E24\u6B21\u6E05\u96F6\u5404\u8BE5\u5199\u5728\u54EA\u4E00\u5C42\u5FAA\u73AF\u7684\u91CC\u9762\u8FD8\u662F\u5916\u9762\u3002"
         ],
         examples: [
           {
-            inputs: ["80", "70", "55", "90", "100", "40"],
+            inputs: ["70", "50", "80", "90", "40", "30", "20", "10", "60", "60", "59", "61"],
             outputs: [
               "Enter a mark",
               "Enter a mark",
@@ -5385,44 +5390,48 @@ var CAIETeaching = (() => {
               "Enter a mark",
               "Enter a mark",
               "Enter a mark",
-              "Student 1 total: 150",
-              "Student 2 total: 145",
-              "Student 3 total: 140",
-              "Subject 1 average: 78",
-              "Subject 2 average: 66"
+              "Enter a mark",
+              "Enter a mark",
+              "Enter a mark",
+              "Enter a mark",
+              "Enter a mark",
+              "Enter a mark",
+              "Student 1: 3",
+              "Student 2: 0",
+              "Student 3: 3",
+              "Class total: 6"
             ]
           }
         ],
         referenceSolution: [
-          "DECLARE Marks : ARRAY[1:3, 1:2] OF INTEGER",
-          "DECLARE Total : INTEGER",
+          "DECLARE Marks : ARRAY[1:3, 1:4] OF INTEGER",
+          "DECLARE Passes : INTEGER",
+          "DECLARE ClassTotal : INTEGER",
           "FOR Student \u2190 1 TO 3",
-          "   FOR Subject \u2190 1 TO 2",
+          "   FOR Test \u2190 1 TO 4",
           '      OUTPUT "Enter a mark"',
-          "      INPUT Marks[Student, Subject]",
-          "   NEXT Subject",
+          "      INPUT Marks[Student, Test]",
+          "   NEXT Test",
           "NEXT Student",
+          "ClassTotal \u2190 0",
           "FOR Student \u2190 1 TO 3",
-          "   Total \u2190 0",
-          "   FOR Subject \u2190 1 TO 2",
-          "      Total \u2190 Total + Marks[Student, Subject]",
-          "   NEXT Subject",
-          '   OUTPUT "Student ", Student, " total: ", Total',
+          "   Passes \u2190 0",
+          "   FOR Test \u2190 1 TO 4",
+          "      IF Marks[Student, Test] >= 60 THEN",
+          "         Passes \u2190 Passes + 1",
+          "         ClassTotal \u2190 ClassTotal + 1",
+          "      ENDIF",
+          "   NEXT Test",
+          '   OUTPUT "Student ", Student, ": ", Passes',
           "NEXT Student",
-          "FOR Subject \u2190 1 TO 2",
-          "   Total \u2190 0",
-          "   FOR Student \u2190 1 TO 3",
-          "      Total \u2190 Total + Marks[Student, Subject]",
-          "   NEXT Student",
-          '   OUTPUT "Subject ", Subject, " average: ", Total DIV 3',
-          "NEXT Subject"
+          'OUTPUT "Class total: ", ClassTotal'
         ].join("\n"),
         tests: [
-          { id: "t1", kind: "normal", inputs: ["90", "60", "70", "80", "50", "100"], caseHint: "\u4E09\u4E2A\u5B66\u751F\u4E24\u79D1\u6210\u7EE9\u5404\u4E0D\u76F8\u540C\u3002" },
-          { id: "t2", kind: "boundary", inputs: ["50", "50", "50", "50", "50", "50"], caseHint: "\u6240\u6709\u6210\u7EE9\u4E00\u6A21\u4E00\u6837\u3002" },
-          { id: "t3", kind: "boundary", inputs: ["0", "0", "0", "0", "0", "1"], caseHint: "\u51E0\u4E4E\u5168\u662F\u96F6\uFF0C\u53EA\u6709\u6700\u540E\u4E00\u683C\u4E0D\u662F\u2014\u2014\u5E73\u5747\u5206\u4F1A\u88AB\u6574\u9664\u622A\u6389\u3002" },
-          { id: "t4", kind: "normal", inputs: ["100", "0", "0", "100", "100", "0"], caseHint: "\u6BCF\u4E2A\u5B66\u751F\u90FD\u662F\u4E00\u79D1\u6EE1\u5206\u4E00\u79D1\u96F6\u5206\u3002" },
-          { id: "t5", kind: "extreme", inputs: ["99999", "1", "1", "1", "1", "99999"], caseHint: "\u4E24\u4E2A\u5F88\u5927\u7684\u5206\u6570\u843D\u5728\u4E0D\u540C\u7684\u5B66\u751F\u548C\u79D1\u76EE\u4E0A\u3002" }
+          { id: "t1", kind: "normal", inputs: ["61", "62", "10", "20", "70", "10", "70", "10", "99", "99", "99", "99"], caseHint: "\u4E09\u4E2A\u5B66\u751F\u53CA\u683C\u6B21\u6570\u5404\u4E0D\u76F8\u540C\u3002" },
+          { id: "t2", kind: "boundary", inputs: ["10", "20", "30", "40", "11", "21", "31", "41", "12", "22", "32", "42"], caseHint: "\u8C01\u90FD\u6CA1\u6709\u53CA\u683C\u8FC7\u3002" },
+          { id: "t3", kind: "boundary", inputs: ["60", "60", "60", "60", "60", "60", "60", "60", "60", "60", "60", "60"], caseHint: "\u5168\u90E8\u6B63\u597D\u8E29\u5728\u53CA\u683C\u7EBF\u4E0A\u3002" },
+          { id: "t4", kind: "normal", inputs: ["59", "59", "59", "59", "60", "60", "60", "60", "59", "60", "59", "60"], caseHint: "\u5DEE\u4E00\u5206\u548C\u6B63\u597D\u53CA\u683C\u6328\u5728\u4E00\u8D77\u3002" },
+          { id: "t5", kind: "extreme", inputs: ["0", "100", "0", "100", "100", "0", "100", "0", "0", "0", "100", "100"], caseHint: "\u53EA\u6709\u96F6\u5206\u548C\u6EE1\u5206\u3002" }
         ]
       }
     ]
@@ -5513,7 +5522,8 @@ var CAIETeaching = (() => {
             title: "\u8D70\u904D\u6BCF\u4E00\u683C\uFF0C\u6BD4\u4E2D\u5C31\u62A5",
             fileName: "Example_10_1_a.pseudocode",
             code: [
-              "DECLARE Scores : ARRAY[1:5] OF INTEGER",
+              "CONSTANT Size = 5",
+              "DECLARE Scores : ARRAY[1:Size] OF INTEGER",
               "DECLARE Target : INTEGER",
               "Scores[1] \u2190 30",
               "Scores[2] \u2190 80",
@@ -5521,16 +5531,16 @@ var CAIETeaching = (() => {
               "Scores[4] \u2190 80",
               "Scores[5] \u2190 12",
               "Target \u2190 80",
-              "FOR I \u2190 1 TO 5",
+              "FOR I \u2190 1 TO Size",
               "   IF Scores[I] = Target THEN",
               '      OUTPUT "Found at ", I',
               "   ENDIF",
               "NEXT I"
             ].join("\n"),
             annotations: [
-              { fromLine: 8, toLine: 8, text: "\u8981\u627E\u7684\u503C\u3002\u628A\u5B83\u5355\u72EC\u653E\u8FDB\u4E00\u4E2A\u53D8\u91CF\uFF0C\u6362\u4E2A\u76EE\u6807\u53EA\u8981\u6539\u8FD9\u4E00\u884C\u3002" },
-              { fromLine: 9, toLine: 13, text: "\u4ECE\u7B2C 1 \u683C\u8D70\u5230\u7B2C 5 \u683C\uFF0C\u6BCF\u4E00\u683C\u90FD\u8DDF `Target` \u6BD4\u4E00\u6B21\u3002" },
-              { fromLine: 10, toLine: 12, text: "\u76F8\u7B49\u5C31\u62A5\u51FA\u4E0B\u6807\u3002\u6CE8\u610F\u8FD9\u91CC\u62A5\u5B8C\u8FD8\u63A5\u7740\u8D70\u2014\u2014`FOR` \u4E0D\u4F1A\u56E0\u4E3A\u627E\u5230\u4E86\u5C31\u505C\u3002" }
+              { fromLine: 9, toLine: 9, text: "\u8981\u627E\u7684\u503C\u3002\u628A\u5B83\u5355\u72EC\u653E\u8FDB\u4E00\u4E2A\u53D8\u91CF\uFF0C\u6362\u4E2A\u76EE\u6807\u53EA\u8981\u6539\u8FD9\u4E00\u884C\u3002" },
+              { fromLine: 10, toLine: 14, text: "\u4ECE\u7B2C 1 \u683C\u8D70\u5230\u7B2C 5 \u683C\uFF0C\u6BCF\u4E00\u683C\u90FD\u8DDF `Target` \u6BD4\u4E00\u6B21\u3002" },
+              { fromLine: 11, toLine: 13, text: "\u76F8\u7B49\u5C31\u62A5\u51FA\u4E0B\u6807\u3002\u6CE8\u610F\u8FD9\u91CC\u62A5\u5B8C\u8FD8\u63A5\u7740\u8D70\u2014\u2014`FOR` \u4E0D\u4F1A\u56E0\u4E3A\u627E\u5230\u4E86\u5C31\u505C\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -5582,7 +5592,7 @@ var CAIETeaching = (() => {
             paragraphs: [
               "\u4E0A\u4E00\u8282\u90A3\u6BB5\u6709\u4E24\u5904\u8981\u8865\uFF1A\u627E\u5230\u4E86\u8FD8\u63A5\u7740\u628A\u5269\u4E0B\u7684\u683C\u5B50\u8D70\u5B8C\uFF0C\u800C\u627E\u4E0D\u5230\u7684\u65F6\u5019\u5C4F\u5E55\u4E0A\u4E00\u4E2A\u5B57\u90FD\u6CA1\u6709\u3002\u8981\u8865\u8FD9\u4E24\u5904\uFF0C\u53EA\u9700\u8981\u4E00\u4E2A `BOOLEAN` \u53D8\u91CF\u3002",
               "\u8FD9\u79CD\u300C\u8BB0\u5F55\u67D0\u4EF6\u4E8B\u6709\u6CA1\u6709\u53D1\u751F\u8FC7\u300D\u7684\u53D8\u91CF\u53EB**\u6807\u5FD7\uFF08flag\uFF09**\u3002\u5F00\u59CB\u65F6\u8BBE\u6210 `FALSE`\uFF0C\u4E00\u65E6\u6BD4\u4E2D\u5C31\u6539\u6210 `TRUE`\u3002\u5FAA\u73AF\u7ED3\u675F\u4E4B\u540E\u770B\u5B83\u4E00\u773C\uFF0C\u5C31\u77E5\u9053\u5230\u5E95\u627E\u6CA1\u627E\u5230\u2014\u2014\u8FD9\u53E5\u8BDD\uFF0C\u5C4F\u5E55\u4E0A\u5FC5\u987B\u6709\u3002",
-              "\u6709\u4E86\u6807\u5FD7\uFF0C\u5FAA\u73AF\u7684\u6761\u4EF6\u5C31\u5199\u5F97\u51FA\u6765\u4E86\uFF1A`WHILE Found = FALSE AND Position <= 5`\u2014\u2014**\u8FD8\u6CA1\u627E\u5230\u3001\u800C\u4E14\u8FD8\u6CA1\u8D70\u5B8C**\uFF0C\u624D\u7EE7\u7EED\u8D70\u3002\u4E24\u4E2A\u6761\u4EF6\u91CC\u4EFB\u4F55\u4E00\u4E2A\u4E0D\u6210\u7ACB\uFF0C\u5FAA\u73AF\u7ACB\u523B\u505C\u3002\u8FD9\u6B63\u662F\u7B2C 5 \u7AE0\u8BF4\u7684\u300C\u6B21\u6570\u4E8B\u5148\u4E0D\u77E5\u9053\u300D\uFF1A\u8D70\u51E0\u683C\u53D6\u51B3\u4E8E\u6570\u636E\u3002",
+              "\u6709\u4E86\u6807\u5FD7\uFF0C\u5FAA\u73AF\u7684\u6761\u4EF6\u5C31\u5199\u5F97\u51FA\u6765\u4E86\uFF1A`WHILE Found = FALSE AND Position <= Size`\u2014\u2014**\u8FD8\u6CA1\u627E\u5230\u3001\u800C\u4E14\u8FD8\u6CA1\u8D70\u5B8C**\uFF0C\u624D\u7EE7\u7EED\u8D70\u3002\u4E24\u4E2A\u6761\u4EF6\u91CC\u4EFB\u4F55\u4E00\u4E2A\u4E0D\u6210\u7ACB\uFF0C\u5FAA\u73AF\u7ACB\u523B\u505C\u3002\u8FD9\u6B63\u662F\u7B2C 5 \u7AE0\u8BF4\u7684\u300C\u6B21\u6570\u4E8B\u5148\u4E0D\u77E5\u9053\u300D\uFF1A\u8D70\u51E0\u683C\u53D6\u51B3\u4E8E\u6570\u636E\u3002\u6807\u5FD7\u672C\u8EAB\u5C31\u662F\u4E00\u4E2A\u5E03\u5C14\u503C\uFF0C\u6240\u4EE5\u8FD9\u4E2A\u6761\u4EF6\u6709\u4E24\u79CD\u5199\u6CD5\uFF1A`Found = FALSE` \u662F\u62FF\u5B83\u548C `FALSE` \u6BD4\u4E00\u6B21\uFF0C`NOT Found` \u662F\u76F4\u63A5\u628A\u5B83\u53CD\u8FC7\u6765\uFF0C**\u4E24\u79CD\u610F\u601D\u5B8C\u5168\u4E00\u6837\uFF0C\u8003\u8BD5\u90FD\u63A5\u53D7**\uFF1B\u8FD9\u91CC\u5199\u6210 `Found = FALSE` \u662F\u56E0\u4E3A\u5B83\u628A\u300C\u5728\u6BD4\u4EC0\u4E48\u300D\u6446\u5728\u660E\u9762\u4E0A\uFF0C\u800C\u522B\u4EBA\u7684\u4EE3\u7801\u91CC `NOT Found` \u66F4\u5E38\u89C1\uFF0C\u8981\u8BA4\u5F97\u51FA\u6765\u3002",
               "`Position` \u505C\u5728\u54EA\u91CC\u4E5F\u662F\u7ED3\u679C\u7684\u4E00\u90E8\u5206\uFF1A\u627E\u5230\u65F6\u5B83\u505C\u5728\u90A3\u4E00\u683C\u4E0A\uFF0C\u6CA1\u627E\u5230\u65F6\u5B83\u5DF2\u7ECF\u8D8A\u8FC7\u4E0A\u754C\u3002\u6240\u4EE5**\u5148\u770B\u6807\u5FD7\uFF0C\u518D\u51B3\u5B9A `Position` \u80FD\u4E0D\u80FD\u62FF\u6765\u7528**\u2014\u2014\u987A\u5E8F\u53CD\u4E86\u5C31\u4F1A\u62A5\u51FA\u4E00\u4E2A\u6839\u672C\u4E0D\u5B58\u5728\u7684\u4F4D\u7F6E\u3002"
             ]
           },
@@ -5591,7 +5601,8 @@ var CAIETeaching = (() => {
             title: "\u5E26\u6807\u5FD7\u7684\u7EBF\u6027\u67E5\u627E",
             fileName: "Example_10_2_a.pseudocode",
             code: [
-              "DECLARE Scores : ARRAY[1:5] OF INTEGER",
+              "CONSTANT Size = 5",
+              "DECLARE Scores : ARRAY[1:Size] OF INTEGER",
               "DECLARE Position : INTEGER",
               "DECLARE Target : INTEGER",
               "DECLARE Found : BOOLEAN",
@@ -5603,7 +5614,7 @@ var CAIETeaching = (() => {
               "Target \u2190 99",
               "Found \u2190 FALSE",
               "Position \u2190 1",
-              "WHILE Found = FALSE AND Position <= 5",
+              "WHILE Found = FALSE AND Position <= Size",
               "   IF Scores[Position] = Target THEN",
               "      Found \u2190 TRUE",
               "   ELSE",
@@ -5617,10 +5628,10 @@ var CAIETeaching = (() => {
               "ENDIF"
             ].join("\n"),
             annotations: [
-              { fromLine: 11, toLine: 12, text: "\u4E24\u4E2A\u8D77\u70B9\uFF1A\u8FD8\u6CA1\u627E\u5230\uFF0C\u4ECE\u7B2C 1 \u683C\u5F00\u59CB\u3002\u8FD9\u4E24\u884C\u5C11\u4E00\u884C\uFF0C\u5FAA\u73AF\u7B2C\u4E00\u6B21\u5C31\u5224\u65AD\u4E0D\u4E86\u3002" },
-              { fromLine: 13, toLine: 13, text: "\u4E24\u4E2A\u7EE7\u7EED\u6761\u4EF6\u3002\u627E\u5230\u4E86\uFF0C\u6216\u8005\u8D70\u8FC7\u5934\u4E86\uFF0C\u90FD\u505C\u3002" },
-              { fromLine: 14, toLine: 18, text: "\u6BD4\u4E2D\u5C31\u628A\u6807\u5FD7\u7ACB\u8D77\u6765\u2014\u2014\u6CE8\u610F\u8FD9\u65F6**\u4E0D\u518D\u52A0 1**\uFF0C`Position` \u8981\u505C\u5728\u547D\u4E2D\u7684\u90A3\u4E00\u683C\u4E0A\u3002\u6CA1\u6BD4\u4E2D\u624D\u5F80\u524D\u8D70\u3002" },
-              { fromLine: 20, toLine: 24, text: "\u5FAA\u73AF\u4E4B\u540E\u5148\u770B\u6807\u5FD7\u3002\u8FD9\u6BB5 `ELSE` \u5C31\u662F\u4E0A\u4E00\u8282\u7F3A\u7684\u90A3\u53E5\u8BDD\u3002" }
+              { fromLine: 12, toLine: 13, text: "\u4E24\u4E2A\u8D77\u70B9\uFF1A\u8FD8\u6CA1\u627E\u5230\uFF0C\u4ECE\u7B2C 1 \u683C\u5F00\u59CB\u3002\u8FD9\u4E24\u884C\u5C11\u4E00\u884C\uFF0C\u5FAA\u73AF\u7B2C\u4E00\u6B21\u5C31\u5224\u65AD\u4E0D\u4E86\u3002" },
+              { fromLine: 14, toLine: 14, text: "\u4E24\u4E2A\u7EE7\u7EED\u6761\u4EF6\u3002\u627E\u5230\u4E86\uFF0C\u6216\u8005\u8D70\u8FC7\u5934\u4E86\uFF0C\u90FD\u505C\u3002" },
+              { fromLine: 15, toLine: 19, text: "\u6BD4\u4E2D\u5C31\u628A\u6807\u5FD7\u7ACB\u8D77\u6765\u2014\u2014\u6CE8\u610F\u8FD9\u65F6**\u4E0D\u518D\u52A0 1**\uFF0C`Position` \u8981\u505C\u5728\u547D\u4E2D\u7684\u90A3\u4E00\u683C\u4E0A\u3002\u6CA1\u6BD4\u4E2D\u624D\u5F80\u524D\u8D70\u3002" },
+              { fromLine: 21, toLine: 25, text: "\u5FAA\u73AF\u4E4B\u540E\u5148\u770B\u6807\u5FD7\u3002\u8FD9\u6BB5 `ELSE` \u5C31\u662F\u4E0A\u4E00\u8282\u7F3A\u7684\u90A3\u53E5\u8BDD\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -5769,29 +5780,30 @@ var CAIETeaching = (() => {
             title: "\u53EA\u8D70\u4E00\u8D9F",
             fileName: "Example_10_3_a.pseudocode",
             code: [
-              "DECLARE Values : ARRAY[1:5] OF INTEGER",
+              "CONSTANT Size = 5",
+              "DECLARE Values : ARRAY[1:Size] OF INTEGER",
               "DECLARE Temp : INTEGER",
               "Values[1] \u2190 3",
               "Values[2] \u2190 9",
               "Values[3] \u2190 1",
               "Values[4] \u2190 7",
               "Values[5] \u2190 5",
-              "FOR J \u2190 1 TO 4",
+              "FOR J \u2190 1 TO Size - 1",
               "   IF Values[J] > Values[J + 1] THEN",
               "      Temp \u2190 Values[J]",
               "      Values[J] \u2190 Values[J + 1]",
               "      Values[J + 1] \u2190 Temp",
               "   ENDIF",
               "NEXT J",
-              "FOR J \u2190 1 TO 5",
+              "FOR J \u2190 1 TO Size",
               "   OUTPUT Values[J]",
               "NEXT J"
             ].join("\n"),
             annotations: [
-              { fromLine: 8, toLine: 8, text: "\u4E94\u683C\u53EA\u6BD4\u56DB\u5BF9\uFF1A\u7B2C 5 \u683C\u6CA1\u6709\u53F3\u90BB\u5C45\uFF0C\u6240\u4EE5\u7EC8\u70B9\u662F 4 \u800C\u4E0D\u662F 5\u3002" },
-              { fromLine: 9, toLine: 13, text: "\u53EA\u6BD4\u76F8\u90BB\u7684\u4E24\u683C\u3002\u6574\u4E2A\u5192\u6CE1\u6392\u5E8F\u5C31\u53EA\u505A\u8FD9\u4E00\u4EF6\u4E8B\uFF0C\u522B\u7684\u90FD\u662F\u91CD\u590D\u5B83\u3002" },
-              { fromLine: 10, toLine: 12, text: "\u4E09\u6B65\u4EA4\u6362\uFF1A\u5148\u628A\u5DE6\u8FB9\u7684\u503C\u5B58\u8D77\u6765\uFF0C\u518D\u628A\u53F3\u8FB9\u7684\u642C\u8FC7\u6765\uFF0C\u6700\u540E\u628A\u5B58\u7740\u7684\u90A3\u4E2A\u653E\u5230\u53F3\u8FB9\u3002" },
-              { fromLine: 15, toLine: 17, text: "\u4E00\u8D9F\u4E4B\u540E\u7684\u6837\u5B50\uFF1A\u6700\u5927\u7684 9 \u5DF2\u7ECF\u5728\u6700\u540E\u4E00\u683C\u4E86\uFF0C\u524D\u9762\u51E0\u4E2A\u8FD8\u4E71\u7740\u3002" }
+              { fromLine: 9, toLine: 9, text: "\u4E94\u683C\u53EA\u6BD4\u56DB\u5BF9\uFF1A\u7B2C 5 \u683C\u6CA1\u6709\u53F3\u90BB\u5C45\uFF0C\u6240\u4EE5\u7EC8\u70B9\u662F 4 \u800C\u4E0D\u662F 5\u3002" },
+              { fromLine: 10, toLine: 14, text: "\u53EA\u6BD4\u76F8\u90BB\u7684\u4E24\u683C\u3002\u6574\u4E2A\u5192\u6CE1\u6392\u5E8F\u5C31\u53EA\u505A\u8FD9\u4E00\u4EF6\u4E8B\uFF0C\u522B\u7684\u90FD\u662F\u91CD\u590D\u5B83\u3002" },
+              { fromLine: 11, toLine: 13, text: "\u4E09\u6B65\u4EA4\u6362\uFF1A\u5148\u628A\u5DE6\u8FB9\u7684\u503C\u5B58\u8D77\u6765\uFF0C\u518D\u628A\u53F3\u8FB9\u7684\u642C\u8FC7\u6765\uFF0C\u6700\u540E\u628A\u5B58\u7740\u7684\u90A3\u4E2A\u653E\u5230\u53F3\u8FB9\u3002" },
+              { fromLine: 16, toLine: 18, text: "\u4E00\u8D9F\u4E4B\u540E\u7684\u6837\u5B50\uFF1A\u6700\u5927\u7684 9 \u5DF2\u7ECF\u5728\u6700\u540E\u4E00\u683C\u4E86\uFF0C\u524D\u9762\u51E0\u4E2A\u8FD8\u4E71\u7740\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -5861,8 +5873,8 @@ var CAIETeaching = (() => {
             paragraphs: [
               "\u4E00\u8D9F\u9001\u4E00\u4E2A\u6570\u5230\u4F4D\uFF0C\u90A3\u5C31\u591A\u8D70\u51E0\u8D9F\uFF1A**\u5916\u5C42\u6570\u8D9F\u6570\uFF0C\u5185\u5C42\u8D70\u4E00\u8D9F**\u2014\u2014\u53C8\u662F\u4E00\u5BF9\u5D4C\u5957\u5FAA\u73AF\uFF0C\u53EA\u4E0D\u8FC7\u8FD9\u56DE\u5185\u5C42\u505A\u7684\u4E8B\u662F\u6BD4\u8F83\u548C\u4EA4\u6362\u3002",
               "5 \u4E2A\u6570\u8981\u8D70\u51E0\u8D9F\uFF1F4 \u8D9F\u3002\u524D\u56DB\u8D9F\u628A\u6700\u5927\u7684\u56DB\u4E2A\u4F9D\u6B21\u5B89\u987F\u597D\uFF0C\u5269\u4E0B\u7684\u90A3\u4E00\u4E2A\u81EA\u7136\u5C31\u5728\u7B2C\u4E00\u683C\u4E86\u2014\u2014**n \u4E2A\u6570\u6700\u591A\u8D70 n-1 \u8D9F**\u3002",
-              "\u5185\u5C42\u7684\u7EC8\u70B9\u6BCF\u8D9F\u90FD\u5F80\u56DE\u7F29\u4E00\u683C\uFF1A\u7B2C `I` \u8D9F\u5F00\u59CB\u65F6\uFF0C\u672B\u5C3E\u5DF2\u7ECF\u6709 `I - 1` \u4E2A\u5230\u4F4D\u4E86\uFF0C\u4E0D\u5FC5\u518D\u78B0\u3002\u5199\u6210 `FOR J \u2190 1 TO 5 - I`\uFF0C\u968F\u7740\u8D9F\u6570\u9012\u589E\u81EA\u52A8\u7F29\u77ED\u3002",
-              "\u4E3A\u4EC0\u4E48\u662F `5 - I` \u800C\u4E0D\u662F `5`\uFF1F\u56E0\u4E3A\u5185\u5C42\u6BD4\u7684\u662F `Values[J]` \u548C `Values[J + 1]`\uFF1AJ \u8D70\u5230\u54EA\u513F\uFF0C\u53F3\u8FB9\u90A3\u4E00\u683C\u5C31\u5F97\u8FD8\u5728\u6570\u7EC4\u91CC\u3002\u7EC8\u70B9\u5199\u6210 5\uFF0C\u7B2C\u4E00\u8D9F J \u5C31\u4F1A\u8D70\u5230 5\uFF0C\u800C `Values[6]` \u6839\u672C\u4E0D\u5B58\u5728\u2014\u2014\u7A0B\u5E8F\u4F1A\u5728\u90A3\u4E00\u884C\u505C\u4E0B\u6765\u3002"
+              "\u5185\u5C42\u7684\u7EC8\u70B9\u6BCF\u8D9F\u90FD\u5F80\u56DE\u7F29\u4E00\u683C\uFF1A\u7B2C `I` \u8D9F\u5F00\u59CB\u65F6\uFF0C\u672B\u5C3E\u5DF2\u7ECF\u6709 `I - 1` \u4E2A\u5230\u4F4D\u4E86\uFF0C\u4E0D\u5FC5\u518D\u78B0\u3002\u5199\u6210 `FOR J \u2190 1 TO Size - I`\uFF0C\u968F\u7740\u8D9F\u6570\u9012\u589E\u81EA\u52A8\u7F29\u77ED\u3002",
+              "\u4E3A\u4EC0\u4E48\u5185\u5C42\u7684\u7EC8\u70B9\u8981\u51CF `I`\uFF0C\u800C\u4E0D\u662F\u6BCF\u8D9F\u90FD\u8D70\u5230\u5E95\uFF1F\u56E0\u4E3A\u5185\u5C42\u6BD4\u7684\u662F `Values[J]` \u548C `Values[J + 1]`\uFF1AJ \u8D70\u5230\u54EA\u513F\uFF0C\u53F3\u8FB9\u90A3\u4E00\u683C\u5C31\u5F97\u8FD8\u5728\u6570\u7EC4\u91CC\u3002\u7EC8\u70B9\u5199\u6210 `Size`\uFF0C\u7B2C\u4E00\u8D9F J \u5C31\u4F1A\u8D70\u5230\u6700\u540E\u4E00\u683C\uFF0C\u800C\u5B83\u53F3\u8FB9\u90A3\u4E00\u683C\u6839\u672C\u4E0D\u5B58\u5728\u2014\u2014\u7A0B\u5E8F\u4F1A\u5728\u90A3\u4E00\u884C\u505C\u4E0B\u6765\u3002\u987A\u4FBF\u770B\u4E00\u773C\u793A\u4F8B\u7684\u7B2C\u4E00\u884C\uFF1A\u683C\u5B50\u6570\u5199\u6210\u4E86\u5E38\u91CF `Size`\uFF0C\u4E8E\u662F\u6570\u7EC4\u7684\u4E0A\u754C\u3001\u5916\u5C42\u7684\u8D9F\u6570\u3001\u5185\u5C42\u7684\u7EC8\u70B9\u3001\u6700\u540E\u663E\u793A\u90A3\u4E00\u5708\u5168\u90FD\u8DDF\u7740\u5B83\u8D70\u2014\u2014\u8981\u6539\u6210 10 \u4E2A\u6570\uFF0C\u53EA\u52A8\u7B2C\u4E00\u884C\u3002"
             ],
             callouts: [
               {
@@ -5876,15 +5888,16 @@ var CAIETeaching = (() => {
             title: "\u5B8C\u6574\u7684\u5192\u6CE1\u6392\u5E8F",
             fileName: "Example_10_4_a.pseudocode",
             code: [
-              "DECLARE Values : ARRAY[1:5] OF INTEGER",
+              "CONSTANT Size = 5",
+              "DECLARE Values : ARRAY[1:Size] OF INTEGER",
               "DECLARE Temp : INTEGER",
               "Values[1] \u2190 3",
               "Values[2] \u2190 9",
               "Values[3] \u2190 1",
               "Values[4] \u2190 7",
               "Values[5] \u2190 5",
-              "FOR I \u2190 1 TO 4",
-              "   FOR J \u2190 1 TO 5 - I",
+              "FOR I \u2190 1 TO Size - 1",
+              "   FOR J \u2190 1 TO Size - I",
               "      IF Values[J] > Values[J + 1] THEN",
               "         Temp \u2190 Values[J]",
               "         Values[J] \u2190 Values[J + 1]",
@@ -5892,14 +5905,14 @@ var CAIETeaching = (() => {
               "      ENDIF",
               "   NEXT J",
               "NEXT I",
-              "FOR I \u2190 1 TO 5",
+              "FOR I \u2190 1 TO Size",
               "   OUTPUT Values[I]",
               "NEXT I"
             ].join("\n"),
             annotations: [
-              { fromLine: 8, toLine: 8, text: "\u5916\u5C42\u53EA\u7BA1\u6570\u8D9F\u6570\uFF1A5 \u4E2A\u6570\u8D70 4 \u8D9F\u3002`I` \u5728\u5FAA\u73AF\u4F53\u91CC\u4E0D\u7528\u6765\u53D6\u683C\u5B50\uFF0C\u5B83\u53EA\u662F\u300C\u7B2C\u51E0\u8D9F\u300D\u3002" },
-              { fromLine: 9, toLine: 9, text: "\u5185\u5C42\u7684\u7EC8\u70B9\u8DDF\u7740\u8D9F\u6570\u7F29\uFF1A\u7B2C 1 \u8D9F\u6BD4\u5230\u7B2C 4 \u5BF9\uFF0C\u7B2C 4 \u8D9F\u53EA\u6BD4\u7B2C 1 \u5BF9\u3002" },
-              { fromLine: 10, toLine: 14, text: "\u548C\u4E0A\u4E00\u8282\u90A3\u6BB5\u4E00\u6A21\u4E00\u6837\u3002\u6574\u4E2A\u6392\u5E8F\u7684\u529B\u6C14\u5168\u5728\u8FD9\u4E94\u884C\u4E0A\u3002" }
+              { fromLine: 9, toLine: 9, text: "\u5916\u5C42\u53EA\u7BA1\u6570\u8D9F\u6570\uFF1A5 \u4E2A\u6570\u8D70 4 \u8D9F\u3002`I` \u5728\u5FAA\u73AF\u4F53\u91CC\u4E0D\u7528\u6765\u53D6\u683C\u5B50\uFF0C\u5B83\u53EA\u662F\u300C\u7B2C\u51E0\u8D9F\u300D\u3002" },
+              { fromLine: 10, toLine: 10, text: "\u5185\u5C42\u7684\u7EC8\u70B9\u8DDF\u7740\u8D9F\u6570\u7F29\uFF1A\u7B2C 1 \u8D9F\u6BD4\u5230\u7B2C 4 \u5BF9\uFF0C\u7B2C 4 \u8D9F\u53EA\u6BD4\u7B2C 1 \u5BF9\u3002" },
+              { fromLine: 11, toLine: 15, text: "\u548C\u4E0A\u4E00\u8282\u90A3\u6BB5\u4E00\u6A21\u4E00\u6837\u3002\u6574\u4E2A\u6392\u5E8F\u7684\u529B\u6C14\u5168\u5728\u8FD9\u4E94\u884C\u4E0A\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -6035,7 +6048,8 @@ var CAIETeaching = (() => {
             title: "\u5E26\u6807\u5FD7\u7684\u5192\u6CE1\u6392\u5E8F",
             fileName: "Example_10_5_a.pseudocode",
             code: [
-              "DECLARE Values : ARRAY[1:5] OF INTEGER",
+              "CONSTANT Size = 5",
+              "DECLARE Values : ARRAY[1:Size] OF INTEGER",
               "DECLARE Temp : INTEGER",
               "DECLARE Swapped : BOOLEAN",
               "DECLARE Passes : INTEGER",
@@ -6058,15 +6072,15 @@ var CAIETeaching = (() => {
               "   NEXT J",
               "UNTIL Swapped = FALSE",
               'OUTPUT "Passes: ", Passes',
-              "FOR I \u2190 1 TO 5",
+              "FOR I \u2190 1 TO Size",
               "   OUTPUT Values[I]",
               "NEXT I"
             ].join("\n"),
             annotations: [
-              { fromLine: 12, toLine: 12, text: "\u6E05\u96F6\u653E\u5728\u6BCF\u8D9F\u7684\u5F00\u5934\uFF0C\u4E0D\u80FD\u653E\u5728 `REPEAT` \u4E4B\u524D\u2014\u2014\u90A3\u6837\u53EA\u6709\u7B2C\u4E00\u8D9F\u7B97\u6570\u3002" },
-              { fromLine: 19, toLine: 19, text: "\u53EA\u8981\u6362\u8FC7\u4E00\u6B21\u5C31\u7ACB\u8D77\u6765\u3002\u5B83\u56DE\u7B54\u7684\u662F\u300C\u8FD9\u4E00\u8D9F\u6709\u6CA1\u6709\u52A8\u8FC7\u300D\u3002" },
-              { fromLine: 22, toLine: 22, text: "\u4E00\u8D9F\u90FD\u6CA1\u6362\uFF0C\u5C31\u8BF4\u660E\u5DF2\u7ECF\u6392\u597D\uFF0C\u5FAA\u73AF\u5230\u6B64\u4E3A\u6B62\u3002" },
-              { fromLine: 23, toLine: 23, text: "\u8FD9\u91CC\u628A\u8D9F\u6570\u663E\u793A\u51FA\u6765\u53EA\u662F\u4E3A\u4E86\u770B\u5F97\u89C1\uFF1B\u771F\u6B63\u5728\u7528\u7684\u7A0B\u5E8F\u91CC\u4E0D\u9700\u8981\u8FD9\u4E00\u884C\u3002" }
+              { fromLine: 13, toLine: 13, text: "\u6E05\u96F6\u653E\u5728\u6BCF\u8D9F\u7684\u5F00\u5934\uFF0C\u4E0D\u80FD\u653E\u5728 `REPEAT` \u4E4B\u524D\u2014\u2014\u90A3\u6837\u53EA\u6709\u7B2C\u4E00\u8D9F\u7B97\u6570\u3002" },
+              { fromLine: 20, toLine: 20, text: "\u53EA\u8981\u6362\u8FC7\u4E00\u6B21\u5C31\u7ACB\u8D77\u6765\u3002\u5B83\u56DE\u7B54\u7684\u662F\u300C\u8FD9\u4E00\u8D9F\u6709\u6CA1\u6709\u52A8\u8FC7\u300D\u3002" },
+              { fromLine: 23, toLine: 23, text: "\u4E00\u8D9F\u90FD\u6CA1\u6362\uFF0C\u5C31\u8BF4\u660E\u5DF2\u7ECF\u6392\u597D\uFF0C\u5FAA\u73AF\u5230\u6B64\u4E3A\u6B62\u3002" },
+              { fromLine: 24, toLine: 24, text: "\u8FD9\u91CC\u628A\u8D9F\u6570\u663E\u793A\u51FA\u6765\u53EA\u662F\u4E3A\u4E86\u770B\u5F97\u89C1\uFF1B\u771F\u6B63\u5728\u7528\u7684\u7A0B\u5E8F\u91CC\u4E0D\u9700\u8981\u8FD9\u4E00\u884C\u3002" }
             ],
             sampleRun: {
               inputs: [],
@@ -7425,12 +7439,16 @@ var CAIETeaching = (() => {
               "\u628A\u4E00\u4E2A\u53D8\u91CF\u5F53\u5B9E\u53C2\u9012\u8FDB\u8FC7\u7A0B\u4E4B\u540E\uFF0C\u8FC7\u7A0B\u91CC\u6539\u4E86\u5B83\uFF0C\u5916\u9762\u90A3\u4E2A\u53D8\u91CF\u4F1A\u8DDF\u7740\u53D8\u5417\uFF1F**\u9ED8\u8BA4\u4E0D\u4F1A\u3002**\u9012\u8FDB\u53BB\u7684\u662F\u503C\u7684\u4E00\u4EFD**\u526F\u672C**\uFF0C\u8FC7\u7A0B\u6539\u7684\u662F\u526F\u672C\uFF0C\u5916\u9762\u7684\u539F\u4EF6\u4E00\u52A8\u4E0D\u52A8\u3002",
               "\u8FD9\u79CD\u4F20\u9012\u65B9\u5F0F\u53EB**\u4F20\u503C\uFF08by value\uFF09**\uFF0C\u53EF\u4EE5\u5728\u53C2\u6570\u524D\u9762\u5199\u4E0A `BYVAL` \u8BF4\u660E\u767D\u3002**\u4E0D\u5199\u7684\u65F6\u5019\u9ED8\u8BA4\u5C31\u662F `BYVAL`**\uFF0C\u6240\u4EE5\u524D\u9762\u51E0\u8282\u90A3\u4E9B\u53C2\u6570\u5176\u5B9E\u90FD\u662F\u4F20\u503C\u7684\u3002",
               "\u9ED8\u8BA4\u662F\u4F20\u503C\u6709\u5B83\u7684\u9053\u7406\uFF1A\u8FC7\u7A0B\u53EA\u662F\u62FF\u8FD9\u4E2A\u503C\u6765\u7B97\u70B9\u4EC0\u4E48\uFF0C\u4E0D\u8BE5\u987A\u624B\u628A\u8C03\u7528\u8005\u7684\u53D8\u91CF\u6539\u6389\u3002**\u8C03\u7528\u4E00\u4E2A\u8FC7\u7A0B\u4E4B\u540E\uFF0C\u81EA\u5DF1\u7684\u53D8\u91CF\u8FD8\u662F\u539F\u6837**\u2014\u2014\u8FD9\u4EF6\u4E8B\u80FD\u9760\u5F97\u4F4F\uFF0C\u7A0B\u5E8F\u624D\u597D\u8BFB\u3002",
-              "\u6570\u7EC4\u548C\u8BB0\u5F55\u4E5F\u4E00\u6837\uFF1A\u6574\u4E2A\u6570\u7EC4\u5F53\u5B9E\u53C2\u4F20\u8FDB\u53BB\u662F\u4E00\u4EFD\u6DF1\u62F7\u8D1D\uFF0C\u8FC7\u7A0B\u91CC\u6539\u54EA\u4E00\u683C\u90FD\u5F71\u54CD\u4E0D\u5230\u5916\u9762\u3002"
+              "\u6570\u7EC4\u548C\u8BB0\u5F55\u4E5F\u4E00\u6837\uFF1A\u6574\u4E2A\u6570\u7EC4\u5F53\u5B9E\u53C2\u4F20\u8FDB\u53BB\uFF0C\u8FC7\u7A0B\u91CC\u6539\u54EA\u4E00\u683C\u90FD\u5F71\u54CD\u4E0D\u5230\u5916\u9762\u3002"
             ],
             callouts: [
               {
                 source: "CAIE",
                 text: "`BYVAL` / `BYREF` \u5199\u5728\u5F62\u53C2\u524D\uFF1B\u672A\u5199\u65F6\u9ED8\u8BA4\u6309\u503C\u4F20\u9012\uFF08G\xA78.3\uFF09\u3002"
+              },
+              {
+                source: "editor",
+                text: "\u6570\u7EC4\u548C\u8BB0\u5F55\u8FD9\u79CD\u300C\u4E00\u4EFD\u91CC\u88C5\u4E86\u597D\u51E0\u6837\u300D\u7684\u503C\u6309\u4F20\u503C\u9012\u8FDB\u53BB\u4F1A\u590D\u5236\u6210\u4EC0\u4E48\u6837\uFF0CPseudocode Guide \u6CA1\u6709\u89C4\u5B9A\u3002\u672C\u7F16\u8F91\u5668\u7684\u505A\u6CD5\u662F\u6574\u4EFD\u590D\u5236\uFF0C\u6240\u4EE5\u8FC7\u7A0B\u91CC\u6539\u54EA\u4E00\u683C\uFF0C\u5916\u9762\u7684\u539F\u4EF6\u90FD\u4E0D\u53D7\u5F71\u54CD\u3002"
               }
             ]
           },
@@ -10322,54 +10340,54 @@ var CAIETeaching = (() => {
           {
             kind: "task",
             id: "16.2.1",
-            title: "\u623F\u95F4\u7684\u9762\u79EF\u548C\u5468\u957F",
-            statement: "\u6309 IPO \u4E09\u6BB5\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165\u4E00\u4E2A\u623F\u95F4\u7684\u957F\u548C\u5BBD\uFF08\u90FD\u662F\u6574\u6570\uFF09\uFF0C\u663E\u793A\u5B83\u7684\u9762\u79EF\u548C\u5468\u957F\u3002\u5148\u60F3\u6E05\u695A\u8981\u51E0\u4E2A\u53D8\u91CF\u3001\u5404\u53EB\u4EC0\u4E48\uFF0C\u518D\u52A8\u624B\u3002",
+            title: "\u4E70\u7968\u627E\u96F6",
+            statement: "\u6309 IPO \u4E09\u6BB5\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165\u4E00\u5F20\u7968\u7684\u4EF7\u683C\u3001\u4E70\u4E86\u51E0\u5F20\u3001\u4EE5\u53CA\u4ED8\u4E86\u591A\u5C11\u94B1\uFF08\u90FD\u662F\u6574\u6570\uFF09\uFF0C\u663E\u793A\u8FD9\u6B21\u4E00\u5171\u591A\u5C11\u94B1\uFF0C\u4EE5\u53CA\u5E94\u8BE5\u627E\u56DE\u591A\u5C11\u3002\u5148\u60F3\u6E05\u695A\u8981\u51E0\u4E2A\u53D8\u91CF\u3001\u5404\u53EB\u4EC0\u4E48\u2014\u2014**\u4E2D\u95F4\u7B97\u51FA\u6765\u7684\u90A3\u4E2A\u91CF\u4E5F\u8981\u6709\u540D\u5B57**\u3002",
             ioSpec: {
               input: [
-                "\u4E24\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF1A\u5148\u957F\u540E\u5BBD\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
-                "\u957F\u4E4B\u524D\u662F `Enter the length`\uFF0C\u5BBD\u4E4B\u524D\u662F `Enter the width`"
+                "\u4E09\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF0C\u4F9D\u6B21\u662F\uFF1A",
+                "`Enter the price`",
+                "`Enter the quantity`",
+                "`Enter the payment`",
+                "\u4FDD\u8BC1\u4ED8\u7684\u94B1\u4E0D\u5C11\u4E8E\u603B\u4EF7\u3002"
               ].join("\n"),
-              output: ["\u4E24\u884C\uFF0C\u5199\u6210\uFF1A", "`Area: <\u9762\u79EF>`", "`Perimeter: <\u5468\u957F>`", "\u5468\u957F\u662F\u300C\u957F\u52A0\u5BBD\u518D\u4E58\u4E8C\u300D\u3002\u6BCF\u4E2A\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
-            },
-            constraints: {
-              require: [
-                {
-                  feature: "io.input",
-                  reason: "\u957F\u548C\u5BBD\u90FD\u8981\u4ECE\u952E\u76D8\u8BFB\u8FDB\u6765\uFF0C\u4E0D\u80FD\u5199\u6B7B\u5728\u4EE3\u7801\u91CC\u3002"
-                },
-                {
-                  feature: "op.arithmetic",
-                  reason: "\u9762\u79EF\u548C\u5468\u957F\u90FD\u5F97\u7B97\u51FA\u6765\u3002"
-                }
-              ]
+              output: [
+                "\u4E24\u884C\uFF1A",
+                "`Total: <\u603B\u4EF7>`",
+                "`Change: <\u627E\u96F6>`",
+                "\u5192\u53F7\u540E\u9762\u90FD\u662F\u4E00\u4E2A\u7A7A\u683C\u3002"
+              ].join("\n")
             },
             hints: [
-              "\u4E24\u6837\u8F93\u5165\u5C31\u662F\u4E24\u4E2A\u53D8\u91CF\u3002\u540D\u5B57\u522B\u7528 `Length`\u2014\u2014\u90A3\u662F\u5185\u7F6E\u51FD\u6570\u7684\u540D\u5B57\uFF0C\u5360\u4E86\u3002",
-              "\u5468\u957F\u662F\u300C(\u957F + \u5BBD) \xD7 2\u300D\uFF0C\u62EC\u53F7\u522B\u6F0F\uFF0C\u4E58\u6CD5\u6BD4\u52A0\u6CD5\u5148\u7B97\u3002",
-              "\u4E24\u53E5 `OUTPUT` \u7684\u6B21\u5E8F\u7167\u9898\u76EE\u5199\u7684\u6765\uFF1A\u5148\u9762\u79EF\u540E\u5468\u957F\u3002"
+              "\u4E09\u6837\u8F93\u5165\u5404\u8981\u4E00\u4E2A\u540D\u5B57\uFF0C\u603B\u4EF7\u4E5F\u8981\u4E00\u4E2A\u2014\u2014\u5B83\u662F\u7B97\u51FA\u6765\u7684\uFF0C\u4F46\u540E\u9762\u4E24\u884C\u90FD\u7528\u5F97\u4E0A\u3002",
+              "\u627E\u96F6\u662F\u4ED8\u7684\u94B1\u51CF\u53BB\u603B\u4EF7\uFF0C\u6240\u4EE5\u603B\u4EF7\u8981\u5148\u7B97\u51FA\u6765\u3002"
             ],
             examples: [
               {
-                inputs: ["7", "4"],
-                outputs: ["Enter the length", "Enter the width", "Area: 28", "Perimeter: 22"]
+                inputs: ["12", "3", "50"],
+                outputs: ["Enter the price", "Enter the quantity", "Enter the payment", "Total: 36", "Change: 14"]
               }
             ],
             referenceSolution: [
-              "DECLARE RoomLength : INTEGER",
-              "DECLARE RoomWidth : INTEGER",
-              'OUTPUT "Enter the length"',
-              "INPUT RoomLength",
-              'OUTPUT "Enter the width"',
-              "INPUT RoomWidth",
-              'OUTPUT "Area: ", RoomLength * RoomWidth',
-              'OUTPUT "Perimeter: ", 2 * (RoomLength + RoomWidth)'
+              "DECLARE Price : INTEGER",
+              "DECLARE Quantity : INTEGER",
+              "DECLARE Payment : INTEGER",
+              "DECLARE Total : INTEGER",
+              'OUTPUT "Enter the price"',
+              "INPUT Price",
+              'OUTPUT "Enter the quantity"',
+              "INPUT Quantity",
+              'OUTPUT "Enter the payment"',
+              "INPUT Payment",
+              "Total \u2190 Price * Quantity",
+              'OUTPUT "Total: ", Total',
+              'OUTPUT "Change: ", Payment - Total'
             ].join("\n"),
             tests: [
-              { id: "t1", kind: "normal", inputs: ["5", "3"], caseHint: "\u4E00\u4E2A\u666E\u901A\u7684\u957F\u65B9\u5F62\u3002" },
-              { id: "t2", kind: "boundary", inputs: ["6", "6"], caseHint: "\u957F\u548C\u5BBD\u4E00\u6837\u5927\u3002" },
-              { id: "t3", kind: "boundary", inputs: ["1", "1"], caseHint: "\u6700\u5C0F\u7684\u90A3\u79CD\uFF0C\u9762\u79EF\u548C\u5468\u957F\u5DEE\u5F97\u5F88\u8FDC\u3002" },
-              { id: "t4", kind: "boundary", inputs: ["9", "0"], caseHint: "\u6709\u4E00\u8FB9\u662F\u96F6\uFF0C\u9762\u79EF\u4E5F\u5C31\u6CA1\u4E86\uFF0C\u5468\u957F\u8FD8\u5728\u3002" },
-              { id: "t5", kind: "extreme", inputs: ["9999", "9999"], caseHint: "\u4E24\u8FB9\u90FD\u5F88\u5927\u3002" }
+              { id: "t1", kind: "normal", inputs: ["8", "4", "40"], caseHint: "\u4E70\u51E0\u5F20\uFF0C\u8FD8\u6709\u627E\u96F6\u3002" },
+              { id: "t2", kind: "boundary", inputs: ["7", "3", "21"], caseHint: "\u4ED8\u7684\u94B1\u548C\u603B\u4EF7\u6B63\u597D\u76F8\u7B49\u3002" },
+              { id: "t3", kind: "boundary", inputs: ["5", "1", "5"], caseHint: "\u53EA\u4E70\u4E00\u5F20\uFF0C\u800C\u4E14\u4E0D\u7528\u627E\u96F6\u3002" },
+              { id: "t4", kind: "normal", inputs: ["0", "6", "10"], caseHint: "\u7968\u4EF7\u662F\u96F6\u3002" },
+              { id: "t5", kind: "extreme", inputs: ["999", "999", "999999"], caseHint: "\u4EF7\u683C\u548C\u6570\u91CF\u90FD\u5F88\u5927\u3002" }
             ]
           }
         ]
@@ -11329,28 +11347,28 @@ var CAIETeaching = (() => {
       "Odd"
     ],
     "4.5.1/t1": [
-      "Enter the day number",
-      "Wednesday"
+      "Enter the temperature",
+      "Hot"
     ],
     "4.5.1/t2": [
-      "Enter the day number",
-      "Saturday"
+      "Enter the temperature",
+      "Freezing"
     ],
     "4.5.1/t3": [
-      "Enter the day number",
-      "Monday"
+      "Enter the temperature",
+      "Freezing"
     ],
     "4.5.1/t4": [
-      "Enter the day number",
-      "Sunday"
+      "Enter the temperature",
+      "Sensor error"
     ],
     "4.5.1/t5": [
-      "Enter the day number",
-      "Unknown"
+      "Enter the temperature",
+      "Out of range"
     ],
     "4.5.1/t6": [
-      "Enter the day number",
-      "Unknown"
+      "Enter the temperature",
+      "Out of range"
     ],
     "4.T1/t1": [
       "Enter the age",
@@ -11422,32 +11440,42 @@ var CAIETeaching = (() => {
       "Sum: 500500"
     ],
     "5.4.1/t1": [
-      "Enter a mark",
-      "Accepted: 58"
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Total: 120",
+      "Count: 3"
     ],
     "5.4.1/t2": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Accepted: 58"
+      "Enter an amount",
+      "Total: 100",
+      "Count: 1"
     ],
     "5.4.1/t3": [
-      "Enter a mark",
-      "Accepted: 0"
+      "Enter an amount",
+      "Enter an amount",
+      "Total: 100",
+      "Count: 2"
     ],
     "5.4.1/t4": [
-      "Enter a mark",
-      "Accepted: 100"
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Enter an amount",
+      "Total: 100",
+      "Count: 11"
     ],
     "5.4.1/t5": [
-      "Enter a mark",
-      "Enter a mark",
-      "Accepted: 50"
-    ],
-    "5.4.1/t6": [
-      "Enter a mark",
-      "Enter a mark",
-      "Accepted: 7"
+      "Enter an amount",
+      "Total: 999999",
+      "Count: 1"
     ],
     "5.T1/t1": [
       "Enter a score",
@@ -11702,44 +11730,44 @@ var CAIETeaching = (() => {
       "Grade: Q"
     ],
     "8.2.1/t1": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "30",
-      "20",
-      "10"
+      "Enter sales for 2020",
+      "Enter sales for 2021",
+      "Enter sales for 2022",
+      "Enter a year",
+      "Sales in 2021: 20",
+      "Total: 60"
     ],
     "8.2.1/t2": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "9",
-      "5",
-      "5"
+      "Enter sales for 2020",
+      "Enter sales for 2021",
+      "Enter sales for 2022",
+      "Enter a year",
+      "Sales in 2020: 7",
+      "Total: 24"
     ],
     "8.2.1/t3": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "0",
-      "0",
-      "0"
+      "Enter sales for 2020",
+      "Enter sales for 2021",
+      "Enter sales for 2022",
+      "Enter a year",
+      "Sales in 2022: 6",
+      "Total: 15"
     ],
     "8.2.1/t4": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "-3",
-      "-2",
-      "-1"
+      "Enter sales for 2020",
+      "Enter sales for 2021",
+      "Enter sales for 2022",
+      "Enter a year",
+      "Sales in 2020: 0",
+      "Total: 0"
     ],
     "8.2.1/t5": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "888888",
-      "1",
-      "999999"
+      "Enter sales for 2020",
+      "Enter sales for 2021",
+      "Enter sales for 2022",
+      "Enter a year",
+      "Sales in 2022: 888888",
+      "Total: 1888888"
     ],
     "8.4.1/t1": [
       "Enter a mark",
@@ -11853,8 +11881,8 @@ var CAIETeaching = (() => {
       "Enter a number",
       "Enter a number",
       "Enter a number",
-      "Row 1: 15",
-      "Row 2: 24"
+      "Col 1: 5",
+      "Col 2: 9"
     ],
     "9.3.1/t2": [
       "Enter a number",
@@ -11863,8 +11891,8 @@ var CAIETeaching = (() => {
       "Enter a number",
       "Enter a number",
       "Enter a number",
-      "Row 1: 3",
-      "Row 2: 6"
+      "Col 1: 6",
+      "Col 2: 6"
     ],
     "9.3.1/t3": [
       "Enter a number",
@@ -11873,8 +11901,8 @@ var CAIETeaching = (() => {
       "Enter a number",
       "Enter a number",
       "Enter a number",
-      "Row 1: 0",
-      "Row 2: 0"
+      "Col 1: 9",
+      "Col 2: 4"
     ],
     "9.3.1/t4": [
       "Enter a number",
@@ -11883,8 +11911,8 @@ var CAIETeaching = (() => {
       "Enter a number",
       "Enter a number",
       "Enter a number",
-      "Row 1: -6",
-      "Row 2: 6"
+      "Col 1: -3",
+      "Col 2: -2"
     ],
     "9.3.1/t5": [
       "Enter a number",
@@ -11893,8 +11921,8 @@ var CAIETeaching = (() => {
       "Enter a number",
       "Enter a number",
       "Enter a number",
-      "Row 1: 100001",
-      "Row 2: 100001"
+      "Col 1: 888888",
+      "Col 2: 999999"
     ],
     "9.T1/t1": [
       "Enter a mark",
@@ -11903,11 +11931,16 @@ var CAIETeaching = (() => {
       "Enter a mark",
       "Enter a mark",
       "Enter a mark",
-      "Student 1 total: 150",
-      "Student 2 total: 150",
-      "Student 3 total: 150",
-      "Subject 1 average: 70",
-      "Subject 2 average: 80"
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Student 1: 2",
+      "Student 2: 2",
+      "Student 3: 4",
+      "Class total: 8"
     ],
     "9.T1/t2": [
       "Enter a mark",
@@ -11916,11 +11949,16 @@ var CAIETeaching = (() => {
       "Enter a mark",
       "Enter a mark",
       "Enter a mark",
-      "Student 1 total: 100",
-      "Student 2 total: 100",
-      "Student 3 total: 100",
-      "Subject 1 average: 50",
-      "Subject 2 average: 50"
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Student 1: 0",
+      "Student 2: 0",
+      "Student 3: 0",
+      "Class total: 0"
     ],
     "9.T1/t3": [
       "Enter a mark",
@@ -11929,11 +11967,16 @@ var CAIETeaching = (() => {
       "Enter a mark",
       "Enter a mark",
       "Enter a mark",
-      "Student 1 total: 0",
-      "Student 2 total: 0",
-      "Student 3 total: 1",
-      "Subject 1 average: 0",
-      "Subject 2 average: 0"
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Student 1: 4",
+      "Student 2: 4",
+      "Student 3: 4",
+      "Class total: 12"
     ],
     "9.T1/t4": [
       "Enter a mark",
@@ -11942,11 +11985,16 @@ var CAIETeaching = (() => {
       "Enter a mark",
       "Enter a mark",
       "Enter a mark",
-      "Student 1 total: 100",
-      "Student 2 total: 100",
-      "Student 3 total: 100",
-      "Subject 1 average: 66",
-      "Subject 2 average: 33"
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Student 1: 0",
+      "Student 2: 4",
+      "Student 3: 2",
+      "Class total: 6"
     ],
     "9.T1/t5": [
       "Enter a mark",
@@ -11955,11 +12003,16 @@ var CAIETeaching = (() => {
       "Enter a mark",
       "Enter a mark",
       "Enter a mark",
-      "Student 1 total: 100000",
-      "Student 2 total: 2",
-      "Student 3 total: 100000",
-      "Subject 1 average: 33333",
-      "Subject 2 average: 33333"
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Enter a mark",
+      "Student 1: 2",
+      "Student 2: 2",
+      "Student 3: 2",
+      "Class total: 6"
     ],
     "10.2.1/t1": [
       "Enter a number",
@@ -12728,34 +12781,39 @@ var CAIETeaching = (() => {
       "Count: 1"
     ],
     "16.2.1/t1": [
-      "Enter the length",
-      "Enter the width",
-      "Area: 15",
-      "Perimeter: 16"
+      "Enter the price",
+      "Enter the quantity",
+      "Enter the payment",
+      "Total: 32",
+      "Change: 8"
     ],
     "16.2.1/t2": [
-      "Enter the length",
-      "Enter the width",
-      "Area: 36",
-      "Perimeter: 24"
+      "Enter the price",
+      "Enter the quantity",
+      "Enter the payment",
+      "Total: 21",
+      "Change: 0"
     ],
     "16.2.1/t3": [
-      "Enter the length",
-      "Enter the width",
-      "Area: 1",
-      "Perimeter: 4"
+      "Enter the price",
+      "Enter the quantity",
+      "Enter the payment",
+      "Total: 5",
+      "Change: 0"
     ],
     "16.2.1/t4": [
-      "Enter the length",
-      "Enter the width",
-      "Area: 0",
-      "Perimeter: 18"
+      "Enter the price",
+      "Enter the quantity",
+      "Enter the payment",
+      "Total: 0",
+      "Change: 10"
     ],
     "16.2.1/t5": [
-      "Enter the length",
-      "Enter the width",
-      "Area: 99980001",
-      "Perimeter: 39996"
+      "Enter the price",
+      "Enter the quantity",
+      "Enter the payment",
+      "Total: 998001",
+      "Change: 1998"
     ],
     "16.5.1/t1": [
       "Enter a temperature",

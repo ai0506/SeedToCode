@@ -70,8 +70,6 @@ Divided: 3.0
 
 > **规则**（CAIE 规定）　`DIV` 取整数商，`MOD` 取余数（Pseudocode Guide §5.2）。
 
-> **规则**（编辑器约定）　负数怎么算，Pseudocode Guide 没有规定。本编辑器的做法是：`DIV` 的商向 0 截断，`MOD` 的符号跟被除数一致——`-7 DIV 2` 得到 -3，`-7 MOD 2` 得到 -1。
-
 **示例：把 7 个人装进每车 2 座的车**　`Example_3_2_a.pseudocode`
 
 ```
