@@ -946,3 +946,13 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 浏览器实测（lab，静态 8123，语法检测开）：`DECLARE Total, Highest, Count : INTEGER` 加三行赋值和一行 `OUTPUT`，问题面板**只有一条**，就是这条指导提示，`Highest` / `Count` 没有任何「找不到声明」；`TYPE TPoint / DECLARE X, Y : INTEGER` 之后 `P.X`、`P.Y` 都能用，只报一条；`DECLARE A, B : ARRAY[1:5] OF INTEGER` 的提示还原出完整的 `ARRAY[1:5] OF INTEGER`；二维数组和正确写法零诊断。
 
 `npm test` 通过（90 文件 / 1361 用例）。文档同步：`teaching/08-GUIDANCE.md` 升到 1.3，§3.1(a) 表里加了这一条，测试计数 17→25（原来那个数早就过期了，这次是数出来的）。缓存版本：`language-engine.js` 13→14、`language-adapter.js` 10→11、`runtime-engine.js` 16→17、`exercise-engine.js` 23→24（四个文件各被 3–6 个页面引用，都按 `grep` 现查现提）、`teaching-content.js` 32→33。
+
+[ClaudeCode][2609161311] 文档同步 + 部署。
+
+文档：`CAIE_RULES.md` 加了 `DECL-003`（一句 `DECLARE` 只声明一个标识符，Guide 2.4 p.8，`error/CAIE`，走指导提示），并把 parser 里这条诊断的 ruleId 从 `DECL-001` 改成 `DECL-003`——`DECL-001` 是「显式声明是良好实践、最多 hint」，把一条 REQUIRED 的语法错挂在它名下会让那张表自相矛盾。`teaching/08-GUIDANCE.md` 的表同步改成 `DECL-003`。`PROJECT_STATE.md`、`README.md`、`web/README.md`、`FRONTEND_RULES.md`、`LANGUAGE_SPEC.md`、`runtime-conventions.md` 逐一看过，**都不需要动**：这一轮没有改变任何 Area 的状态，`LANGUAGE_SPEC` 的文法本来就写的是单个 identifier，前端两条硬性规则的落实情况也没变（去掉候选词的 `used` 灰态只是少了一处外观变化，没有新增几何变动）。
+
+部署：`seedtocode-api` Version `860a665d-9c7e-4c0e-9a58-db1e81d35aff`，上传 16 个资源。部署前 `wrangler d1 migrations list seedtocode --remote` 报 `No migrations to apply`（第一次跑撞上代理返回 7403，加 `NO_PROXY=*` 后正常——**那是代理问题，不是权限问题**，别照着 7403 去查账号）。
+
+线上核验（`https://seedtocode.example.invalid`）：`/learn` 的资源清单已是 `teaching-app.js?v=33`、`teaching-content.js?v=33`、`teaching-task.js?v=16`、`teaching.css?v=18`、`language-adapter.js?v=11`、`language-engine.js?v=14`、`runtime-engine.js?v=17`、`exercise-engine.js?v=24`；`/health` 200。功能实测：`/lab` 里 `DECLARE Total, Highest, Count : INTEGER` 只报一条 `DECL-003` 指导提示、三个名字都没有「找不到声明」；`/learn` 的 11.2 填到判对，五个候选自始至终只有 `bank-item` 一个类、零角标；16.1 的 `<em>` 数为 0、新开头在位；2.1 的新规则段在位。
+
+踩到一处：站点用的是无后缀路径，`/learn.html` 会 307 到 `/learn` 且响应体为空。我照着 CLAUDE.md 那条「用 until 等到」写的轮询盯的是 `/learn.html`，**它永远等不到**——不是还没传播，是那个 URL 根本不返回内容。轮询探针要指向真实会返回 HTML 的那个路径；写 until 之前先 `curl -D -` 看一眼状态码。
