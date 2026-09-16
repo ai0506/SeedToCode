@@ -388,12 +388,20 @@
             '<div class="bank">' +
             block.bank
                .map(function (item) {
-                  return '<button class="bank-item" data-why="' + esc(item.explanation) + '">' +
-                     esc(item.word) + "</button>";
+                  /*
+                   * 候选词填过之后不做任何标记——不标灰，也不写「还要填几次」。
+                   * 标灰会让人以为一个词只能用一次（11.2 的 DECLARE 恰好要填两次）；
+                   * 而事先写上次数等于告诉使用者这个词一定在答案里，
+                   * 「哪几个词在答案里」正是这类题要考的。两样都不做，候选栏就始终是
+                   * 完整的一组选项：每个空都是一道独立的选择题，从同样的五个词里挑。
+                   */
+                  return '<button class="bank-item" data-why="' + esc(item.explanation) +
+                     '" data-word="' + esc(item.word) + '">' + esc(item.word) + "</button>";
                })
                .join("") +
             "</div>";
-         idle = "点一个空，再点下面的候选词。填错会说明为什么，然后那个空会清空让你重填。";
+         // 这句对所有填空题都一样。只在「这道题恰好有重复词」时才提，等于把答案漏出去了。
+         idle = "点一个空，再点下面的候选词。每个空都从同样这组词里挑，一个词可以填进多个空。填错会说明为什么，然后那个空会清空让你重填。";
       }
 
       return (
@@ -498,7 +506,7 @@
             if (quiz.classList.contains("solved")) return;
             if (!active) { feedback(quiz, "idle", "先点一个空，再点候选词。"); return; }
             var target = active;
-            var word = item.textContent.trim();
+            var word = item.dataset.word;
             if (word !== target.dataset.answer) {
                target.textContent = word;
                target.classList.add("wrong");
@@ -514,7 +522,6 @@
             }
             target.textContent = word;
             target.classList.add("filled", "right");
-            item.classList.add("used");
             setActive(null);
             var done = blanks.every(function (x) { return x.classList.contains("right"); });
             if (!done) {
@@ -527,7 +534,7 @@
             solve(quiz,
                '<div class="quiz-analysis-head">全部候选解析</div><ul class="analysis-list">' +
                bank.map(function (o) {
-                  var word = o.textContent.trim();
+                  var word = o.dataset.word;
                   var right = blanks.some(function (x) { return x.dataset.answer === word; });
                   return '<li class="' + (right ? "is-correct" : "") + '">' +
                      '<span class="analysis-key">' + (right ? "✓" : "×") + "</span><span><b class=\"mono\">" +

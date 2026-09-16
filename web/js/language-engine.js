@@ -780,6 +780,25 @@ var CAIEEngine = (() => {
       });
     }
   };
+  function typeReferenceText(node) {
+    switch (node.kind) {
+      case "PrimitiveTypeReference":
+        return node.name;
+      case "NamedTypeReference":
+        return node.name;
+      case "ArrayTypeReference": {
+        const dimensions = node.dimensions.map((range) => `${expressionText(range.lower)}:${expressionText(range.upper)}`).join(", ");
+        return `ARRAY[${dimensions}] OF ${typeReferenceText(node.elementType)}`;
+      }
+      default:
+        return "";
+    }
+  }
+  function expressionText(node) {
+    if (node.kind === "LiteralExpression") return String(node.value);
+    if (node.kind === "NameExpression") return node.name;
+    return "";
+  }
   var ProgramParser = class {
     constructor(tokens, options) {
       this.tokens = tokens;
@@ -788,6 +807,8 @@ var CAIEEngine = (() => {
     }
     index = 0;
     diagnostics = [];
+    /** 见 parseDeclare：一句里串了几个名字时补出来的声明，等着 parseStatement 逐条交出去。 */
+    pendingDeclares = [];
     maxDiagnostics;
     parse() {
       const body = [];
@@ -838,7 +859,8 @@ var CAIEEngine = (() => {
       this.skipSeparators();
     }
     parseStatement() {
-      if (this.matches("DECLARE")) return this.parseDeclare();
+      if (this.pendingDeclares.length > 0) return this.pendingDeclares.shift();
+      if (this.matches("DECLARE")) return this.parseDeclare(this.pendingDeclares);
       if (this.matches("CONSTANT")) return this.parseConstant();
       if (this.matches("INPUT")) return this.parseInput();
       if (this.matches("OUTPUT")) return this.parseOutput();
@@ -882,22 +904,47 @@ var CAIEEngine = (() => {
       };
       return statement;
     }
-    parseDeclare() {
+    /*
+     * `extras` 是给「一句里串了几个名字」准备的出口：多出来的名字各自补一条声明放进去，
+     * 由调用方接到它该去的地方（语句队列或者记录的字段表）。不补的话学生会在指导提示之外
+     * 再吃一串「找不到 Highest 的声明」——那些全是同一个错误的后果（08-GUIDANCE §4.5）。
+     */
+    parseDeclare(extras) {
       const start = this.advance();
       const name = this.parseBindingName(start);
       if (name.kind === "ErrorStatement") return name;
+      const moreNames = [];
+      while (this.matches(",")) {
+        this.advance();
+        const extra = this.parseBindingName(start);
+        if (extra.kind === "ErrorStatement") return extra;
+        moreNames.push(extra);
+      }
       this.expect(":", "DECL-001", "parser.declare.requiresColon");
       const typeReference = this.parseTypeReference();
       const end = typeReference.range.end;
+      if (moreNames.length > 0) {
+        this.report(
+          "PC2105",
+          "DECL-003",
+          "parser.declare.oneNamePerStatement",
+          rangeFrom(name.range.start, moreNames.at(-1).range.end),
+          "CAIE",
+          "error",
+          { name: name.text, type: typeReferenceText(typeReference) }
+        );
+      }
       this.finishStatement("DECL-001");
-      return {
+      const declare = (token) => ({
         kind: "DeclareStatement",
-        name: name.text,
-        normalizedName: name.normalized ?? name.text.toUpperCase(),
-        nameRange: name.range,
+        name: token.text,
+        normalizedName: token.normalized ?? token.text.toUpperCase(),
+        nameRange: token.range,
         typeReference,
         range: rangeFrom(start.range.start, end)
-      };
+      });
+      if (extras) for (const token of moreNames) extras.push(declare(token));
+      return declare(name);
     }
     parseConstant() {
       const start = this.advance();
@@ -997,16 +1044,19 @@ var CAIEEngine = (() => {
           this.recoverLine();
           continue;
         }
-        const declaration = this.parseDeclare();
+        const extras = [];
+        const declaration = this.parseDeclare(extras);
         if (declaration.kind === "ErrorStatement") continue;
-        fields.push({
-          kind: "RecordField",
-          name: declaration.name,
-          normalizedName: declaration.normalizedName,
-          nameRange: declaration.nameRange,
-          typeReference: declaration.typeReference,
-          range: declaration.range
-        });
+        for (const field of [declaration, ...extras]) {
+          fields.push({
+            kind: "RecordField",
+            name: field.name,
+            normalizedName: field.normalizedName,
+            nameRange: field.nameRange,
+            typeReference: field.typeReference,
+            range: field.range
+          });
+        }
       }
       const closing = this.consumeBlockEnd("ENDTYPE", "UDT-003", "parser.record.missingEndtype", start);
       return {

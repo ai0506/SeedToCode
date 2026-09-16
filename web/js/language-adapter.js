@@ -36,6 +36,8 @@ window.LANGUAGE_ADAPTER = (function (engine) {
     'parser.index.missingClosingBracket': '数组下标缺少右方括号 ]',
     'parser.member.requiresIdentifier': '点号后需要字段名称',
     'parser.declare.requiresColon': 'DECLARE 名称后需要冒号 :',
+    // 别的语言里 DECLARE a, b, c : INTEGER 是对的，伪代码里不是。见 teaching/08-GUIDANCE.md §3.1(a)
+    'parser.declare.oneNamePerStatement': '一句 DECLARE 只声明一个名字。要声明几个变量就一行一个：DECLARE {name} : {type}，下一行再写下一个',
     'parser.constant.requiresEquals': 'CONSTANT 声明需要等号 =',
     'parser.constant.requiresLiteral': '常量值必须是字面量',
     'parser.assignment.requiresOperator': '赋值语句需要 ←',

@@ -28,18 +28,40 @@
       });
    }
 
-   // 正文只允许两种行内标记：`code` 与 **bold**
+   /*
+    * 正文只允许三种行内标记：`code`、**bold**、*italic*。
+    * 三条规则必须写在同一个正则里一趟扫完，不能链式 replace：
+    * 链式做法会先把 `*` 这种代码片段展开成 <code>*</code>，随后的斜体规则
+    * 再去扫已经生成的 HTML，一段里出现两个这样的代码片段就会跨标签配对，
+    * 把中间的标签整个吞进 <em> 里。放进 alternation 后反引号分支先吃掉，
+    * 剩下的分支再也看不到它。
+    */
+   var INLINE_RE = /`([^`]+)`|\*\*([^*]+)\*\*|\*([^*`\n]+)\*/g;
+   var CODE_RE = /`([^`]+)`/g;
+
+   /*
+    * 加粗里套代码片段是正文里的常见写法（十几章都有，例如 **一句 `DECLARE` 只声明一个名字。**）。
+    * alternation 一趟扫完的代价是被 `**` 吃掉的那一段不会再被扫第二遍，所以粗体和斜体
+    * 分支要自己把里面的反引号再展一次——漏掉这一步，反引号会原样印在页面上。
+    */
+   function codeSpans(text) {
+      return text.replace(CODE_RE, '<code class="mono">$1</code>');
+   }
+
    function inline(text) {
-      return esc(text)
-         .replace(/`([^`]+)`/g, '<code class="mono">$1</code>')
-         .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      return esc(text).replace(INLINE_RE, function (m, code, bold, italic) {
+         if (code != null) return '<code class="mono">' + code + "</code>";
+         if (bold != null) return "<strong>" + codeSpans(bold) + "</strong>";
+         return "<em>" + codeSpans(italic) + "</em>";
+      });
    }
 
    // 纯文本场景（title/aria-label 属性、textContent）：标记符号渲染不出标签，直接去掉
    function plainText(text) {
-      return String(text == null ? "" : text)
-         .replace(/`([^`]+)`/g, "$1")
-         .replace(/\*\*([^*]+)\*\*/g, "$1");
+      return String(text == null ? "" : text).replace(INLINE_RE, function (m, code, bold, italic) {
+         var inner = code != null ? code : bold != null ? bold : italic;
+         return code != null ? inner : inner.replace(CODE_RE, "$1");
+      });
    }
 
    /* ---------------- 进度：两个页面读写同一份 ---------------- */

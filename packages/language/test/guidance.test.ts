@@ -50,6 +50,34 @@ describe("指导提示 — 从别的语言带过来的写法", () => {
     expect(keysOf('DECLARE Name : STRING\nOUTPUT "Enter name"\nINPUT Name')).toEqual([]);
   });
 
+  it("一句 DECLARE 串了几个名字时说清楚一行只能声明一个", () => {
+    const keys = keysOf("DECLARE Total, Highest, Count : INTEGER\nTotal ← 0\nOUTPUT Total");
+    expect(keys).toContain("parser.declare.oneNamePerStatement");
+    // 原来在逗号处连报三条，说的都是「这里应该是冒号 / 类型」「多了个词」，
+    // 没有一条指向真正的原因。给了指导提示就不该再让这些噪音出现。
+    expect(keys).not.toContain("parser.declare.requiresColon");
+    expect(keys).not.toContain("parser.type.expected");
+    expect(keys).not.toContain("parser.statement.unexpectedTrailingToken");
+  });
+
+  it("提示里带上第一个名字和正确写法所需的类型", () => {
+    const diagnostic = first("DECLARE Total, Highest : INTEGER", "parser.declare.oneNamePerStatement");
+    expect(diagnostic?.args).toMatchObject({ name: "Total", type: "INTEGER" });
+  });
+
+  it("两个名字、写在 TYPE 里的字段，同样只报这一条", () => {
+    const keys = keysOf("TYPE TPoint\n   DECLARE X, Y : INTEGER\nENDTYPE");
+    expect(keys).toEqual(["parser.declare.oneNamePerStatement"]);
+  });
+
+  it("逗号出现在类型里的那些声明一条都不许报", () => {
+    // 二维数组的两个范围本来就用逗号分隔——触发条件只看名字后面那个 token，
+    // 冒号右边有多少逗号都与这条无关。
+    expect(keysOf("DECLARE Grid : ARRAY[1:3, 1:4] OF INTEGER\nGrid[1, 1] ← 0")).toEqual([]);
+    expect(keysOf("DECLARE Marks : ARRAY[1:5] OF INTEGER\nMarks[1] ← 0")).toEqual([]);
+    expect(keysOf("DECLARE Total : INTEGER\nDECLARE Highest : INTEGER\nTotal ← 0\nHighest ← 0")).toEqual([]);
+  });
+
   it("单引号里写了一整个词时指向双引号", () => {
     const keys = keysOf("DECLARE Name : STRING\nName ← 'Ada'\nOUTPUT Name");
     expect(keys).toEqual(["literal.char.looksLikeString"]);

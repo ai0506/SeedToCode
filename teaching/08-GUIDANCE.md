@@ -1,6 +1,6 @@
 # 指导提示（guidance）
 
-版本：1.2
+版本：1.3
 
 ## 1. 这是什么
 
@@ -42,6 +42,7 @@
 | `parser.relation.doubleEquals`（OP-003） | 紧挨着的两个 `=` | 比较只用一个 `=`，不是 `==` |
 | `parser.input.promptNotAllowed`（IO-001） | `INPUT` 后面紧跟着字符串 | `INPUT` 后面只写要读进来的变量。提示语要单独写成上一行：`OUTPUT "Enter name"` |
 | `literal.char.looksLikeString`（LIT-003） | 单引号里不止一个字符 | 单引号里只能放一个字符。要写一段文字请改用双引号 |
+| `parser.declare.oneNamePerStatement`（DECL-003） | `DECLARE` 的名字后面跟着逗号 | 一句 `DECLARE` 只声明一个名字。要声明几个变量就一行一个：`DECLARE Total : INTEGER`，下一行再写下一个 |
 
 **（b）引擎已经知道、但原来没说出口的。** 类型都算出来了，不写进提示等于让学生自己再推一遍。
 
@@ -76,7 +77,7 @@
 
 这一类是**语法没错、跑得起来、结果不对**的情况。`OUTPUT "name", " lives in ", "city"` 三段都是字面量，程序照做，显示的是 `name lives in city` 这几个字，不是两个变量的值——编译器无话可说，只有指导者能说。
 
-所有这些规则都有成对的测试：`packages/language/test/guidance.test.ts`（17 项）——该报的要报，**不该报的一条都不许冒出来**，例如英文双引号里的中文标点（`OUTPUT "你好，世界。"`）必须零诊断。
+所有这些规则都有成对的测试：`packages/language/test/guidance.test.ts`（25 项）——该报的要报，**不该报的一条都不许冒出来**，例如英文双引号里的中文标点（`OUTPUT "你好，世界。"`）必须零诊断。
 
 ### 3.3 判题失败时的差异分类（`packages/exercise/src/compare.ts`）
 

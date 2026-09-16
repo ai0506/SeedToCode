@@ -69,6 +69,7 @@
 | 规则 ID | 强度 | 规则 | 来源 | 默认诊断 |
 |---|---|---|---|---|
 | `DECL-001` | RECOMMENDED | 使用 `DECLARE name : type` 显式声明变量是良好实践。 | Guide 2.4，p.8 | 单纯缺少声明最多为 `hint/CAIE` |
+| `DECL-003` | REQUIRED | 一句 `DECLARE` 只声明一个标识符——文法是 `DECLARE`、一个 identifier、`:`、一个类型。`DECLARE A, B : INTEGER` 这种一句串几个名字的写法伪代码没有。 | Guide 2.4，p.8 | `error/CAIE`，走指导提示 `parser.declare.oneNamePerStatement`（见 [08-GUIDANCE](teaching/08-GUIDANCE.md) §3.1(a)） |
 | `DECL-002` | EDITOR-RUNTIME | 在严格执行模式中，每个被读取或写入的名称必须能绑定到变量、常量、参数、字段或其他已知声明。 | `runtime-conventions.md` | `error/Editor Runtime` |
 | `CONST-001` | REQUIRED | 常量写为 `CONSTANT name = literal`。 | Guide 2.5，p.8 | `error/CAIE` |
 | `CONST-002` | REQUIRED | 常量值只能是字面量，不能是变量、另一常量或表达式。 | Guide 2.5，p.8 | `error/CAIE` |

@@ -26,12 +26,13 @@ export const chapter02: Chapter = {
           paragraphs: [
             "上一章的 `INPUT Name` 先把名字读进来，后来 `OUTPUT` 又把它拿出来。中间那个叫 `Name` 的位置，就是**变量（variable）**：它有一个名字，里面放的值可以在程序运行时改变。",
             "给变量起的名字叫**标识符（identifier）**。它必须从字母开始，之后只能用字母、数字或下划线；不能有空格，也不要用带重音的字母。`PlayerName` 可以，`2ndPlayer` 和 `Player Name` 不可以。标识符不区分大小写，所以 `Score` 与 `score` 不能当成两个不同的名字。",
-            "在第一次使用变量前，先用**声明（declaration）**告诉读者它叫什么、里面准备放哪种数据：`DECLARE 名字 : 数据类型`。这一步只是准备位置，不是把一个值放进去。"
+            "在第一次使用变量前，先用**声明（declaration）**告诉读者它叫什么、里面准备放哪种数据：`DECLARE 名字 : 数据类型`。这一步只是准备位置，不是把一个值放进去。",
+            "这里的「名字」**只有一个**：一句 `DECLARE` 声明一个变量。要三个变量就写三行 `DECLARE`，哪怕三个的类型完全一样。"
           ],
           callouts: [
             {
               source: "CAIE",
-              text: "标识符以字母开头，只能含字母、数字和下划线；它们不区分大小写。变量声明写成 `DECLARE <identifier> : <data type>`（Pseudocode Guide §2.3、§2.4）。"
+              text: "标识符以字母开头，只能含字母、数字和下划线；它们不区分大小写。变量声明写成 `DECLARE <identifier> : <data type>`——一个标识符、一个类型（Pseudocode Guide §2.3、§2.4）。"
             }
           ]
         },

@@ -451,9 +451,39 @@ class ExpressionParser {
   }
 }
 
+/**
+ * 把类型写回学生看得懂的样子，用在指导提示里凑出「正确写法长什么样」。
+ * 数组要还原成 `ARRAY[1:5] OF INTEGER`：只取 `ARRAY` 会把提示写成一句错的示范。
+ */
+function typeReferenceText(node: TypeReference): string {
+  switch (node.kind) {
+    case "PrimitiveTypeReference":
+      return node.name;
+    case "NamedTypeReference":
+      return node.name;
+    case "ArrayTypeReference": {
+      const dimensions = node.dimensions
+        .map((range) => `${expressionText(range.lower)}:${expressionText(range.upper)}`)
+        .join(", ");
+      return `ARRAY[${dimensions}] OF ${typeReferenceText(node.elementType)}`;
+    }
+    default:
+      return "";
+  }
+}
+
+/** 只还原下标里会出现的那几种写法；别的一律留空，宁可提示短一点也不要瞎猜。 */
+function expressionText(node: Expression): string {
+  if (node.kind === "LiteralExpression") return String(node.value);
+  if (node.kind === "NameExpression") return node.name;
+  return "";
+}
+
 class ProgramParser {
   private index = 0;
   private readonly diagnostics: Diagnostic[] = [];
+  /** 见 parseDeclare：一句里串了几个名字时补出来的声明，等着 parseStatement 逐条交出去。 */
+  private readonly pendingDeclares: DeclareStatement[] = [];
   private readonly maxDiagnostics: number;
 
   constructor(private readonly tokens: readonly Token[], private readonly options: ParseOptions) {
@@ -518,7 +548,10 @@ class ProgramParser {
   }
 
   private parseStatement(): Statement {
-    if (this.matches("DECLARE")) return this.parseDeclare();
+    // 一句 DECLARE 串了几个名字时补出来的那几条，在这里排队交出去；不消耗 token，
+    // 外层循环的终止条件看的是当前 token，位置没动，所以不会提前收尾。
+    if (this.pendingDeclares.length > 0) return this.pendingDeclares.shift()!;
+    if (this.matches("DECLARE")) return this.parseDeclare(this.pendingDeclares);
     if (this.matches("CONSTANT")) return this.parseConstant();
     if (this.matches("INPUT")) return this.parseInput();
     if (this.matches("OUTPUT")) return this.parseOutput();
@@ -564,23 +597,45 @@ class ProgramParser {
     return statement;
   }
 
-  private parseDeclare(): DeclareStatement | ErrorStatement {
+  /*
+   * `extras` 是给「一句里串了几个名字」准备的出口：多出来的名字各自补一条声明放进去，
+   * 由调用方接到它该去的地方（语句队列或者记录的字段表）。不补的话学生会在指导提示之外
+   * 再吃一串「找不到 Highest 的声明」——那些全是同一个错误的后果（08-GUIDANCE §4.5）。
+   */
+  private parseDeclare(extras?: DeclareStatement[]): DeclareStatement | ErrorStatement {
     const start = this.advance();
     const name = this.parseBindingName(start);
     if (name.kind === "ErrorStatement") return name;
 
+    // `DECLARE Total, Highest, Count : INTEGER` 是别的语言的写法。原来在逗号处连报三条
+    // （该是冒号 / 该是类型 / 多了个词），说的都不是真正的原因：名字只能写一个。
+    const moreNames: Token[] = [];
+    while (this.matches(",")) {
+      this.advance();
+      const extra = this.parseBindingName(start);
+      if (extra.kind === "ErrorStatement") return extra;
+      moreNames.push(extra);
+    }
+
     this.expect(":", "DECL-001", "parser.declare.requiresColon");
     const typeReference = this.parseTypeReference();
     const end = typeReference.range.end;
+    if (moreNames.length > 0) {
+      this.report("PC2105", "DECL-003", "parser.declare.oneNamePerStatement",
+        rangeFrom(name.range.start, moreNames.at(-1)!.range.end), "CAIE", "error",
+        { name: name.text, type: typeReferenceText(typeReference) });
+    }
     this.finishStatement("DECL-001");
-    return {
+    const declare = (token: Token): DeclareStatement => ({
       kind: "DeclareStatement",
-      name: name.text,
-      normalizedName: name.normalized ?? name.text.toUpperCase(),
-      nameRange: name.range,
+      name: token.text,
+      normalizedName: token.normalized ?? token.text.toUpperCase(),
+      nameRange: token.range,
       typeReference,
       range: rangeFrom(start.range.start, end)
-    };
+    });
+    if (extras) for (const token of moreNames) extras.push(declare(token));
+    return declare(name);
   }
 
   private parseConstant(): ConstantStatement | ErrorStatement {
@@ -684,16 +739,19 @@ class ProgramParser {
         continue;
       }
 
-      const declaration = this.parseDeclare();
+      const extras: DeclareStatement[] = [];
+      const declaration = this.parseDeclare(extras);
       if (declaration.kind === "ErrorStatement") continue;
-      fields.push({
-        kind: "RecordField",
-        name: declaration.name,
-        normalizedName: declaration.normalizedName,
-        nameRange: declaration.nameRange,
-        typeReference: declaration.typeReference,
-        range: declaration.range
-      });
+      for (const field of [declaration, ...extras]) {
+        fields.push({
+          kind: "RecordField",
+          name: field.name,
+          normalizedName: field.normalizedName,
+          nameRange: field.nameRange,
+          typeReference: field.typeReference,
+          range: field.range
+        });
+      }
     }
 
     const closing = this.consumeBlockEnd("ENDTYPE", "UDT-003", "parser.record.missingEndtype", start);

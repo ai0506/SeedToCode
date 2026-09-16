@@ -403,7 +403,8 @@ html[data-el-labels="on"] .block::after { opacity: 1; }
    transition: background-color .12s ease, opacity .12s ease;
 }
 .bank-item:hover { background: var(--bg-sunken); }
-.bank-item.used { opacity: .35; cursor: default; }
+/* 候选词没有「用过了」的样子：标灰会读成「不能再点」，而同一个词本来就可以填进多个空。
+   整组候选自始至终保持完整，每个空就是一道从这五个词里挑的选择题。 */
 .quiz.solved .bank-item { cursor: default; }
 
 /* ---------- 伪代码题 ---------- */
