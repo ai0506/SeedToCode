@@ -688,7 +688,7 @@ export const chapter13: Chapter = {
       title: "五科成绩报告",
       statement: "写一段伪代码：读入 5 科成绩，算出平均分（取整数商），再按平均分给出等第，最后把平均分和等第显示出来。平均分和等第各写成一个函数，显示写成一个过程；主程序只负责读入、调用和串起来。等第规则：80 分及以上是 `A`，60 分及以上是 `B`，40 分及以上是 `C`，再低是 `F`。",
       ioSpec: {
-        input: ["五行，各一个 `INTEGER`。每次读取之前都要显示提示语，一字不差：", "`Enter a mark`"].join("\n"),
+        input: ["五行，各一个 `INTEGER`。每次读取之前都要显示带科目编号的提示语：", "`Enter a mark for subject <科目编号>`"].join("\n"),
         output: ["读完之后显示两行：", "`Average: <平均分>`", "`Grade: <等第>`", "每个冒号后面一个空格。"].join("\n")
       },
       suggestedFeatures: [
@@ -713,11 +713,11 @@ export const chapter13: Chapter = {
         {
           inputs: ["80", "70", "90", "60", "100"],
           outputs: [
-            "Enter a mark",
-            "Enter a mark",
-            "Enter a mark",
-            "Enter a mark",
-            "Enter a mark",
+            "Enter a mark for subject 1",
+            "Enter a mark for subject 2",
+            "Enter a mark for subject 3",
+            "Enter a mark for subject 4",
+            "Enter a mark for subject 5",
             "Average: 80",
             "Grade: A"
           ]
@@ -748,7 +748,7 @@ export const chapter13: Chapter = {
         "DECLARE Mean : INTEGER",
         "Sum ← 0",
         "FOR I ← 1 TO 5",
-        '   OUTPUT "Enter a mark"',
+        '   OUTPUT "Enter a mark for subject ", I',
         "   INPUT Mark",
         "   Sum ← Sum + Mark",
         "NEXT I",

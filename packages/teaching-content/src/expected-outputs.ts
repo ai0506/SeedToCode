@@ -601,205 +601,205 @@ export const expectedOutputs: ExpectedOutputs = {
     "Passed: 5"
   ],
   "8.T1/t1": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
+    "Enter a temperature for day 6",
+    "Enter a temperature for day 7",
     "Total: 128",
     "Highest: 22",
     "Average: 18",
     "Above average: 3"
   ],
   "8.T1/t2": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
+    "Enter a temperature for day 6",
+    "Enter a temperature for day 7",
     "Total: 140",
     "Highest: 20",
     "Average: 20",
     "Above average: 0"
   ],
   "8.T1/t3": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
+    "Enter a temperature for day 6",
+    "Enter a temperature for day 7",
     "Total: -29",
     "Highest: -1",
     "Average: -4",
     "Above average: 3"
   ],
   "8.T1/t4": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
+    "Enter a temperature for day 6",
+    "Enter a temperature for day 7",
     "Total: 30",
     "Highest: 10",
     "Average: 4",
     "Above average: 3"
   ],
   "8.T1/t5": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
+    "Enter a temperature for day 6",
+    "Enter a temperature for day 7",
     "Total: 46",
     "Highest: 40",
     "Average: 6",
     "Above average: 1"
   ],
   "9.3.1/t1": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
+    "Enter a number for row 1, column 1",
+    "Enter a number for row 1, column 2",
+    "Enter a number for row 2, column 1",
+    "Enter a number for row 2, column 2",
+    "Enter a number for row 3, column 1",
+    "Enter a number for row 3, column 2",
     "Col 1: 5",
     "Col 2: 9"
   ],
   "9.3.1/t2": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
+    "Enter a number for row 1, column 1",
+    "Enter a number for row 1, column 2",
+    "Enter a number for row 2, column 1",
+    "Enter a number for row 2, column 2",
+    "Enter a number for row 3, column 1",
+    "Enter a number for row 3, column 2",
     "Col 1: 6",
     "Col 2: 6"
   ],
   "9.3.1/t3": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
+    "Enter a number for row 1, column 1",
+    "Enter a number for row 1, column 2",
+    "Enter a number for row 2, column 1",
+    "Enter a number for row 2, column 2",
+    "Enter a number for row 3, column 1",
+    "Enter a number for row 3, column 2",
     "Col 1: 9",
     "Col 2: 4"
   ],
   "9.3.1/t4": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
+    "Enter a number for row 1, column 1",
+    "Enter a number for row 1, column 2",
+    "Enter a number for row 2, column 1",
+    "Enter a number for row 2, column 2",
+    "Enter a number for row 3, column 1",
+    "Enter a number for row 3, column 2",
     "Col 1: -3",
     "Col 2: -2"
   ],
   "9.3.1/t5": [
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
-    "Enter a number",
+    "Enter a number for row 1, column 1",
+    "Enter a number for row 1, column 2",
+    "Enter a number for row 2, column 1",
+    "Enter a number for row 2, column 2",
+    "Enter a number for row 3, column 1",
+    "Enter a number for row 3, column 2",
     "Col 1: 888888",
     "Col 2: 999999"
   ],
   "9.T1/t1": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
     "Student 1: 2",
     "Student 2: 2",
     "Student 3: 4",
     "Class total: 8"
   ],
   "9.T1/t2": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
     "Student 1: 0",
     "Student 2: 0",
     "Student 3: 0",
     "Class total: 0"
   ],
   "9.T1/t3": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
     "Student 1: 4",
     "Student 2: 4",
     "Student 3: 4",
     "Class total: 12"
   ],
   "9.T1/t4": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
     "Student 1: 0",
     "Student 2: 4",
     "Student 3: 2",
     "Class total: 6"
   ],
   "9.T1/t5": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 1",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 2",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
+    "Enter a mark for student 3",
     "Student 1: 2",
     "Student 2: 2",
     "Student 3: 2",
@@ -1052,71 +1052,71 @@ export const expectedOutputs: ExpectedOutputs = {
     "Fay: 0"
   ],
   "11.4.1/t1": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
     "Top: Hal 72"
   ],
   "11.4.1/t2": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
     "Top: Gil 90"
   ],
   "11.4.1/t3": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
     "Top: Jon 88"
   ],
   "11.4.1/t4": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
     "Top: Jon 51"
   ],
   "11.4.1/t5": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
     "Top: Jon -99996"
   ],
   "11.T1/t1": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
+    "Enter a name for student 5",
+    "Enter a mark for student 5",
     "Hal 72",
     "Jon 66",
     "Gil 61",
@@ -1124,16 +1124,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Kay 49"
   ],
   "11.T1/t2": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
+    "Enter a name for student 5",
+    "Enter a mark for student 5",
     "Gil 90",
     "Hal 80",
     "Ivy 70",
@@ -1141,16 +1141,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Kay 50"
   ],
   "11.T1/t3": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
+    "Enter a name for student 5",
+    "Enter a mark for student 5",
     "Kay 90",
     "Jon 80",
     "Ivy 70",
@@ -1158,16 +1158,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Gil 50"
   ],
   "11.T1/t4": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
+    "Enter a name for student 5",
+    "Enter a mark for student 5",
     "Gil 70",
     "Hal 70",
     "Ivy 70",
@@ -1175,16 +1175,16 @@ export const expectedOutputs: ExpectedOutputs = {
     "Kay 70"
   ],
   "11.T1/t5": [
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
-    "Enter a name",
-    "Enter a mark",
+    "Enter a name for student 1",
+    "Enter a mark for student 1",
+    "Enter a name for student 2",
+    "Enter a mark for student 2",
+    "Enter a name for student 3",
+    "Enter a mark for student 3",
+    "Enter a name for student 4",
+    "Enter a mark for student 4",
+    "Enter a name for student 5",
+    "Enter a mark for student 5",
     "Gil 99999",
     "Kay 99999",
     "Ivy 0",
@@ -1387,47 +1387,47 @@ export const expectedOutputs: ExpectedOutputs = {
     "Largest: -99996"
   ],
   "13.T1/t1": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for subject 1",
+    "Enter a mark for subject 2",
+    "Enter a mark for subject 3",
+    "Enter a mark for subject 4",
+    "Enter a mark for subject 5",
     "Average: 65",
     "Grade: B"
   ],
   "13.T1/t2": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for subject 1",
+    "Enter a mark for subject 2",
+    "Enter a mark for subject 3",
+    "Enter a mark for subject 4",
+    "Enter a mark for subject 5",
     "Average: 80",
     "Grade: A"
   ],
   "13.T1/t3": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for subject 1",
+    "Enter a mark for subject 2",
+    "Enter a mark for subject 3",
+    "Enter a mark for subject 4",
+    "Enter a mark for subject 5",
     "Average: 0",
     "Grade: F"
   ],
   "13.T1/t4": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for subject 1",
+    "Enter a mark for subject 2",
+    "Enter a mark for subject 3",
+    "Enter a mark for subject 4",
+    "Enter a mark for subject 5",
     "Average: 40",
     "Grade: C"
   ],
   "13.T1/t5": [
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
-    "Enter a mark",
+    "Enter a mark for subject 1",
+    "Enter a mark for subject 2",
+    "Enter a mark for subject 3",
+    "Enter a mark for subject 4",
+    "Enter a mark for subject 5",
     "Average: 19999",
     "Grade: A"
   ],
@@ -1607,43 +1607,43 @@ export const expectedOutputs: ExpectedOutputs = {
     "Change: 1998"
   ],
   "16.5.1/t1": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
     "Frost days: 3"
   ],
   "16.5.1/t2": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
     "Frost days: 0"
   ],
   "16.5.1/t3": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
     "Frost days: 5"
   ],
   "16.5.1/t4": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
     "Frost days: 0"
   ],
   "16.5.1/t5": [
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
-    "Enter a temperature",
+    "Enter a temperature for day 1",
+    "Enter a temperature for day 2",
+    "Enter a temperature for day 3",
+    "Enter a temperature for day 4",
+    "Enter a temperature for day 5",
     "Frost days: 2"
   ],
   "16.7.1/t1": [
@@ -1697,91 +1697,91 @@ export const expectedOutputs: ExpectedOutputs = {
     "Fails: 4"
   ],
   "16.T1/t1": [
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
+    "Enter a title for book 1",
+    "Enter a loan count for book 1",
+    "Enter a title for book 2",
+    "Enter a loan count for book 2",
+    "Enter a title for book 3",
+    "Enter a loan count for book 3",
+    "Enter a title for book 4",
+    "Enter a loan count for book 4",
+    "Enter a title for book 5",
+    "Enter a loan count for book 5",
     "Total loans: 22",
     "Average loans: 4",
     "Most borrowed: Beta"
   ],
   "16.T1/t2": [
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
+    "Enter a title for book 1",
+    "Enter a loan count for book 1",
+    "Enter a title for book 2",
+    "Enter a loan count for book 2",
+    "Enter a title for book 3",
+    "Enter a loan count for book 3",
+    "Enter a title for book 4",
+    "Enter a loan count for book 4",
+    "Enter a title for book 5",
+    "Enter a loan count for book 5",
     "Total loans: 19",
     "Average loans: 3",
     "Most borrowed: Alpha"
   ],
   "16.T1/t3": [
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
+    "Enter a title for book 1",
+    "Enter a loan count for book 1",
+    "Enter a title for book 2",
+    "Enter a loan count for book 2",
+    "Enter a title for book 3",
+    "Enter a loan count for book 3",
+    "Enter a title for book 4",
+    "Enter a loan count for book 4",
+    "Enter a title for book 5",
+    "Enter a loan count for book 5",
     "Total loans: 19",
     "Average loans: 3",
     "Most borrowed: Sigma"
   ],
   "16.T1/t4": [
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
+    "Enter a title for book 1",
+    "Enter a loan count for book 1",
+    "Enter a title for book 2",
+    "Enter a loan count for book 2",
+    "Enter a title for book 3",
+    "Enter a loan count for book 3",
+    "Enter a title for book 4",
+    "Enter a loan count for book 4",
+    "Enter a title for book 5",
+    "Enter a loan count for book 5",
     "Total loans: 1",
     "Average loans: 0",
     "Most borrowed: Sigma"
   ],
   "16.T1/t5": [
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
+    "Enter a title for book 1",
+    "Enter a loan count for book 1",
+    "Enter a title for book 2",
+    "Enter a loan count for book 2",
+    "Enter a title for book 3",
+    "Enter a loan count for book 3",
+    "Enter a title for book 4",
+    "Enter a loan count for book 4",
+    "Enter a title for book 5",
+    "Enter a loan count for book 5",
     "Total loans: 26",
     "Average loans: 5",
     "Most borrowed: Sigma"
   ],
   "16.T1/t6": [
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
-    "Enter a title",
-    "Enter a loan count",
+    "Enter a title for book 1",
+    "Enter a loan count for book 1",
+    "Enter a title for book 2",
+    "Enter a loan count for book 2",
+    "Enter a title for book 3",
+    "Enter a loan count for book 3",
+    "Enter a title for book 4",
+    "Enter a loan count for book 4",
+    "Enter a title for book 5",
+    "Enter a loan count for book 5",
     "Total loans: 100000",
     "Average loans: 20000",
     "Most borrowed: Alpha"
@@ -2724,7 +2724,7 @@ export const sampleTranscripts: SampleTranscripts = {
   "16.4/Example_16_4_a.pseudocode": [
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 1"
     },
     {
       "kind": "input",
@@ -2732,7 +2732,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 2"
     },
     {
       "kind": "input",
@@ -2740,7 +2740,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 3"
     },
     {
       "kind": "input",
@@ -2748,7 +2748,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 4"
     },
     {
       "kind": "input",
@@ -2756,7 +2756,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 5"
     },
     {
       "kind": "input",
@@ -2770,7 +2770,7 @@ export const sampleTranscripts: SampleTranscripts = {
   "16.6/Example_16_6_a.pseudocode": [
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 1"
     },
     {
       "kind": "input",
@@ -2778,7 +2778,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 1"
     },
     {
       "kind": "input",
@@ -2786,7 +2786,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 2"
     },
     {
       "kind": "input",
@@ -2794,7 +2794,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 2"
     },
     {
       "kind": "input",
@@ -2802,7 +2802,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 3"
     },
     {
       "kind": "input",
@@ -2810,7 +2810,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 3"
     },
     {
       "kind": "input",
@@ -2818,7 +2818,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 4"
     },
     {
       "kind": "input",
@@ -2826,7 +2826,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 4"
     },
     {
       "kind": "input",
@@ -2834,7 +2834,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 5"
     },
     {
       "kind": "input",
@@ -2842,7 +2842,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 5"
     },
     {
       "kind": "input",
@@ -2856,7 +2856,7 @@ export const sampleTranscripts: SampleTranscripts = {
   "16.7/Example_16_7_a.pseudocode": [
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 1"
     },
     {
       "kind": "input",
@@ -2864,7 +2864,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 1"
     },
     {
       "kind": "input",
@@ -2872,7 +2872,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 2"
     },
     {
       "kind": "input",
@@ -2880,7 +2880,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 2"
     },
     {
       "kind": "input",
@@ -2888,7 +2888,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 3"
     },
     {
       "kind": "input",
@@ -2896,7 +2896,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 3"
     },
     {
       "kind": "input",
@@ -2904,7 +2904,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 4"
     },
     {
       "kind": "input",
@@ -2912,7 +2912,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 4"
     },
     {
       "kind": "input",
@@ -2920,7 +2920,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a name"
+      "text": "Enter a name for student 5"
     },
     {
       "kind": "input",
@@ -2928,7 +2928,7 @@ export const sampleTranscripts: SampleTranscripts = {
     },
     {
       "kind": "output",
-      "text": "Enter a mark"
+      "text": "Enter a mark for student 5"
     },
     {
       "kind": "input",

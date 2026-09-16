@@ -490,7 +490,7 @@ export const chapter11: Chapter = {
           ioSpec: {
             input: [
               "八行，一个人两行：先姓名（`STRING`），再成绩（`INTEGER`），四个人依次读完。每次读取之前都要显示提示语，一字不差：",
-              "姓名前是 `Enter a name`，成绩前是 `Enter a mark`"
+              "姓名前是 `Enter a name for student <学号>`，成绩前是 `Enter a mark for student <学号>`"
             ].join("\n"),
             output: ["一行，写成：", "`Top: <姓名> <分数>`", "冒号后面和姓名后面各一个空格。"].join("\n")
           },
@@ -519,14 +519,14 @@ export const chapter11: Chapter = {
             {
               inputs: ["Ada", "80", "Bob", "55", "Cal", "91", "Dee", "70"],
               outputs: [
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
+                "Enter a name for student 1",
+                "Enter a mark for student 1",
+                "Enter a name for student 2",
+                "Enter a mark for student 2",
+                "Enter a name for student 3",
+                "Enter a mark for student 3",
+                "Enter a name for student 4",
+                "Enter a mark for student 4",
                 "Top: Cal 91"
               ]
             }
@@ -539,9 +539,9 @@ export const chapter11: Chapter = {
             "DECLARE Form : ARRAY[1:4] OF TStudent",
             "DECLARE Best : INTEGER",
             "FOR I ← 1 TO 4",
-            '   OUTPUT "Enter a name"',
+            '   OUTPUT "Enter a name for student ", I',
             "   INPUT Form[I].Name",
-            '   OUTPUT "Enter a mark"',
+            '   OUTPUT "Enter a mark for student ", I',
             "   INPUT Form[I].Mark",
             "NEXT I",
             "Best ← 1",
@@ -627,7 +627,7 @@ export const chapter11: Chapter = {
       ioSpec: {
         input: [
           "十行，一个人两行：先姓名（`STRING`），再成绩（`INTEGER`），五个人依次读完。每次读取之前都要显示提示语，一字不差：",
-          "姓名前是 `Enter a name`，成绩前是 `Enter a mark`"
+          "姓名前是 `Enter a name for student <学号>`，成绩前是 `Enter a mark for student <学号>`"
         ].join("\n"),
         output: ["五行，每行一个人，写成：", "`<姓名> <分数>`", "姓名和分数之间一个空格，成绩从高到低。"].join("\n")
       },
@@ -651,16 +651,16 @@ export const chapter11: Chapter = {
         {
           inputs: ["Ada", "80", "Bob", "55", "Cal", "91", "Dee", "70", "Eve", "55"],
           outputs: [
-            "Enter a name",
-            "Enter a mark",
-            "Enter a name",
-            "Enter a mark",
-            "Enter a name",
-            "Enter a mark",
-            "Enter a name",
-            "Enter a mark",
-            "Enter a name",
-            "Enter a mark",
+            "Enter a name for student 1",
+            "Enter a mark for student 1",
+            "Enter a name for student 2",
+            "Enter a mark for student 2",
+            "Enter a name for student 3",
+            "Enter a mark for student 3",
+            "Enter a name for student 4",
+            "Enter a mark for student 4",
+            "Enter a name for student 5",
+            "Enter a mark for student 5",
             "Cal 91",
             "Ada 80",
             "Dee 70",
@@ -677,9 +677,9 @@ export const chapter11: Chapter = {
         "DECLARE Form : ARRAY[1:5] OF TStudent",
         "DECLARE Temp : TStudent",
         "FOR I ← 1 TO 5",
-        '   OUTPUT "Enter a name"',
+        '   OUTPUT "Enter a name for student ", I',
         "   INPUT Form[I].Name",
-        '   OUTPUT "Enter a mark"',
+        '   OUTPUT "Enter a mark for student ", I',
         "   INPUT Form[I].Mark",
         "NEXT I",
         "FOR I ← 1 TO 4",

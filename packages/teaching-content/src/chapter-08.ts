@@ -602,7 +602,7 @@ export const chapter08: Chapter = {
       title: "一周气温",
       statement: "写一段伪代码：读入一周七天的气温存进数组，然后显示总和、最高值、平均值，以及有几天高于平均值。",
       ioSpec: {
-        input: ["七行，各一个 `INTEGER`。每次读取之前都要显示提示语，一字不差：", "`Enter a temperature`"].join("\n"),
+        input: ["七行，各一个 `INTEGER`。每次读取之前都要显示带天数的提示语：", "`Enter a temperature for day <天数>`"].join("\n"),
         output: [
           "读完之后显示四行：",
           "`Total: <总和>`",
@@ -632,13 +632,13 @@ export const chapter08: Chapter = {
         {
           inputs: ["20", "22", "19", "25", "21", "18", "24"],
           outputs: [
-            "Enter a temperature",
-            "Enter a temperature",
-            "Enter a temperature",
-            "Enter a temperature",
-            "Enter a temperature",
-            "Enter a temperature",
-            "Enter a temperature",
+            "Enter a temperature for day 1",
+            "Enter a temperature for day 2",
+            "Enter a temperature for day 3",
+            "Enter a temperature for day 4",
+            "Enter a temperature for day 5",
+            "Enter a temperature for day 6",
+            "Enter a temperature for day 7",
             "Total: 149",
             "Highest: 25",
             "Average: 21",
@@ -655,7 +655,7 @@ export const chapter08: Chapter = {
         "Total ← 0",
         "Above ← 0",
         "FOR I ← 1 TO 7",
-        '   OUTPUT "Enter a temperature"',
+        '   OUTPUT "Enter a temperature for day ", I',
         "   INPUT Temps[I]",
         "   Total ← Total + Temps[I]",
         "NEXT I",

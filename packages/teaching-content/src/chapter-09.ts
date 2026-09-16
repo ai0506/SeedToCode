@@ -278,7 +278,7 @@ export const chapter09: Chapter = {
           title: "每一列的最大值",
           statement: "写一段伪代码：读入一张 3 行 2 列的整数表格（按行读，先读满第一行，再读第二行，再读第三行），然后显示**每一列**里最大的那个数。",
           ioSpec: {
-            input: ["六行，各一个 `INTEGER`，按行的顺序给出。每次读取之前都要显示提示语，一字不差：", "`Enter a number`"].join("\n"),
+            input: ["六行，各一个 `INTEGER`，按行的顺序给出。每次读取之前都要显示带行号和列号的提示语：", "`Enter a number for row <行号>, column <列号>`"].join("\n"),
             output: [
               "两行，一列一行，按列号从小到大：",
               "`Col <列号>: <这一列里最大的数>`",
@@ -305,7 +305,7 @@ export const chapter09: Chapter = {
           examples: [
             {
               inputs: ["4", "9", "7", "2", "1", "8"],
-              outputs: ["Enter a number", "Enter a number", "Enter a number", "Enter a number", "Enter a number", "Enter a number", "Col 1: 7", "Col 2: 9"]
+              outputs: ["Enter a number for row 1, column 1", "Enter a number for row 1, column 2", "Enter a number for row 2, column 1", "Enter a number for row 2, column 2", "Enter a number for row 3, column 1", "Enter a number for row 3, column 2", "Col 1: 7", "Col 2: 9"]
             }
           ],
           referenceSolution: [
@@ -313,7 +313,7 @@ export const chapter09: Chapter = {
             "DECLARE Biggest : INTEGER",
             "FOR Row ← 1 TO 3",
             "   FOR Col ← 1 TO 2",
-            '      OUTPUT "Enter a number"',
+            '      OUTPUT "Enter a number for row ", Row, ", column ", Col',
             "      INPUT Grid[Row, Col]",
             "   NEXT Col",
             "NEXT Row",
@@ -399,7 +399,7 @@ export const chapter09: Chapter = {
       title: "及格次数",
       statement: "写一段伪代码：读入 3 个学生各 4 次测验的成绩（按学生逐个读，每个学生按第 1 次到第 4 次的顺序读），然后显示每个学生有几次及格（60 分及以上），最后显示全班一共有几次及格。",
       ioSpec: {
-        input: ["十二行，各一个 `INTEGER`，按学生逐个给出。每次读取之前都要显示提示语，一字不差：", "`Enter a mark`"].join("\n"),
+        input: ["十二行，各一个 `INTEGER`，按学生逐个给出。每次读取之前都要显示带学生编号的提示语：", "`Enter a mark for student <学号>`"].join("\n"),
         output: [
           "先是每个学生一行，按学号从小到大：",
           "`Student <学号>: <这个学生及格几次>`",
@@ -418,9 +418,9 @@ export const chapter09: Chapter = {
         {
           inputs: ["70", "50", "80", "90", "40", "30", "20", "10", "60", "60", "59", "61"],
           outputs: [
-            "Enter a mark", "Enter a mark", "Enter a mark", "Enter a mark",
-            "Enter a mark", "Enter a mark", "Enter a mark", "Enter a mark",
-            "Enter a mark", "Enter a mark", "Enter a mark", "Enter a mark",
+            "Enter a mark for student 1", "Enter a mark for student 1", "Enter a mark for student 1", "Enter a mark for student 1",
+            "Enter a mark for student 2", "Enter a mark for student 2", "Enter a mark for student 2", "Enter a mark for student 2",
+            "Enter a mark for student 3", "Enter a mark for student 3", "Enter a mark for student 3", "Enter a mark for student 3",
             "Student 1: 3", "Student 2: 0", "Student 3: 3", "Class total: 6"
           ]
         }
@@ -431,7 +431,7 @@ export const chapter09: Chapter = {
         "DECLARE ClassTotal : INTEGER",
         "FOR Student ← 1 TO 3",
         "   FOR Test ← 1 TO 4",
-        '      OUTPUT "Enter a mark"',
+        '      OUTPUT "Enter a mark for student ", Student',
         "      INPUT Marks[Student, Test]",
         "   NEXT Test",
         "NEXT Student",

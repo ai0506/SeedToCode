@@ -411,7 +411,7 @@ export const chapter16: Chapter = {
             "DECLARE Total : INTEGER",
             "Total ← 0",
             "FOR I ← 1 TO 5",
-            '   OUTPUT "Enter a mark"',
+            '   OUTPUT "Enter a mark for student ", I',
             "   INPUT Marks[I]",
             "   Total ← Total + Marks[I]",
             "NEXT I",
@@ -425,11 +425,11 @@ export const chapter16: Chapter = {
           sampleRun: {
             inputs: ["80", "70", "90", "60", "100"],
             outputs: [
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
+              "Enter a mark for student 1",
+              "Enter a mark for student 2",
+              "Enter a mark for student 3",
+              "Enter a mark for student 4",
+              "Enter a mark for student 5",
               "Average: 80"
             ]
           }
@@ -547,7 +547,7 @@ export const chapter16: Chapter = {
                 "DECLARE Temperature : INTEGER",
                 "Count ← 0",
                 "FOR I ← 1 TO 3",
-                '   OUTPUT "Enter a temperature"',
+                '   OUTPUT "Enter a temperature for day ", I',
                 "   INPUT Temperature",
                 "   IF Temperature < 0 THEN",
                 "      Count ← Count + 1",
@@ -618,7 +618,7 @@ export const chapter16: Chapter = {
             "`output the count`"
           ].join("\n"),
           ioSpec: {
-            input: ["五行，各一个 `INTEGER`。每次读取之前都要显示提示语，一字不差：", "`Enter a temperature`"].join("\n"),
+            input: ["五行，各一个 `INTEGER`。每次读取之前都要显示带天数的提示语：", "`Enter a temperature for day <天数>`"].join("\n"),
             output: ["一行，写成：", "`Frost days: <低于零度的天数>`", "冒号后面一个空格。"].join("\n")
           },
           constraints: {
@@ -642,11 +642,11 @@ export const chapter16: Chapter = {
             {
               inputs: ["5", "-2", "0", "-7", "12"],
               outputs: [
-                "Enter a temperature",
-                "Enter a temperature",
-                "Enter a temperature",
-                "Enter a temperature",
-                "Enter a temperature",
+                "Enter a temperature for day 1",
+                "Enter a temperature for day 2",
+                "Enter a temperature for day 3",
+                "Enter a temperature for day 4",
+                "Enter a temperature for day 5",
                 "Frost days: 2"
               ]
             }
@@ -656,7 +656,7 @@ export const chapter16: Chapter = {
             "DECLARE Temperature : INTEGER",
             "Count ← 0",
             "FOR I ← 1 TO 5",
-            '   OUTPUT "Enter a temperature"',
+            '   OUTPUT "Enter a temperature for day ", I',
             "   INPUT Temperature",
             "   IF Temperature < 0 THEN",
             "      Count ← Count + 1",
@@ -709,9 +709,9 @@ export const chapter16: Chapter = {
             "DECLARE Total : INTEGER",
             "Total ← 0",
             "FOR I ← 1 TO 5",
-            '   OUTPUT "Enter a name"',
+            '   OUTPUT "Enter a name for student ", I',
             "   INPUT Form[I].Name",
-            '   OUTPUT "Enter a mark"',
+            '   OUTPUT "Enter a mark for student ", I',
             "   INPUT Form[I].Mark",
             "   Total ← Total + Form[I].Mark",
             "NEXT I",
@@ -725,16 +725,16 @@ export const chapter16: Chapter = {
           sampleRun: {
             inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
             outputs: [
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
+              "Enter a name for student 1",
+              "Enter a mark for student 1",
+              "Enter a name for student 2",
+              "Enter a mark for student 2",
+              "Enter a name for student 3",
+              "Enter a mark for student 3",
+              "Enter a name for student 4",
+              "Enter a mark for student 4",
+              "Enter a name for student 5",
+              "Enter a mark for student 5",
               "Average: 80"
             ]
           }
@@ -806,9 +806,9 @@ export const chapter16: Chapter = {
             "PROCEDURE ReadClass(BYREF Form : ARRAY[1:5] OF TStudent, BYREF Total : INTEGER)",
             "   Total ← 0",
             "   FOR I ← 1 TO 5",
-            '      OUTPUT "Enter a name"',
+            '      OUTPUT "Enter a name for student ", I',
             "      INPUT Form[I].Name",
-            '      OUTPUT "Enter a mark"',
+            '      OUTPUT "Enter a mark for student ", I',
             "      INPUT Form[I].Mark",
             "      Total ← Total + Form[I].Mark",
             "   NEXT I",
@@ -839,16 +839,16 @@ export const chapter16: Chapter = {
           sampleRun: {
             inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
             outputs: [
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
+              "Enter a name for student 1",
+              "Enter a mark for student 1",
+              "Enter a name for student 2",
+              "Enter a mark for student 2",
+              "Enter a name for student 3",
+              "Enter a mark for student 3",
+              "Enter a name for student 4",
+              "Enter a mark for student 4",
+              "Enter a name for student 5",
+              "Enter a mark for student 5",
               "Average: 80",
               "Cal",
               "Eve"
@@ -983,7 +983,7 @@ export const chapter16: Chapter = {
       ioSpec: {
         input: [
           "十行，一本书两行：先书名（`STRING`），再借出次数（`INTEGER`），五本依次读完。每次读取之前都要显示提示语，一字不差：",
-          "书名前是 `Enter a title`，次数前是 `Enter a loan count`"
+          "书名前是 `Enter a title for book <编号>`，次数前是 `Enter a loan count for book <编号>`"
         ].join("\n"),
         output: [
           "读完之后显示三行：",
@@ -1018,16 +1018,16 @@ export const chapter16: Chapter = {
         {
           inputs: ["Dune", "12", "Emma", "3", "Hamlet", "20", "Ivanhoe", "5", "Jaws", "7"],
           outputs: [
-            "Enter a title",
-            "Enter a loan count",
-            "Enter a title",
-            "Enter a loan count",
-            "Enter a title",
-            "Enter a loan count",
-            "Enter a title",
-            "Enter a loan count",
-            "Enter a title",
-            "Enter a loan count",
+            "Enter a title for book 1",
+            "Enter a loan count for book 1",
+            "Enter a title for book 2",
+            "Enter a loan count for book 2",
+            "Enter a title for book 3",
+            "Enter a loan count for book 3",
+            "Enter a title for book 4",
+            "Enter a loan count for book 4",
+            "Enter a title for book 5",
+            "Enter a loan count for book 5",
             "Total loans: 47",
             "Average loans: 9",
             "Most borrowed: Hamlet"
@@ -1042,9 +1042,9 @@ export const chapter16: Chapter = {
         "PROCEDURE ReadBooks(BYREF Shelf : ARRAY[1:5] OF TBook, BYREF Total : INTEGER)",
         "   Total ← 0",
         "   FOR I ← 1 TO 5",
-        '      OUTPUT "Enter a title"',
+        '      OUTPUT "Enter a title for book ", I',
         "      INPUT Shelf[I].Title",
-        '      OUTPUT "Enter a loan count"',
+        '      OUTPUT "Enter a loan count for book ", I',
         "      INPUT Shelf[I].Loans",
         "      Total ← Total + Shelf[I].Loans",
         "   NEXT I",

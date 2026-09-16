@@ -61,9 +61,9 @@ describe("Chapter 16 — 整章那道题真的一步步搭得起来", () => {
     // 结构化英语写的是「重复 3 次」「低于零度」，跑出来就该是 3 次读入、数出 2 天
     const run = await runWithInputs(pseudo.code, ["5", "-2", "-7"]);
     expect(run.outputs).toEqual([
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
       "Frost days: 2"
     ]);
   });

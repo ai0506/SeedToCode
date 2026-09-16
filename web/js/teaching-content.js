@@ -4849,7 +4849,7 @@ var CAIETeaching = (() => {
         title: "\u4E00\u5468\u6C14\u6E29",
         statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165\u4E00\u5468\u4E03\u5929\u7684\u6C14\u6E29\u5B58\u8FDB\u6570\u7EC4\uFF0C\u7136\u540E\u663E\u793A\u603B\u548C\u3001\u6700\u9AD8\u503C\u3001\u5E73\u5747\u503C\uFF0C\u4EE5\u53CA\u6709\u51E0\u5929\u9AD8\u4E8E\u5E73\u5747\u503C\u3002",
         ioSpec: {
-          input: ["\u4E03\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a temperature`"].join("\n"),
+          input: ["\u4E03\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u5E26\u5929\u6570\u7684\u63D0\u793A\u8BED\uFF1A", "`Enter a temperature for day <\u5929\u6570>`"].join("\n"),
           output: [
             "\u8BFB\u5B8C\u4E4B\u540E\u663E\u793A\u56DB\u884C\uFF1A",
             "`Total: <\u603B\u548C>`",
@@ -4879,13 +4879,13 @@ var CAIETeaching = (() => {
           {
             inputs: ["20", "22", "19", "25", "21", "18", "24"],
             outputs: [
-              "Enter a temperature",
-              "Enter a temperature",
-              "Enter a temperature",
-              "Enter a temperature",
-              "Enter a temperature",
-              "Enter a temperature",
-              "Enter a temperature",
+              "Enter a temperature for day 1",
+              "Enter a temperature for day 2",
+              "Enter a temperature for day 3",
+              "Enter a temperature for day 4",
+              "Enter a temperature for day 5",
+              "Enter a temperature for day 6",
+              "Enter a temperature for day 7",
               "Total: 149",
               "Highest: 25",
               "Average: 21",
@@ -4902,7 +4902,7 @@ var CAIETeaching = (() => {
           "Total \u2190 0",
           "Above \u2190 0",
           "FOR I \u2190 1 TO 7",
-          '   OUTPUT "Enter a temperature"',
+          '   OUTPUT "Enter a temperature for day ", I',
           "   INPUT Temps[I]",
           "   Total \u2190 Total + Temps[I]",
           "NEXT I",
@@ -5244,7 +5244,7 @@ var CAIETeaching = (() => {
             title: "\u6BCF\u4E00\u5217\u7684\u6700\u5927\u503C",
             statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165\u4E00\u5F20 3 \u884C 2 \u5217\u7684\u6574\u6570\u8868\u683C\uFF08\u6309\u884C\u8BFB\uFF0C\u5148\u8BFB\u6EE1\u7B2C\u4E00\u884C\uFF0C\u518D\u8BFB\u7B2C\u4E8C\u884C\uFF0C\u518D\u8BFB\u7B2C\u4E09\u884C\uFF09\uFF0C\u7136\u540E\u663E\u793A**\u6BCF\u4E00\u5217**\u91CC\u6700\u5927\u7684\u90A3\u4E2A\u6570\u3002",
             ioSpec: {
-              input: ["\u516D\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF0C\u6309\u884C\u7684\u987A\u5E8F\u7ED9\u51FA\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a number`"].join("\n"),
+              input: ["\u516D\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF0C\u6309\u884C\u7684\u987A\u5E8F\u7ED9\u51FA\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u5E26\u884C\u53F7\u548C\u5217\u53F7\u7684\u63D0\u793A\u8BED\uFF1A", "`Enter a number for row <\u884C\u53F7>, column <\u5217\u53F7>`"].join("\n"),
               output: [
                 "\u4E24\u884C\uFF0C\u4E00\u5217\u4E00\u884C\uFF0C\u6309\u5217\u53F7\u4ECE\u5C0F\u5230\u5927\uFF1A",
                 "`Col <\u5217\u53F7>: <\u8FD9\u4E00\u5217\u91CC\u6700\u5927\u7684\u6570>`",
@@ -5271,7 +5271,7 @@ var CAIETeaching = (() => {
             examples: [
               {
                 inputs: ["4", "9", "7", "2", "1", "8"],
-                outputs: ["Enter a number", "Enter a number", "Enter a number", "Enter a number", "Enter a number", "Enter a number", "Col 1: 7", "Col 2: 9"]
+                outputs: ["Enter a number for row 1, column 1", "Enter a number for row 1, column 2", "Enter a number for row 2, column 1", "Enter a number for row 2, column 2", "Enter a number for row 3, column 1", "Enter a number for row 3, column 2", "Col 1: 7", "Col 2: 9"]
               }
             ],
             referenceSolution: [
@@ -5279,7 +5279,7 @@ var CAIETeaching = (() => {
               "DECLARE Biggest : INTEGER",
               "FOR Row \u2190 1 TO 3",
               "   FOR Col \u2190 1 TO 2",
-              '      OUTPUT "Enter a number"',
+              '      OUTPUT "Enter a number for row ", Row, ", column ", Col',
               "      INPUT Grid[Row, Col]",
               "   NEXT Col",
               "NEXT Row",
@@ -5365,7 +5365,7 @@ var CAIETeaching = (() => {
         title: "\u53CA\u683C\u6B21\u6570",
         statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 3 \u4E2A\u5B66\u751F\u5404 4 \u6B21\u6D4B\u9A8C\u7684\u6210\u7EE9\uFF08\u6309\u5B66\u751F\u9010\u4E2A\u8BFB\uFF0C\u6BCF\u4E2A\u5B66\u751F\u6309\u7B2C 1 \u6B21\u5230\u7B2C 4 \u6B21\u7684\u987A\u5E8F\u8BFB\uFF09\uFF0C\u7136\u540E\u663E\u793A\u6BCF\u4E2A\u5B66\u751F\u6709\u51E0\u6B21\u53CA\u683C\uFF0860 \u5206\u53CA\u4EE5\u4E0A\uFF09\uFF0C\u6700\u540E\u663E\u793A\u5168\u73ED\u4E00\u5171\u6709\u51E0\u6B21\u53CA\u683C\u3002",
         ioSpec: {
-          input: ["\u5341\u4E8C\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF0C\u6309\u5B66\u751F\u9010\u4E2A\u7ED9\u51FA\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a mark`"].join("\n"),
+          input: ["\u5341\u4E8C\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\uFF0C\u6309\u5B66\u751F\u9010\u4E2A\u7ED9\u51FA\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u5E26\u5B66\u751F\u7F16\u53F7\u7684\u63D0\u793A\u8BED\uFF1A", "`Enter a mark for student <\u5B66\u53F7>`"].join("\n"),
           output: [
             "\u5148\u662F\u6BCF\u4E2A\u5B66\u751F\u4E00\u884C\uFF0C\u6309\u5B66\u53F7\u4ECE\u5C0F\u5230\u5927\uFF1A",
             "`Student <\u5B66\u53F7>: <\u8FD9\u4E2A\u5B66\u751F\u53CA\u683C\u51E0\u6B21>`",
@@ -5384,18 +5384,18 @@ var CAIETeaching = (() => {
           {
             inputs: ["70", "50", "80", "90", "40", "30", "20", "10", "60", "60", "59", "61"],
             outputs: [
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
+              "Enter a mark for student 1",
+              "Enter a mark for student 1",
+              "Enter a mark for student 1",
+              "Enter a mark for student 1",
+              "Enter a mark for student 2",
+              "Enter a mark for student 2",
+              "Enter a mark for student 2",
+              "Enter a mark for student 2",
+              "Enter a mark for student 3",
+              "Enter a mark for student 3",
+              "Enter a mark for student 3",
+              "Enter a mark for student 3",
               "Student 1: 3",
               "Student 2: 0",
               "Student 3: 3",
@@ -5409,7 +5409,7 @@ var CAIETeaching = (() => {
           "DECLARE ClassTotal : INTEGER",
           "FOR Student \u2190 1 TO 3",
           "   FOR Test \u2190 1 TO 4",
-          '      OUTPUT "Enter a mark"',
+          '      OUTPUT "Enter a mark for student ", Student',
           "      INPUT Marks[Student, Test]",
           "   NEXT Test",
           "NEXT Student",
@@ -6751,7 +6751,7 @@ var CAIETeaching = (() => {
             ioSpec: {
               input: [
                 "\u516B\u884C\uFF0C\u4E00\u4E2A\u4EBA\u4E24\u884C\uFF1A\u5148\u59D3\u540D\uFF08`STRING`\uFF09\uFF0C\u518D\u6210\u7EE9\uFF08`INTEGER`\uFF09\uFF0C\u56DB\u4E2A\u4EBA\u4F9D\u6B21\u8BFB\u5B8C\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
-                "\u59D3\u540D\u524D\u662F `Enter a name`\uFF0C\u6210\u7EE9\u524D\u662F `Enter a mark`"
+                "\u59D3\u540D\u524D\u662F `Enter a name for student <\u5B66\u53F7>`\uFF0C\u6210\u7EE9\u524D\u662F `Enter a mark for student <\u5B66\u53F7>`"
               ].join("\n"),
               output: ["\u4E00\u884C\uFF0C\u5199\u6210\uFF1A", "`Top: <\u59D3\u540D> <\u5206\u6570>`", "\u5192\u53F7\u540E\u9762\u548C\u59D3\u540D\u540E\u9762\u5404\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
             },
@@ -6780,14 +6780,14 @@ var CAIETeaching = (() => {
               {
                 inputs: ["Ada", "80", "Bob", "55", "Cal", "91", "Dee", "70"],
                 outputs: [
-                  "Enter a name",
-                  "Enter a mark",
-                  "Enter a name",
-                  "Enter a mark",
-                  "Enter a name",
-                  "Enter a mark",
-                  "Enter a name",
-                  "Enter a mark",
+                  "Enter a name for student 1",
+                  "Enter a mark for student 1",
+                  "Enter a name for student 2",
+                  "Enter a mark for student 2",
+                  "Enter a name for student 3",
+                  "Enter a mark for student 3",
+                  "Enter a name for student 4",
+                  "Enter a mark for student 4",
                   "Top: Cal 91"
                 ]
               }
@@ -6800,9 +6800,9 @@ var CAIETeaching = (() => {
               "DECLARE Form : ARRAY[1:4] OF TStudent",
               "DECLARE Best : INTEGER",
               "FOR I \u2190 1 TO 4",
-              '   OUTPUT "Enter a name"',
+              '   OUTPUT "Enter a name for student ", I',
               "   INPUT Form[I].Name",
-              '   OUTPUT "Enter a mark"',
+              '   OUTPUT "Enter a mark for student ", I',
               "   INPUT Form[I].Mark",
               "NEXT I",
               "Best \u2190 1",
@@ -6888,7 +6888,7 @@ var CAIETeaching = (() => {
         ioSpec: {
           input: [
             "\u5341\u884C\uFF0C\u4E00\u4E2A\u4EBA\u4E24\u884C\uFF1A\u5148\u59D3\u540D\uFF08`STRING`\uFF09\uFF0C\u518D\u6210\u7EE9\uFF08`INTEGER`\uFF09\uFF0C\u4E94\u4E2A\u4EBA\u4F9D\u6B21\u8BFB\u5B8C\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
-            "\u59D3\u540D\u524D\u662F `Enter a name`\uFF0C\u6210\u7EE9\u524D\u662F `Enter a mark`"
+            "\u59D3\u540D\u524D\u662F `Enter a name for student <\u5B66\u53F7>`\uFF0C\u6210\u7EE9\u524D\u662F `Enter a mark for student <\u5B66\u53F7>`"
           ].join("\n"),
           output: ["\u4E94\u884C\uFF0C\u6BCF\u884C\u4E00\u4E2A\u4EBA\uFF0C\u5199\u6210\uFF1A", "`<\u59D3\u540D> <\u5206\u6570>`", "\u59D3\u540D\u548C\u5206\u6570\u4E4B\u95F4\u4E00\u4E2A\u7A7A\u683C\uFF0C\u6210\u7EE9\u4ECE\u9AD8\u5230\u4F4E\u3002"].join("\n")
         },
@@ -6912,16 +6912,16 @@ var CAIETeaching = (() => {
           {
             inputs: ["Ada", "80", "Bob", "55", "Cal", "91", "Dee", "70", "Eve", "55"],
             outputs: [
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
-              "Enter a name",
-              "Enter a mark",
+              "Enter a name for student 1",
+              "Enter a mark for student 1",
+              "Enter a name for student 2",
+              "Enter a mark for student 2",
+              "Enter a name for student 3",
+              "Enter a mark for student 3",
+              "Enter a name for student 4",
+              "Enter a mark for student 4",
+              "Enter a name for student 5",
+              "Enter a mark for student 5",
               "Cal 91",
               "Ada 80",
               "Dee 70",
@@ -6938,9 +6938,9 @@ var CAIETeaching = (() => {
           "DECLARE Form : ARRAY[1:5] OF TStudent",
           "DECLARE Temp : TStudent",
           "FOR I \u2190 1 TO 5",
-          '   OUTPUT "Enter a name"',
+          '   OUTPUT "Enter a name for student ", I',
           "   INPUT Form[I].Name",
-          '   OUTPUT "Enter a mark"',
+          '   OUTPUT "Enter a mark for student ", I',
           "   INPUT Form[I].Mark",
           "NEXT I",
           "FOR I \u2190 1 TO 4",
@@ -8560,7 +8560,7 @@ var CAIETeaching = (() => {
         title: "\u4E94\u79D1\u6210\u7EE9\u62A5\u544A",
         statement: "\u5199\u4E00\u6BB5\u4F2A\u4EE3\u7801\uFF1A\u8BFB\u5165 5 \u79D1\u6210\u7EE9\uFF0C\u7B97\u51FA\u5E73\u5747\u5206\uFF08\u53D6\u6574\u6570\u5546\uFF09\uFF0C\u518D\u6309\u5E73\u5747\u5206\u7ED9\u51FA\u7B49\u7B2C\uFF0C\u6700\u540E\u628A\u5E73\u5747\u5206\u548C\u7B49\u7B2C\u663E\u793A\u51FA\u6765\u3002\u5E73\u5747\u5206\u548C\u7B49\u7B2C\u5404\u5199\u6210\u4E00\u4E2A\u51FD\u6570\uFF0C\u663E\u793A\u5199\u6210\u4E00\u4E2A\u8FC7\u7A0B\uFF1B\u4E3B\u7A0B\u5E8F\u53EA\u8D1F\u8D23\u8BFB\u5165\u3001\u8C03\u7528\u548C\u4E32\u8D77\u6765\u3002\u7B49\u7B2C\u89C4\u5219\uFF1A80 \u5206\u53CA\u4EE5\u4E0A\u662F `A`\uFF0C60 \u5206\u53CA\u4EE5\u4E0A\u662F `B`\uFF0C40 \u5206\u53CA\u4EE5\u4E0A\u662F `C`\uFF0C\u518D\u4F4E\u662F `F`\u3002",
         ioSpec: {
-          input: ["\u4E94\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a mark`"].join("\n"),
+          input: ["\u4E94\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u5E26\u79D1\u76EE\u7F16\u53F7\u7684\u63D0\u793A\u8BED\uFF1A", "`Enter a mark for subject <\u79D1\u76EE\u7F16\u53F7>`"].join("\n"),
           output: ["\u8BFB\u5B8C\u4E4B\u540E\u663E\u793A\u4E24\u884C\uFF1A", "`Average: <\u5E73\u5747\u5206>`", "`Grade: <\u7B49\u7B2C>`", "\u6BCF\u4E2A\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
         },
         suggestedFeatures: [
@@ -8585,11 +8585,11 @@ var CAIETeaching = (() => {
           {
             inputs: ["80", "70", "90", "60", "100"],
             outputs: [
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
-              "Enter a mark",
+              "Enter a mark for subject 1",
+              "Enter a mark for subject 2",
+              "Enter a mark for subject 3",
+              "Enter a mark for subject 4",
+              "Enter a mark for subject 5",
               "Average: 80",
               "Grade: A"
             ]
@@ -8620,7 +8620,7 @@ var CAIETeaching = (() => {
           "DECLARE Mean : INTEGER",
           "Sum \u2190 0",
           "FOR I \u2190 1 TO 5",
-          '   OUTPUT "Enter a mark"',
+          '   OUTPUT "Enter a mark for subject ", I',
           "   INPUT Mark",
           "   Sum \u2190 Sum + Mark",
           "NEXT I",
@@ -10541,7 +10541,7 @@ var CAIETeaching = (() => {
               "DECLARE Total : INTEGER",
               "Total \u2190 0",
               "FOR I \u2190 1 TO 5",
-              '   OUTPUT "Enter a mark"',
+              '   OUTPUT "Enter a mark for student ", I',
               "   INPUT Marks[I]",
               "   Total \u2190 Total + Marks[I]",
               "NEXT I",
@@ -10555,11 +10555,11 @@ var CAIETeaching = (() => {
             sampleRun: {
               inputs: ["80", "70", "90", "60", "100"],
               outputs: [
-                "Enter a mark",
-                "Enter a mark",
-                "Enter a mark",
-                "Enter a mark",
-                "Enter a mark",
+                "Enter a mark for student 1",
+                "Enter a mark for student 2",
+                "Enter a mark for student 3",
+                "Enter a mark for student 4",
+                "Enter a mark for student 5",
                 "Average: 80"
               ]
             }
@@ -10677,7 +10677,7 @@ var CAIETeaching = (() => {
                   "DECLARE Temperature : INTEGER",
                   "Count \u2190 0",
                   "FOR I \u2190 1 TO 3",
-                  '   OUTPUT "Enter a temperature"',
+                  '   OUTPUT "Enter a temperature for day ", I',
                   "   INPUT Temperature",
                   "   IF Temperature < 0 THEN",
                   "      Count \u2190 Count + 1",
@@ -10748,7 +10748,7 @@ var CAIETeaching = (() => {
               "`output the count`"
             ].join("\n"),
             ioSpec: {
-              input: ["\u4E94\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A", "`Enter a temperature`"].join("\n"),
+              input: ["\u4E94\u884C\uFF0C\u5404\u4E00\u4E2A `INTEGER`\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u5E26\u5929\u6570\u7684\u63D0\u793A\u8BED\uFF1A", "`Enter a temperature for day <\u5929\u6570>`"].join("\n"),
               output: ["\u4E00\u884C\uFF0C\u5199\u6210\uFF1A", "`Frost days: <\u4F4E\u4E8E\u96F6\u5EA6\u7684\u5929\u6570>`", "\u5192\u53F7\u540E\u9762\u4E00\u4E2A\u7A7A\u683C\u3002"].join("\n")
             },
             constraints: {
@@ -10772,11 +10772,11 @@ var CAIETeaching = (() => {
               {
                 inputs: ["5", "-2", "0", "-7", "12"],
                 outputs: [
-                  "Enter a temperature",
-                  "Enter a temperature",
-                  "Enter a temperature",
-                  "Enter a temperature",
-                  "Enter a temperature",
+                  "Enter a temperature for day 1",
+                  "Enter a temperature for day 2",
+                  "Enter a temperature for day 3",
+                  "Enter a temperature for day 4",
+                  "Enter a temperature for day 5",
                   "Frost days: 2"
                 ]
               }
@@ -10786,7 +10786,7 @@ var CAIETeaching = (() => {
               "DECLARE Temperature : INTEGER",
               "Count \u2190 0",
               "FOR I \u2190 1 TO 5",
-              '   OUTPUT "Enter a temperature"',
+              '   OUTPUT "Enter a temperature for day ", I',
               "   INPUT Temperature",
               "   IF Temperature < 0 THEN",
               "      Count \u2190 Count + 1",
@@ -10839,9 +10839,9 @@ var CAIETeaching = (() => {
               "DECLARE Total : INTEGER",
               "Total \u2190 0",
               "FOR I \u2190 1 TO 5",
-              '   OUTPUT "Enter a name"',
+              '   OUTPUT "Enter a name for student ", I',
               "   INPUT Form[I].Name",
-              '   OUTPUT "Enter a mark"',
+              '   OUTPUT "Enter a mark for student ", I',
               "   INPUT Form[I].Mark",
               "   Total \u2190 Total + Form[I].Mark",
               "NEXT I",
@@ -10855,16 +10855,16 @@ var CAIETeaching = (() => {
             sampleRun: {
               inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
               outputs: [
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
+                "Enter a name for student 1",
+                "Enter a mark for student 1",
+                "Enter a name for student 2",
+                "Enter a mark for student 2",
+                "Enter a name for student 3",
+                "Enter a mark for student 3",
+                "Enter a name for student 4",
+                "Enter a mark for student 4",
+                "Enter a name for student 5",
+                "Enter a mark for student 5",
                 "Average: 80"
               ]
             }
@@ -10936,9 +10936,9 @@ var CAIETeaching = (() => {
               "PROCEDURE ReadClass(BYREF Form : ARRAY[1:5] OF TStudent, BYREF Total : INTEGER)",
               "   Total \u2190 0",
               "   FOR I \u2190 1 TO 5",
-              '      OUTPUT "Enter a name"',
+              '      OUTPUT "Enter a name for student ", I',
               "      INPUT Form[I].Name",
-              '      OUTPUT "Enter a mark"',
+              '      OUTPUT "Enter a mark for student ", I',
               "      INPUT Form[I].Mark",
               "      Total \u2190 Total + Form[I].Mark",
               "   NEXT I",
@@ -10969,16 +10969,16 @@ var CAIETeaching = (() => {
             sampleRun: {
               inputs: ["Ada", "80", "Bob", "70", "Cal", "90", "Dee", "60", "Eve", "100"],
               outputs: [
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
-                "Enter a name",
-                "Enter a mark",
+                "Enter a name for student 1",
+                "Enter a mark for student 1",
+                "Enter a name for student 2",
+                "Enter a mark for student 2",
+                "Enter a name for student 3",
+                "Enter a mark for student 3",
+                "Enter a name for student 4",
+                "Enter a mark for student 4",
+                "Enter a name for student 5",
+                "Enter a mark for student 5",
                 "Average: 80",
                 "Cal",
                 "Eve"
@@ -11113,7 +11113,7 @@ var CAIETeaching = (() => {
         ioSpec: {
           input: [
             "\u5341\u884C\uFF0C\u4E00\u672C\u4E66\u4E24\u884C\uFF1A\u5148\u4E66\u540D\uFF08`STRING`\uFF09\uFF0C\u518D\u501F\u51FA\u6B21\u6570\uFF08`INTEGER`\uFF09\uFF0C\u4E94\u672C\u4F9D\u6B21\u8BFB\u5B8C\u3002\u6BCF\u6B21\u8BFB\u53D6\u4E4B\u524D\u90FD\u8981\u663E\u793A\u63D0\u793A\u8BED\uFF0C\u4E00\u5B57\u4E0D\u5DEE\uFF1A",
-            "\u4E66\u540D\u524D\u662F `Enter a title`\uFF0C\u6B21\u6570\u524D\u662F `Enter a loan count`"
+            "\u4E66\u540D\u524D\u662F `Enter a title for book <\u7F16\u53F7>`\uFF0C\u6B21\u6570\u524D\u662F `Enter a loan count for book <\u7F16\u53F7>`"
           ].join("\n"),
           output: [
             "\u8BFB\u5B8C\u4E4B\u540E\u663E\u793A\u4E09\u884C\uFF1A",
@@ -11148,16 +11148,16 @@ var CAIETeaching = (() => {
           {
             inputs: ["Dune", "12", "Emma", "3", "Hamlet", "20", "Ivanhoe", "5", "Jaws", "7"],
             outputs: [
-              "Enter a title",
-              "Enter a loan count",
-              "Enter a title",
-              "Enter a loan count",
-              "Enter a title",
-              "Enter a loan count",
-              "Enter a title",
-              "Enter a loan count",
-              "Enter a title",
-              "Enter a loan count",
+              "Enter a title for book 1",
+              "Enter a loan count for book 1",
+              "Enter a title for book 2",
+              "Enter a loan count for book 2",
+              "Enter a title for book 3",
+              "Enter a loan count for book 3",
+              "Enter a title for book 4",
+              "Enter a loan count for book 4",
+              "Enter a title for book 5",
+              "Enter a loan count for book 5",
               "Total loans: 47",
               "Average loans: 9",
               "Most borrowed: Hamlet"
@@ -11172,9 +11172,9 @@ var CAIETeaching = (() => {
           "PROCEDURE ReadBooks(BYREF Shelf : ARRAY[1:5] OF TBook, BYREF Total : INTEGER)",
           "   Total \u2190 0",
           "   FOR I \u2190 1 TO 5",
-          '      OUTPUT "Enter a title"',
+          '      OUTPUT "Enter a title for book ", I',
           "      INPUT Shelf[I].Title",
-          '      OUTPUT "Enter a loan count"',
+          '      OUTPUT "Enter a loan count for book ", I',
           "      INPUT Shelf[I].Loans",
           "      Total \u2190 Total + Shelf[I].Loans",
           "   NEXT I",
@@ -11810,205 +11810,205 @@ var CAIETeaching = (() => {
       "Passed: 5"
     ],
     "8.T1/t1": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
+      "Enter a temperature for day 6",
+      "Enter a temperature for day 7",
       "Total: 128",
       "Highest: 22",
       "Average: 18",
       "Above average: 3"
     ],
     "8.T1/t2": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
+      "Enter a temperature for day 6",
+      "Enter a temperature for day 7",
       "Total: 140",
       "Highest: 20",
       "Average: 20",
       "Above average: 0"
     ],
     "8.T1/t3": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
+      "Enter a temperature for day 6",
+      "Enter a temperature for day 7",
       "Total: -29",
       "Highest: -1",
       "Average: -4",
       "Above average: 3"
     ],
     "8.T1/t4": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
+      "Enter a temperature for day 6",
+      "Enter a temperature for day 7",
       "Total: 30",
       "Highest: 10",
       "Average: 4",
       "Above average: 3"
     ],
     "8.T1/t5": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
+      "Enter a temperature for day 6",
+      "Enter a temperature for day 7",
       "Total: 46",
       "Highest: 40",
       "Average: 6",
       "Above average: 1"
     ],
     "9.3.1/t1": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
+      "Enter a number for row 1, column 1",
+      "Enter a number for row 1, column 2",
+      "Enter a number for row 2, column 1",
+      "Enter a number for row 2, column 2",
+      "Enter a number for row 3, column 1",
+      "Enter a number for row 3, column 2",
       "Col 1: 5",
       "Col 2: 9"
     ],
     "9.3.1/t2": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
+      "Enter a number for row 1, column 1",
+      "Enter a number for row 1, column 2",
+      "Enter a number for row 2, column 1",
+      "Enter a number for row 2, column 2",
+      "Enter a number for row 3, column 1",
+      "Enter a number for row 3, column 2",
       "Col 1: 6",
       "Col 2: 6"
     ],
     "9.3.1/t3": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
+      "Enter a number for row 1, column 1",
+      "Enter a number for row 1, column 2",
+      "Enter a number for row 2, column 1",
+      "Enter a number for row 2, column 2",
+      "Enter a number for row 3, column 1",
+      "Enter a number for row 3, column 2",
       "Col 1: 9",
       "Col 2: 4"
     ],
     "9.3.1/t4": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
+      "Enter a number for row 1, column 1",
+      "Enter a number for row 1, column 2",
+      "Enter a number for row 2, column 1",
+      "Enter a number for row 2, column 2",
+      "Enter a number for row 3, column 1",
+      "Enter a number for row 3, column 2",
       "Col 1: -3",
       "Col 2: -2"
     ],
     "9.3.1/t5": [
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
-      "Enter a number",
+      "Enter a number for row 1, column 1",
+      "Enter a number for row 1, column 2",
+      "Enter a number for row 2, column 1",
+      "Enter a number for row 2, column 2",
+      "Enter a number for row 3, column 1",
+      "Enter a number for row 3, column 2",
       "Col 1: 888888",
       "Col 2: 999999"
     ],
     "9.T1/t1": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
       "Student 1: 2",
       "Student 2: 2",
       "Student 3: 4",
       "Class total: 8"
     ],
     "9.T1/t2": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
       "Student 1: 0",
       "Student 2: 0",
       "Student 3: 0",
       "Class total: 0"
     ],
     "9.T1/t3": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
       "Student 1: 4",
       "Student 2: 4",
       "Student 3: 4",
       "Class total: 12"
     ],
     "9.T1/t4": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
       "Student 1: 0",
       "Student 2: 4",
       "Student 3: 2",
       "Class total: 6"
     ],
     "9.T1/t5": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 1",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 2",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
+      "Enter a mark for student 3",
       "Student 1: 2",
       "Student 2: 2",
       "Student 3: 2",
@@ -12261,71 +12261,71 @@ var CAIETeaching = (() => {
       "Fay: 0"
     ],
     "11.4.1/t1": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
       "Top: Hal 72"
     ],
     "11.4.1/t2": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
       "Top: Gil 90"
     ],
     "11.4.1/t3": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
       "Top: Jon 88"
     ],
     "11.4.1/t4": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
       "Top: Jon 51"
     ],
     "11.4.1/t5": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
       "Top: Jon -99996"
     ],
     "11.T1/t1": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
+      "Enter a name for student 5",
+      "Enter a mark for student 5",
       "Hal 72",
       "Jon 66",
       "Gil 61",
@@ -12333,16 +12333,16 @@ var CAIETeaching = (() => {
       "Kay 49"
     ],
     "11.T1/t2": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
+      "Enter a name for student 5",
+      "Enter a mark for student 5",
       "Gil 90",
       "Hal 80",
       "Ivy 70",
@@ -12350,16 +12350,16 @@ var CAIETeaching = (() => {
       "Kay 50"
     ],
     "11.T1/t3": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
+      "Enter a name for student 5",
+      "Enter a mark for student 5",
       "Kay 90",
       "Jon 80",
       "Ivy 70",
@@ -12367,16 +12367,16 @@ var CAIETeaching = (() => {
       "Gil 50"
     ],
     "11.T1/t4": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
+      "Enter a name for student 5",
+      "Enter a mark for student 5",
       "Gil 70",
       "Hal 70",
       "Ivy 70",
@@ -12384,16 +12384,16 @@ var CAIETeaching = (() => {
       "Kay 70"
     ],
     "11.T1/t5": [
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
-      "Enter a name",
-      "Enter a mark",
+      "Enter a name for student 1",
+      "Enter a mark for student 1",
+      "Enter a name for student 2",
+      "Enter a mark for student 2",
+      "Enter a name for student 3",
+      "Enter a mark for student 3",
+      "Enter a name for student 4",
+      "Enter a mark for student 4",
+      "Enter a name for student 5",
+      "Enter a mark for student 5",
       "Gil 99999",
       "Kay 99999",
       "Ivy 0",
@@ -12596,47 +12596,47 @@ var CAIETeaching = (() => {
       "Largest: -99996"
     ],
     "13.T1/t1": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for subject 1",
+      "Enter a mark for subject 2",
+      "Enter a mark for subject 3",
+      "Enter a mark for subject 4",
+      "Enter a mark for subject 5",
       "Average: 65",
       "Grade: B"
     ],
     "13.T1/t2": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for subject 1",
+      "Enter a mark for subject 2",
+      "Enter a mark for subject 3",
+      "Enter a mark for subject 4",
+      "Enter a mark for subject 5",
       "Average: 80",
       "Grade: A"
     ],
     "13.T1/t3": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for subject 1",
+      "Enter a mark for subject 2",
+      "Enter a mark for subject 3",
+      "Enter a mark for subject 4",
+      "Enter a mark for subject 5",
       "Average: 0",
       "Grade: F"
     ],
     "13.T1/t4": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for subject 1",
+      "Enter a mark for subject 2",
+      "Enter a mark for subject 3",
+      "Enter a mark for subject 4",
+      "Enter a mark for subject 5",
       "Average: 40",
       "Grade: C"
     ],
     "13.T1/t5": [
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
-      "Enter a mark",
+      "Enter a mark for subject 1",
+      "Enter a mark for subject 2",
+      "Enter a mark for subject 3",
+      "Enter a mark for subject 4",
+      "Enter a mark for subject 5",
       "Average: 19999",
       "Grade: A"
     ],
@@ -12816,43 +12816,43 @@ var CAIETeaching = (() => {
       "Change: 1998"
     ],
     "16.5.1/t1": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
       "Frost days: 3"
     ],
     "16.5.1/t2": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
       "Frost days: 0"
     ],
     "16.5.1/t3": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
       "Frost days: 5"
     ],
     "16.5.1/t4": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
       "Frost days: 0"
     ],
     "16.5.1/t5": [
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
-      "Enter a temperature",
+      "Enter a temperature for day 1",
+      "Enter a temperature for day 2",
+      "Enter a temperature for day 3",
+      "Enter a temperature for day 4",
+      "Enter a temperature for day 5",
       "Frost days: 2"
     ],
     "16.7.1/t1": [
@@ -12906,91 +12906,91 @@ var CAIETeaching = (() => {
       "Fails: 4"
     ],
     "16.T1/t1": [
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
+      "Enter a title for book 1",
+      "Enter a loan count for book 1",
+      "Enter a title for book 2",
+      "Enter a loan count for book 2",
+      "Enter a title for book 3",
+      "Enter a loan count for book 3",
+      "Enter a title for book 4",
+      "Enter a loan count for book 4",
+      "Enter a title for book 5",
+      "Enter a loan count for book 5",
       "Total loans: 22",
       "Average loans: 4",
       "Most borrowed: Beta"
     ],
     "16.T1/t2": [
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
+      "Enter a title for book 1",
+      "Enter a loan count for book 1",
+      "Enter a title for book 2",
+      "Enter a loan count for book 2",
+      "Enter a title for book 3",
+      "Enter a loan count for book 3",
+      "Enter a title for book 4",
+      "Enter a loan count for book 4",
+      "Enter a title for book 5",
+      "Enter a loan count for book 5",
       "Total loans: 19",
       "Average loans: 3",
       "Most borrowed: Alpha"
     ],
     "16.T1/t3": [
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
+      "Enter a title for book 1",
+      "Enter a loan count for book 1",
+      "Enter a title for book 2",
+      "Enter a loan count for book 2",
+      "Enter a title for book 3",
+      "Enter a loan count for book 3",
+      "Enter a title for book 4",
+      "Enter a loan count for book 4",
+      "Enter a title for book 5",
+      "Enter a loan count for book 5",
       "Total loans: 19",
       "Average loans: 3",
       "Most borrowed: Sigma"
     ],
     "16.T1/t4": [
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
+      "Enter a title for book 1",
+      "Enter a loan count for book 1",
+      "Enter a title for book 2",
+      "Enter a loan count for book 2",
+      "Enter a title for book 3",
+      "Enter a loan count for book 3",
+      "Enter a title for book 4",
+      "Enter a loan count for book 4",
+      "Enter a title for book 5",
+      "Enter a loan count for book 5",
       "Total loans: 1",
       "Average loans: 0",
       "Most borrowed: Sigma"
     ],
     "16.T1/t5": [
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
+      "Enter a title for book 1",
+      "Enter a loan count for book 1",
+      "Enter a title for book 2",
+      "Enter a loan count for book 2",
+      "Enter a title for book 3",
+      "Enter a loan count for book 3",
+      "Enter a title for book 4",
+      "Enter a loan count for book 4",
+      "Enter a title for book 5",
+      "Enter a loan count for book 5",
       "Total loans: 26",
       "Average loans: 5",
       "Most borrowed: Sigma"
     ],
     "16.T1/t6": [
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
-      "Enter a title",
-      "Enter a loan count",
+      "Enter a title for book 1",
+      "Enter a loan count for book 1",
+      "Enter a title for book 2",
+      "Enter a loan count for book 2",
+      "Enter a title for book 3",
+      "Enter a loan count for book 3",
+      "Enter a title for book 4",
+      "Enter a loan count for book 4",
+      "Enter a title for book 5",
+      "Enter a loan count for book 5",
       "Total loans: 100000",
       "Average loans: 20000",
       "Most borrowed: Alpha"
@@ -13932,7 +13932,7 @@ var CAIETeaching = (() => {
     "16.4/Example_16_4_a.pseudocode": [
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 1"
       },
       {
         "kind": "input",
@@ -13940,7 +13940,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 2"
       },
       {
         "kind": "input",
@@ -13948,7 +13948,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 3"
       },
       {
         "kind": "input",
@@ -13956,7 +13956,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 4"
       },
       {
         "kind": "input",
@@ -13964,7 +13964,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 5"
       },
       {
         "kind": "input",
@@ -13978,7 +13978,7 @@ var CAIETeaching = (() => {
     "16.6/Example_16_6_a.pseudocode": [
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 1"
       },
       {
         "kind": "input",
@@ -13986,7 +13986,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 1"
       },
       {
         "kind": "input",
@@ -13994,7 +13994,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 2"
       },
       {
         "kind": "input",
@@ -14002,7 +14002,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 2"
       },
       {
         "kind": "input",
@@ -14010,7 +14010,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 3"
       },
       {
         "kind": "input",
@@ -14018,7 +14018,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 3"
       },
       {
         "kind": "input",
@@ -14026,7 +14026,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 4"
       },
       {
         "kind": "input",
@@ -14034,7 +14034,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 4"
       },
       {
         "kind": "input",
@@ -14042,7 +14042,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 5"
       },
       {
         "kind": "input",
@@ -14050,7 +14050,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 5"
       },
       {
         "kind": "input",
@@ -14064,7 +14064,7 @@ var CAIETeaching = (() => {
     "16.7/Example_16_7_a.pseudocode": [
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 1"
       },
       {
         "kind": "input",
@@ -14072,7 +14072,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 1"
       },
       {
         "kind": "input",
@@ -14080,7 +14080,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 2"
       },
       {
         "kind": "input",
@@ -14088,7 +14088,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 2"
       },
       {
         "kind": "input",
@@ -14096,7 +14096,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 3"
       },
       {
         "kind": "input",
@@ -14104,7 +14104,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 3"
       },
       {
         "kind": "input",
@@ -14112,7 +14112,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 4"
       },
       {
         "kind": "input",
@@ -14120,7 +14120,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 4"
       },
       {
         "kind": "input",
@@ -14128,7 +14128,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a name"
+        "text": "Enter a name for student 5"
       },
       {
         "kind": "input",
@@ -14136,7 +14136,7 @@ var CAIETeaching = (() => {
       },
       {
         "kind": "output",
-        "text": "Enter a mark"
+        "text": "Enter a mark for student 5"
       },
       {
         "kind": "input",
