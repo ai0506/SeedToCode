@@ -9,7 +9,7 @@ This is an unpublished release candidate. The source history has been filtered f
 - Tokenizer, parser, AST, name binding, static diagnostics, type checking and formatter.
 - Pure TypeScript interpreter with procedures, functions, recursion, virtual text/random files, records, enums, pointers, sets and OOP. Advanced features require `advanced-2027`; the default is `core-2027`.
 - Browser editor with local projects, highlighting, guidance, interactive input and trace tables including array elements and routine-local variables.
-- Sixteen Chinese AS learning chapters, exercises, reference solutions and automated grading. Published browser course data omits reference solutions; source access naturally makes solutions visible to repository readers.
+- Sixteen Chinese AS learning chapters, exercises, reference solutions and automated grading. The exported course object omits reference-solution fields, but the downloadable JavaScript bundle and repository still contain the solutions. This is not an answer-secrecy boundary.
 - Optional Cloudflare Worker/D1 authentication, account-isolated sync, classes, teacher-authored assignments and grading. The browser stays usable without them.
 - An experimental macOS wrapper and native editor prototype. AI work currently contains a disabled quota/consent foundation and evaluation fixtures; there is no model-calling assistant endpoint or working assistant UI.
 

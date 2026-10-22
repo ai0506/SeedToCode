@@ -6,6 +6,8 @@ The candidate retains all sixteen authored AS chapters, their section numbers, n
 
 Chapter **15.5**, first explanation block: one callout formerly reproducing official wording is now a plain **Content under development** note. It is not labeled as a Cambridge rule. The chapter's original explanations, executable examples and quiz remain available. Some external quotations in planning/review Markdown and historical technical notes also have this placeholder; those documents are not additional student lessons.
 
+The final closure also removes two concrete external-answer quotations from the Chapter 17 planning note and the historical input-prompt changelog entry. Their document positions use Content under development; no additional student lesson, quiz or task is removed.
+
 Official PDFs and full transcriptions remain excluded. Official links and the independent-project statement remain in `EXTERNAL_REFERENCES.md` and the README. Chapters 17–23 were already unfinished before this cleanup.
 
 ## Concrete fixtures replaced

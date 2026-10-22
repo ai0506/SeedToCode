@@ -40,7 +40,7 @@ packages/test-cases  结构化验收语料
 - `packages/language`：公开静态分析入口是 `analyzeSource(source)`；不要把内部函数或纯 UI 高亮器当作权威分析器。
 - `packages/runtime`：必须保持 DOM、真实磁盘、网络和任意浏览器 API 无关，才能在浏览器与 Worker 两端复用。执行档 `ExecutionProfile` 区分 `core-2027` 和 `advanced-2027`；未指定时默认前者。
 - `packages/exercise`：真实题目判定和 `compareOutputs` 的所在地。精确输出连一个空格也可能影响分数；先比较 actual/expected，再动语法或运行时。
-- `packages/teaching-content`：章节权威是 `src/chapter-*.ts` 与课程数据，不是 `teaching/` 下的预览或旧底稿。浏览器入口 `src/browser.ts` 会剥离参考解后发布内容。
+- `packages/teaching-content`：章节权威是 `src/chapter-*.ts` 与课程数据，不是 `teaching/` 下的预览或旧底稿。浏览器入口 `src/browser.ts` 导出的课程对象会剥离参考解字段，但生成的浏览器 JS 包仍包含参考解源码，不提供答案保密。
 - `packages/storage`：`CAIEStorage` 统一处理兼容快照、旧 `localStorage` key 与 IndexedDB 镜像。不要绕开它自行拼业务 key。
 - `packages/assignment`：页面共用的纯逻辑必须继续在这里维护；不要在 `assign-page.js` 与 `teacher-app.js` 各复制一份规则。
 

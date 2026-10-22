@@ -17,7 +17,7 @@ import { chapter16 } from "./chapter-16.js";
 import { expectedOutputs, sampleTranscripts } from "./expected-outputs.js";
 import { toPublicChapter, type PublicChapter } from "./publish.js";
 
-/** 浏览器入口：只暴露去掉参考解之后的课程数据。 */
+/** 浏览器入口：导出的 course 对象不含参考解字段；导入的完整章节仍使参考解源码进入 JS 包。 */
 export const course: { syllabusVersion: string; chapters: PublicChapter[] } = {
   syllabusVersion: "CAIE 9618 (2027–2029)",
   chapters: [
