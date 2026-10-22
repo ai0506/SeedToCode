@@ -1,0 +1,773 @@
+[
+  {
+    "chapter": 1,
+    "sections": [
+      {
+        "id": "1.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "1.2",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "1.2.1"
+        ]
+      },
+      {
+        "id": "1.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "1.4",
+        "quizPositions": [
+          4
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "1.T1"
+    ]
+  },
+  {
+    "chapter": 2,
+    "sections": [
+      {
+        "id": "2.1",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      },
+      {
+        "id": "2.2",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "2.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "2.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "2.4.1"
+        ]
+      },
+      {
+        "id": "2.5",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "2.T1"
+    ]
+  },
+  {
+    "chapter": 3,
+    "sections": [
+      {
+        "id": "3.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "3.2",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "3.2.1"
+        ]
+      },
+      {
+        "id": "3.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "3.4",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "3.5",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "3.T1"
+    ]
+  },
+  {
+    "chapter": 4,
+    "sections": [
+      {
+        "id": "4.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "4.2",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "4.2.1"
+        ]
+      },
+      {
+        "id": "4.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "4.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "4.5",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "4.5.1"
+        ]
+      },
+      {
+        "id": "4.6",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "4.T1"
+    ]
+  },
+  {
+    "chapter": 5,
+    "sections": [
+      {
+        "id": "5.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "5.1.1"
+        ]
+      },
+      {
+        "id": "5.2",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "5.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "5.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "5.4.1"
+        ]
+      },
+      {
+        "id": "5.5",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "5.T1"
+    ]
+  },
+  {
+    "chapter": 6,
+    "sections": [
+      {
+        "id": "6.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "6.2",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "6.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "6.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "6.4.1"
+        ]
+      }
+    ],
+    "chapterTasks": [
+      "6.T1"
+    ]
+  },
+  {
+    "chapter": 7,
+    "sections": [
+      {
+        "id": "7.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "7.2",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "7.2.1"
+        ]
+      },
+      {
+        "id": "7.3",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "7.4",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "7.5",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "7.6",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "7.T1"
+    ]
+  },
+  {
+    "chapter": 8,
+    "sections": [
+      {
+        "id": "8.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "8.2",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "8.2.1"
+        ]
+      },
+      {
+        "id": "8.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "8.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "8.4.1"
+        ]
+      },
+      {
+        "id": "8.5",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "8.T1"
+    ]
+  },
+  {
+    "chapter": 9,
+    "sections": [
+      {
+        "id": "9.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "9.2",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "9.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "9.3.1"
+        ]
+      },
+      {
+        "id": "9.4",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "9.T1"
+    ]
+  },
+  {
+    "chapter": 10,
+    "sections": [
+      {
+        "id": "10.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "10.2",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "10.2.1"
+        ]
+      },
+      {
+        "id": "10.3",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "10.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "10.4.1"
+        ]
+      },
+      {
+        "id": "10.5",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "10.T1"
+    ]
+  },
+  {
+    "chapter": 11,
+    "sections": [
+      {
+        "id": "11.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "11.2",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "11.3",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "11.3.1"
+        ]
+      },
+      {
+        "id": "11.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "11.4.1"
+        ]
+      },
+      {
+        "id": "11.5",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "11.T1"
+    ]
+  },
+  {
+    "chapter": 12,
+    "sections": [
+      {
+        "id": "12.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "12.2",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "12.3",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "12.3.1"
+        ]
+      },
+      {
+        "id": "12.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "12.5",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "12.5.1"
+        ]
+      },
+      {
+        "id": "12.6",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "12.T1"
+    ]
+  },
+  {
+    "chapter": 13,
+    "sections": [
+      {
+        "id": "13.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "13.2",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "13.3",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "13.3.1"
+        ]
+      },
+      {
+        "id": "13.4",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "13.5",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "13.5.1"
+        ]
+      },
+      {
+        "id": "13.6",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "13.T1"
+    ]
+  },
+  {
+    "chapter": 14,
+    "sections": [
+      {
+        "id": "14.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "14.2",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "14.3",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "14.3.1"
+        ]
+      },
+      {
+        "id": "14.4",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "14.5",
+        "quizPositions": [
+          3
+        ],
+        "tasks": [
+          "14.5.1"
+        ]
+      },
+      {
+        "id": "14.6",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": [
+      "14.T1"
+    ]
+  },
+  {
+    "chapter": 15,
+    "sections": [
+      {
+        "id": "15.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "15.2",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      },
+      {
+        "id": "15.3",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      },
+      {
+        "id": "15.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "15.5",
+        "quizPositions": [
+          3
+        ],
+        "tasks": []
+      },
+      {
+        "id": "15.6",
+        "quizPositions": [
+          1
+        ],
+        "tasks": []
+      }
+    ],
+    "chapterTasks": []
+  },
+  {
+    "chapter": 16,
+    "sections": [
+      {
+        "id": "16.1",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "16.2",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "16.2.1"
+        ]
+      },
+      {
+        "id": "16.3",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "16.4",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "16.5",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "16.5.1"
+        ]
+      },
+      {
+        "id": "16.6",
+        "quizPositions": [
+          2
+        ],
+        "tasks": []
+      },
+      {
+        "id": "16.7",
+        "quizPositions": [
+          2
+        ],
+        "tasks": [
+          "16.7.1"
+        ]
+      }
+    ],
+    "chapterTasks": [
+      "16.T1"
+    ]
+  }
+]

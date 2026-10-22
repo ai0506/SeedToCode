@@ -752,3 +752,10 @@ html[data-el-labels="on"] .block::after { opacity: 1; }
 
 .ct-input-row { display: flex; gap: 8px; margin-top: 10px; }
 .ct-input-row .text-field { flex: 1; }
+
+/* 小屏仍保留两侧导航位置；固定桌面宽度不能挤出阅读区。 */
+@media (max-width: 600px) {
+   .reader-foot { padding: 0 12px; gap: 8px; }
+   .reader-foot .nav-slot { flex: 1 1 0; width: 0; min-width: 0; }
+   .reader-foot .spacer, .reader-foot .foot-progress { display: none; }
+}

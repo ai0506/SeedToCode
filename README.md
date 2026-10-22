@@ -2,7 +2,7 @@
 
 SeedToCode is a local-first pseudocode editor, AST interpreter and learning platform for the Cambridge International AS & A Level Computer Science 9618 pseudocode notation (2027–2029). It is useful to students, teachers and developers building language tools or interactive programming exercises.
 
-This is an unpublished release candidate. The source history has been filtered for redistribution; outstanding rights and validation decisions are listed in `RELEASE_REVIEW.md`. No public release or hosted service is implied.
+This is an unpublished release candidate. The source history has been filtered for redistribution; review findings and validation boundaries are listed in `RELEASE_REVIEW.md`. No public release or hosted service is implied.
 
 ## What works
 
@@ -25,7 +25,7 @@ npm run build
 npm test
 ```
 
-Open `web/lab.html` directly after building. Course entry: `web/learn.html`. Relative `.html` links intentionally support `file://` use. When an HTTP preview is needed, launch the `web-static` configuration in `.claude/launch.json`, then visit [the local lab](http://localhost:8123/lab.html).
+Open `web/lab.html` directly after building. Course entry: `web/learn.html`. Relative `.html` links intentionally support `file://` use. When an HTTP preview is needed, launch the `web-static` configuration in `.claude/launch.json`, then visit [the local lab](http://localhost:8124/lab.html).
 
 For a local Worker and database, see [local development](docs/LOCAL_DEVELOPMENT.md). No production identifiers, database contents or credentials are needed. Do not connect a fork to the original maintainer's infrastructure.
 
@@ -54,7 +54,7 @@ The application UI and courses are primarily Chinese. Chapters 17–23, a model-
 
 ## License and external references
 
-[MIT](LICENSE) is the proposed license for original project code and documentation controlled by the project contributors. See [third-party scope and unresolved rights](THIRD_PARTY_NOTICES.md). No Cambridge materials, third-party trademarks or unverified third-party content are relicensed by this proposal. The owner states that the five PNG assets, lessons, questions and reference answers were generated with ChatGPT. Small identified reference excerpts still need separate rights review before publication.
+[MIT](LICENSE) is the proposed license for original project code and documentation controlled by the project contributors. See [third-party scope and review boundaries](THIRD_PARTY_NOTICES.md). No Cambridge materials, third-party trademarks or unverified third-party content are relicensed by this proposal. The owner states that the five PNG assets, lessons, questions and reference answers were generated with ChatGPT. Identified external prose and doubtful concrete examples have been removed from the planned public history. Chapter 15.5 retains one local “Content under development” notice; see [content gaps and test changes](docs/CONTENT_GAPS.md).
 
 Official PDFs and full Markdown transcriptions are excluded from this repository and its filtered history. Obtain the originals from [the official reference links](EXTERNAL_REFERENCES.md); tests do not require them.
 

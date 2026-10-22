@@ -13,6 +13,8 @@ import type { ExecutionProfile } from "@caie-pseudocode/runtime";
 export type Level = "AS" | "A";
 
 export type Callout = {
+  /** 局部内容暂缺时保留原位置；不把占位提示显示成 CAIE 规则。 */
+  status?: "under-development";
   /**
    * 规则来源，决定标签怎么写：
    *   CAIE       考纲或 Pseudocode Guide 明确规定

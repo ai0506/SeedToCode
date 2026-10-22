@@ -196,6 +196,10 @@
       var paragraphs = block.paragraphs.map(function (p) { return "<p>" + inline(p) + "</p>"; }).join("");
       var callouts = (block.callouts || [])
          .map(function (callout) {
+            // 保留讲解块和关卡序号；待补内容不冒充规则，也不产生空题入口。
+            if (callout.status === "under-development") {
+               return '<div class="callout content-placeholder" role="note">' + esc(callout.text) + '</div>';
+            }
             var label = callout.source === "CAIE"
                ? '<span class="origin-tag caie">CAIE 规定</span>'
                : callout.source === "convention"

@@ -2,7 +2,7 @@
 
 ## Browser-only
 
-Install root dependencies and build. Double-click `web/lab.html` or use the `web-static` launch configuration (port 8123). No login, database, mail credentials or model API is required for local editing, learning, grading and execution. Browser storage belongs to that browser/profile/origin.
+Install root dependencies and build. Double-click `web/lab.html` or use the `web-static` launch configuration (port 8124). No login, database, mail credentials or model API is required for local editing, learning, grading and execution. Browser storage belongs to that browser/profile/origin.
 
 ## Worker + local D1
 
