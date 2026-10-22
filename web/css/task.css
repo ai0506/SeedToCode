@@ -47,6 +47,8 @@
 }
 
 .task-h1 { margin: 0 0 14px; font-size: 19px; font-weight: 600; line-height: 1.45; }
+/* 后面跟着考纲 chip 行时，间距和课文小节头（.sec-title → .sec-meta）对齐；custom-task 没有那一行，保持 14px。 */
+.task-h1:has(+ .sec-meta) { margin-bottom: 8px; }
 
 /* 分隔条：拖动只改左右两栏的宽度，两栏各自的内容不重排到别处去 */
 .split-handle {
@@ -110,6 +112,18 @@
    .task-pane-right { flex: 1; }
    .split-handle { display: none; }
    .task-pane-right .mini-editor-body:not(.locked-body) { min-height: 220px; }
+}
+
+@media (max-width: 600px) {
+   /* styles.css 这一档允许 .topbar-left 收缩到 0，是为了让实验室的导航能横向滚动。
+      题目页左边是一个要点的「返回课文」按钮，滚不了：左块被挤到 33px，按钮整个溢出去
+      盖在章节标题上（线上旧版就是这样）。这里不许它收缩。 */
+   .task-topbar .topbar-left { flex: 0 0 auto; }
+   /* 剩给中间标题的宽度只有六十来像素，截到只剩「Chap…」不如不放；题面头部
+      （来源、标题、考纲 chip）写着同样的信息。与实验室顶栏让出 .doc-slot 同理。
+      只限课程题页：custom-task 也引这份样式，可它顶栏中间是作业名和截止时间，不能藏。 */
+   .task-topbar .topbar-center { display: none; }
+   .task-topbar .topbar-right { margin-left: auto; }
 }
 
 /* 顶栏的「作业」标记：只在这道题确实被布置过时出现，不占常驻宽度 */

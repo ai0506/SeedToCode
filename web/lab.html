@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="SeedToCode_favicon.png">
 <title>实验室 · SeedToCode</title>
-<link rel="stylesheet" href="css/styles.css?v=34">
+<link rel="stylesheet" href="css/styles.css?v=35">
 <link rel="stylesheet" href="css/account.css?v=4">
 </head>
 <body>
@@ -112,9 +112,6 @@
          </span>
       </div>
       <ul class="file-list" id="fileList"></ul>
-      <div class="panel-foot">
-         <p class="muted small">源文件保存在浏览器本地。<br>运行时数据文件在右侧「文件」标签。</p>
-      </div>
    </aside>
 
    <!-- 中：编辑器 -->
@@ -241,17 +238,6 @@
    </aside>
 </main>
 
-<footer class="statusbar">
-   <span id="cursorPos" class="status-slot">行 1，列 1</span>
-   <span class="dot status-aux">·</span>
-   <span class="status-aux">CAIE 9618 (2027–2029)</span>
-   <span class="dot status-aux">·</span>
-   <span class="status-aux">三空格缩进</span>
-   <span class="dot">·</span>
-   <span id="autosaveState">本地自动保存</span>
-   <span class="spacer"></span>
-   <span class="muted status-aux" id="engineNote">按 9618 规则检查 · 运行代码查看结果</span>
-</footer>
 
 <!-- 遮罩与对话框 -->
 <div class="overlay" id="overlay" hidden></div>
@@ -351,6 +337,7 @@
       <div class="field-error" id="fileDialogError"></div>
       <div class="dialog-actions">
          <button class="btn btn-ghost small fixed-btn" data-close>取消</button>
+         <button class="btn btn-ghost small fixed-btn" id="fileDialogRestore" aria-disabled="true" data-tip="没有可恢复的上一次内容">恢复上一次内容</button>
          <button class="btn btn-primary small fixed-btn" id="fileDialogSave">保存</button>
       </div>
    </div>
@@ -442,10 +429,11 @@
 <script src="js/runtime-messages.js?v=5"></script>
 <script src="js/storage.js?v=2"></script>
 <script src="js/auth-store.js?v=1"></script>
-<script src="js/cloud-client.js?v=5"></script>
+<script src="js/cloud-client.js?v=6"></script>
 <script src="js/sync-queue.js?v=3"></script>
 <script src="js/sync-engine.js?v=7"></script>
-<script src="js/app.js?v=40"></script>
+<script src="js/runtime-file-restore.js?v=1"></script>
+<script src="js/app.js?v=42"></script>
 <script src="js/account-ui.js?v=11"></script>
 </body>
 </html>

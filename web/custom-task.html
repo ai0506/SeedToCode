@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="SeedToCode_favicon.png">
 <title>作业题 · SeedToCode</title>
-<link rel="stylesheet" href="css/styles.css?v=34">
-<link rel="stylesheet" href="css/teaching.css?v=18">
-<link rel="stylesheet" href="css/task.css?v=6">
-<link rel="stylesheet" href="css/custom-task.css?v=5">
+<link rel="stylesheet" href="css/styles.css?v=35">
+<link rel="stylesheet" href="css/teaching.css?v=19">
+<link rel="stylesheet" href="css/task.css?v=8">
+<link rel="stylesheet" href="css/custom-task.css?v=7">
 </head>
 <body>
 
@@ -25,7 +25,7 @@
    再点进来，中间还丢掉一次页面载入。
 -->
 
-<header class="topbar">
+<header class="topbar ct-topbar">
    <div class="topbar-left">
       <a class="btn btn-ghost" href="assignments.html">‹ 我的作业</a>
       <div class="brand-lockup">
@@ -52,6 +52,8 @@
    <section class="task-pane task-pane-left">
       <div class="pane-head">
          <span class="pane-kicker">题目</span>
+         <!-- 窄屏下顶栏放不下截止信息，挪到这里；宽屏时隐藏，内容与 #ctDue 同一份。 -->
+         <span class="small ct-due-inline" id="ctDueInline"></span>
          <span class="spacer"></span>
          <span class="small muted ct-counter" id="ctCounter"></span>
       </div>
@@ -135,9 +137,9 @@
 <script src="js/tooltip.js?v=1"></script>
 <script src="js/storage.js?v=2"></script>
 <script src="js/auth-store.js?v=1"></script>
-<script src="js/cloud-client.js?v=5"></script>
+<script src="js/cloud-client.js?v=6"></script>
 <script src="js/sync-queue.js?v=3"></script>
 <script src="js/sync-engine.js?v=7"></script>
-<script src="js/custom-task-page.js?v=6"></script>
+<script src="js/custom-task-page.js?v=7"></script>
 </body>
 </html>

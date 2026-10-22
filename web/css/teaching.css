@@ -667,7 +667,7 @@ html[data-el-labels="on"] .block::after { opacity: 1; }
 .mono { font-family: var(--font-mono); }
 
 @media (max-width: 900px) {
-   .toc { position: absolute; z-index: 20; height: calc(100% - var(--topbar-h) - var(--statusbar-h)); }
+   .toc { position: absolute; z-index: 20; height: calc(100% - var(--topbar-h)); }
    .io-sample, .diffbox { grid-template-columns: 1fr; }
    .layers { grid-template-columns: repeat(2, 1fr); }
 }

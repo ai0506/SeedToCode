@@ -24,7 +24,6 @@ learn
  └ reader
     ├ reader-scroll   小节正文（唯一的滚动容器）
     └ reader-foot     上一节 / 位置 / 下一节，三个固定槽
-statusbar  层级 · 章节号 · 考纲映射 │ 本地保存 │ 考纲版本
 ```
 
 设计语言完全复用编辑器的 `css/styles.css`：颜色变量、`.btn`、`.badge`、`.switch-*`、`.origin-tag`、`.sev-*`、`.tk-*` 语法高亮色都是同一套，两个界面之间不会有割裂感。

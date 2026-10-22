@@ -279,7 +279,6 @@
       $("classMeta").setAttribute("data-tip", active && active.joinCode
          ? "把这个码念给学生，他们在登录页选「学生 → 有班级码」就能自己注册并加入本班"
          : "");
-      $("statusClass").textContent = active ? active.name : "未选择班级";
    }
 
    /* 班级码流出去之后收不回来，这个开关是唯一的止血手段，所以状态要一眼看得出。 */
@@ -304,7 +303,6 @@
       $("badgeAssignments").textContent = assignments.length ? String(assignments.length) : "";
       $("badgeStudents").textContent = students.length ? String(students.length) : "";
       $("badgeSubmissions").textContent = submissions.length ? String(submissions.length) : "";
-      $("statusCount").textContent = students.length ? students.length + " 名学生" : "";
    }
 
    function emptyBox(text) {

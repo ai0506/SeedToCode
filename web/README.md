@@ -20,7 +20,7 @@ node scripts/dev-proxy.mjs
 
 | 文件 | 职责 |
 |---|---|
-| `lab.html` | 实验室（编辑器）布局骨架：顶栏、代码文件栏、编辑器、结果面板、状态栏、对话框 |
+| `lab.html` | 实验室（编辑器）布局骨架：顶栏、代码文件栏、编辑器、结果面板、对话框（底部状态栏和文件栏下方的常驻说明已去掉，保存状态在顶栏） |
 | `SeedToCode_favicon.png` | 站点图标，同时作为顶栏 `.brand-logo`（26px）。256×256，仓库根目录留有 1254×1254 原图 |
 | `css/styles.css` | 低饱和中性色主题，浅色/深色变量 |
 | `js/caie-spec.js` | CAIE 9618 关键字、类型、内置函数、块配对表、结构模板（规则基线） |
@@ -30,19 +30,20 @@ node scripts/dev-proxy.mjs
 | `js/lang.js` | 不改变源代码的轻量语法高亮 |
 | `js/code-input.js` | `CAIECodeInput`：作答框的输入约定，一份实现。三空格缩进（Tab / Shift+Tab / 行首退格按停靠点）、回车延续缩进、`<-` → `←`（含粘贴，字符串与注释内不动）、行号槽、着色层，全部走 `execCommand` 以保住原生撤销栈。课程题目、作业题和老师批改页共用——不留副本，副本会和被用的那一份悄悄分叉 |
 | `js/samples.js` | 新建项目的初始源文件（Main / BubbleSort / FileCopy）与运行时虚拟文件（Names.txt / Report.txt），另含历史样例快照 `legacy`，供「项目是否一个字没改过」的判断识别老设备上的旧出厂内容。**改出厂样例时必须往 `legacy` 追加一份改动前的原文，而且要把改到的那份文件原样冻下来、不要按变量引用**——`legacy` 里原本直接引用 `bubbleDoc`，改它会把旧快照一起改掉，老设备就一台也认不出来了 |
-| `js/app.js` | 界面逻辑：项目、编辑器、文件管理、诊断展示、本机运行与 trace table 渲染 |
+| `js/app.js` | 界面逻辑：项目、编辑器、文件管理、诊断展示、本机运行、运行时文件单次恢复与 trace table 渲染 |
+| `js/runtime-file-restore.js` | 运行时 `.txt` / `.dat` 文件的纯本地单次恢复：当前文件为 slot 2，仅持久化修改前的 slot 1；恢复后清空 slot，不进入云端文件 payload |
 | `js/tooltip.js` | 共用的自定义悬浮提示：页面一律用 `data-tip`，不用原生 `title` |
 | `js/storage.js` | `CAIEStorage` 浏览器存储 facade：旧 key 兼容读取、IndexedDB 初始化、迁移镜像、云端相关 key 和 `deviceId()` |
 | `js/auth-store.js` | `AuthStore`：只保存 `/auth/me` 返回的公开身份，不保存任何登录凭据 |
-| `js/cloud-client.js` | `CloudClient`：API 定位（同源 `/auth` 与 `/api`）、`credentials: "include"` 请求、错误归一、会话状态 |
+| `js/cloud-client.js` | `CloudClient`：API 定位（同源 `/auth` 与 `/api`）、`credentials: "include"` 请求、错误归一、会话状态。在 macOS App 里（存在 `webkit.messageHandlers.seedtocodeCloud`）改由原生侧代发，只替换「送出去、拿回文本」这一步，解析与错误归一共用；`CloudClient.native` 供页面调整少量文案（`login-page.js` 的邮箱验证提示） |
 | `js/sync-queue.js` | `SyncQueue`：按账号分桶的待上传操作、幂等 `operationId`、entity generation、退避重试与不可重试项；不可变提交不折叠 |
 | `js/sync-engine.js` | `SyncEngine`：按账号恢复 revision/server-id metadata，负责 pull / push / 冲突；项目与教学两个适配器由对应页面注册 |
 | `js/account-ui.js` | 顶栏主导航（实验室 / 学习 / 作业 \| 班级，按身份出）与账户入口：自行插入现有顶栏，身份、同步状态、作业概览、退出 |
 | `css/account.css` | 账户面板、云端空间提示与题目草稿冲突提示的样式，不改动既有版式 |
 | `learn.html` + `js/teaching-app.js` | 教学页：课文、关卡、进度；题目位置只放入口卡 |
-| `task.html` + `js/task-page.js` + `css/task.css` | 独立做题页：左题面 / 右作答，左右各自滚动 |
+| `task.html` + `js/task-page.js` + `css/task.css` | 独立做题页：左题面 / 右作答，左右各自滚动；题目标题下一行是等级与考纲 chip，与课文小节头同一套样式 |
 | `js/teaching-task.js` | 两个教学页共用的题目实现：题面、作答区、判题、进度、草稿。作答框的输入约定走 `code-input.js` |
-| `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分。左栏顶上一条题目切换条（未交 / 已改 / 已交 / 已批），同一份作业里的几道题就地换；作答框用共用的 `code-input.js`；「提交」是唯一的主按钮，内容和上次交的逐字节相同时它不可用（`aria-disabled`，悬浮说明为什么），避免堆出一串相同版本 |
+| `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分。顶栏中间是作业名和截止信息，放不下时先截作业名；≤600px 时截止信息挪到题目栏头部（`#ctDueInline`），因为它页面别处没有。左栏顶上一条题目切换条（未交 / 已改 / 已交 / 已批），同一份作业里的几道题就地换；作答框用共用的 `code-input.js`；「提交」是唯一的主按钮，内容和上次交的逐字节相同时它不可用（`aria-disabled`，悬浮说明为什么），避免堆出一串相同版本 |
 | `assignments.html` + `js/assignments-page.js` + `css/assignments.css` | 学生的作业页：每道题的状态、老师给的分与评语。列表先按「每道题都交了」分两段，没交齐的在上面 |
 | `login.html` + `js/login-page.js` + `css/login.css` | 独立登录页：先问登录还是注册，再选身份（学生 / 老师 / 个人学习者），最后才是对应的表单；三步共用一个高度受控容器，换屏做一次短过渡 |
 | `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、作业列表（按待批与否分段排序）与作业详情（左栏题面、右栏提交矩阵，每一格通向 `grade.html`） |
@@ -78,7 +79,7 @@ node scripts/dev-proxy.mjs
 - 运行：存在阻断错误时拦截并打开问题面板；阶段 4 在阶段 3C 的过程、函数和调用栈之上，真实执行 READ/WRITE/APPEND 文本文件、EOF，以及 1-based RANDOM 文件的 SEEK/GETRECORD/PUTRECORD。运行基于文件快照，只有正常结束才提交；停止、错误和资源超限均完整回滚。
 - 结果面板四标签：输出 / 问题 / 调试（当前变量、调用栈与本机 trace table）/ 文件（运行时虚拟文件与打开的 handle）。trace 只记录实际写入、输出和有意义的条件结果：`DECLARE` 不占独立行，`CONSTANT` 保留其唯一初始值行，`FOR` 的边界判定不显示 `FOR → TRUE/FALSE`；已有值但本行未写显示 `-`，同值重复写入仍显示写入值并有无障碍说明。标签选中态只换边框色与底色、边框宽度恒为 1px，切换时尺寸不动。trace 表右上角有「放大」：把**同一个** `<table>` 节点移进一个近乎全屏的二级界面（`#traceDialog`），关掉时移回来——不复制，因为运行途中还在往这张表里追加行，而且 `makeTraceRow` 会在构建每一行时把列状态往前推一格，整表重画并不等价。结果面板里表格用 `.data-table` 的 `table-layout: fixed`（列宽均分、不随流进来的行变动），二级界面里改成 `auto` 按内容排列宽——否则十四列会被均分成每列 80px，放大了也只是多看几行、列还是窄的。表头不做 uppercase：那里写的是使用者自己的变量名，`Numbers` 不该显示成 `NUMBERS`。
 
-列包含主程序标量、**数组的每一个元素**（`Numbers[1]` … `Numbers[6]`）和**过程/函数的局部变量**（表头带 `BubbleSort.` 前缀）。列在运行途中按声明顺序长出来，已画出的行补空白格——空白本来就表示「尚未声明或不在作用域」，对那些行是实话。数组元素太多时整体退成一列摘要，格子里写「哪个下标被写成了什么」；局部变量的列按「过程名 + 栈上同名帧层数」复用，顺序调用共用一组列，递归才分出 `F#2.N` 这样的列。经 BYREF 写到主程序数组/变量上的那些格另有底色和无障碍说明。列总数上限 64、单数组展开上限 32，超出的变量不建列并在状态栏报数。
+列包含主程序标量、**数组的每一个元素**（`Numbers[1]` … `Numbers[6]`）和**过程/函数的局部变量**（表头带 `BubbleSort.` 前缀）。列在运行途中按声明顺序长出来，已画出的行补空白格——空白本来就表示「尚未声明或不在作用域」，对那些行是实话。数组元素太多时整体退成一列摘要，格子里写「哪个下标被写成了什么」；局部变量的列按「过程名 + 栈上同名帧层数」复用，顺序调用共用一组列，递归才分出 `F#2.N` 这样的列。经 BYREF 写到主程序数组/变量上的那些格另有底色和无障碍说明。列总数上限 64、单数组展开上限 32，超出的变量不建列并在追踪表自己的状态行（`#traceStatus`）报数。
 - 代码文件的新建、切换、重命名、删除（二次确认 + 短时撤销）、导入、下载（可选 `.pseudocode` 或 `.txt`）、批量导出。
 - 项目：左侧栏顶部显示当前项目；支持新建、切换、重命名和删除项目；每个项目独立保存代码文件与运行时虚拟文件；课文带入的代码集中在专用“课文文件”项目中。
 - 重名保护：文件名比较不区分大小写；**代码文件连后缀一起忽略**（`Main.pseudocode` 与 `Main.txt` 视为同一个名字），运行时数据文件按全名比较（伪代码用 `"Names.txt"` 这样的完整字面量打开文件，`.txt` 与 `.dat` 是两个文件）。新建与重命名在弹框内联提示，导入与拖拽自动编号为 `Name (2).ext`。
@@ -119,7 +120,6 @@ node scripts/dev-proxy.mjs
 
 ## 尚未实现（按计划）
 
-- Advanced 特性的运行时执行（枚举、指针、集合、OOP）。
 - 单步调试与断点。trace table 已支持本机运行的主程序标量、数组元素、过程/函数局部变量和递归分列；**记录与对象的字段列、文件读取（`READFILE` / `GETRECORD`）的写入目标、以及调用栈的分段表头仍未实现**（局部变量列目前只是在表头带一个过程名前缀，不是真的分段）。
 - 页面完全切换到 IndexedDB entity 读取。
 - Cloudflare Workers 与远端 D1 已部署并联测；老师和个人学习者首次注册需要生产 Resend 邮件验证，之后使用邮箱和密码登录。

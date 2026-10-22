@@ -63,7 +63,6 @@
          $("hwList").innerHTML =
             '<div class="hw-gate"><h1>还没有作业</h1><p class="muted">老师布置之后会出现在这里。</p></div>';
          $("assignmentSummary").textContent = "";
-         $("statusLine").textContent = "没有作业";
          return;
       }
 
@@ -155,8 +154,9 @@
          });
       });
 
-      $("assignmentSummary").textContent = assignments.length + " 份";
-      $("statusLine").textContent = "共 " + totalTasks + " 道题，已交 " + doneTasks + " 道";
+      /* 「已交几道」原来写在底部状态栏；状态栏去掉之后它是这一页唯一的总进度，
+         所以并进顶栏这一格，而不是跟着状态栏一起丢掉。 */
+      $("assignmentSummary").textContent = assignments.length + " 份 · 已交 " + doneTasks + " / " + totalTasks + " 道";
    }
 
    async function boot() {

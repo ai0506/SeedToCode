@@ -85,3 +85,23 @@
    放在作答区的话，从一道批过的题切到一道没批的题，整个编辑器会往上跳一大块。
    task.css 那份样式是按「贴在作答区顶上」写的，下边距在这里要换成上边距。 */
 .task-pane-left .task-feedback { margin: 18px 0 0; }
+
+/* ---------- 窄屏顶栏 ---------- */
+/* 顶栏放不下时先截作业名，截止信息不收缩：teaching.css 里 .learn-title 的默认是反过来的
+   （章节名不缩、小节名截断），照搬到这里，「已过截止，现在提交算迟交」会被作业名挤成
+   「已过截止，现在提…」——601px 配一个长作业名就是这样，而迟交提醒页面别处没有。 */
+.ct-topbar .learn-title .lt-ch { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ct-topbar .learn-title .lt-sec { flex: 0 0 auto; overflow: visible; }
+
+/* 截止信息的第二个落点：宽屏时它在顶栏（#ctDue），这里不显示。 */
+.ct-due-inline { display: none; margin-left: 8px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+@media (max-width: 600px) {
+   /* styles.css 这一档允许 .topbar-left 收缩到 0（给实验室导航横向滚动用），
+      这里左边是一个滚不了的「‹ 我的作业」按钮，会整个溢出去压在作业名上。不许它收缩。 */
+   .ct-topbar .topbar-left { flex: 0 0 auto; }
+   /* 截止信息页面别处没有，不能像课程题页那样把中间整块藏掉：作业名留在顶栏、
+      放不下就截断；截止信息挪到题目栏头部，那里放得下整句「已过截止，现在提交算迟交」。 */
+   .ct-topbar .learn-title .lt-sec { display: none; }
+   .ct-due-inline { display: inline; }
+}

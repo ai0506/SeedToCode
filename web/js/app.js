@@ -30,7 +30,7 @@ const defaultSettings = {
 };
 
 let state = {
-   docs: [], activeId: null, runtimeFiles: [], settings: Object.assign({}, defaultSettings)
+   docs: [], activeId: null, runtimeFiles: [], runtimeRestoreSlots: {}, settings: Object.assign({}, defaultSettings)
 };
 let projects = [];
 let currentProjectId = 'project-default';
@@ -67,6 +67,7 @@ function load() {
          docs: current.docs || [],
          activeId: current.activeId || (current.docs && current.docs[0] && current.docs[0].id),
          runtimeFiles: current.runtimeFiles || clone(SAMPLES.runtimeFiles),
+         runtimeRestoreSlots: current.runtimeRestoreSlots || {},
          settings: Object.assign({}, defaultSettings, registry.settings || {})
       };
       return;
@@ -77,6 +78,7 @@ function load() {
          docs: saved.docs,
          activeId: saved.activeId || saved.docs[0].id,
          runtimeFiles: saved.runtimeFiles || clone(SAMPLES.runtimeFiles),
+         runtimeRestoreSlots: saved.runtimeRestoreSlots || {},
          settings: Object.assign({}, defaultSettings, saved.settings || {})
       };
    } else {
@@ -84,7 +86,7 @@ function load() {
       state.runtimeFiles = clone(SAMPLES.runtimeFiles);
       state.activeId = state.docs[0].id;
    }
-   projects = [{ id: currentProjectId, name: '我的项目', docs: clone(state.docs), activeId: state.activeId, runtimeFiles: clone(state.runtimeFiles) }];
+   projects = [{ id: currentProjectId, name: '我的项目', docs: clone(state.docs), activeId: state.activeId, runtimeFiles: clone(state.runtimeFiles), runtimeRestoreSlots: clone(state.runtimeRestoreSlots) }];
    persistProjects();
 }
 
@@ -101,6 +103,7 @@ function flushStateIntoProjects() {
    current.docs = clone(state.docs);
    current.activeId = state.activeId;
    current.runtimeFiles = clone(state.runtimeFiles);
+   current.runtimeRestoreSlots = clone(state.runtimeRestoreSlots || {});
 }
 
 function persistProjects() {
@@ -147,6 +150,7 @@ function switchProject(id) {
    currentProjectId = next.id;
    state.docs = clone(next.docs || []);
    state.runtimeFiles = clone(next.runtimeFiles || []);
+   state.runtimeRestoreSlots = clone(next.runtimeRestoreSlots || {});
    state.activeId = next.activeId || (state.docs[0] && state.docs[0].id);
    if (!state.docs.length) {
       const doc = { id: 'doc-' + Date.now(), name: 'Main.pseudocode', source: '// Main.pseudocode\n', updatedAt: Date.now() };
@@ -179,7 +183,8 @@ function ensureLessonProject() {
       lesson: true,
       docs: [],
       activeId: null,
-      runtimeFiles: runtimeFilesForNewProject()
+      runtimeFiles: runtimeFilesForNewProject(),
+      runtimeRestoreSlots: {}
    };
    projects.push(project);
    return project;
@@ -191,6 +196,7 @@ function syncStateFromCurrentProject() {
    currentProjectId = current.id;
    state.docs = clone(current.docs || []);
    state.runtimeFiles = clone(current.runtimeFiles || []);
+   state.runtimeRestoreSlots = clone(current.runtimeRestoreSlots || {});
    state.activeId = current.activeId || (state.docs[0] && state.docs[0].id);
 }
 
@@ -239,7 +245,8 @@ function createProject(name) {
       name: name,
       docs: [{ id: 'doc-' + Date.now(), name: 'Main.pseudocode', source: '// Main.pseudocode\n', updatedAt: Date.now() }],
       activeId: null,
-      runtimeFiles: runtimeFilesForNewProject()
+      runtimeFiles: runtimeFilesForNewProject(),
+      runtimeRestoreSlots: {}
    };
    project.activeId = project.docs[0].id;
    projects.push(project);
@@ -298,7 +305,7 @@ function deleteCurrentProject() {
       projects = projects.filter(function (p) { return p.id !== removed; });
       const next = projects[0];
       currentProjectId = next.id;
-      state.docs = clone(next.docs || []); state.runtimeFiles = clone(next.runtimeFiles || []); state.activeId = next.activeId || (state.docs[0] && state.docs[0].id);
+      state.docs = clone(next.docs || []); state.runtimeFiles = clone(next.runtimeFiles || []); state.runtimeRestoreSlots = clone(next.runtimeRestoreSlots || {}); state.activeId = next.activeId || (state.docs[0] && state.docs[0].id);
       persist();
       code.value = activeDoc().source; $('docName').value = activeDoc().name;
       renderProjectLabel(); renderFiles(); renderRuntimeFiles(); renderEditor(); runLint(); resetRunPanel(); toast('项目已删除。');
@@ -410,8 +417,7 @@ function currentLine() {
 
 function updateCursor() {
    const before = code.value.slice(0, code.selectionStart).split('\n');
-   const ln = before.length, col = before[before.length - 1].length + 1;
-   $('cursorPos').textContent = '行 ' + ln + '，列 ' + col;
+   const ln = before.length;
    $('activeLine').style.top = ((ln - 1) * lineHeight() + 10) + 'px';
    Array.prototype.forEach.call(gutter.children, function (el, i) {
       el.classList.toggle('cur', i + 1 === ln);
@@ -1464,6 +1470,7 @@ function finishRun(result) {
    if (result.variables) renderRuntimeVariables(result.variables);
    if (result.status === 'completed') {
       if (result.virtualFiles) {
+         CAIERuntimeFileRestore.captureChanges(state.runtimeFiles, result.virtualFiles, runtimeRestoreSlots());
          state.runtimeFiles = clone(result.virtualFiles);
          renderRuntimeFiles();
          save(true);
@@ -1513,6 +1520,18 @@ function renderRuntimeFiles() {
    }).join('');
 }
 
+function runtimeRestoreSlots() {
+   if (!state.runtimeRestoreSlots || typeof state.runtimeRestoreSlots !== 'object') state.runtimeRestoreSlots = {};
+   return state.runtimeRestoreSlots;
+}
+
+function syncRuntimeRestoreAction(file) {
+   const button = $('fileDialogRestore');
+   const available = CAIERuntimeFileRestore.has(runtimeRestoreSlots(), file.id);
+   button.setAttribute('aria-disabled', String(!available));
+   button.dataset.tip = available ? '恢复到这次修改前的内容；恢复后不能再次恢复' : '没有可恢复的上一次内容';
+}
+
 $('rtFileList').addEventListener('click', function (ev) {
    const li = ev.target.closest('li[data-id]');
    if (!li) return;
@@ -1527,6 +1546,7 @@ $('rtFileList').addEventListener('click', function (ev) {
       }).then(function (ok) {
          if (!ok) return;
          state.runtimeFiles = state.runtimeFiles.filter(function (x) { return x.id !== f.id; });
+         CAIERuntimeFileRestore.clear(runtimeRestoreSlots(), f.id);
          renderRuntimeFiles();
          save();
          toast('已删除运行时文件 ' + f.name);
@@ -1578,24 +1598,45 @@ function openRuntimeFile(f) {
       : (f.records || []).map(function (r) { return JSON.stringify(r); }).join('\n');
    $('fileDialogError').textContent = '';
    renderFilePreview(f);
+   syncRuntimeRestoreAction(f);
    setFileMode('preview');
    $('fileDialogSave').onclick = function () {
       const raw = $('fileDialogBody').value;
+      let next;
       if (f.kind === 'text') {
-         f.lines = raw === '' ? [] : raw.split('\n');
+         next = { kind: 'text', lines: raw === '' ? [] : raw.split('\n') };
       } else {
          try {
-            f.records = raw.split('\n').filter(function (l) { return l.trim(); }).map(function (l) { return JSON.parse(l); });
+            next = { kind: 'records', recordType: f.recordType || '', records: raw.split('\n').filter(function (l) { return l.trim(); }).map(function (l) { return JSON.parse(l); }) };
          } catch (e) {
             $('fileDialogError').textContent = '每行必须是一个合法的 JSON 记录对象。';
             return;
          }
       }
+      if (!CAIERuntimeFileRestore.replace(f, next, runtimeRestoreSlots())) {
+         $('fileDialogError').textContent = '内容没有变化。';
+         return;
+      }
       renderRuntimeFiles();
       renderFilePreview(f);
+      syncRuntimeRestoreAction(f);
       setFileMode('preview');
       save();
       toast('已保存 ' + f.name);
+   };
+   $('fileDialogRestore').onclick = function () {
+      if (!CAIERuntimeFileRestore.restore(f, runtimeRestoreSlots())) {
+         toast('没有可恢复的上一次内容');
+         return;
+      }
+      $('fileDialogBody').value = f.kind === 'text' ? (f.lines || []).join('\n') : (f.records || []).map(function (r) { return JSON.stringify(r); }).join('\n');
+      $('fileDialogError').textContent = '';
+      renderRuntimeFiles();
+      renderFilePreview(f);
+      syncRuntimeRestoreAction(f);
+      setFileMode('preview');
+      save();
+      toast('已恢复 ' + f.name + ' 的上一次内容');
    };
    showDialog('fileDialog');
 }
@@ -1982,6 +2023,7 @@ $('moreMenu').addEventListener('click', function (ev) {
    if (a === 'settings') { syncSettingsUI(); showDialog('settingsDialog'); }
    if (a === 'resetRuntime') {
       state.runtimeFiles = clone(SAMPLES.runtimeFiles);
+      state.runtimeRestoreSlots = {};
       renderRuntimeFiles();
       renderHandles([]);
       save();
@@ -2581,7 +2623,7 @@ function cloudProjectById(id) {
 
 function cloudApplyProject(project) {
    if (cloudProjectById(project.id)) return;
-   projects.push({ id: project.id, name: project.name, docs: [], activeId: null, runtimeFiles: [] });
+   projects.push({ id: project.id, name: project.name, docs: [], activeId: null, runtimeFiles: [], runtimeRestoreSlots: {} });
    cloudScheduleRender();
 }
 
@@ -2609,9 +2651,13 @@ function cloudApplyFile(projectId, file) {
    if (!project) return;
    if (file.kind === 'runtime') {
       project.runtimeFiles = project.runtimeFiles || [];
+      project.runtimeRestoreSlots = project.runtimeRestoreSlots || {};
       const existingRuntime = project.runtimeFiles.find(function (item) { return item.id === file.id; });
       const next = runtimeFileFrom(file.id, file.name, file.content);
-      if (existingRuntime) Object.assign(existingRuntime, next);
+      if (existingRuntime) {
+         if (!CAIERuntimeFileRestore.sameContent(existingRuntime, next)) CAIERuntimeFileRestore.clear(project.runtimeRestoreSlots, file.id);
+         Object.assign(existingRuntime, next);
+      }
       else project.runtimeFiles.push(next);
    } else {
       project.docs = project.docs || [];
@@ -2632,6 +2678,7 @@ function cloudRemoveFile(projectId, fileId) {
    if (!project) return true;
    project.docs = (project.docs || []).filter(function (doc) { return doc.id !== fileId; });
    project.runtimeFiles = (project.runtimeFiles || []).filter(function (file) { return file.id !== fileId; });
+   if (project.runtimeRestoreSlots) CAIERuntimeFileRestore.clear(project.runtimeRestoreSlots, fileId);
    cloudScheduleRender();
    return true;
 }

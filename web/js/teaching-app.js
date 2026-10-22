@@ -908,10 +908,6 @@
             : "Chapter " + chapter.id + " · 第 " + index + " / " + chapter.sections.length + " 节";
       $("#ltCh").textContent = isHome ? "CAIE 9618 伪代码" : "Chapter " + chapter.id + " · " + plainText(chapter.title);
       $("#ltSec").textContent = isHome ? "课程主页" : isTask ? "章末大题" : section.id + "　" + plainText(section.title);
-      $("#statusSection").textContent = isHome
-         ? "课程主页"
-         : isTask ? "Chapter " + chapter.id + " 章末大题" : "Chapter " + section.id;
-      $("#statusSyllabus").textContent = isHome ? "" : (isTask ? chapter.syllabus : section.syllabus).join(" / ");
 
       if (isHome) $("#reader").insertAdjacentHTML("afterbegin", "");
       refreshProgressUI();

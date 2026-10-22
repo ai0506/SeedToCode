@@ -352,9 +352,12 @@
       if (!item || item.kind !== "custom") { missing("没有找到这道题", "它可能已经被老师删掉了。"); return; }
 
       $("ctAssignment").textContent = assignment.title;
-      $("ctDue").textContent = assignment.dueAt
+      var dueText = assignment.dueAt
          ? (assignment.dueAt < Date.now() ? "已过截止，现在提交算迟交" : "截止 " + new Date(assignment.dueAt).toLocaleString())
          : "不限时间";
+      /* 截止信息只在这里出现，窄屏顶栏又放不下：两处写同一份，CSS 按宽度只显示一处。 */
+      $("ctDue").textContent = dueText;
+      $("ctDueInline").textContent = dueText;
 
       /* 行号、着色、三空格缩进、`<-` 转 `←` 一次装好——和课程题目同一份实现。 */
       editor = CODE.attach($("ctCode"), { gutter: $("ctGutter"), highlight: document.querySelector(".mini-code .mini-highlight") });

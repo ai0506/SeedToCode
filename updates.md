@@ -956,3 +956,149 @@ Chapter 7 由考纲草案的 8 节合并为 6 节（原 7.2+7.3 合并，三个�
 线上核验（`https://seedtocode.example.invalid`）：`/learn` 的资源清单已是 `teaching-app.js?v=33`、`teaching-content.js?v=33`、`teaching-task.js?v=16`、`teaching.css?v=18`、`language-adapter.js?v=11`、`language-engine.js?v=14`、`runtime-engine.js?v=17`、`exercise-engine.js?v=24`；`/health` 200。功能实测：`/lab` 里 `DECLARE Total, Highest, Count : INTEGER` 只报一条 `DECL-003` 指导提示、三个名字都没有「找不到声明」；`/learn` 的 11.2 填到判对，五个候选自始至终只有 `bank-item` 一个类、零角标；16.1 的 `<em>` 数为 0、新开头在位；2.1 的新规则段在位。
 
 踩到一处：站点用的是无后缀路径，`/learn.html` 会 307 到 `/learn` 且响应体为空。我照着 CLAUDE.md 那条「用 until 等到」写的轮询盯的是 `/learn.html`，**它永远等不到**——不是还没传播，是那个 URL 根本不返回内容。轮询探针要指向真实会返回 HTML 的那个路径；写 until 之前先 `curl -D -` 看一眼状态码。
+[CodeX][2609161358] 整理仓库根目录文档：将学习助理、初步产品、同步队列与 Trace table 四份计划移至 `docs/plans/`，将剩余题目参考答案移至 `docs/references/`，新增 `docs/README.md` 索引并修复初步计划与教学内容的相对链接；已运行命名引用检索与 `git diff --check`，未改代码，未运行测试。
+[CodeX][2609161405] 新增 `docs/plans/LAB_MAINTAINABILITY_ROADMAP.md`，记录 Lab/app.js 与 runtime/interpreter.ts 的已核实维护观察、Advanced runtime 文档漂移、分批浏览器回归范围，以及以功能边界和暂停调度需求驱动而非按文件体积重构的顺序；同步加入文档索引，未改代码，未运行测试。
+[CodeX][2609161523] 新增 `docs/plans/VIRTUAL_FILE_RESTORE_PLAN.md`，定义 Lab 运行时 `.txt` / `.dat` 文件的单次恢复语义：当前内容为 slot 2、修改前内容为 slot 1，恢复后清空 slot 1；明确新建/导入后的首次修改、运行时写入、删除/重置排除、本地持久化与云端同步边界、远端更新清理以及逻辑/浏览器验收；同步加入文档索引，未改代码，未运行测试。
+[CodeX][2609161531] 实现 Lab 运行时 `.txt` / `.dat` 文件单次恢复：新增 `runtime-file-restore.js` 统一修改前 slot、恢复与运行时写入捕获；项目本地持久化 `runtimeRestoreSlots`，编辑保存、成功运行、删除、重置及远端实际更新/删除均走对应语义，恢复后的当前内容继续沿既有同步路径上传而 slot 不进 payload；文件弹窗新增固定槽位的恢复按钮，修正 Advanced runtime 文档漂移并新增 3 项逻辑测试。`npm test`（91 文件/1364 项）、前端规则、语法与 diff 检查通过；本地 launch 预览未启动且 browser 拒绝 `file://`，未完成真实浏览器交互验收。
+
+[ClaudeCode][2609181625] 登录后退回未登录：加 cookie 探针接口取现场数据，顺手修接口响应缺 charset。
+
+起因：使用者报「登录后还是显示未登录」。先按证据把范围缩到一点：顶栏「先闪一下名字又变回登录」＝ `AUTH.set()` 画了、随后 `/auth/me` 401、`restore()` 清掉；再进登录页又要求重登 ＝ 服务端确实没有会话；iPad 上**顶层导航**直接访问 `/auth/me` 也是 `UNAUTHENTICATED`，排除了「页面里那次 fetch 被 Cloudflare 拦成 HTML」这条路（那条会走到 `cloud-client.js` 里「非 OFFLINE 错误一律清身份」那一支，现象完全相同）。服务端逐条核过没有问题：三条登录路径都要求 `status='active'` 才建 session、`/auth/me` 按同一条件查、token 是 43 字符 base64url、cookie 头从线上原样取回是 `Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; Secure`。关键分水岭来自使用者：**同一台 iPad 的 Safari 登录完全正常，Chrome 不行**——同一个 WebKit 引擎、同一份响应头，差别只在 app 各自的 cookie 存储。
+
+所以这不是能在本机复现的东西，按仓库里那条教训（拿不到第三方参照就去对方环境取数，别再猜一轮改一轮），加了 `GET /auth/cookie-check`：回报这次请求带上来的 cookie **名字**（不含值、不需要登录、不碰 DB，因此放在 DB 检查之前），同时下发一对探针 cookie——一个普通、一个 HttpOnly，其余属性和会话 cookie 完全对齐。连访两次即可分档：两个都回来＝这个浏览器存得下我们的 cookie；只有 HttpOnly 那个不回来＝它在丢 HttpOnly；一个都不回来＝这个 app 根本不给这个站存。使用者说这个接口可以长期保留，所以按常驻诊断写，不是一次性探针。
+
+同时修了一个真实的小毛病：`json()` 只发 `application/json`，不带 charset。页面里的 fetch 不受影响（默认 UTF-8），但**排查时直接在地址栏打开接口会把中文显示成乱码**——使用者贴回来的 `/auth/me` 就是「璇峰厛鐧诲綍」。这一轮差点被它带偏，所以顺手改成 `application/json; charset=utf-8`。
+
+验证：`npm test` 全绿（91 文件 / 1364 用例）。本地 `wrangler dev` 用 curl 连访两次：第一次「一个都没有」，第二次两个探针都在；真浏览器里再走一遍，中文正常、两个探针都回来。部署前 `wrangler d1 migrations list seedtocode --remote` 报 `No migrations to apply`（无表结构变更）。部署 `seedtocode-api` Version `38edfb60-ea5d-4c38-b3e6-4c14be3a151d`，线上核验：探针两次 curl 行为一致、`Secure` 属性在、`/auth/me` 的 `content-type` 已带 charset。
+
+**没做到的**：iPad Chrome 为什么不存这份 cookie，现在还不知道——探针刚部署，等使用者在那台机器上连点两次拿回读数再定性。在拿到读数之前没有改任何认证逻辑，尤其没有因为「可能是 HttpOnly 的锅」就去动 cookie 属性：那属于按猜测改线上认证，代价和风险都不对。
+
+[ClaudeCode][2609181645] 探针加「第几次」：让它自己说得清结论，而不是靠人记得刷没刷。
+
+使用者贴回第一份读数：三行全「否」、cookie「一个都没有」。这份读数**不能下结论**——第一次访问本来就该全是「否」，和「这个浏览器根本不存 cookie」在屏幕上一模一样。上一版把「是第二次」这件事托付给了使用者的记忆，而页面自己并不知道，正是仓库里那条「判据和它声称的那件事要是同一件事」的老形状。
+
+改法：`/auth/cookie-check` 认 `?round=2`。第一次只下发 cookie、明说「第 1 次是否很正常」、并把带 `round=2` 的完整地址打在页面上；只有第二次才下结论，分四支（两个都回来 / 只丢 HttpOnly / 只丢普通 / 一个都没回来），每一支直接写清楚这意味着什么。那个链接只能从第一次的页面上拿到，所以「点得到它」本身就证明第一次确实在那个浏览器里发生过、cookie 也确实下发过——这是页面自己能拿到的第三方参照，不靠使用者复述。
+
+验证：`npm test` 全绿（91 文件 / 1364 用例）。本地 `wrangler dev` 把四支分别构造出来跑过（不带 jar／带 jar／只带普通探针），文案和分支都对，链接是按请求 origin 现算的。部署 `seedtocode-api` Version `26f0bd8d-1b06-44ec-bc4f-ec2ba463a8ad`，线上核验第 1 次和第 2 次两种输出都是新版。无表结构变更。
+
+**仍未定性**：iPad Chrome 到底存不存得下本站 cookie，等使用者按新流程走一遍第 2 次的读数。认证逻辑依旧一个字没动。
+
+[ClaudeCode][2609181715] 会话诊断页：把「fetch 下发 + 立刻跳转」这一环单独隔出来测。
+
+第 2 次读数回来了：iPad Chrome **存得下本站 cookie，连 HttpOnly + Secure + SameSite=Lax 都存得下**，两个探针都回来了，只有会话 cookie 没有。所以排除浏览器隐私设置、排除 cookie 属性。
+
+剩下的差别只有两条：探针是 **GET 顶层导航**的响应设的、会话是**页面里那次 fetch POST** 的响应设的；探针 `Max-Age=600`、会话 30 天。而第一条后面还连着 `login-page.js` 的动作：`fetch` 的 promise 一 resolve 就 `window.location.href` 跳走。iOS 上的 Chrome 是 WKWebView，fetch 响应里的 cookie 进共享 cookie 存储是异步的，同一刻整页跳走就可能来不及落盘——Safari 直接用系统存储，没这一层，正好解释「同一台 iPad Safari 正常」。
+
+按「一次只动一个变量」补了三个探针：`seedtocode_probe_long`（同一次 GET 下发，HttpOnly，30 天——单独隔出有效期这个变量）、`seedtocode_probe_xhr`（由 fetch POST 下发，属性和会话 cookie 一字不差），以及 `web/cookie-check.html`：两个按钮，A 精确复刻现在的登录（POST 一 resolve 立刻 `location.replace`），B 是拟议的修法（先回头核对一次再跳），**除此之外完全相同**，所以结果能归因。
+
+判据上踩过的坑这次提前避开了：只看探针「在不在」会把上一轮留下的旧 cookie 当成这一轮成功，所以 POST 响应回一个 stamp、页面存进 sessionStorage，跳转后拿服务端读到的 cookie 值去比——两个量来自不同的源（一个是 POST 响应体，一个是下一次请求的 cookie 头），不是自证。
+
+验证：`npm test` 全绿（91 文件 / 1364 用例，含 `tests/frontend-rules.test.ts`，新页面没有引入违禁控件）。真浏览器（Chromium，本地 8787）实测 A、B 都报「活下来了」——桌面端本来就不该复现；又手工塞一个错的 stamp 走一遍，页面明确报「回来的是上一轮留下的旧探针」，确认判据真的在比对而不是只看在不在。部署 `seedtocode-api` Version `e67cd5ce-e099-4a1f-85c0-cf24525307a9`，线上核验 `/cookie-check` 已生效、`/auth/cookie-check/state` 和 `/auth/cookie-check/xhr` 的响应头与 stamp 都对。无表结构变更。
+
+**没做到的**：假设还没被证实，认证逻辑仍然一个字没动。要等使用者在 iPad Chrome 上点 A 和 B 各一次。真被证实的话，修法不只是「跳之前等一下」——现在的登录页在 `fetch` 拿到 200 之后就直接跳走，**从未核实过那份会话真的能用**，这本身就是这个仓库反复写过的那个毛病：断言的依据和它声称的那件事不是同一件事。
+
+[CodeX][2610092032] 新增 docs/plans/MACOS_APP_PLAN.md 并接入文档索引：依据当前本地源码明确共享 Web UI、macOS bridge、离线来源与同源认证决策、原生文件、账号同步、执行隔离和可选 AI 的阶段与验收门槛；仅文档变更，校验链接及 git diff --check，未实施 App、未运行产品测试或生产验证。
+
+[ClaudeCode][2610092045] macOS 计划阶段 A：WKWebView 加载方式原型与实测记录。
+
+按 `docs/plans/MACOS_APP_PLAN.md` 末尾「最小起点是阶段 A 的可丢弃兼容性原型」执行，没有越过阶段出口去写 bridge、文件或原生云端传输。新增 `native/macos/`（SwiftPM 可执行目标 + `scripts/build-app.sh` 组装 .app；选 SwiftPM 而不是 Xcode 工程，是为了命令行可重复构建、反复跑探针）和 `docs/plans/MACOS_PHASE_A_RECORD.md`。`web/`、`packages/`、服务端一行未改。
+
+为什么探针跑在真实 `lab.html` 里、草稿用 `execCommand` 写：仓库的老教训是「验证要用真实文档」。第一版探针在首启时发现 `caie9618.local` 不存在，差点记成「自定义 scheme 下 IndexedDB 镜像失败」——查下去是 `storage.js` 只在保存时才建库，首启没保存过本来就没有。改成按使用者的输入路径写一行标记、等自动保存，之后库、deviceId、草稿三方一致。探针打开应用库前先查 `indexedDB.databases()`，因为不带版本号 open 一个不存在的库会建出空 v1，会污染被测对象。
+
+验证（M5 Pro / macOS 26.6.2，WKWebView 实跑，结果为 JSON）：`seedtocode://app/` 下 `isSecureContext` 为真；清空数据首启 + 重启两次，localStorage / IndexedDB 计数 1→2、deviceId 稳定、草稿保留；9 个 HTML 入口 0 报错 0 外部资源；三份自带样例运行正确；blob Worker 跑 BubbleSort 与主线程输出逐项相同。cookie 不可用、跨源请求线上 API 被 CORS 挡、CloudClient 停在 absent——原生云端传输的依据。HTTPS 对照：同源 `/auth/me` 401 JSON、cookie 可用，但 deviceId 与 scheme 来源不同（两套本地数据互不相通）。`npm test` 全绿（91 文件 / 1364 用例）。
+
+**没做到的**：没有真正断网测（只用「0 外部资源」间接证明）；登录全流程没走，scheme 方案下尚无通路，HTTPS 对照又正撞上未定性的 WKWebView fetch-cookie-跳转时序问题；WebContent 崩溃恢复、休眠、几何快照、性能基线未测；只构建了 arm64。原生云端传输涉及认证契约，按计划等使用者确认后再动。
+
+[ClaudeCode][2610092120] macOS 阶段 A 补测：崩溃恢复、模拟断网、几何对照、性能基线；记录使用者的平台决定。
+
+使用者确认：内置资源 + 自定义 scheme；最低 macOS 15；只做 arm64；不上架 App Store。原型随之改为 `.macOS(.v15)`（需要 tools-version 6.0，语言模式留在 Swift 5，理由写在 Package.swift）。
+
+新增探针任务 `crash` / `geometry` / `perf` 和 `--block-network`，`--origin` 改为 `scheme|remote`，`remote` 可以指向本机静态服务——这样「同一份文件、同一个内核、只差来源」能直接对比，把自定义 scheme 的影响单独隔出来，而不是拿 WKWebView 和 Chromium 比完再猜哪部分差异来自外壳。
+
+结果（详见 docs/plans/MACOS_PHASE_A_RECORD.md §3）：杀自己的 WebContent 进程后 88ms 重载，过了 450ms 自动保存的行在、没过的丢——和浏览器标签页崩溃一致。模拟断网下首启/重启/9 页与联网逐项相同。scheme 与 http 765 个元素 rect 全等；与 Chromium 差 2–3px，属内核字体度量与容器宽度。性能两种来源在噪声内；**2000 行文档每打一字同步处理 27ms、到第三帧才画**，是 web 编辑器本身的瓶颈；运行中帧间隔 p95 18–19ms 无卡顿，Worker 只是快 35%，不是更不卡——计划 §8 预设的「Worker 改善 UI 响应」在这段负载下没有空间，记录在案。
+
+**没做到的**：真断网（关 Wi-Fi 属于系统设置，命令已写进记录交给使用者跑）；Safari 直接对照（需在 Safari 打开远程自动化）；短文件与真实键盘/输入法延迟；登录、休眠、邮件链接。打字瓶颈只量了现象，没拆是高亮器哪一段。原生云端传输契约仍待确认。
+
+[ClaudeCode][2610092150] 新增 docs/plans/MACOS_CLOUD_TRANSPORT.md：macOS App 原生云端传输方案草案（仅文档）。
+
+依据源码核实三件事后得出「服务端不用改」：会话只认 `seedtocode_session` cookie、服务端没有 Origin/CSRF 检查、OPTIONS 不带 CORS 头；而页面所有网络请求都经 `CloudClient.request` 一个出口。所以 App 只需让 Swift 用 URLSession 带 cookie 代为请求，网页侧只替换传输函数、错误归一沿用现有代码。token 不进 WebKit 而进钥匙串，顺带绕开了 WKWebView fetch-cookie-跳转时序这个尚未定性的问题。
+
+刻意的取舍写在文中：前缀白名单而非逐条接口（主机已固定、接口自带鉴权，逐条只增加漏改风险）；不放开 CORS、不改 cookie 属性、不另开 App 专用凭证；以后服务端若加 Origin 检查必须放行无 Origin 请求，否则 App 会被某次发布静默打断。
+
+**没做到的**：未写代码、未改服务端、未改 CLOUD_ARCHITECTURE.md（第 3 条约束待使用者确认后再写进去）；响应体 16 MB 上限是估计值，需用真实班级数据量过。
+
+[ClaudeCode][2610092230] macOS App 接通原生云端传输：App 里的页面经 Swift 代发 `/auth`、`/api` 请求，会话 token 存钥匙串；服务端未改。
+
+使用者确认了 MACOS_CLOUD_TRANSPORT.md §10 四项。改动：`cloud-client.js` 抽出 `send()`，有 `webkit.messageHandlers.seedtocodeCloud` 时走原生，其余 JSON 解析/配置判定/错误归一一行不分叉；原生拒发与超大映射成两个新的不可重试码（`NATIVE_REJECTED`、`REQUEST_TOO_LARGE`），否则同步队列会对一条注定失败的操作无限重试。`login-page.js` 在 App 内注册成功后改说「去浏览器点链接，回来用密码登录」。两个文件版本号现查现提：cloud-client 9 页 v5→v6，login-page v4→v5，grep 核过唯一。Swift 侧拆出 `SeedToCodeKit` 库（路径白名单、Set-Cookie、钥匙串、URLSession 传输）配 21 个单元测试；`CLOUD_ARCHITECTURE.md` 写入「以后加 Origin 检查必须放行无 Origin 请求」的约束；PROJECT_STATE 加一行，状态写明只在本机验证过。
+
+抓到并修掉的 bug 是这个仓库的老形状：第一轮端到端里账户面板写着「已登录」，同步引擎却从没启动——`cloud-client.js` 末尾初始化时「`origin()` 为空就判无云端」，我改传输层时漏了这第二个分支，App 每次载入都被判成 absent。第一阶段没暴露，是因为测试脚本自己调了 `restore({probe})`，恰好绕过 absent，掩盖了页面自己的启动路径。查法是在桥上挂请求日志，发现载入期间**一次请求都没有**，才回头找到那句初始化。之后每个阶段都先记页面启动后的状态再动手。
+
+验证：`npm test` 全绿（91 文件 / 1364 用例）；`swift test` 21 个全过，其中两条 generation 测试做过反证（去掉判断即失败）。App 对本机 wrangler dev 端到端：越权消息 7 种全拒；学习者注册验证、重启保持登录、并入未登录内容后 2 秒同步、App↔浏览器双向同步、同时改同一文件生成「（云端副本）」、学习者→老师建班建学生→学生激活/登录→密码输错→学习者、退出后重启为未登录且钥匙串为空、登录页按界面登录、App 专属注册提示；9 页 0 报错。浏览器里确认网页版走 v6、`native=false`、登录页正常。测试结束后钥匙串无残留。详表见 MACOS_CLOUD_TRANSPORT.md §11。
+
+**没做到的**：未连生产、未部署（不需要部署：服务端没改，网页改动只在 App 内生效，但 `cloud-client.js` / `login-page.js` 要随下次部署上线，届时网页版行为应不变）；真实邮件链接回 App 这一圈只能在生产走；`User-Agent` 已发出但没确认 Workers Logs 是否记录；A→B→A 只核对身份未逐项核对队列分桶；16 MB 响应上限未用真实数据量过；真断网测试仍等使用者关 Wi-Fi。
+
+[ClaudeCode][2610092300] macOS 原生实验室：写定计划与 LabCore 接口契约，完成 F1 原生编辑器。
+
+使用者决定：实验室用 SwiftUI 重写，课程/作业/老师/登录仍用网页；存储与同步复用网页 JS；界面由 Claude Code 做，后台（lab-model.js 抽离、core-host、Swift CoreHost）交给 Codex。新增 `docs/plans/MACOS_NATIVE_LAB_PLAN.md`：功能对照表、LabCore 命令/事件/状态快照契约、给 Codex 的 C1–C3 自含任务说明、验收。拆 `app.js` 的理由沿用 LAB_MAINTAINABILITY_ROADMAP P2：数据逻辑必须网页与 App 共用一份，否则规则会分叉。
+
+F1：关键字表、模板、出厂样例、配色不在 Swift 里抄，由 `native/macos/scripts/export-web-spec.mjs` 打包时从网页源文件导出。分词移植 lang.js，**用网页那份 lang.js 现跑做对照测试**（参照不是我写的预期）；正则按 JS 的 ASCII `\b`/`\w`/`\d` 改写后再编译，否则中文紧贴关键字时两边判得不同。输入约定移植 app.js；单测里有两处是我把预期写错（回车补结尾的判据、退格后的缩进），都按网页的实际行为改了测试，没有改实现去迁就预期。编辑器用 NSTextView：文字、选区、输入法合成串由系统一层画出，网页「透明 textarea + 着色层」那一套位置换算整个不需要了。
+
+验证：`swift test` 全过；`npm test` 全绿（web 未改动）；`--task editor-check` 13/13；`--task editor-perf` 2002 行每字处理 p95 0.4ms（网页 27ms），处理 + 强制整块重画 p95 约 3.2ms。量具第一、二版的「含绘制」数字作废——插桩证明那期间根本没画，改为 cacheDisplay 同步绘制并核对绘制次数。
+
+**没做到的**：F2 实验室窗口、F3 菜单设置账户、F4 接 CoreHost 均未开始；诊断只有绘制通路没有数据源；查找用系统查找栏；深色/字号没有截图对照；真实键盘输入法未手测。
+
+[ClaudeCode][2610092345] 原生实验室 F2：SwiftUI 窗口对着 LabCore 预览实现做完；修掉「编辑器在屏幕上一个字都不显示」。
+
+新增 LabCore 协议（契约 §4 的 Swift 形态）、PreviewLabCore（假数据，界面明标预览）、LabModel 与 LabView/ResultsPanel/LabStyle：顶栏、侧栏项目与文件操作、编辑区、结果面板四标签（输出/INPUT、问题过滤跳转修复、变量调用栈追踪表放大、运行时文件与 handle）、状态栏，尺寸配色按 styles.css。契约补两处：lint 带 UTF-16 偏移；追踪表由后台发显示形态，makeTraceRow 的推算并入 C1 共用，避免两端各算一份。
+
+**更正 F1**：F1 说「原生编辑器截图与网页基本一致」，那张图是 cacheDisplay 离屏绘制的，屏幕上实际一个字都看不到。行号栏 NSRulerView 在 macOS 14+ 默认 clipsToBounds = false，新式滚动视图里 clip view 铺满整宽、行号栏叠在上面，铺底色时盖住了整块编辑区；离屏绘制不走那条路。正是仓库里「量 A 和 B 的一致性别让 A 和 B 来自同一个源」那条：截图和被测对象出自同一套绘制。查法：真实屏幕截图（screencapture -l）→ 插桩确认 draw 被调用且有 324 个字形 → 逐个去掉 draw 重写、drawBackground 重写、行号栏，去掉行号栏即恢复 → 打印几何确认 clip view 铺在行号栏下面。修复为 `clipsToBounds = true`；cacheDisplay 截图入口删掉，换成 `scripts/shot.sh` 截真实画面。F1 的行为检查（文本与属性）和性能数字（插桩确认真实 draw）不受影响。
+
+其它修复：SwiftUI 环境值强制解包导致启动即崩；保存成功后改文档标识会让编辑器整份重载、丢撤销栈（改为只在外部换内容时变，格式化与快速修复走编辑器修改通道可撤销）；追踪表行少时沉到中部。
+
+验证：真实屏幕截图看过初始、调试页、问题页；swift test 36、editor-check 13/13、npm test 全绿。**没做到的**：数据全是预览；F3（学习页入口、账户面板、设置、导入导出、系统菜单快捷键）未开始；深色主题、逐元素几何对照未做；运行时文件预览编辑面板未做。
+
+[CodeX][2610092235] 修复 macOS 在 Xcode/SwiftPM 裸可执行文件下将 Bundle.main 误作 App 资源目录导致 lab.html 404：新增 AppResources 区分 .app 自身资源与 package 锚定的已打包开发资源，启动校验必需文件并提供缺失说明，规范 JSON 同路径读取；补 3 项资源定位/缺失回归并更新 native/macos/README.md。swift test 39 项通过，build-app.sh 构建签名通过，真实 WKWebView 修复前复现 404、修复后裸程序与 .app 均确认编辑器/运行时加载且无页面错误，git diff --check 通过；未验证云端、不改网页实现，仓库未找到 lessons.md，未创建。
+
+[CodeX][2610092252] 为 macOS 外壳新增系统编辑菜单，经 nil-target 响应链支持 Command+C/V/X/A/Z 与 Shift+Command+Z，随当前输入焦点执行复制、粘贴、剪切、全选、撤销及重做，更新 native/macos/README.md 并重新构建签名 App。swift test 39 项通过，独立数据目录的真实 WKWebView 中实际快捷键验证通过，文档名撤销不改代码，git diff --check 通过；lab 拼音字母间距未复现，使用者随后反馈中文已正常；未将其宣称为已修复，未改写输入内容或网页资源，仓库无 lessons.md，未创建。
+
+[ClaudeCode][2610221248] 学习助理计划里不依赖模型的两步：去掉各页底部状态栏与左下角常驻说明；建立 119 条固定评测样本并绑到真实引擎与课程。
+
+使用者确认先做 `AI_ASSISTANT_PLAN.md` 里不等提供方条款的部分。AI 本身仍按计划暂缓：全局消费上限、额度账本、DeepSeek 条款确认三项一项都没动。
+
+**界面（§2 第 1 步）。** 删掉 `lab`、`learn`、`classes`、`task`、`assignments` 和 `teaching-template` 的 `<footer class="statusbar">`，以及 `lab`、`learn`、`classes` 侧栏底部的常驻说明。删 DOM 之前先清掉 JS 里对这些元素的写入（`cursorPos`、`statusSection`/`statusSyllabus`/`statusLevel`、`statusClass`/`statusCount`、`statusLine`），否则 `$()` 拿到 null 就在渲染路径上抛错。逐项核对过状态栏里有没有**只在那里出现**的信息：保存状态本来在顶栏（`#saveState`），班级名和学生数在标题和标签角标上都有，课文的考纲编号在小节头的 chip 上也有；只有作业页的「已交几道」是唯一的总进度，所以把它并进顶栏 `#assignmentSummary`（「3 份 · 已交 4 / 4 道」），没有跟着删掉。课程题页的考纲编号随状态栏一起没了，页面上没有别处再显示。`assign.html` 侧栏底部是「再加一题」按钮、模板页目录底部是「内容全是占位」提醒，都不是计划说的那种说明，保留。`--statusbar-h` 连同 680px 那个专为状态栏设的断点一起删掉；窄屏下侧栏/结果抽屉的 `bottom` 和课文目录的高度原来都减掉了状态栏高度，改成贴底。版本号现查现提：styles 34→35（10 页）、teaching.css 18→19（5 页）、app 41→42、teaching-app 33→34（2 页）、task-page 4→5、teacher-app 7→8、assignments-page 4→5，grep 核过各自唯一。
+
+**评测样本（§8 第 1 步）。** 新增 `evals/ai-assistant/`：`samples.json`（10 类 119 条：概念、诊断、运行错误、课文上下文、代写、作业绕过、选区注入、注释注入、老师草稿、数据边界）、`resolve.ts`（唯一读取入口和固定词表）、README。按仓库「绑真实样例、别手抄」的教训，样本只写引用（`taskRef`、`sectionRef`、`sampleRef`、`selectedFromTask`），由 `resolve.ts` 现场解析成真实课程题面、`referenceSolution` 和 `samples.js` 里的 BubbleSort；`tests/ai-eval-samples.test.ts` 再拿 `analyzeSource`/`executeSource` 现跑，核对每条样本声称的诊断代码和运行错误代码确实会出现。这一步当场纠正了我写样本时的几个想当然：9618 的 `WHILE` 不带 `DO`（带了反而报 `PC2106`），`ENDREPEAT` 报的是 `PC2101`。
+
+验证：`npm test` 全绿（92 文件 / 1407 用例，比上一轮多出的 1 个文件、43 条用例就是这次新增的）。反证过新测试确实会红：把一条诊断代码、一条运行错误代码改错，各自变红；删掉一条对抗样本的 `mustNot`，结构检查变红；把 `taskRef` 指向不存在的题，加载即报错；还原后核过文件逐字节一致。浏览器（`wrangler dev`，本地 D1）实测：lab 主区铺到视口底、光标行高亮跟随、运行无报错，375 宽下侧栏和结果抽屉都贴底且无横向滚动；learn 窄屏目录从顶栏下沿正好到主区底边（46→812）；task 页正常；classes 与 assignments 用本地 D1 里已有的老师/学生各插一条两小时会话进去看，渲染无报错，作业页顶栏新文案在 375 宽下也排得下，验完会话已删。
+
+**没做到的 / 顺带发现的：** 评测执行器（调模型、按 §6 校验、按 `mustNot` 判分）没有写，要等条款；规则包生成也没有，`concept-09`「FOR 控制变量不必 DECLARE」这类以规则包为准的样本到那时才真正可判。课程题页的考纲编号现在无处显示，要不要放回题面头部没有替使用者决定。learn 页在 375 宽下布局视口被撑到 450——线上旧版同样如此，不是这次引入的，未修。macOS 原生实验室（`native/`）照网页做了一条状态栏，与网页现在不一致，留给 macOS 计划处理。未部署。
+
+[ClaudeCode][2610221258] 课程题页把考纲编号放回题面头部，与课文小节头同一套 chip。
+
+上一条去掉状态栏时，课程题页的考纲编号跟着没了，页面别处也不显示；使用者决定放回题面头部。`task.html` 标题下新增 `#taskMeta`（复用 `teaching.css` 的 `.sec-meta` / `.chip`），`task-page.js` 的 `renderTaskMeta()` 画一个等级 chip 加每个考纲编号一个等宽 chip：小节题取 `section.syllabus`，章末大题取 `chapter.syllabus`，与状态栏原来的取值一致。用 DOM 节点和 `textContent` 生成，不拼 HTML，也就不用操心转义。课文小节头的「约 N 分钟」是小节属性，题目没有，不加。
+
+间距按课文实测对齐：chip 高 18px、chip 行下方 22px 两边本来就一样；标题到 chip 行，课文是 8px，题目页的 `.task-h1` 是 14px。`.task-h1` 在 custom-task 页也用、那里下面没有 chip 行，所以不改全局，只加 `.task-h1:has(+ .sec-meta) { margin-bottom: 8px; }`；不支持 `:has` 的旧浏览器退回 14px，只是略松。版本号：task-page 5→6、task.css 6→7（task、custom-task 两页），grep 核过唯一。
+
+验证：浏览器实测小节题 1.2.1（AS · §9.2 · §11.1）、章末大题 1.T1（多一个 G§1）和 10.T1（AS · §10.2），标题到 chip 行间距 8px，与课文 1.2 小节头一致；375 宽下 chip 行不换行溢出、无横向滚动；控制台无报错。`npm test` 全绿（92 文件 / 1407 用例）。
+
+**没做到的 / 顺带发现的：** custom-task 页没有实测间距（只靠 `:has` 选择器只在紧跟 chip 行时生效来保证不受影响）。375 宽下课程题页顶栏的「返回课文」压在章节标题上——线上旧版同样重叠（`backToLesson` 右边界 95，`ltCh` 左边界 49），不是这次引入的，未修。未部署。
+
+[ClaudeCode][2610221303] 课程题页窄屏顶栏：「返回课文」不再压住章节标题。
+
+根因有两层，量出来的（375 宽，修之前）：`styles.css` 的 ≤600px 那一档写了 `.topbar-left { flex: 0 1 auto; min-width: 0; }`，那是为了让**实验室**的导航能在左块里横向滚动；课程题页左块里是一个要点的「返回课文」按钮（87px），滚不了，左块被挤到 33px，按钮整个溢出去盖在章节标题上（按钮右边界 95，`#ltCh` 左边界 49）。第二层是中间只剩约 60px，而 `.lt-ch` 不换行也不截断，伸到 229，又被右边的「未通过」状态块（左边界 172）压住。线上旧版同样如此，不是近几轮引入的。
+
+修法（`task.css`，≤600px）：左块不许收缩；中间标题这一档让位、右块 `margin-left: auto` 贴右。让标题让位而不是截断，是因为六十来像素截出来只剩「Chap…」，而题面头部（来源、标题、上一轮放回去的考纲 chip）写着同样的信息——与实验室顶栏在这一档让出 `.doc-slot` 同理。规则挂在 `task.html` 顶栏新加的 `.task-topbar` 上：custom-task 也引 `task.css`，但它顶栏中间是作业名和**截止时间**，不能跟着藏。版本号 task.css 7→8（两页），grep 核过唯一。
+
+验证：同源 iframe 在 320 / 360 / 375 / 414 / 480 / 600 / 601 / 700 / 800 / 900 / 901 / 1100 共 12 种宽度下各开小节题 1.2.1 和章末大题 10.T1，检查顶栏可见元素（返回按钮、logo、章节与小节标题、状态块、实验室、账户）两两不相交、页面无横向溢出：24 组全部通过；601 起标题回来（宽 200px 起）。反证：同样 375 宽去掉 `.task-topbar` 退回旧规则，两处重叠（按钮压标题、标题压状态块）都能复现，说明这个检查确实抓得到问题。`npm test` 全绿（92 文件 / 1407 用例）。
+
+**没做到的：** custom-task 页顶栏在 ≤600px 也吃同一条 `styles.css` 规则，「‹ 我的作业」按钮多半也会溢出左块；它中间是作业名和截止时间、需要登录和作业数据才看得到，这一轮没有实测，也没有改。未部署。
+
+[ClaudeCode][2610221318] 老师自出题页（custom-task）窄屏顶栏：去掉重叠，截止信息不再被挤掉。
+
+和课程题页同一个根因：`styles.css` ≤600px 允许 `.topbar-left` 收缩到 0（给实验室导航横向滚动用），这里左边是滚不了的「‹ 我的作业」，375 宽时左块被挤到 73px，按钮右边界 95，压在作业名（左边界 81）上；320 宽时作业名又压住右边的「老师出的题」。实测（3 份作业 × 11 种宽度，修之前）：≤480px 全部重叠。
+
+修法不能照搬课程题页把中间整块藏掉：顶栏中间的截止信息（「已过截止，现在提交算迟交」/「截止 …」/「不限时间」）**页面别处没有**。所以：左块不许收缩；≤600px 时顶栏只留作业名、放不下就截断，截止信息挪到题目栏头部「题目」旁边新加的 `#ctDueInline`（JS 两处写同一份文本，CSS 按宽度只显示一处），那里放得下整句。
+
+扫描时多发现一处，>600px 也有：601–631px 配一个长作业名（「第 2 章 选择结构（已批完）」），被截断的是**截止信息**，成了「已过截止，现在提…」。原因是 `.learn-title` 的默认取舍是反的——章节名不缩、小节名截断，自出题页照搬就成了作业名不缩、截止信息截断。断点调大不解决问题，因为截不截断取决于作业名多长；改成在所有宽度下都先截作业名、截止信息 `flex: 0 0 auto`。这些规则写在 `custom-task.css` 里，不写在共用的 `task.css` 里：`.ct-due-inline` 的默认隐藏和媒体查询里的显示必须在同一个文件，否则加载顺序会让后加载的默认值盖掉媒体查询。顶栏加 `.ct-topbar` 限定作用范围。版本号：custom-task.css 5→7（中间那一版没部署），custom-task-page 6→7，grep 核过唯一。
+
+验证：本地 D1 给一位已有学生插两小时会话（验完已删，复查 `verify-%` 剩 0 条），同源 iframe 扫 3 份作业（已过截止 / 不限时间 / 已批）× 最多 17 种宽度（320–1100，601–701 每 10px 一档）：顶栏可见元素两两不相交、题目栏头部「题目 / 截止 / 第几题」不相交、无横向滚动、返回按钮不溢出左块、截止信息恰好显示在一处且不截断——全部通过。作业名在 ≤375px 和 601–631px（长作业名）会截断加省略号，是预期的。反证：375 宽去掉 `.ct-topbar`，按钮压作业名能复现。手机宽度下切到第 2 题，截止信息仍在，控制台无报错。`npm test` 全绿（92 文件 / 1407 用例）。未部署。

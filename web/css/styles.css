@@ -46,7 +46,6 @@
 
    /* 固定槽位尺寸：这些值只在设计阶段决定，运行时不随内容变化 */
    --topbar-h: 46px;
-   --statusbar-h: 24px;
    --run-slot-w: 84px;
    --more-btn-w: 72px;
    --save-slot-w: 56px;
@@ -676,6 +675,9 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
 .trace-head .spacer { flex: 1; }
 #traceExpand[aria-disabled="true"] { opacity: .45; cursor: default; }
 #traceExpand[aria-disabled="true"]:hover { background: transparent; color: var(--text-dim); border-color: var(--border); }
+#fileDialogRestore { min-width: 112px; }
+#fileDialogRestore[aria-disabled="true"] { opacity: .45; cursor: default; }
+#fileDialogRestore[aria-disabled="true"]:hover { background: transparent; color: var(--text-dim); border-color: var(--border); }
 
 /* 二级界面：表格是从调试面板移进来的同一个节点，这里只负责给它一个大框。
    body 不留内边距，让表格自己吃满；状态行挪到标题栏右边。 */
@@ -724,16 +726,6 @@ html[data-theme="dark"] .sev-icon { color: #1b1c1a; }
 .rt-file-list .fname { flex: 1; min-width: 0; font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rt-kind { width: 52px; flex: 0 0 52px; text-align: center; font-size: 10px; line-height: 14px; height: 16px; color: var(--text-faint); border: 1px solid var(--border); border-radius: 3px; }
 .rt-size { width: 62px; flex: 0 0 62px; text-align: right; font-size: 11px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
-
-/* ---------- 状态栏 ---------- */
-.statusbar {
-   flex: 0 0 var(--statusbar-h); display: flex; align-items: center; gap: 8px;
-   height: var(--statusbar-h); padding: 0 12px; font-size: 11px; color: var(--text-faint);
-   background: var(--bg-panel); border-top: 1px solid var(--border); white-space: nowrap;
-}
-.statusbar .spacer { flex: 1; }
-.statusbar .dot { opacity: .5; }
-.status-slot { width: 108px; flex: 0 0 108px; font-variant-numeric: tabular-nums; }
 
 /* ---------- 对话框 ---------- */
 .overlay { position: fixed; inset: 0; background: rgba(20, 20, 18, .32); z-index: 50; }
@@ -872,11 +864,11 @@ code { font-family: var(--font-mono); font-size: .92em; }
    .topbar-center .doc-name { min-width: 0; }
 
    .sidebar {
-      position: fixed; top: var(--topbar-h); bottom: var(--statusbar-h); left: 0; z-index: 45;
+      position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 45;
       box-shadow: 6px 0 24px rgba(0, 0, 0, .14);
    }
    .results {
-      position: fixed; top: var(--topbar-h); bottom: var(--statusbar-h); right: 0; z-index: 44;
+      position: fixed; top: var(--topbar-h); bottom: 0; right: 0; z-index: 44;
       width: 300px; flex-basis: 300px; box-shadow: -6px 0 24px rgba(0, 0, 0, .14);
    }
    .results.collapsed { width: 34px; flex-basis: 34px; }
@@ -921,15 +913,6 @@ code { font-family: var(--font-mono); font-size: .92em; }
       所以只对标了 .doc-slot 的这一处生效。 */
    .topbar-center.doc-slot { display: none; }
    .topbar-right .switch-field { display: none; }
-}
-
-/* 状态栏同样是 nowrap 的一行，实测要 627px 才排得下——比顶栏那一档还宽，
-   所以单独一个断点，别为了状态栏把文档名和语法检测开关提前藏掉。
-   标了 .status-aux 的静态说明让位；overflow 是兜底：别的页面的状态栏没逐条标，
-   也不能让它把整页顶出横向滚动。 */
-@media (max-width: 680px) {
-   .statusbar { overflow: hidden; }
-   .statusbar .status-aux { display: none; }
 }
 
 

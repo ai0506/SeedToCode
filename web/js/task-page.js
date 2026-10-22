@@ -91,6 +91,21 @@
 
    /* ---------------- 启动 ---------------- */
 
+   /* 考纲编号以前只在底部状态栏里；状态栏去掉之后放回题面头部，
+      和课文小节头（teaching-app.js 的 renderSection）用同一套 chip，两处读起来是同一件事。 */
+   function renderTaskMeta(level, syllabus) {
+      var box = $("#taskMeta");
+      box.textContent = "";
+      var chips = [{ text: level, cls: "chip level-" + level.toLowerCase() }].concat(
+         syllabus.map(function (s) { return { text: s, cls: "chip mono" }; }));
+      chips.forEach(function (item) {
+         var chip = document.createElement("span");
+         chip.className = item.cls;
+         chip.textContent = item.text;
+         box.appendChild(chip);
+      });
+   }
+
    function boot() {
       var params = query();
       var taskId = params.t || "";
@@ -116,13 +131,9 @@
          ? "Chapter " + chapter.id + " 全章"
          : found.section.id + "　" + T.plainText(found.section.title);
       $("#taskTitle").textContent = T.plainText(task.title);
+      renderTaskMeta(chapter.level, found.isChapterTask ? chapter.syllabus : found.section.syllabus);
       $("#ltCh").textContent = "Chapter " + chapter.id + " · " + T.plainText(chapter.title);
       $("#ltSec").textContent = kicker + "　" + T.plainText(task.title);
-      $("#statusLevel").textContent = chapter.level === "AS" ? "AS Level" : "A Level";
-      $("#statusSection").textContent = found.isChapterTask
-         ? "Chapter " + chapter.id + " 章末大题"
-         : "Chapter " + found.section.id;
-      $("#statusSyllabus").textContent = (found.isChapterTask ? chapter.syllabus : found.section.syllabus).join(" / ");
       /* 从作业点进来的，返回就该回作业——回课文会把人丢到完全不同的上下文里。 */
       if (params.from === "assignments") {
          $("#backToLesson").href = "assignments.html";

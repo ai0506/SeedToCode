@@ -5,7 +5,7 @@
 ## 计划与专项跟踪
 
 - [初步产品计划](plans/INITIAL_PLAN.md)：项目的早期定位与阶段背景，不替代当前事实。
-- [学习助理与低干扰界面计划](plans/AI_ASSISTANT_PLAN.md)：AI 能力的产品边界与暂缓条件。
+- [学习助理与低干扰界面计划](plans/AI_ASSISTANT_PLAN.md)：AI 能力的产品边界与暂缓条件。固定评测样本在 [`evals/ai-assistant/`](../evals/ai-assistant/README.md)。
 - [同步与队列整体修复计划](plans/SYNC_QUEUE_FIX_PLAN.md)：本地优先同步的未实施设计。
 - [Trace table 与调试工作区实施计划](plans/TRACE_TABLE_PLAN.md)：实验室调试能力的设计与验收边界。
 - [Lab 可维护性与回归路线](plans/LAB_MAINTAINABILITY_ROADMAP.md)：已核实的维护风险、浏览器回归范围与按需求驱动的重构顺序。
