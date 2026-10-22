@@ -26,6 +26,7 @@ import {
   writeProject
 } from "./sync";
 import { RunError, runSnapshot } from "./run";
+import { AiError, aiStatus, recordConsent, setClassAi } from "./ai";
 import {
   TeachingError,
   createAssignment,
@@ -214,6 +215,23 @@ export default {
           requestId: context.requestId
         });
       }
+      /*
+       * 学习助理的底座接口。这一步还没有调用模型的接口；总开关默认关闭，
+       * 状态接口照常回答「不可用，原因是什么」，界面据此决定圆球怎么显示。
+       */
+      if (url.pathname === "/api/ai/status" && request.method === "GET") {
+        const user = await requireUser(env.DB, request);
+        return json({ ...await aiStatus(env.DB, user), requestId: context.requestId });
+      }
+      if (url.pathname === "/api/ai/consent" && request.method === "POST") {
+        const user = await requireUser(env.DB, request);
+        return json({ ...await recordConsent(env.DB, user, await request.json()), requestId: context.requestId });
+      }
+      const classAiMatch = /^\/api\/classes\/([^/]+)\/ai$/.exec(url.pathname);
+      if (classAiMatch && request.method === "PUT") {
+        const user = await requireUser(env.DB, request);
+        return json({ ...await setClassAi(env.DB, user, decodeURIComponent(classAiMatch[1]), await request.json()), requestId: context.requestId });
+      }
       const classMatch = /^\/api\/classes\/([^/]+)\/(students|assignments|progress)$/.exec(url.pathname);
       if (classMatch && classMatch[2] === "students" && request.method === "GET") {
         const user = await requireUser(env.DB, request);
@@ -358,6 +376,7 @@ export default {
       if (caught instanceof AuthError) return json({ code: caught.code, message: caught.message, ...caught.extra, requestId: context.requestId }, caught.status);
       if (caught instanceof SyncError) return json({ code: caught.code, message: caught.message, ...caught.extra, requestId: context.requestId }, caught.status);
       if (caught instanceof RunError) return error(caught.code, caught.message, caught.status, context);
+      if (caught instanceof AiError) return json({ code: caught.code, message: caught.message, ...caught.extra, requestId: context.requestId }, caught.status);
       if (caught instanceof TeachingError) return json({ code: caught.code, message: caught.message, ...caught.extra, requestId: context.requestId }, caught.status);
       if (caught instanceof SyntaxError) return error("INVALID_REQUEST", "请求内容不正确。", 400, context);
       throw caught;

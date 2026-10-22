@@ -62,6 +62,18 @@ describe("隐私政策 · 数据库里存的每一样东西都有交代", () => 
     service_config: "只有云端功能的开关（键和值），与任何用户无关"
   };
 
+  /*
+   * 学习助理的表：迁移已经建了，但 AI 总开关关着时服务端一行都不写（server/src/ai.ts，
+   * tests/ai-foundation.test.ts 核对过），所以政策此刻说「没有接入任何 AI 服务」是真的。
+   * 这个豁免**只在政策还这么说的时候成立**——AI 上线改写第 10 节那一刻，下面的检查
+   * 会让它失效，逼着把这些表写进第 2 节。
+   */
+  const AI_STATEMENT = "目前<strong>没有接入任何 AI 服务</strong>";
+  const EMPTY_UNTIL_AI: Record<string, string> = {
+    ai_usage_ledger: "用量账本",
+    ai_consents: "学习助理的同意记录"
+  };
+
   const tables = new Set<string>();
   const dir = new URL("../server/migrations/", import.meta.url);
   for (const file of readdirSync(dir).filter((name) => name.endsWith(".sql"))) {
@@ -79,8 +91,12 @@ describe("隐私政策 · 数据库里存的每一样东西都有交代", () => 
     expect(tables.size).toBeGreaterThan(15);
   });
 
+  it("AI 的表能豁免，只因为政策还写着没有接入 AI", () => {
+    expect(policy, "政策不再声明「没有接入任何 AI 服务」了：把 EMPTY_UNTIL_AI 里的表写进第 2 节，再删掉这个豁免").toContain(AI_STATEMENT);
+  });
+
   it("每张表都在政策的「我们保存什么」里有一行", () => {
-    const missing = [...tables].filter((name) => !covered.has(name) && !(name in NO_PERSONAL_DATA));
+    const missing = [...tables].filter((name) => !covered.has(name) && !(name in NO_PERSONAL_DATA) && !(name in EMPTY_UNTIL_AI));
     expect(missing, "新加的表要在 privacy.html 第 2 节写清楚存了什么，再把表名加进那一行的 data-pp-covers").toEqual([]);
   });
 
