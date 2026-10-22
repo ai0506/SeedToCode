@@ -1158,3 +1158,14 @@ F1：关键字表、模板、出厂样例、配色不在 Swift 里抄，由 `nat
 使用者确认此时还没有真实用户，隐私政策可以随普通部署先上线，不必等 AI。部署前按惯例检查：远端 `migrations list` 显示没有待应用的迁移；服务端相对上次记录的部署只多了 cookie 探针，那部分早已单独部署过；在 `d993f05` 上 `npm test` 全绿（93 文件 / 1418 用例），构建后没有改动任何已跟踪的文件。上传了 28 个新增或修改的静态资源。
 
 验证没有只看一眼：先循环等到 `/privacy` 返回 200 且 `/lab` 引用 `styles.css?v=35`（6 秒后生效），再把 12 个页面的线上 HTML 与本地文件逐字节比对，自定义域名和 workers.dev 两边都是 12/12 一致；privacy.css、task.css、custom-task.css、styles.css、task-page.js、account-ui.js 也逐一比对一致。`/health` 正常，未登录时 `/auth/me` 返回 401。浏览器打开线上课程题页（375 宽）：没有状态栏，考纲 chip 为 AS · §10.2，中间标题已隐藏，返回按钮不再压标题，没有横向滚动。PROJECT_STATE 的部署段同步更新了 Version ID 和本次包含的内容。
+
+[ClaudeCode][2610221425] iPad Chrome「登录后退回未登录」：现在不再复现，原因无法确定；认证代码不改，诊断页保留。
+
+使用者在出问题的那台 iPad 的 Chrome 里依次做了下面这些（线上 Version `9bf6360e`）：
+
+1. `/cookie-check` 的 A、B 各点了一次，A 又点了几次：每次都是「cookie 活下来了」。A 原样复刻了登录（fetch POST 下发、属性和会话 cookie 一字不差的 30 天 HttpOnly cookie，拿到响应立刻 `location.replace`）。所以上一轮的假设「fetch 下发后立刻整页跳转，cookie 来不及落盘」**被推翻**，B 那个修法也就不需要了。
+2. 用真实账号登录。账号是靠查线上 D1 才认出来的（使用者本人在终端执行的只读查询）：`redacted@example.invalid` 的上一次登录是 2026-09-18 16:17，比第一条 bug 记录早 8 分钟，所以当时那次登录**在服务端成功、会话也建了**，问题出在之后。这次登录后：顶栏一直保持已登录；`/cookie-check` 第一行「会话 cookie」为「是」；`/auth/me` 返回 teacher；服务端在 14:15:32 有对应的新会话。
+
+**不复现，而且找不到是哪处代码修好的：**9 月 18 日之后到今天之前，`cloud-client.js`、`login-page.js`、`auth-store.js`、`login.html`、`server/src/auth.ts`、`index.ts` 一次都没改过。今天的改动里，`cloud-client.js` 抽出的 `send()` 在浏览器里的行为和原来一致（`fetch` → 读文本 → 按状态码处理，网络失败一律算 OFFLINE），新增分支只在 macOS App 里生效；`login-page.js` 只多了 App 专用的提示；服务端只加了探针和响应的 charset。没有哪一处能解释 cookie 从「留不住」变成「留得住」。最可能是设备那边的原因（iOS Chrome 在这一个多月里更新过，或者当时那台设备上有某种现在已经不存在的状态），但已经无法确认。
+
+处置：不按猜测去改线上认证。`/cookie-check` 和 `/auth/cookie-check*` 继续保留（使用者早先说过要长期留着）。下次再出现，第一时间在出问题的设备上按这个顺序取数：登录 → `/cookie-check` 第一行 → `/auth/me` → 服务端查同一时刻有没有新会话。这样一次就能分清是「cookie 没存下」还是「cookie 在、服务端不认」。另外记一笔：线上还留着两个 `probe@example.com` 的 learner 账号，没有密码、从未登录过，是当初测邮件投递留下的，和这个问题无关，以后可以清掉。
