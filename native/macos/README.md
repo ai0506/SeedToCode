@@ -37,10 +37,10 @@ open native/macos/build/SeedToCodeProto.app
 | `--task crash` | 输入两行（一行等过自动保存、一行不等），杀掉本 App 的 WebContent 进程，检查重载后剩下什么 |
 | `--task geometry` | lab / learn / login / task 全部可见元素的 rect，用于两种来源逐项对比 |
 | `--task perf` | 启动时间、2000 行文档打字与滚动、运行中帧间隔（lab 路径 / 主线程 / Worker）、WebContent 内存 |
-| `--origin remote [--remote URL]` | 改为加载一个 http(s) 站点：线上（默认 `https://seedtocode.example.invalid`）或本机静态服务（同一份文件，用来隔离自定义 scheme 的影响）。`https` 是同义写法 |
+| `--origin remote [--remote URL]` | 改为加载一个 http(s) 站点：本机（默认 `http://127.0.0.1:8787`）或本机静态服务（同一份文件，用来隔离自定义 scheme 的影响）。`https` 是同义写法 |
 | `--block-network` | 用 WebKit 内容规则拦掉全部 http(s) 请求，模拟断网（`navigator.onLine` 不变） |
 | `--task script --script FILE [--args JSON]` | 在 `--start` 页（默认 lab）里执行文件中的 async 函数体，参数以 `args` 传入；端到端联调用 |
-| `--api-base URL` | 原生云端传输连哪台服务器。默认线上，**只接受本机回环地址**（如 `http://127.0.0.1:8787` 的 `wrangler dev`） |
+| `--api-base URL` | 原生云端传输连哪台服务器。默认本机 `http://127.0.0.1:8787`，**只接受本机回环地址**（如 `http://127.0.0.1:8787` 的 `wrangler dev`） |
 | `--native-lab` | 打开原生实验室窗口（SwiftUI，现在接的是 PreviewLabCore 预览数据） |
 | `--lab-demo output\|problems\|debug\|files` | 原生实验室启动后自动开语法检测、改一行、预览运行、给 INPUT，再切到该标签（截图看各状态用） |
 | `--hold N` | 窗口停留 N 秒后退出，并把窗口号打到 stderr；`scripts/shot.sh` 用它截真实屏幕画面 |

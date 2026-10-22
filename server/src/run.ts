@@ -178,12 +178,20 @@ async function consumeQuota(db: D1Database, userId: string, requestId: string): 
   if (existing) throw new RunError("RUN_ALREADY_REQUESTED", 409, "该运行请求已处理。");
   const now = Date.now();
   const policyWindow = String(Math.floor(now / RUN_WINDOW_MS));
-  const count = await db.prepare("SELECT COUNT(*) AS count FROM run_quota_ledger WHERE user_id = ?1 AND policy_window = ?2")
-    .bind(userId, policyWindow).first<{ count: number }>();
-  if ((count?.count ?? 0) >= RUNS_PER_WINDOW) throw new RunError("SERVER_BUSY", 503, "服务器繁忙，请稍后再试。");
-  await db.prepare(
-    "INSERT INTO run_quota_ledger (id, user_id, request_id, policy_window, internal_reason, created_at) VALUES (?1, ?2, ?3, ?4, 'accepted', ?5)"
-  ).bind(crypto.randomUUID(), userId, requestId, policyWindow, now).run();
+  // 判断与写入放在同一条 SQLite 语句内；先 COUNT 再 INSERT 会让并发请求全部越过上限。
+  // request_id 的唯一约束同时处理并发重放，只有实际插入成功的请求才能启动解释器。
+  const admitted = await db.prepare(
+    `INSERT INTO run_quota_ledger (id, user_id, request_id, policy_window, internal_reason, created_at)
+     SELECT ?1, ?2, ?3, ?4, 'accepted', ?5
+     WHERE (SELECT COUNT(*) FROM run_quota_ledger WHERE user_id = ?2 AND policy_window = ?4) < ?6
+     ON CONFLICT(request_id) DO NOTHING`
+  ).bind(crypto.randomUUID(), userId, requestId, policyWindow, now, RUNS_PER_WINDOW).run();
+  if (!admitted.success || admitted.meta.changes !== 1) {
+    const replay = await db.prepare("SELECT id FROM run_quota_ledger WHERE request_id = ?1 AND user_id = ?2")
+      .bind(requestId, userId).first<{ id: string }>();
+    if (replay) throw new RunError("RUN_ALREADY_REQUESTED", 409, "该运行请求已处理。");
+    throw new RunError("SERVER_BUSY", 503, "服务器繁忙，请稍后再试。");
+  }
 }
 
 function identifier(value: unknown, label: string): string {

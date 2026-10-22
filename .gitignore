@@ -6,3 +6,27 @@ server/node_modules/
 
 # 本机 wrangler dev 的环境变量，只在本地生效，不入库
 server/.dev.vars
+
+# 本机凭据、数据及审计输出；示例配置明确列入版本管理
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.sqlite
+*.sqlite3
+*.db
+*.db-*
+*.sql.dump
+*.log
+coverage/
+playwright-report/
+test-results/
+.claude/worktrees/
+.codex/
+private-audit/

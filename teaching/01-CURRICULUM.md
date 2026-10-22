@@ -1,7 +1,7 @@
 # 修订版教学大纲
 
 版本：0.4
-依据：`syllabus-9618.md`、`pseudocode_guide-9618.md`、`CAIE_RULES.md`、`runtime-conventions.md`
+依据：[official 9618 syllabus](https://www.cambridgeinternational.org/Images/721397-2027-2029-syllabus.pdf)、[official Pseudocode Guide](https://www.cambridgeinternational.org/Images/721401-2027-2029-pseudocode-guide.pdf)、`CAIE_RULES.md`、`runtime-conventions.md`
 基线：用户初版 19 章大纲 + [00-REVIEW.md](00-REVIEW.md) 的评估 + 用户对评估结果的决议（见 00-REVIEW.md 开头「决议」一节）。
 
 ## 编号规则

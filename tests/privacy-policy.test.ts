@@ -110,12 +110,13 @@ describe("隐私政策 · 页面本身与入口", () => {
     expect(policy).not.toMatch(/(src|href)="(https?:)?\/\//);
   });
 
-  it("「联系我们」填好了：点开的地址就是显示的地址，且在运营者的域名下", () => {
+  it("自托管模板明确待配置：联系地址显示与链接一致，且为保留域名", () => {
     expect(policy).not.toContain("data-pp-contact-missing");
     const link = policy.match(/<a href="mailto:([^"]+)" data-pp-contact>([^<]+)<\/a>/);
     expect(link, "第 12 节要有一个 data-pp-contact 的 mailto 链接").toBeTruthy();
     expect(link![2]).toBe(link![1]);
-    expect(link![1]).toMatch(/@ai0506\.com$/);
+    expect(link![1]).toBe("privacy@example.invalid");
+    expect(policy).toContain("运营者须在提供账号服务前核实全文并配置有效联系地址");
   });
 
   it("登录页和账户浮层都链到它", () => {

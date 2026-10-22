@@ -1,0 +1,6 @@
+# Optional settings for your own mail-enabled environment; never commit real values.
+# Local dev does not require these: it returns a synthetic-use verification token.
+# ENVIRONMENT is set explicitly by the local dev command; do not expose development mode.
+RESEND_API_KEY=
+EMAIL_FROM=
+APP_ORIGIN=http://127.0.0.1:8787

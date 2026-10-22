@@ -1,7 +1,7 @@
 # 初版教学大纲评估
 
 评估对象：用户提出的 19 章教学大纲（AS 1–12 + A Level 13–19）。
-评估依据：`syllabus-9618.md`（9.2、10.1–10.4、11.1–11.3、12.1–12.3、13.1–13.2、19.1–19.2、20.1–20.2）与 `pseudocode_guide-9618.md`（§1–§13）。
+评估依据：[official 9618 syllabus](https://www.cambridgeinternational.org/Images/721397-2027-2029-syllabus.pdf)（9.2、10.1–10.4、11.1–11.3、12.1–12.3、13.1–13.2、19.1–19.2、20.1–20.2）与 [official Pseudocode Guide](https://www.cambridgeinternational.org/Images/721401-2027-2029-pseudocode-guide.pdf)（§1–§13）。
 
 ## 决议（用户已确认，2026-09-09）
 

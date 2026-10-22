@@ -4,7 +4,7 @@
 
 本计划只定义实验室 `web/lab.html` 的调试能力及其共享运行时接口；不改变 CAIE 伪代码语法、静态诊断、判题、同步或作业提交语义。
 
-原始 `syllabus-9618.pdf` 的边界如下：
+原始 [official 9618 syllabus](https://www.cambridgeinternational.org/Images/721397-2027-2029-syllabus.pdf) 的边界如下：
 
 - 第 23 页 §5.2 将典型 IDE 的调试功能列为单步、断点，以及查看变量、表达式和报告窗口。
 - 第 31 页 §12.3 将 dry run 列为测试方法之一。

@@ -83,7 +83,7 @@ export function cookieHeader(token: string, env: Env, expiresAt: number): string
     "SameSite=Lax",
     `Max-Age=${Math.max(0, Math.floor((expiresAt - Date.now()) / 1000))}`
   ];
-  if (env.ENVIRONMENT === "production") attributes.push("Secure");
+  if (env.ENVIRONMENT !== "development") attributes.push("Secure");
   return attributes.join("; ");
 }
 
@@ -255,8 +255,8 @@ export async function verifyEmailLogin(db: D1Database, env: Env, input: unknown)
     );
     if (!verifiedGate.allowed) throw throttled(verifiedGate.retryAfterSeconds);
   }
+  await claimOneTimeToken(db, row.id, "INVALID_TOKEN", "验证链接无效或已过期。请重新注册一次，会发一封新的给你。");
   await db.batch([
-    db.prepare("UPDATE auth_tokens SET consumed_at = ?1 WHERE id = ?2 AND consumed_at IS NULL").bind(now, row.id),
     // 密码换了，别的地方的会话就不该继续留着
     db.prepare("DELETE FROM sessions WHERE user_id = ?1").bind(row.user_id),
     db.prepare(
@@ -293,8 +293,8 @@ export async function activateStudent(db: D1Database, env: Env, input: unknown) 
   }
   const passwordSalt = randomToken();
   const passwordHash = encodePasswordHash(await passwordDigest(password, passwordSalt));
+  await claimOneTimeToken(db, row.id, "INVALID_ACTIVATION_CODE", "用户名或激活码无效。");
   await db.batch([
-    db.prepare("UPDATE auth_tokens SET consumed_at = ?1 WHERE id = ?2 AND consumed_at IS NULL").bind(now, row.id),
     db.prepare(
       "UPDATE users SET password_hash = ?1, password_salt = ?2, status = 'active', updated_at = ?3 WHERE id = ?4"
     ).bind(passwordHash, passwordSalt, now, row.user_id)
@@ -305,6 +305,18 @@ export async function activateStudent(db: D1Database, env: Env, input: unknown) 
 }
 
 type StudentMembership = { classId: string; displayName: string };
+
+/* 读取行不等于拿到消费权。必须先用单条条件写入认领，且只有胜者能修改密码、
+   撤销旧会话或建立新会话。auth_tokens 没有写入触发器，changes 对应这条 UPDATE。
+   认领后若后续写入失败，令牌仍然作废（fail closed）；邮箱重新注册，学生请老师
+   重发激活码。不能为了恢复便利把可能已经用过的令牌重新开放。 */
+async function claimOneTimeToken(db: D1Database, id: string, code: string, message: string): Promise<void> {
+  const now = Date.now();
+  const result = await db.prepare(
+    "UPDATE auth_tokens SET consumed_at = ?1 WHERE id = ?2 AND consumed_at IS NULL AND expires_at > ?1"
+  ).bind(now, id).run();
+  if (!result.success || result.meta.changes !== 1) throw new AuthError(code, 401, message);
+}
 
 export async function createPendingStudent(db: D1Database, usernameInput: unknown, membership?: StudentMembership): Promise<{ user: AuthenticatedUser; activationCode: string }> {
   const username = normaliseUsername(usernameInput);
@@ -513,12 +525,10 @@ async function sendVerificationLink(env: Env, email: string, token: string): Pro
    * 给调用方的话仍然含糊——注册接口是匿名可调的，不该把发件域、配额这些
    * 配置细节说给任何人听。但**我们自己**得知道是怎么回事：在这之前这里
    * 直接把 Resend 的回应扔掉了，线上发不出信，日志里也只有一个 503，
-   * 没有任何线索可查。原文记进 Worker 日志（observability 已开），
-   * 里面只有 Resend 的错误描述，不含 API key。
+   * 没有任何线索可查。只记 HTTP 状态，不记提供方正文：错误内容可能回显
+   * 收件人或其他请求字段，不能把它当成不含个人信息的诊断材料。
    */
-  let detail = "";
-  try { detail = (await response.text()).slice(0, 500); } catch { detail = "<unreadable>"; }
-  console.error("resend.send_failed", JSON.stringify({ status: response.status, body: detail }));
+  console.error("resend.send_failed", JSON.stringify({ status: response.status }));
   throw new AuthError("EMAIL_DELIVERY_FAILED", 503, "验证邮件暂时无法发送，请稍后再试。");
 }
 
@@ -678,7 +688,7 @@ export function probeCookieHeaders(env: Env): string[] {
   const stamp = String(Date.now());
   const attributes = (ttl: number) => {
     const list = ["Path=/", "SameSite=Lax", `Max-Age=${ttl}`];
-    if (env.ENVIRONMENT === "production") list.push("Secure");
+    if (env.ENVIRONMENT !== "development") list.push("Secure");
     return list;
   };
   return [
@@ -698,7 +708,7 @@ export function probeCookieHeaders(env: Env): string[] {
 export function xhrProbeCookieHeader(env: Env): { header: string; stamp: string } {
   const stamp = String(Date.now());
   const list = [`${PROBE_XHR}=${stamp}`, "Path=/", "SameSite=Lax", `Max-Age=${PROBE_LONG_TTL_SECONDS}`];
-  if (env.ENVIRONMENT === "production") list.push("Secure");
+  if (env.ENVIRONMENT !== "development") list.push("Secure");
   list.push("HttpOnly");
   return { header: list.join("; "), stamp };
 }

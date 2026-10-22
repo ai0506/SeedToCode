@@ -2,7 +2,7 @@
 
 版本：0.1  
 适用考试：2027、2028、2029  
-权威来源：`pseudocode_guide-9618.pdf`、`syllabus-9618.pdf`
+权威来源：[official Pseudocode Guide](https://www.cambridgeinternational.org/Images/721401-2027-2029-pseudocode-guide.pdf)、[official 9618 syllabus](https://www.cambridgeinternational.org/Images/721397-2027-2029-syllabus.pdf)
 
 ## 1. 文档目的
 
@@ -12,8 +12,8 @@
 
 ## 2. 来源与适用范围
 
-- `pseudocode_guide-9618.pdf` 是伪代码表面形式、示例和用法的主要来源；本文页码均指 PDF 中印刷页码。
-- `syllabus-9618.pdf` 决定考试范围：Paper 2 对应 AS Level 第 9 至 12 节，重点是算法、数据类型与结构、文件、编程和软件开发。
+- [official Pseudocode Guide](https://www.cambridgeinternational.org/Images/721401-2027-2029-pseudocode-guide.pdf) 是伪代码表面形式、示例和用法的主要来源；本文页码均指 PDF 中印刷页码。
+- [official 9618 syllabus](https://www.cambridgeinternational.org/Images/721397-2027-2029-syllabus.pdf) 决定考试范围：Paper 2 对应 AS Level 第 9 至 12 节，重点是算法、数据类型与结构、文件、编程和软件开发。
 - A Level 第 13、19、20 节包含用户自定义类型、递归、OOP 和进一步编程。Paper 4 要求使用实际编程语言完成任务；不能把 Pseudocode Guide 中出现 OOP 写法解释为 Paper 4 只考伪代码。
 - 本项目不是 Cambridge 官方产品。规则说明必须显示版本和来源，不得暗示官方认证。
 

@@ -1,3 +1,5 @@
+> 开源候选补充：原始 PDF 从 EXTERNAL_REFERENCES.md 的官方链接阅读，不在仓库中分发。原 Private 仓库不可修改；发布仍需使用者明确批准。
+
 # SeedToCode / CAIE 9618 开发协作说明
 
 本仓库目录仍名为 `PseudocodeEditor`，产品名是 **SeedToCode**。它是面向 CAIE 9618（2027–2029）的浏览器伪代码编辑器、AST 解释器、本地优先教学平台，以及可选的 Cloudflare 云端同步、班级和作业系统。
@@ -9,7 +11,7 @@
 1. 先查看 `git status --short`、当前分支和相关文件的未提交 diff。工作树常常同时有其他人的改动；除非任务明确涉及它们，否则不修改、不格式化、不回退。
 2. 当前能力与未完成项只以 `PROJECT_STATE.md` 为准；它只保存当前事实，不能往里面写历史、变更过程、日期或下一步计划。
 3. 按任务选读权威文档，而不是盲目修改实现：
-   - CAIE 语言规则：原始 `pseudocode_guide-9618.pdf`、`syllabus-9618.pdf` → `CAIE_RULES.md` → `runtime-conventions.md` → `LANGUAGE_SPEC.md`。
+   - CAIE 语言规则：原始 [official Pseudocode Guide](https://www.cambridgeinternational.org/Images/721401-2027-2029-pseudocode-guide.pdf)、[official 9618 syllabus](https://www.cambridgeinternational.org/Images/721397-2027-2029-syllabus.pdf) → `CAIE_RULES.md` → `runtime-conventions.md` → `LANGUAGE_SPEC.md`。
    - 教学：`teaching/README.md`、`teaching/07-HANDOFF.md`、`teaching/02-CONTENT_SPEC.md`、`teaching/03-EXERCISE_SPEC.md`。
    - 本地存储、认证、同步、云端执行或班级作业：`CLOUD_ARCHITECTURE.md`。
    - 任意 `web/` 改动：**完整阅读** `FRONTEND_RULES.md`，它是验收规范而非建议。

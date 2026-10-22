@@ -6,11 +6,11 @@
     "check": "tsc --noEmit",
     "test": "npm run check",
     "db:migrate:local": "wrangler d1 migrations apply seedtocode --local",
-    "dev": "wrangler dev --persist-to=.wrangler/state"
+    "dev": "wrangler dev --local --persist-to=.wrangler/state --var ENVIRONMENT:development"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260911.1",
     "typescript": "^5.9.2",
-    "wrangler": "^4.131.1"
+    "wrangler": "4.151.3"
   }
 }

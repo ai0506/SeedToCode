@@ -11,7 +11,7 @@ struct LaunchOptions {
     }
 
     var origin: Origin = .scheme
-    var remote = URL(string: "https://seedtocode.example.invalid")!
+    var remote = URL(string: "http://127.0.0.1:8787")!
     var task: Task = .none
     var output: URL?
     var snapshot: URL?
@@ -21,9 +21,9 @@ struct LaunchOptions {
     /// 用 WebKit 内容规则拦掉页面发出的全部 http(s) 请求：模拟断网。
     /// 只是模拟——navigator.onLine 仍为 true，真断网要另测。
     var blockNetwork = false
-    /// 原生云端传输连哪台服务器。默认线上；只允许改成本机回环地址（本机 wrangler dev 联调用）。
+    /// 原生云端传输连哪台服务器。默认本机；只允许改成本机回环地址（本机 wrangler dev 联调用）。
     /// 页面改不了它——它只来自启动参数，能改启动参数的人本来就能对这台机器做任何事。
-    var apiBase = URL(string: "https://seedtocode.example.invalid")!
+    var apiBase = URL(string: "http://127.0.0.1:8787")!
     /// --task script：在 startPage 里执行这个文件里的 async 函数体，参数是 --args 的 JSON 对象（以 args 传入）。
     var script: URL?
     var scriptArgs = "{}"

@@ -3,7 +3,7 @@
 当前项目状态统一以 [`PROJECT_STATE.md`](../../PROJECT_STATE.md) 为准。本文件是初步计划，阶段说明和实施记录用于解释计划上下文，不替代当前状态文档，也不应被当作状态历史的追加记录。
 
 版本：0.1  
-依据：`syllabus-9618.pdf` 与 `pseudocode_guide-9618.pdf`（2027、2028、2029 考试版本）
+依据：[official 9618 syllabus](https://www.cambridgeinternational.org/Images/721397-2027-2029-syllabus.pdf) 与 [official Pseudocode Guide](https://www.cambridgeinternational.org/Images/721401-2027-2029-pseudocode-guide.pdf)（2027、2028、2029 考试版本）
 
 ## 1. 产品定位
 
