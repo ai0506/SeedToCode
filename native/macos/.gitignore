@@ -1,0 +1,4 @@
+.build/
+build/
+# Xcode 打开 Package.swift 时生成的工作区与个人界面状态，不入库
+.swiftpm/

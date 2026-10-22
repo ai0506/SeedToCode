@@ -245,6 +245,23 @@
          $("loginFlow").hidden = true;
          $("loginLead").hidden = true;
          var devToken = result && result.developmentToken;
+         if (!devToken && CLIENT.native) {
+            /* macOS App：邮件里的链接会在浏览器里打开，账号在那边激活，登录态也留在浏览器。
+               App 这边要靠注册时已经设好的密码再登一次——不说清楚的话，人点完链接回来
+               会以为 App 也已经登录了，对着「未登录」不知道哪里出了错。 */
+            showNotice(
+               "验证邮件已经发到 " + email + "。请在浏览器里打开邮件中的链接完成验证（15 分钟内有效），然后回到这里，用这个邮箱和刚才设置的密码登录。",
+               "ok",
+               [{ label: "去登录", primary: true, onClick: function () {
+                  hideNotice();
+                  $("loginFlow").hidden = false;
+                  $("loginLead").hidden = false;
+                  intent = "login";
+                  render();
+               } }]
+            );
+            return;
+         }
          showNotice(
             devToken ? "注册验证链接已生成（开发环境）。点击下方完成验证。" : "验证邮件已经发到 " + email + "。请打开邮件中的链接完成注册，链接 15 分钟内有效。",
             "ok",

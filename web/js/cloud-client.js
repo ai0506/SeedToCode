@@ -41,10 +41,11 @@
       "INVALID_PROGRESS", "INVALID_POSITION", "INVALID_DRAFT", "INVALID_SNAPSHOT",
       "FILE_TOO_LARGE", "PROJECT_TOO_LARGE", "PROJECT_FILE_LIMIT", "SNAPSHOT_TOO_LARGE",
       "ACCOUNT_PROJECT_LIMIT", "ACCOUNT_STORAGE_LIMIT",
-      "NAME_CONFLICT", "OPERATION_ID_REUSED", "SYNC_CONFLICT", "SERVER_DATA_INVALID"
+      "NAME_CONFLICT", "OPERATION_ID_REUSED", "SYNC_CONFLICT", "SERVER_DATA_INVALID",
+      "NATIVE_REJECTED", "REQUEST_TOO_LARGE"
    ];
 
-   var TOO_LARGE_CODES = ["FILE_TOO_LARGE", "PROJECT_TOO_LARGE", "PROJECT_FILE_LIMIT", "SNAPSHOT_TOO_LARGE"];
+   var TOO_LARGE_CODES = ["FILE_TOO_LARGE", "PROJECT_TOO_LARGE", "PROJECT_FILE_LIMIT", "SNAPSHOT_TOO_LARGE", "REQUEST_TOO_LARGE"];
 
    function isTerminal(error) { return TERMINAL_CODES.indexOf(error.code) >= 0; }
    function isTooLarge(error) { return TOO_LARGE_CODES.indexOf(error.code) >= 0; }
@@ -53,6 +54,73 @@
       var protocol = window.location.protocol;
       if (protocol !== "http:" && protocol !== "https:") return null;
       return window.location.origin;
+   }
+
+   /*
+    * macOS App 里的原生传输。
+    *
+    * App 的页面来源是 seedtocode://app：没有本站 cookie，跨源请求也会被挡。
+    * 所以由 Swift 代发——它只连写死在 App 里的本站地址，会话 token 在钥匙串里，
+    * 页面既看不到 token 也指定不了主机。设计见 docs/plans/MACOS_CLOUD_TRANSPORT.md。
+    *
+    * 只在「把请求送出去、把文本拿回来」这一步和网页不同；拿回来之后的 JSON 解析、
+    * 已配置/未配置判定、错误归一全部走下面同一段代码。另写一套的话，两边的错误
+    * 规则迟早分叉，而 App 那一份没有人在浏览器里天天点。
+    */
+   var NATIVE = (function () {
+      var handlers = window.webkit && window.webkit.messageHandlers;
+      var handler = handlers && handlers.seedtocodeCloud;
+      return handler && typeof handler.postMessage === "function" ? handler : null;
+   })();
+
+   var nativeSequence = 0;
+
+   function offline() {
+      return new CloudError("OFFLINE", "网络暂时不可用，稍后会自动重试。", 0);
+   }
+
+   /** 发一次请求，返回 { status, text }。网络层面的失败一律抛 OFFLINE。 */
+   async function send(base, path, init) {
+      if (!NATIVE) {
+         var response;
+         try {
+            response = await fetch(base + path, init);
+         } catch (e) {
+            throw offline();
+         }
+         var body = "";
+         try { body = await response.text(); } catch (e) { body = ""; }
+         return { status: response.status, text: body };
+      }
+
+      if (init.signal && init.signal.aborted) throw offline();
+      var requestId = "r" + (++nativeSequence) + "-" + Date.now().toString(36);
+      var onAbort = function () {
+         try { NATIVE.postMessage({ protocol: 1, type: "cancel", requestId: requestId }); } catch (e) { /* 页面正在卸载 */ }
+      };
+      if (init.signal) init.signal.addEventListener("abort", onAbort);
+      var reply;
+      try {
+         reply = await NATIVE.postMessage({
+            protocol: 1,
+            type: "request",
+            requestId: requestId,
+            method: init.method,
+            path: path,
+            body: init.body === undefined ? null : init.body
+         });
+      } catch (e) {
+         throw offline();
+      } finally {
+         if (init.signal) init.signal.removeEventListener("abort", onAbort);
+      }
+      if (reply && reply.ok) return { status: reply.status, text: typeof reply.text === "string" ? reply.text : "" };
+      var kind = reply && reply.kind;
+      /* 这两种重试多少次都一样：原生侧按规则拒发（路径、方法不在允许范围），
+         或请求体超过上限。当成断网会让同步队列永远卡在同一条上。 */
+      if (kind === "rejected") throw new CloudError("NATIVE_REJECTED", "这个请求被应用拦下了。", 0);
+      if (kind === "tooLarge") throw new CloudError("REQUEST_TOO_LARGE", "内容太大，无法上传。", 0);
+      throw offline();
    }
 
    function setConfiguration(next) {
@@ -78,8 +146,8 @@
 
    async function request(path, options) {
       var opts = options || {};
-      var base = origin();
-      if (!base) throw new CloudError("NOT_CONFIGURED", "云端功能暂未连接。", 0);
+      var base = NATIVE ? "" : origin();
+      if (!NATIVE && !base) throw new CloudError("NOT_CONFIGURED", "云端功能暂未连接。", 0);
       if (configuration === ABSENT && !opts.probe) throw new CloudError("NOT_CONFIGURED", "云端功能暂未连接。", 0);
 
       var init = {
@@ -94,15 +162,8 @@
       }
       if (opts.signal) init.signal = opts.signal;
 
-      var response;
-      try {
-         response = await fetch(base + path, init);
-      } catch (e) {
-         throw new CloudError("OFFLINE", "网络暂时不可用，稍后会自动重试。", 0);
-      }
-
-      var text = "";
-      try { text = await response.text(); } catch (e) { text = ""; }
+      var response = await send(base, path, init);
+      var text = response.text;
       var data = null;
       try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
 
@@ -123,7 +184,7 @@
       }
       setConfiguration(CONFIGURED);
 
-      if (!response.ok) {
+      if (response.status < 200 || response.status > 299) {
          var code = typeof data.code === "string" ? data.code : "SERVER_ERROR";
          var message = typeof data.message === "string" ? data.message : "请求失败，请稍后再试。";
          if (code === "UNAUTHENTICATED" && AUTH.isSignedIn() && !opts.probe) {
@@ -253,7 +314,9 @@
       isTooLarge: isTooLarge,
       /** 页面能不能跟云端说话。'unknown' 表示还没问过。 */
       configuration: function () { return configuration; },
-      available: function () { return Boolean(origin()) && configuration !== ABSENT; },
+      available: function () { return (Boolean(NATIVE) || Boolean(origin())) && configuration !== ABSENT; },
+      /** 是否经由 macOS App 的原生传输。页面据此调整少量文案（例如邮箱验证要去浏览器里点）。 */
+      native: Boolean(NATIVE),
       session: session,
       subscribe: function (fn) {
          listeners.push(fn);
@@ -270,5 +333,8 @@
       logout: logout
    };
 
-   if (!origin()) setConfiguration(ABSENT);
+   /* 没有可用的来源就直接判成「无云端」，省掉一次注定失败的探测。App 里页面来源是
+      seedtocode://，origin() 为空，但云端走原生传输——这一句漏掉 NATIVE 的话，App 每次载入
+      都会被判成无云端：账户面板照样显示已登录（那是 AuthStore 里缓存的身份），同步引擎却从不启动。 */
+   if (!NATIVE && !origin()) setConfiguration(ABSENT);
 })();
