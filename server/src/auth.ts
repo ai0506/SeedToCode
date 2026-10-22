@@ -639,3 +639,149 @@ function constantTimeEqual(left: string, right: string): boolean {
   for (let index = 0; index < left.length; index += 1) difference |= left.charCodeAt(index) ^ right.charCodeAt(index);
   return difference === 0;
 }
+
+/* ---------------- cookie 诊断 ---------------- */
+
+/*
+ * 「这台设备到底存不存我们的 cookie」这件事，从服务端看是唯一能取到真数的地方。
+ *
+ * 起因：iPad 上的 Chrome 登录成功、顶栏闪一下名字就退回「登录」，而同一台 iPad
+ * 的 Safari 一切正常——同一个 WebKit 引擎、同一份响应头，差别只在 app 各自的
+ * cookie 存储。iPad 上没有开发者工具，只能让接口自己把收到的东西说出来。
+ *
+ * 下发两个探针 cookie：一个普通的、一个 HttpOnly，其余属性和会话 cookie 完全一致。
+ * 连着访问两次就能分档：两个都回来 = 这个浏览器存得下我们的 cookie，问题在别处；
+ * 只有普通的回来 = 它在丢 HttpOnly；一个都不回来 = 这个 app 根本不给这个站存。
+ *
+ * 只回报 cookie 的**名字**，不回报值，也不需要登录——它看不到任何身份信息。
+ */
+const PROBE_PLAIN = "seedtocode_probe";
+const PROBE_HTTPONLY = "seedtocode_probe_ho";
+const PROBE_LONG = "seedtocode_probe_long";
+const PROBE_XHR = "seedtocode_probe_xhr";
+const PROBE_TTL_SECONDS = 600;
+/* 会话 cookie 是 30 天。有效期本身也可能是被丢的原因（WebKit 会削长效 cookie），
+   所以拿一个除了有效期以外和会话完全一样的探针把这个变量单独隔出来。 */
+const PROBE_LONG_TTL_SECONDS = 30 * 24 * 60 * 60;
+
+/** 请求里带了哪些 cookie 名。只要名字：值里可能有会话 token。 */
+export function cookieNames(header: string | null): string[] {
+  if (!header) return [];
+  return header
+    .split(";")
+    .map((item) => item.trim().split("=")[0])
+    .filter((name) => name.length > 0);
+}
+
+/** 两个探针的 Set-Cookie 头，属性和会话 cookie 对齐，只是不含任何身份信息。 */
+export function probeCookieHeaders(env: Env): string[] {
+  const stamp = String(Date.now());
+  const attributes = (ttl: number) => {
+    const list = ["Path=/", "SameSite=Lax", `Max-Age=${ttl}`];
+    if (env.ENVIRONMENT === "production") list.push("Secure");
+    return list;
+  };
+  return [
+    [`${PROBE_PLAIN}=${stamp}`, ...attributes(PROBE_TTL_SECONDS)].join("; "),
+    [`${PROBE_HTTPONLY}=${stamp}`, ...attributes(PROBE_TTL_SECONDS), "HttpOnly"].join("; "),
+    [`${PROBE_LONG}=${stamp}`, ...attributes(PROBE_LONG_TTL_SECONDS), "HttpOnly"].join("; ")
+  ];
+}
+
+/*
+ * 第三个变量：**由页面里的 fetch POST 下发**的 cookie。
+ *
+ * 会话 cookie 和上面那几个探针只差这一条路径——登录是 `fetch` 拿回来的，
+ * 探针是顶层导航拿回来的。属性这里跟会话一字不差（HttpOnly、30 天、Secure、Lax），
+ * 所以如果它回不来而 PROBE_LONG 回得来，差别就只剩「谁下发的」这一条。
+ */
+export function xhrProbeCookieHeader(env: Env): { header: string; stamp: string } {
+  const stamp = String(Date.now());
+  const list = [`${PROBE_XHR}=${stamp}`, "Path=/", "SameSite=Lax", `Max-Age=${PROBE_LONG_TTL_SECONDS}`];
+  if (env.ENVIRONMENT === "production") list.push("Secure");
+  list.push("HttpOnly");
+  return { header: list.join("; "), stamp };
+}
+
+/** 探针的当前可见情况，给诊断页按结构读。 */
+export function probeState(request: Request) {
+  const header = request.headers.get("cookie");
+  const names = cookieNames(header);
+  const has = (name: string) => names.indexOf(name) >= 0;
+  return {
+    session: has("seedtocode_session"),
+    plain: has(PROBE_PLAIN),
+    httpOnly: has(PROBE_HTTPONLY),
+    long: has(PROBE_LONG),
+    xhr: has(PROBE_XHR),
+    /* 只回这一个探针的值，而且它只是个时间戳：诊断页要判断「回来的是不是我刚
+       下发的那一个」，光看在不在会把上一轮留下的旧 cookie 当成这一轮成功了。 */
+    xhrStamp: cookieValue(header, PROBE_XHR)
+  };
+}
+
+/*
+ * 给人在手机屏幕上读的一段话，不是给程序解析的。
+ *
+ * `round` 是这段话能不能下结论的关键：第一次访问本来就该是「一个都没有」，
+ * 和「这个浏览器根本不存 cookie」在屏幕上长得完全一样。所以第一次只发链接不下
+ * 结论，第二次才判——而那个带 `?round=2` 的链接只能从第一次的页面上点到，
+ * 点得到就说明第一次确实在这个浏览器里发生过、cookie 也确实下发过了。
+ */
+export function describeCookieCheck(request: Request): string {
+  const url = new URL(request.url);
+  const second = url.searchParams.get("round") === "2";
+  const names = cookieNames(request.headers.get("cookie"));
+  const has = (name: string) => names.indexOf(name) >= 0;
+  const yes = (on: boolean) => (on ? "是" : "否");
+  const gotProbes = has(PROBE_PLAIN) || has(PROBE_HTTPONLY);
+
+  const lines = [
+    "SeedToCode cookie 探针",
+    "",
+    second ? "第 2 次访问" : "第 1 次访问",
+    "",
+    "这一次请求带上来的 cookie：" + (names.length ? names.join("、") : "（一个都没有）"),
+    "",
+    "  会话 cookie（seedtocode_session）：" + yes(has("seedtocode_session")),
+    "  普通探针（seedtocode_probe）：" + yes(has(PROBE_PLAIN)),
+    "  HttpOnly 探针（seedtocode_probe_ho）：" + yes(has(PROBE_HTTPONLY)),
+    "  30 天 HttpOnly 探针（seedtocode_probe_long）：" + yes(has(PROBE_LONG)),
+    "  fetch 下发的探针（seedtocode_probe_xhr）：" + yes(has(PROBE_XHR)),
+    ""
+  ];
+
+  if (!second) {
+    lines.push(
+      "刚刚给你下发了一对探针 cookie，有效期 10 分钟。",
+      "第 1 次是「否」很正常，不说明任何问题。",
+      "",
+      "请打开下面这个地址看第 2 次（在同一个浏览器里）：",
+      url.origin + "/auth/cookie-check?round=2"
+    );
+    return lines.join("\n");
+  }
+
+  if (!gotProbes) {
+    lines.push(
+      "结论：这个浏览器没有把刚下发的 cookie 存下来。",
+      "两个探针一个都没回来，所以登录会话也留不住——登录成功之后",
+      "下一次请求就又是未登录了。这通常是这个浏览器自己的隐私设置，",
+      "而不是网站的问题（同一台设备上别的浏览器能正常登录就能佐证）。"
+    );
+  } else if (!has(PROBE_HTTPONLY)) {
+    lines.push(
+      "结论：普通 cookie 存住了，HttpOnly 的没有。",
+      "会话 cookie 正是 HttpOnly，所以登录留不住。"
+    );
+  } else if (!has(PROBE_PLAIN)) {
+    lines.push("结论：HttpOnly 存住了、普通的没有。这个组合很少见，把这一页发给我。");
+  } else {
+    lines.push(
+      "结论：这个浏览器存得下本站的 cookie（两个探针都回来了）。",
+      "如果你刚登录过而上面的会话一行仍是「否」，那问题出在登录那一次响应上，",
+      "不是存储本身——把这一页发给我。"
+    );
+  }
+  return lines.join("\n");
+}

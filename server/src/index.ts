@@ -5,6 +5,10 @@ import {
   expiredCookieHeader,
   loginStudent,
   logout,
+  describeCookieCheck,
+  probeCookieHeaders,
+  probeState,
+  xhrProbeCookieHeader,
   publicUser,
   startEmailRegistration,
   loginEmail,
@@ -58,9 +62,11 @@ export type Role = "teacher" | "student" | "learner";
 
 type RequestContext = { requestId: string };
 
+/* content-type 必须写明 charset：不写的话浏览器直接打开这些接口（排查时常做的事）
+   会按本地编码解，中文全是乱码。页面里的 fetch 不受影响，但排查的人受影响。 */
 const json = (body: unknown, status = 200, headers: HeadersInit = {}) => Response.json(body, {
   status,
-  headers: { "cache-control": "no-store", ...headers }
+  headers: { "cache-control": "no-store", "content-type": "application/json; charset=utf-8", ...headers }
 });
 
 const error = (code: string, message: string, status: number, context: RequestContext) =>
@@ -77,6 +83,31 @@ export default {
 
     if (request.method === "OPTIONS") return new Response(null, { status: 204 });
     if (url.pathname === "/health" && request.method === "GET") return json({ ok: true, service: "seedtocode-api", requestId: context.requestId });
+
+    /* cookie 探针。不碰 DB、不需要登录、不回报任何身份信息，所以放在 DB 检查之前：
+       排查「这台设备存不存 cookie」时，DB 好不好是无关变量。 */
+    if (url.pathname === "/auth/cookie-check" && request.method === "GET") {
+      const headers = new Headers({
+        "cache-control": "no-store",
+        "content-type": "text/plain; charset=utf-8"
+      });
+      probeCookieHeaders(env).forEach((cookie) => headers.append("set-cookie", cookie));
+      return new Response(describeCookieCheck(request), { status: 200, headers });
+    }
+
+    /* 诊断页按结构读的同一份数据。和上面那一段共用 probeState，
+       两处说的必须是同一件事，不能各算各的。 */
+    if (url.pathname === "/auth/cookie-check/state" && request.method === "GET") {
+      return json({ probes: probeState(request), requestId: context.requestId });
+    }
+
+    /* 精确复刻登录那一次：页面里的 fetch POST，响应里带一个属性和会话 cookie
+       一字不差的 HttpOnly cookie。它回不回得来，决定了「登录成功却留不住会话」
+       到底是不是「fetch 下发 + 立刻整页跳转」这条路径的问题。 */
+    if (url.pathname === "/auth/cookie-check/xhr" && request.method === "POST") {
+      const probe = xhrProbeCookieHeader(env);
+      return json({ ok: true, stamp: probe.stamp, requestId: context.requestId }, 200, { "set-cookie": probe.header });
+    }
 
     const moved = movedPage(url.pathname);
     if (moved) return redirect(moved + url.search);

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>会话诊断 · SeedToCode</title>
+<!--
+   会话诊断页。不是给学生用的功能页，是排查「登录成功却留不住会话」时的量具。
+
+   为什么单独一页、还内联样式和脚本：它要在别人的手机上、在开发者工具够不到的地方
+   跑，越少外部依赖越好；也不想为它去动 styles.css 那一串共用缓存版本号。
+
+   它测的是登录那一串动作里唯一没被探针覆盖的一环——**cookie 由页面里的 fetch POST
+   下发，紧接着整页跳走**。iOS 上的 Chrome 是 WKWebView，fetch 响应里的 cookie 写进
+   共享存储是异步的；同一时刻跳走就可能来不及落盘。两个按钮的差别只有「跳之前等不等
+   一次往返」，除此之外一模一样，所以结果能归因。
+-->
+<style>
+   :root { color-scheme: light dark; --line: rgba(128,128,128,.35); }
+   body {
+      margin: 0; padding: 24px 16px 48px;
+      font: 15px/1.7 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      max-width: 620px; margin-inline: auto;
+   }
+   h1 { font-size: 20px; margin: 0 0 4px; }
+   p.lead { margin: 0 0 20px; opacity: .7; }
+   table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+   th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); }
+   th { font-weight: normal; opacity: .7; }
+   /* 「是 / 否」定宽：两个字宽度不同，不定宽的话刷新时整列会横跳 */
+   td.flag { width: 3.5em; font-variant-numeric: tabular-nums; }
+   .yes { color: #1a7f37; } .no { color: #b3261e; }
+   button {
+      display: block; width: 100%; padding: 12px; margin-bottom: 10px;
+      font: inherit; border: 1px solid var(--line); border-radius: 10px;
+      background: rgba(128,128,128,.08); cursor: pointer;
+   }
+   button:disabled { opacity: .5; }
+   /* 常驻槽位：结论行没有内容时也占着高度，出现时不把下面的东西顶走 */
+   #verdict { min-height: 5.5em; padding: 12px; border: 1px solid var(--line); border-radius: 10px; white-space: pre-wrap; }
+   #verdict:empty::before { content: "还没有跑过对照。"; opacity: .5; }
+</style>
+</head>
+<body>
+<h1>会话诊断</h1>
+<p class="lead">排查「登录成功却显示未登录」用的。这一页不需要登录，也不显示任何身份信息。</p>
+
+<table>
+   <tr><th>这台设备现在带着的</th><th>在不在</th></tr>
+   <tr><td>会话 cookie</td><td class="flag" data-flag="session"></td></tr>
+   <tr><td>普通探针</td><td class="flag" data-flag="plain"></td></tr>
+   <tr><td>HttpOnly 探针</td><td class="flag" data-flag="httpOnly"></td></tr>
+   <tr><td>30 天 HttpOnly 探针</td><td class="flag" data-flag="long"></td></tr>
+   <tr><td>fetch 下发的探针</td><td class="flag" data-flag="xhr"></td></tr>
+</table>
+
+<button id="runNow" type="button">A · 立刻跳转（和现在的登录一模一样）</button>
+<button id="runVerified" type="button">B · 先核对一次再跳转</button>
+<div id="verdict"></div>
+
+<script>
+(function () {
+   "use strict";
+
+   var KEY = "seedtocode.cookieProbe";
+
+   function $(id) { return document.getElementById(id); }
+
+   function state() {
+      return fetch("/auth/cookie-check/state", { credentials: "include", headers: { accept: "application/json" } })
+         .then(function (response) { return response.json(); });
+   }
+
+   function paint(probes) {
+      Array.prototype.forEach.call(document.querySelectorAll("[data-flag]"), function (cell) {
+         var on = Boolean(probes[cell.dataset.flag]);
+         cell.textContent = on ? "是" : "否";
+         cell.className = "flag " + (on ? "yes" : "no");
+      });
+   }
+
+   function say(text) { $("verdict").textContent = text; }
+
+   /*
+    * A 和 B 的唯一差别：跳转前等不等一次往返。
+    * A 复刻现在的登录（fetch 一 resolve 就 location 跳走），
+    * B 是拟议的修法（先回头核对一次，确认服务端认得这份 cookie 再跳）。
+    */
+   function run(mode) {
+      $("runNow").disabled = true;
+      $("runVerified").disabled = true;
+      say("正在跑…");
+      fetch("/auth/cookie-check/xhr", { method: "POST", credentials: "include", headers: { accept: "application/json" } })
+         .then(function (response) { return response.json(); })
+         .then(function (data) {
+            // 跳转前记下「我刚下发的是哪一个」：只看探针在不在，会把上一轮留下的旧
+            // cookie 当成这一轮成功了。存在 sessionStorage，和 cookie 是两套存储。
+            try { sessionStorage.setItem(KEY, JSON.stringify({ mode: mode, stamp: data.stamp })); } catch (e) { /* 无痕模式下拿不到也不致命 */ }
+            var back = window.location.pathname + "?after=" + mode;
+            if (mode === "now") { window.location.replace(back); return; }
+            return state().then(function () { window.location.replace(back); });
+         })
+         .catch(function () {
+            say("请求没发出去，检查一下网络再试。");
+            $("runNow").disabled = false;
+            $("runVerified").disabled = false;
+         });
+   }
+
+   function report(probes) {
+      var expected = null;
+      try { expected = JSON.parse(sessionStorage.getItem(KEY) || "null"); } catch (e) { expected = null; }
+      var mode = new URLSearchParams(window.location.search).get("after");
+      if (!mode) return;
+      var label = mode === "now" ? "A（立刻跳转）" : "B（先核对再跳）";
+      if (!expected || expected.mode !== mode) {
+         say("跑的是 " + label + "，但这一页没记住刚下发的那一个，结果不作数。请再点一次。");
+         return;
+      }
+      if (probes.xhrStamp === expected.stamp) {
+         say("跑的是 " + label + "：cookie 活下来了。\n" +
+             "服务端在跳转之后仍然收到了刚下发的那一个。");
+      } else if (probes.xhr) {
+         say("跑的是 " + label + "：没活下来。\n" +
+             "回来的是上一轮留下的旧探针，不是这一次下发的那个。");
+      } else {
+         say("跑的是 " + label + "：没活下来。\n" +
+             "fetch 下发的 cookie 在整页跳转之后就不见了。");
+      }
+   }
+
+   state().then(function (data) {
+      paint(data.probes);
+      report(data.probes);
+   }).catch(function () {
+      say("取不到诊断数据，这个地址前面可能没有接上服务端。");
+   });
+
+   $("runNow").addEventListener("click", function () { run("now"); });
+   $("runVerified").addEventListener("click", function () { run("verified"); });
+})();
+</script>
+</body>
+</html>
