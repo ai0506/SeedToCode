@@ -1,0 +1,85 @@
+/* 隐私政策页。
+ * 一页长文，读的人要能一路往下读、也要能跳到某一节：正文限宽成阅读栏，
+ * 目录是普通锚点。顶栏和页脚与登录页同一套形状。
+ * 表格在窄屏自己横向滚，body 不横向滚（FRONTEND_RULES 1.4）。 */
+
+/* styles.css 为编辑器这类整屏应用把 body 设成 height: 100% + overflow: hidden。这一页是长文，
+   照那样的话 body 成了一个不会滚的滚动容器，吸顶的顶栏只相对它吸附，跟着页面滚走了。
+   这里放回普通的文档滚动。 */
+.pp-body {
+   height: auto; overflow: visible;
+   min-height: 100vh; display: flex; flex-direction: column;
+   background: var(--bg); color: var(--text); font-family: var(--font-ui); font-size: 14px;
+}
+
+.pp-top {
+   display: flex; align-items: center; gap: 12px; height: var(--topbar-h); flex: 0 0 var(--topbar-h);
+   padding: 0 14px; background: var(--bg-panel); border-bottom: 1px solid var(--border);
+   position: sticky; top: 0; z-index: 10;
+}
+.pp-top .spacer { flex: 1; }
+.pp-brand { text-decoration: none; color: inherit; }
+
+.pp-main { flex: 1; display: flex; justify-content: center; padding: 32px 16px 48px; }
+.pp-doc { width: 100%; max-width: 720px; line-height: 1.75; }
+
+.pp-doc h1 { margin: 0 0 6px; font-size: 24px; font-weight: 600; }
+.pp-doc h2 { margin: 36px 0 10px; font-size: 17px; font-weight: 600; }
+.pp-doc p { margin: 0 0 10px; }
+.pp-doc ul, .pp-doc ol { margin: 0 0 10px; padding-left: 1.4em; }
+.pp-doc li { margin-bottom: 4px; }
+.pp-doc code { font-family: var(--font-mono); font-size: 12.5px; padding: 1px 4px; border-radius: 3px; background: var(--bg-sunken); }
+.pp-doc a { color: var(--accent); }
+
+/* 跳到某一节时别被吸顶的顶栏盖住标题 */
+.pp-doc section { scroll-margin-top: calc(var(--topbar-h) + 12px); }
+
+.pp-meta { display: flex; gap: 8px; color: var(--text-dim); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.pp-meta .dot { opacity: .5; }
+
+.pp-summary {
+   margin: 20px 0; padding: 14px 18px; border-radius: 8px;
+   background: var(--bg-panel); border: 1px solid var(--border);
+}
+.pp-summary ul { margin: 0; }
+
+.pp-toc { margin: 0 0 8px; padding: 12px 18px; border-radius: 8px; background: var(--bg-sunken); }
+.pp-toc ol { margin: 0; columns: 2; column-gap: 28px; }
+.pp-toc li { break-inside: avoid; }
+.pp-toc a { text-decoration: none; }
+.pp-toc a:hover { text-decoration: underline; }
+
+.pp-table-wrap { overflow-x: auto; margin: 0 0 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-panel); }
+.pp-table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 13px; line-height: 1.65; }
+.pp-table th, .pp-table td { padding: 9px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+.pp-table tr:last-child td { border-bottom: 0; }
+.pp-table th { font-weight: 600; color: var(--text-dim); background: var(--bg-sunken); }
+.pp-table td:first-child { white-space: nowrap; font-weight: 600; }
+.pp-table td:last-child { white-space: nowrap; color: var(--text-dim); }
+
+.pp-contact { font-size: 15px; font-family: var(--font-mono); }
+
+.pp-foot {
+   display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;
+   padding: 0 16px 24px; color: var(--text-faint); font-size: 11px; text-align: center;
+}
+.pp-foot .dot { opacity: .5; }
+
+@media (max-width: 600px) {
+   .pp-main { padding: 20px 16px 40px; }
+   .pp-toc ol { columns: 1; }
+   .pp-top .brand-block { display: none; }
+
+   /* 三列表在手机上要么左右滑、要么中间那列挤成一指宽，都读不下去。
+      改成每行一块：名称作标题，说明在下，「谁会有」一行小字。表头这时没有意义，藏掉。 */
+   .pp-table-wrap { overflow-x: visible; }
+   .pp-table { min-width: 0; }
+   .pp-table thead { display: none; }
+   .pp-table, .pp-table tbody, .pp-table tr, .pp-table td { display: block; }
+   .pp-table tr { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+   .pp-table tr:last-child { border-bottom: 0; }
+   .pp-table td { padding: 0; border-bottom: 0; white-space: normal; }
+   .pp-table td:first-child { margin-bottom: 2px; }
+   .pp-table td:last-child { margin-top: 4px; font-size: 12px; }
+   .pp-table td:last-child::before { content: "谁会有："; }
+}

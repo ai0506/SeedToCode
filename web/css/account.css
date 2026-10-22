@@ -42,6 +42,9 @@
 .account-note:not(:empty) { margin-top: 8px; }
 .account-note { min-height: 1.5em; font-size: 11.5px; line-height: 1.5; color: var(--text-dim); }
 .account-note[data-state="error"] { color: var(--danger); }
+.account-legal { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--border); font-size: 11.5px; }
+.account-legal a { color: var(--text-dim); }
+.account-legal a:hover { color: var(--accent); }
 .account-note[data-state="ok"] { color: var(--accent); }
 .account-identity { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .account-meta { font-size: 11.5px; color: var(--text-dim); }

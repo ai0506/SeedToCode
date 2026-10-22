@@ -212,9 +212,11 @@
 
    function renderPanel() {
       if (!panel) return;
-      if (!CLIENT.available()) panel.innerHTML = renderUnconfigured();
-      else if (AUTH.isSignedIn()) panel.innerHTML = renderSignedIn();
-      else panel.innerHTML = renderSignedOut();
+      /* 隐私政策在三种状态下都要找得到：登录之前最需要知道「登录以后会存什么」。 */
+      var legal = '<p class="account-legal"><a href="privacy.html">隐私政策</a></p>';
+      if (!CLIENT.available()) panel.innerHTML = renderUnconfigured() + legal;
+      else if (AUTH.isSignedIn()) panel.innerHTML = renderSignedIn() + legal;
+      else panel.innerHTML = renderSignedOut() + legal;
       refreshStatusLine();
    }
 

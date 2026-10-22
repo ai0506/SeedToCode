@@ -45,6 +45,7 @@ node scripts/dev-proxy.mjs
 | `js/teaching-task.js` | 两个教学页共用的题目实现：题面、作答区、判题、进度、草稿。作答框的输入约定走 `code-input.js` |
 | `custom-task.html` + `js/custom-task-page.js` + `css/custom-task.css` | 老师自出题的做题页：题面、提示、编辑器、运行、提交，不判分。顶栏中间是作业名和截止信息，放不下时先截作业名；≤600px 时截止信息挪到题目栏头部（`#ctDueInline`），因为它页面别处没有。左栏顶上一条题目切换条（未交 / 已改 / 已交 / 已批），同一份作业里的几道题就地换；作答框用共用的 `code-input.js`；「提交」是唯一的主按钮，内容和上次交的逐字节相同时它不可用（`aria-disabled`，悬浮说明为什么），避免堆出一串相同版本 |
 | `assignments.html` + `js/assignments-page.js` + `css/assignments.css` | 学生的作业页：每道题的状态、老师给的分与评语。列表先按「每道题都交了」分两段，没交齐的在上面 |
+| `privacy.html` + `css/privacy.css` | 隐私政策，纯静态、无脚本、不引外部资源。版本号在 `<meta name="seedtocode-privacy-version">`，只在实质内容变化时提；`tests/privacy-policy.test.ts` 把页面上的时长、cookie 名绑在 `server/src/auth.ts` 的常量上，并要求每张数据库表都在第 2 节有着落。入口：登录页页脚、账户浮层底部 |
 | `login.html` + `js/login-page.js` + `css/login.css` | 独立登录页：先问登录还是注册，再选身份（学生 / 老师 / 个人学习者），最后才是对应的表单；三步共用一个高度受控容器，换屏做一次短过渡 |
 | `classes.html` + `js/teacher-app.js` + `css/teacher.css` | 老师面板：班级、学生与激活码、教学进度矩阵、章末大题提交记录、作业列表（按待批与否分段排序）与作业详情（左栏题面、右栏提交矩阵，每一格通向 `grade.html`） |
 | `js/assignment-core.js` | `packages/assignment` 的浏览器打包（全局 `CAIEAssignment`）：日期与月格、草稿快照、提交前校验、迟交判定、提交汇总。出题页和老师面板都用这一份，不留副本——副本会和被测的那份悄悄分叉 |

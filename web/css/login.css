@@ -164,6 +164,8 @@
    padding: 0 16px 24px; color: var(--text-faint); font-size: 11px; text-align: center;
 }
 .login-foot .dot { opacity: .5; }
+.login-foot a { color: inherit; }
+.login-foot a:hover { color: var(--accent); }
 
 @media (max-width: 480px) {
    .login-main { padding: 20px 12px 40px; }

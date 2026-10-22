@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+   版本号是「要不要请人重新同意」的依据，不是装饰：以后学习助理的同意记录按这个号存在
+   服务端，号一变就要重新确认。所以只在**实质内容**变化时提（多收了一样东西、多了一个
+   去处、用途变了），改错别字不提。改了就同步页面上的「版本 N」和生效日期，
+   tests/privacy-policy.test.ts 会核对三处一致。
+-->
+<meta name="seedtocode-privacy-version" content="1">
+<link rel="icon" type="image/png" href="SeedToCode_favicon.png">
+<title>隐私政策 · SeedToCode</title>
+<link rel="stylesheet" href="css/styles.css?v=35">
+<link rel="stylesheet" href="css/privacy.css?v=4">
+</head>
+<body class="pp-body">
+
+<!--
+   隐私政策页。
+
+   这一页的每一句都是对使用者的断言，所以只写代码里**此刻真的成立**的事：
+   收什么、存在哪、谁看得到、保留多久，都是从 server/src 和 migrations 里核出来的，
+   不照抄计划文档。计划里还没做的（学习助理、自助注销）写成「目前没有」，不写成承诺。
+   tests/privacy-policy.test.ts 把这里的时长和 cookie 名绑在服务端常量上，
+   并要求数据库里每一张表都在这里有着落——加表而不改这一页，测试会红。
+
+   不引用任何外部资源（字体、统计、CDN），页面本身不给第三方发请求。
+-->
+
+<header class="pp-top">
+   <a class="brand-lockup pp-brand" href="lab.html">
+      <img class="brand-logo" src="SeedToCode_favicon.png" alt="SeedToCode" width="26" height="26">
+      <span class="brand-block">
+         <span class="brand">SeedToCode</span>
+         <span class="brand-tag">Based on CAIE 9618</span>
+      </span>
+   </a>
+   <span class="spacer"></span>
+   <a class="btn btn-ghost fixed-btn wide" href="lab.html">回到实验室</a>
+</header>
+
+<main class="pp-main">
+<article class="pp-doc">
+
+   <h1>隐私政策</h1>
+   <p class="pp-meta"><span data-pp-version>版本 1</span><span class="dot">·</span><span data-pp-effective>生效日期 2026 年 10 月 22 日</span></p>
+
+   <section class="pp-summary" aria-label="一句话概括">
+      <ul>
+         <li><strong>不登录时，你写的东西只在你自己的浏览器里</strong>，我们收不到。</li>
+         <li>登录后，你的项目、学习进度和作业提交会存到我们的服务器上，用来在不同设备间同步、让老师看到作业。</li>
+         <li>不卖数据，不放广告，不接任何第三方统计或追踪。</li>
+         <li>目前<strong>没有接入任何 AI 服务</strong>，你的内容不会发给任何 AI 提供方。</li>
+      </ul>
+   </section>
+
+   <nav class="pp-toc" aria-label="目录">
+      <ol>
+         <li><a href="#local">不登录时</a></li>
+         <li><a href="#account">登录后我们保存什么</a></li>
+         <li><a href="#purpose">用来做什么</a></li>
+         <li><a href="#visibility">谁能看到</a></li>
+         <li><a href="#processors">经手的第三方与存放地点</a></li>
+         <li><a href="#cookies">Cookie 与浏览器本地存储</a></li>
+         <li><a href="#retention">保存多久</a></li>
+         <li><a href="#minors">未成年人</a></li>
+         <li><a href="#rights">你可以做什么</a></li>
+         <li><a href="#ai">关于 AI 学习助理</a></li>
+         <li><a href="#changes">本政策的变更</a></li>
+         <li><a href="#contact">联系我们</a></li>
+      </ol>
+   </nav>
+
+   <section id="local">
+      <h2>1. 不登录时</h2>
+      <p>不登录也能完整使用编辑器、课程、做题和本地运行。这时你的代码文件、运行时用的数据文件、学习进度、练习草稿和设置，都保存在<strong>你这台设备的浏览器里</strong>（localStorage 和 IndexedDB），不会上传。</p>
+      <p>浏览器里还会生成一个随机的设备编号，用来区分同一个账号在不同设备上的修改。它是随机生成的，不来自你的硬件或任何设备指纹。</p>
+      <p>清除这个网站的浏览器数据，或者换一个浏览器，这些内容就没有了；我们这边没有备份。</p>
+   </section>
+
+   <section id="account">
+      <h2>2. 登录后我们保存什么</h2>
+      <p>账号分三种：<strong>学生</strong>（老师创建，或用班级码自己加入）、<strong>老师</strong>和<strong>个人学习者</strong>（用邮箱注册）。</p>
+      <div class="pp-table-wrap">
+         <table class="pp-table">
+            <thead><tr><th scope="col">内容</th><th scope="col">具体是什么</th><th scope="col">谁会有</th></tr></thead>
+            <tbody>
+               <tr data-pp-covers="users email_aliases">
+                  <td>账号</td>
+                  <td>邮箱（老师、个人学习者）或用户名（学生）；账号类型；密码——<strong>只存加盐后的哈希，不存明文</strong>。为了防止同一个邮箱靠「+」后缀反复注册，我们会另存一份去掉后缀的邮箱。</td>
+                  <td>所有登录用户</td>
+               </tr>
+               <tr data-pp-covers="classes class_members">
+                  <td>班级</td>
+                  <td>班级名、班级码、是否锁定加入；学生在班里显示的名字（由老师填写，或学生用班级码加入时自己填写，<strong>不要求是真实姓名</strong>）。</td>
+                  <td>老师、学生</td>
+               </tr>
+               <tr data-pp-covers="projects project_files sync_operations">
+                  <td>你的项目和文件</td>
+                  <td>项目名、文件名、文件内容、修改时间，以及做这次修改的设备编号；为了同步不重复执行，还记录每次同步操作的编号。</td>
+                  <td>所有登录用户</td>
+               </tr>
+               <tr data-pp-covers="teaching_progress teaching_positions">
+                  <td>学习进度</td>
+                  <td>哪些小节已完成，上次读到哪一节。页面滚动到的位置不上传。</td>
+                  <td>所有登录用户</td>
+               </tr>
+               <tr data-pp-covers="practice_drafts practice_submissions">
+                  <td>练习草稿与章末大题提交</td>
+                  <td>你写的代码、判分结果、提交时间和设备编号。分数由服务器重新判出，不采信浏览器上报的分数。</td>
+                  <td>所有登录用户</td>
+               </tr>
+               <tr data-pp-covers="assignments assignment_items assignment_submissions">
+                  <td>作业</td>
+                  <td>老师布置的作业和题目；学生提交的代码、自动判分结果，以及老师给的分数和评语。</td>
+                  <td>老师、学生</td>
+               </tr>
+               <tr data-pp-covers="run_quota_ledger service_rate_limits">
+                  <td>云端运行与用量</td>
+                  <td>在云端运行时，代码和输入会发到服务器执行；<strong>执行完不保存代码、输入和输出</strong>，只记一条「什么时候运行过一次」，用于每小时次数限制。同步和提交也各有一条次数计数。</td>
+                  <td>所有登录用户</td>
+               </tr>
+               <tr data-pp-covers="auth_tokens sessions">
+                  <td>登录凭证</td>
+                  <td>登录会话、邮箱验证链接、学生激活码。这三样都<strong>只存哈希</strong>，数据库里拿不到原值。</td>
+                  <td>所有登录用户</td>
+               </tr>
+               <tr data-pp-covers="auth_rate_limits">
+                  <td>安全记录</td>
+                  <td>登录、注册、激活的尝试次数，按邮箱、用户名或来源 IP 计数；用邮箱注册时，另记一份注册来源 IP。IP 只以哈希形式保存。<strong>注意：IP 的哈希并不等于匿名</strong>，它仍然可能被还原，所以我们只把它用于限制尝试频率。</td>
+                  <td>尝试登录或注册的人</td>
+               </tr>
+            </tbody>
+         </table>
+      </div>
+      <p>我们<strong>不收集</strong>你的年龄、性别、电话、住址、学校名称或位置；不读取你的通讯录或相册；剪贴板只在你自己粘贴时读到粘贴的那段内容，不会主动读取。</p>
+   </section>
+
+   <section id="purpose">
+      <h2>3. 用来做什么</h2>
+      <ul>
+         <li>让你在不同设备上看到同一份项目和进度；</li>
+         <li>让老师布置作业、查看提交并给出分数和评语；</li>
+         <li>判分；</li>
+         <li>防止暴力破解、批量注册和滥用（上面的次数限制）；</li>
+         <li>排查故障。</li>
+      </ul>
+      <p>不用于广告、用户画像或出售，也不用于训练任何 AI 模型。</p>
+   </section>
+
+   <section id="visibility">
+      <h2>4. 谁能看到</h2>
+      <ul>
+         <li><strong>你自己</strong>：你的全部内容。</li>
+         <li><strong>你所在班级的老师</strong>（只对学生）：你在这个班里的显示名和用户名、学习进度、章末大题提交和作业提交，以及老师自己给的分数和评语。老师<strong>看不到</strong>你的个人项目和文件。</li>
+         <li><strong>其他学生</strong>：看不到你的任何内容。</li>
+         <li><strong>运营者</strong>：为了维护服务、排查故障，运营者可以访问服务器上的数据库。我们只在维护需要时这样做。</li>
+      </ul>
+   </section>
+
+   <section id="processors">
+      <h2>5. 经手的第三方与存放地点</h2>
+      <ul>
+         <li><strong>Cloudflare</strong>：托管网页、服务器程序和数据库。处理每一次请求时会接触到你的 IP 地址等网络信息。我们开启了 Cloudflare 的运行日志，用来排查故障。</li>
+         <li><strong>Resend</strong>（美国的邮件发送服务）：只在老师和个人学习者<strong>用邮箱注册</strong>时使用，用来发送验证邮件；它会处理你的邮箱地址。学生账号不经过它。</li>
+      </ul>
+      <p>服务器和数据库由 Cloudflare 提供，<strong>位于中国大陆以外</strong>。这意味着登录后保存的数据会被传输到境外存储和处理。</p>
+      <p>除此之外没有别的第三方：页面不加载外部字体、统计脚本或广告。</p>
+   </section>
+
+   <section id="cookies">
+      <h2>6. Cookie 与浏览器本地存储</h2>
+      <ul>
+         <li><code>seedtocode_session</code>：登录状态。网页脚本读不到它（HttpOnly），<span data-pp-session-days>30</span> 天后失效，退出登录时立即作废。不登录就不会有。</li>
+         <li><code>seedtocode_probe</code> 等几个以 <code>seedtocode_probe</code> 开头的 cookie：<strong>只有你打开会话诊断页时才会出现</strong>，用来检查浏览器能不能保存登录状态，不含任何身份信息。</li>
+         <li>localStorage 和 IndexedDB：保存上面第 1 节说的本地内容和设置。</li>
+      </ul>
+      <p>没有任何用于追踪或广告的 cookie。</p>
+   </section>
+
+   <section id="retention">
+      <h2>7. 保存多久</h2>
+      <ul>
+         <li>账号里的内容：账号存在期间一直保存。</li>
+         <li>删除的文件和项目：<strong>内容立即清空</strong>；只留下「这个文件已删除」的记录，好让你的其他设备也把它删掉。</li>
+         <li>登录会话：<span data-pp-session-days>30</span> 天，或者到你退出登录为止。</li>
+         <li>邮箱验证链接：<span data-pp-email-minutes>15</span> 分钟；学生激活码：<span data-pp-activation-days>7</span> 天。</li>
+         <li>次数限制记录：同一个邮箱、用户名或 IP 哈希只保留一条最近的计数，新的计数覆盖旧的。</li>
+      </ul>
+   </section>
+
+   <section id="minors">
+      <h2>8. 未成年人</h2>
+      <p>这个产品的主要使用者是学生，其中很多是未成年人。为此：</p>
+      <ul>
+         <li>学生账号不需要邮箱，由老师创建或用老师给的班级码加入；</li>
+         <li>我们不要求、也不收集年龄和真实姓名，班级里的显示名可以不用真名；</li>
+         <li>不登录也能完整使用编辑器和课程，内容只留在本机。</li>
+      </ul>
+      <p>如果你未满 14 周岁，请在父母或其他监护人同意后再登录使用云端功能。老师在为学生创建账号或发出班级码之前，应当确认已按学校的要求取得同意。</p>
+   </section>
+
+   <section id="rights">
+      <h2>9. 你可以做什么</h2>
+      <ul>
+         <li><strong>查看、修改、删除</strong>：你的项目和文件随时可以在实验室里修改和删除。</li>
+         <li><strong>导出</strong>：实验室「更多」菜单里有「导出全部文件」。</li>
+         <li><strong>退出登录</strong>：会话立即作废。</li>
+         <li><strong>注销账号、删除全部数据</strong>：<strong>目前还没有自助入口</strong>。请按下面的方式联系我们，我们会删除你的账号和相关数据。学生也可以请老师联系我们。</li>
+      </ul>
+   </section>
+
+   <section id="ai">
+      <h2>10. 关于 AI 学习助理</h2>
+      <p>目前没有接入任何 AI 服务，你的代码、作业和问题都不会发给任何 AI 提供方。</p>
+      <p>如果以后加入 AI 学习助理，我们会先更新本政策、写清楚内容发给谁、在哪里处理，并且在你第一次使用之前单独征得你的同意；不同意不影响其他功能。</p>
+   </section>
+
+   <section id="changes">
+      <h2>11. 本政策的变更</h2>
+      <p>政策有实质变化时（多收集一样东西、多了一个第三方、用途改变），我们会提高本页顶部的版本号并更新生效日期。只改措辞、不改实质的修订不提高版本号。</p>
+   </section>
+
+   <section id="contact">
+      <h2>12. 联系我们</h2>
+      <!-- 这个地址只用在隐私政策上：域名全部转收，单独一个地址，收到信时一眼知道是隐私相关的请求。
+           一般求助另用 privacy@example.invalid，不混用。运营者名称尚未确定，不替运营者编。 -->
+      <p>关于隐私的问题、查阅或删除你的数据、注销账号，请发邮件给本服务（SeedToCode）的运营者：</p>
+      <p class="pp-contact"><a href="mailto:privacy@example.invalid" data-pp-contact>privacy@example.invalid</a></p>
+      <p>学生也可以请自己的老师代为联系。来信时请写明你的账号类型和邮箱或用户名，方便我们找到你的数据；不要在邮件里发送密码。</p>
+   </section>
+
+</article>
+</main>
+
+<footer class="pp-foot">
+   <span>CAIE 9618 (2027–2029)</span>
+   <span class="dot">·</span>
+   <span>本产品不是 Cambridge 官方产品，也未获得官方授权</span>
+</footer>
+
+</body>
+</html>
